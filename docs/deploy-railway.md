@@ -38,48 +38,34 @@ players ──https──▶ Railway edge ──▶ one "club-nyc" service (buil
 
 ---
 
-## 1. Put the code on GitHub
+## 1. Put the code on GitHub (done)
 
-The project folder isn't a git repository yet.
+Done on 18 October 2026: the code is in the private repository
+[kingermayank/club-nyc](https://github.com/kingermayank/club-nyc), branch `main`.
 
-**1.1 Tell git what must never be uploaded.** Some files in the folder must not go to GitHub:
+**What `.gitignore` keeps out of it:**
 
-- `scratch/` holds two AI model files of 154 MB and 428 MB. GitHub rejects any file over 100 MB, so the push would fail.
-- `server/data/` is your local database, which may contain real player data.
-- Any `.env` file holds passwords and keys.
+- **Must never be uploaded:** `server/data/` (your local database, which may hold real player data), any `.env` file
+  (passwords and keys), and `scratch/` (two AI model files of 154 MB and 428 MB; GitHub rejects anything over
+  100 MB).
+- **Generated, or too big for git:** `tools/out/` and `docs/flow/` (test screenshots; the tools make them again),
+  and `app/public/art/raw/` and `app/public/art/preview/` (art-pipeline originals the game never loads). These
+  exist only on this Mac, so keep them in your normal backups (for example Time Machine).
 
-Already done: `.gitignore` in the project folder lists all of these (plus `node_modules/`, `.venv/`, `dist/`). Check with `cat .gitignore` before your first commit.
-
-Optional: `app/public/art/raw/` (288 MB) holds the original art from the art pipeline. The game never loads it and it's never deployed. Leave it out of `.gitignore` if you want GitHub as a second copy of your originals. Add it if you'd rather keep the repository small.
-
-**1.2 Make the first commit.**
+**Shipping a change later:**
 
 ```bash
-git init
-git branch -M main
-git add .
-git status --short | grep -E "scratch/|server/data|\.env$|\.db" || echo "good: nothing secret or huge is staged"
-git commit -m "Club NYC"
+git add -A
+git commit -m "What changed"
+git push
 ```
 
-If git says "Please tell me who you are", run `git config --global user.name "Your Name"` and `git config --global user.email "you@example.com"`, then repeat the commit.
+Once Railway is connected (step 2A), every push to `main` deploys. A big push can stop with "unexpected
+disconnect while reading sideband packet". If that happens, push again with a bigger buffer:
 
-**1.3 Create a private repository and push.** Use **Private**: the code includes your art and game logic.
-
-- **With the GitHub website:** github.com → **New repository** → name it `club-nyc` → **Private** → don't add a README or .gitignore → **Create**. Then:
-
-  ```bash
-  git remote add origin https://github.com/<your-username>/club-nyc.git
-  git push -u origin main
-  ```
-
-- **Or with the `gh` tool** (already installed on this Mac): `gh auth login` once, then
-
-  ```bash
-  gh repo create club-nyc --private --source=. --remote=origin --push
-  ```
-
-The first push uploads a few hundred MB of art and docs, so give it a few minutes.
+```bash
+git -c http.postBuffer=524288000 push
+```
 
 ---
 
@@ -319,11 +305,26 @@ The database contains player accounts. Keep the bucket private and the keys secr
 
 ## 12. (Optional) Cheaper and faster: Railway's CDN
 
-The game's art (about 80 MB of images) is most of what the server sends. Railway's CDN can serve those files from its edge instead. It's free, and files served from the edge cost no network egress.
+The game's art is most of what the server sends: about 30 MB as WebP (the server sends WebP to browsers that
+accept it, which is every current one), or 80 MB as the original JPEG and PNG files. Railway's CDN can serve those
+files from its edge instead. It's free, and files served from the edge cost no network egress.
 
-Service → **Settings** → **Edge** → **Enable CDN Caching**. Then set **Purge Cache on Deploy** to **purge everything on each successful deploy**: the art files keep the same names when they change, so this stops the CDN from serving stale art after a deploy.
+**Leave it off at launch** unless egress costs grow. Here's why:
 
-What gets cached: images, fonts, JavaScript and CSS. The API (JSON), the live connection and the HTML pages are not cached, because the server sends no caching headers for them.
+- The server sends each art address (for example `/art/rooms/soho.jpg`) as WebP or as the original, depending on
+  the browser, and marks the reply `Vary: Accept`.
+- Railway's docs say its cache key is the method, host, path, query string and compression. They don't say
+  whether it keeps a separate WebP copy and original copy of the same address.
+- If it doesn't, everyone gets whichever version the edge saw first. That still works in every current desktop
+  browser, but a very old browser without WebP support would show missing art.
+
+To turn it on: Service → **Settings** → **Edge** → **Enable CDN Caching**. Then set **Purge Cache on Deploy** to
+**purge everything on each successful deploy**. The art files keep the same names when they change, so this stops
+the CDN from serving stale art after a deploy. Afterwards, check that images still load in Chrome, Safari and
+Firefox.
+
+What gets cached: images, fonts, JavaScript and CSS. The API (JSON), the live connection and the HTML pages are not
+cached, because the server sends no caching headers for them.
 
 ---
 
@@ -332,7 +333,7 @@ What gets cached: images, fonts, JavaScript and CSS. The API (JSON), the live co
 ### How deploys work with a volume
 
 1. You push to `main` (or run `railway up`). Railway **builds** the new version while the old one keeps running, so players aren't affected. This takes a few minutes.
-2. Railway asks the old server to stop (`SIGTERM`). The server tells everyone "The city is restarting — you'll be back in a few seconds", closes their connections, lets in-flight requests finish, writes the database to disk cleanly and exits. That usually takes well under a second. `RAILWAY_DEPLOYMENT_DRAINING_SECONDS=10` is the hard limit.
+2. Railway asks the old server to stop (`SIGTERM`). The server tells everyone "The city is restarting. You'll be back in a few seconds.", closes their connections, lets in-flight requests finish, writes the database to disk cleanly and exits. That usually takes well under a second. `RAILWAY_DEPLOYMENT_DRAINING_SECONDS=10` is the hard limit.
 3. Railway starts the new version with the volume and waits until `/api/health` says OK, then sends players to it. Their games reconnect on their own.
 4. The gap is usually several seconds and should stay under a minute. To keep it rare, batch changes and deploy at quiet times.
 
@@ -373,7 +374,10 @@ A rough estimate for Club NYC. These are assumptions, not measurements from prod
 - **Memory:** the server uses about 100–150 MB when quiet, more with many players online. That's about $1–3/month.
 - **CPU:** close to idle when quiet, busier at peak times. Expect under $1–3/month at small scale.
 - **Volume:** a few MB of database plus snapshots costs pennies.
-- **Egress** is the one to watch. A new player downloads roughly 15 MB on a short first visit and up to ~80 MB if they explore every place (browsers cache it afterwards). The live world adds a few KB per second per player. So 1,000 new players cost about $1–4, while 20,000 new players in a month could be $15–80. Turning on the [CDN](#12-optional-cheaper-and-faster-railways-cdn) removes most of the art traffic from this.
+- **Egress** is the one to watch. A new player downloads about 1.5 MB to reach Times Square for the first time
+  (WebP art, measured on 18 October 2026), and up to roughly 30 MB if they explore every place. Browsers cache it
+  afterwards. The live world adds a few KB per second per player. So 1,000 new players cost under $2, and 20,000 new
+  players in a month roughly $2–30.
 
 So a small launch should cost roughly **$5–10 a month** on Hobby. Set a spending alert before launch: **Workspace → Usage → Set Usage Limits**. Add a "custom email alert" at an amount you'd want to hear about. A "hard limit" also exists, but it takes the game offline when reached (the minimum is $10).
 
@@ -381,7 +385,7 @@ So a small launch should cost roughly **$5–10 a month** on Hobby. Set a spendi
 
 ## Pre-launch checklist
 
-- [ ] `.gitignore` covers `scratch/`, `server/data/`, `.env` and `*.db*`, and the GitHub repository is **private**
+- [x] `.gitignore` covers `scratch/`, `server/data/`, `.env` and `*.db*`, and the GitHub repository is **private** (done 18 October 2026)
 - [ ] Volume mounted at `/data`; `DB_PATH=/data/club-nyc.db`; `BACKUP_DIR=/data/backups`
 - [ ] Deploy logs show `[ops] backups every 6 h into /data/backups` and **no** `[ops] WARNING`
 - [ ] `https://<domain>/api/health` shows `"ok":true` and `"db":true`
