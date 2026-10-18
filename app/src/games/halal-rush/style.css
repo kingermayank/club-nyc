@@ -1,0 +1,615 @@
+/* Halal Rush — every class is prefixed with halal-rush- */
+
+.halal-rush-game {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  font-family: var(--display);
+  color: #1d2140;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.halal-rush-stage { position: absolute; inset: 0; }
+.halal-rush-bg,
+.halal-rush-fg,
+.halal-rush-stackglow-in {
+  position: absolute;
+  inset: 0;
+  background: url('/art/rooms/game-halal.jpg') 0 0 / 1000px 565px no-repeat;
+}
+.halal-rush-street,
+.halal-rush-props,
+.halal-rush-ui,
+.halal-rush-fx { position: absolute; inset: 0; pointer-events: none; }
+.halal-rush-street { z-index: 1; }
+.halal-rush-fg { z-index: 2; }
+.halal-rush-props { z-index: 3; }
+.halal-rush-ui { z-index: 4; }
+.halal-rush-fx { z-index: 5; }
+
+/* ---------- people ---------- */
+.halal-rush-cust { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
+.halal-rush-cust .avatar-svg { pointer-events: none; }
+.halal-rush-cust .avatar-svg svg { transition: filter 0.12s; }
+.halal-rush-shadow {
+  position: absolute;
+  left: -32px;
+  top: -9px;
+  width: 64px;
+  height: 17px;
+  border-radius: 50%;
+  background: rgba(25, 20, 70, 0.2);
+}
+.halal-rush-hit { position: absolute; left: -44px; top: -190px; width: 88px; height: 190px; pointer-events: auto; }
+.halal-rush-ready .halal-rush-hit { cursor: pointer; }
+.halal-rush-holding .halal-rush-ready:hover .avatar-svg svg {
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #fff) drop-shadow(0 0 7px #ffe27a);
+}
+
+/* ---------- stations ---------- */
+.halal-rush-station {
+  all: unset;
+  position: absolute;
+  box-sizing: border-box;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.halal-rush-station:focus-visible { outline: 3px dashed #ffe27a; outline-offset: 2px; border-radius: 12px; }
+.halal-rush-station.halal-rush-pressed { filter: brightness(1.25); }
+
+.halal-rush-stackglow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.14s, transform 0.14s;
+  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 0 6px #fff3b0);
+}
+.halal-rush-stack:hover + .halal-rush-stackglow,
+.halal-rush-stack.halal-rush-pressed + .halal-rush-stackglow { opacity: 1; transform: translateY(-2px); }
+.halal-rush-stack.halal-rush-pulse + .halal-rush-stackglow { animation: halal-rush-glow 1s ease-in-out infinite; }
+@keyframes halal-rush-glow {
+  0%, 100% { opacity: 0.25; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+.halal-rush-pitas img {
+  position: absolute;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 2px 0 rgba(20, 24, 50, 0.22));
+  transition: translate 0.12s;
+}
+.halal-rush-pitas:hover img:last-child,
+.halal-rush-pitas.halal-rush-pressed img:last-child { translate: 0 -5px; }
+.halal-rush-pitas.halal-rush-pulse img:last-child { animation: halal-rush-hop 0.9s ease-in-out infinite; }
+
+.halal-rush-pilebox { position: absolute; left: 0; top: 0; width: 100%; overflow: hidden; pointer-events: none; }
+.halal-rush-pile { position: absolute; transform-origin: 50% 100%; transition: translate 0.12s, filter 0.12s; }
+.halal-rush-tray:hover .halal-rush-pile,
+.halal-rush-tray.halal-rush-pressed .halal-rush-pile { translate: 0 -4px; filter: brightness(1.1); }
+.halal-rush-tray.halal-rush-pulse .halal-rush-pile { animation: halal-rush-pulse 0.9s ease-in-out infinite; }
+.halal-rush-tray-glow {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 248, 200, 0.75), rgba(255, 248, 200, 0));
+  opacity: 0;
+  transition: opacity 0.14s;
+  pointer-events: none;
+}
+.halal-rush-tray:hover .halal-rush-tray-glow,
+.halal-rush-tray.halal-rush-pulse .halal-rush-tray-glow { opacity: 1; }
+@keyframes halal-rush-pulse {
+  0%, 100% { translate: 0 0; filter: brightness(1); }
+  50% { translate: 0 -5px; filter: brightness(1.18) drop-shadow(0 0 5px #fff6b8); }
+}
+@keyframes halal-rush-hop {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -7px; }
+}
+
+.halal-rush-steam {
+  position: absolute;
+  top: 34px;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  animation: halal-rush-steam 2.8s ease-out infinite;
+}
+@keyframes halal-rush-steam {
+  0% { transform: translate(0, 8px) scale(0.5); opacity: 0; }
+  30% { opacity: 0.5; }
+  100% { transform: translate(9px, -44px) scale(1.8); opacity: 0; }
+}
+
+.halal-rush-bottle { z-index: 6; }
+.halal-rush-bottle-img {
+  position: absolute;
+  left: 6px;
+  bottom: 5px;
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 2px 0 rgba(20, 24, 50, 0.2));
+  transition: translate 0.12s;
+}
+.halal-rush-bottle:hover .halal-rush-bottle-img,
+.halal-rush-bottle.halal-rush-pressed .halal-rush-bottle-img { translate: 0 -5px; }
+.halal-rush-bottle.halal-rush-pulse .halal-rush-bottle-img { animation: halal-rush-hop 0.9s ease-in-out infinite; }
+.halal-rush-bshadow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(15, 20, 45, 0.3);
+}
+
+.halal-rush-trash { z-index: 6; }
+.halal-rush-trash svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 0 rgba(20, 24, 50, 0.25)); }
+.halal-rush-trash-lid { transform-origin: 74px 33px; transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.halal-rush-trash:hover .halal-rush-trash-lid,
+.halal-rush-trash.halal-rush-open .halal-rush-trash-lid,
+.halal-rush-trash.halal-rush-pulse .halal-rush-trash-lid { transform: rotate(26deg); }
+.halal-rush-trash.halal-rush-pulse { animation: halal-rush-hop 0.9s ease-in-out infinite; }
+
+/* ---------- the order being built ---------- */
+.halal-rush-build {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 220px;
+  height: 172px;
+  transform-origin: 110px 172px;
+  z-index: 5;
+  pointer-events: none;
+}
+.halal-rush-build-body { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.halal-rush-build-base { position: absolute; left: 0; top: 0; width: 220px; }
+.halal-rush-build-body.halal-rush-pita .halal-rush-build-base { top: 8px; }
+.halal-rush-build-shadow {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: -6px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(15, 20, 45, 0.3);
+  filter: blur(4px);
+}
+.halal-rush-foil {
+  position: absolute;
+  left: 14px;
+  top: 62px;
+  width: 196px;
+  height: 100px;
+  border: 3px solid #1d2140;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f5f7fc 0%, #d4d9e4 38%, #eef1f7 55%, #c3c9d6 100%);
+  transform: skewX(-20deg) rotate(-5deg);
+}
+.halal-rush-food { position: absolute; inset: 0; }
+.halal-rush-build-body.halal-rush-platter .halal-rush-food {
+  clip-path: polygon(-40px -90px, 260px -90px, 260px 56px, 202px 61px, 90px 124px, 22px 72px, -40px 66px);
+}
+.halal-rush-layer { position: absolute; transform-origin: 50% 85%; transition: left 0.18s, top 0.18s, width 0.18s; }
+.halal-rush-sauce-layer { transition: none; }
+
+.halal-rush-fly { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; z-index: 40; }
+.halal-rush-fly img { position: absolute; }
+
+/* ---------- bubbles ---------- */
+.halal-rush-bubble {
+  position: absolute;
+  translate: -50% -100%;
+  transform-origin: 50% 100%;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 10px 8px;
+  background: #fffdf6;
+  border: 3px solid #1d2140;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 rgba(29, 33, 64, 0.3);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.halal-rush-bubble::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 8px);
+  bottom: -10px;
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  border-right: 3px solid #1d2140;
+  border-bottom: 3px solid #1d2140;
+  transform: rotate(45deg);
+}
+.halal-rush-holding .halal-rush-order:hover { box-shadow: 0 0 0 4px #ffe27a, 0 4px 0 rgba(29, 33, 64, 0.3); }
+.halal-rush-urgent { animation: halal-rush-wobble 0.45s ease-in-out infinite; }
+@keyframes halal-rush-wobble {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -2.5deg; }
+  75% { rotate: 2.5deg; }
+}
+.halal-rush-row { display: flex; align-items: center; justify-content: center; gap: 3px; }
+.halal-rush-ib { position: relative; display: inline-block; flex: none; width: 50px; height: 40px; }
+.halal-rush-ib img { position: absolute; }
+.halal-rush-ib-platter img:first-child { left: 0; top: 4px; width: 50px; }
+.halal-rush-ib-platter img:last-child { left: 9px; top: -1px; width: 33px; }
+.halal-rush-ib-pita img { left: 0; top: 5px; width: 50px; }
+.halal-rush-prot { display: flex; align-items: center; }
+.halal-rush-ip { display: block; width: 44px; height: auto; }
+.halal-rush-combo2 .halal-rush-ip { width: 38px; }
+.halal-rush-combo2 .halal-rush-ip + .halal-rush-ip { margin-left: -12px; }
+.halal-rush-ip-salad { width: 38px; }
+.halal-rush-sauces { gap: 10px; margin-top: -1px; }
+.halal-rush-sc { display: flex; align-items: center; gap: 1px; }
+.halal-rush-sc img { display: block; width: auto; height: 32px; }
+.halal-rush-sc b { font-size: 21px; font-weight: 400; line-height: 1; }
+.halal-rush-sc-hot b { color: #c62f2a; }
+.halal-rush-said { max-width: 156px; font-size: 13.5px; line-height: 1.05; text-align: center; color: #134a96; }
+.halal-rush-plus { font-size: 20px; margin: 0 2px; }
+.halal-rush-ketchup { width: 22px; height: 44px; }
+.halal-rush-pbar {
+  align-self: stretch;
+  min-width: 96px;
+  height: 10px;
+  margin-top: 2px;
+  overflow: hidden;
+  background: #d9dde8;
+  border: 2px solid #1d2140;
+  border-radius: 6px;
+}
+.halal-rush-pbar i { display: block; width: 100%; height: 100%; background: #4fc27e; }
+.halal-rush-badge {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 17px;
+  background: #ffcf1f;
+  border: 3px solid #1d2140;
+  box-shadow: 0 2px 0 #1d2140;
+}
+.halal-rush-talk { padding: 6px 13px 7px; cursor: default; }
+.halal-rush-talk span { font-size: 18px; white-space: nowrap; }
+.halal-rush-talk.halal-rush-small { padding: 4px 9px 5px; }
+.halal-rush-talk.halal-rush-small span { font-size: 14px; }
+.halal-rush-good span { color: #1f8a4c; }
+.halal-rush-meh span { color: #c27400; }
+.halal-rush-bad span { color: #c62f2a; }
+.halal-rush-huh span { color: #6a4fc9; }
+
+/* ---------- floating bits ---------- */
+.halal-rush-float {
+  position: absolute;
+  z-index: 50;
+  white-space: nowrap;
+  font-size: 30px;
+  color: #fff;
+  -webkit-text-stroke: 6px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #1d2140;
+  pointer-events: none;
+}
+.halal-rush-money { color: #ffd23f; }
+.halal-rush-tipline { font-size: 16px; color: #c9f7d3; -webkit-text-stroke-width: 4px; text-shadow: none; }
+.halal-rush-nopay { color: #ff8a80; }
+.halal-rush-goodcall { font-size: 22px; color: #8fe6ff; }
+.halal-rush-spark {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  margin: -6.5px 0 0 -6.5px;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+.halal-rush-crumb { position: absolute; margin: -3px 0 0 -3px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(29, 33, 64, 0.55); }
+.halal-rush-puff { position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 2.5px solid #1d2140; }
+.halal-rush-qmark { position: absolute; width: 0; height: 0; background: none !important; }
+.halal-rush-qmark::after {
+  content: '?';
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #fff;
+  -webkit-text-stroke: 5px #1d2140;
+  paint-order: stroke fill;
+}
+.halal-rush-flycoin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff3a8, #ffd23f 45%, #e0a51b);
+  border: 2.5px solid #1d2140;
+}
+
+.halal-rush-toast {
+  position: absolute;
+  z-index: 70;
+  padding: 5px 12px 6px;
+  font-size: 15px;
+  white-space: nowrap;
+  color: #fff;
+  background: #1d2140;
+  border-radius: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+}
+.halal-rush-tip {
+  position: absolute;
+  z-index: 65;
+  padding: 3px 9px 4px;
+  font-size: 15px;
+  white-space: nowrap;
+  background: #fffdf6;
+  border: 3px solid #1d2140;
+  border-radius: 10px;
+  box-shadow: 0 3px 0 #1d2140;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -100%) scale(0.85);
+  transition: opacity 0.12s, transform 0.12s;
+}
+.halal-rush-tip.halal-rush-on { opacity: 1; transform: translate(-50%, -100%) scale(1); transition-delay: 0.45s; }
+.halal-rush-tip kbd,
+.halal-rush-keys kbd {
+  display: inline-block;
+  margin-left: 3px;
+  padding: 0 5px;
+  font-family: var(--display);
+  font-size: 12px;
+  line-height: 1.35;
+  background: #e8ecf5;
+  border: 2px solid #1d2140;
+  border-radius: 5px;
+}
+
+.halal-rush-line-sign {
+  position: absolute;
+  right: 8px;
+  top: 150px;
+  padding: 3px 9px 4px;
+  font-size: 14px;
+  color: #fff;
+  background: #1e6b47;
+  border: 3px solid #1d2140;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px #e9fff3, 0 3px 0 #1d2140;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.halal-rush-line-sign.halal-rush-on { opacity: 1; transform: scale(1); }
+
+/* ---------- tutorial arrow ---------- */
+.halal-rush-hint {
+  position: absolute;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.halal-rush-hint.halal-rush-on { opacity: 1; }
+.halal-rush-hint-text {
+  padding: 3px 10px 4px;
+  font-size: 16px;
+  white-space: nowrap;
+  background: #ffcf1f;
+  border: 3px solid #1d2140;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 #1d2140;
+}
+.halal-rush-hint-arrow { width: 30px; height: 24px; margin-top: 1px; animation: halal-rush-bob 0.55s ease-in-out infinite alternate; }
+.halal-rush-hint-arrow svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.halal-rush-hint.halal-rush-side { flex-direction: row-reverse; transform: translate(0, -50%); }
+.halal-rush-hint.halal-rush-side .halal-rush-hint-arrow { rotate: 90deg; margin: 0 2px 0 0; animation-name: halal-rush-bob-x; }
+.halal-rush-hint.halal-rush-side.halal-rush-from-left { flex-direction: row; transform: translate(-100%, -50%); }
+.halal-rush-hint.halal-rush-side.halal-rush-from-left .halal-rush-hint-arrow { rotate: -90deg; margin: 0 0 0 2px; animation-name: halal-rush-bob-x2; }
+@keyframes halal-rush-bob { from { translate: 0 -4px; } to { translate: 0 4px; } }
+@keyframes halal-rush-bob-x { from { translate: 4px 0; } to { translate: -4px 0; } }
+@keyframes halal-rush-bob-x2 { from { translate: -4px 0; } to { translate: 4px 0; } }
+
+/* ---------- HUD ---------- */
+.halal-rush-hud { position: absolute; inset: 0; z-index: 8; pointer-events: none; transition: opacity 0.3s; }
+.halal-rush-game:not(.halal-rush-playing) .halal-rush-hud { opacity: 0; }
+.halal-rush-cash,
+.halal-rush-clock {
+  position: absolute;
+  top: 8px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  background: #1e6b47;
+  border: 3px solid #1d2140;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 2px #e9fff3, 0 4px 0 #1d2140;
+}
+.halal-rush-cash { left: 54px; gap: 8px; padding: 4px 14px 5px 8px; transform-origin: 20% 50%; }
+.halal-rush-cash b { display: block; font-size: 26px; font-weight: 400; line-height: 1; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3); }
+.halal-rush-cash small { display: block; font-size: 12px; line-height: 1; opacity: 0.85; }
+.halal-rush-coin {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff3a8, #ffd23f 45%, #e0a51b);
+  border: 3px solid #1d2140;
+}
+.halal-rush-coin::after { content: '$'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 15px; font-style: normal; color: #a86d00; }
+.halal-rush-combo {
+  position: absolute;
+  left: 62px;
+  top: 64px;
+  padding: 3px 10px 4px;
+  font-size: 16px;
+  background: #ffcf1f;
+  border: 3px solid #1d2140;
+  border-radius: 10px;
+  box-shadow: 0 3px 0 #1d2140;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.halal-rush-combo.halal-rush-on { opacity: 1; transform: scale(1); }
+.halal-rush-clock { right: 12px; gap: 6px; padding: 4px 14px 4px 6px; transform-origin: 70% 50%; transition: background 0.2s; }
+.halal-rush-clock svg { width: 34px; height: 34px; }
+.halal-rush-clock b { min-width: 50px; font-size: 26px; font-weight: 400; line-height: 1; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3); }
+.halal-rush-clock.halal-rush-late { background: #c62f2a; }
+
+/* ---------- intro card ---------- */
+.halal-rush-overlay-layer { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.halal-rush-intro {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  background: radial-gradient(rgba(13, 27, 61, 0.3), rgba(13, 27, 61, 0.72));
+}
+.halal-rush-card {
+  position: relative;
+  width: 560px;
+  padding: 0 26px 16px;
+  overflow: hidden;
+  text-align: center;
+  background: #fffdf6;
+  border: 4px solid #1d2140;
+  border-radius: 26px;
+  box-shadow: 0 6px 0 #1d2140, 0 20px 50px rgba(0, 0, 0, 0.35);
+  animation: halal-rush-pop 0.35s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+@keyframes halal-rush-pop { from { transform: scale(0.75); opacity: 0; } }
+.halal-rush-awning {
+  position: relative;
+  height: 30px;
+  margin: 0 -26px 18px;
+  background: repeating-linear-gradient(90deg, #e23a2e 0 56px, #ffc93a 56px 112px);
+  border-bottom: 3px solid #1d2140;
+}
+.halal-rush-awning::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -17px;
+  height: 16px;
+  background:
+    radial-gradient(circle at 28px 0, #e23a2e 0 25px, #1d2140 25px 28px, transparent 28px) 0 0 / 112px 16px repeat-x,
+    radial-gradient(circle at 84px 0, #ffc93a 0 25px, #1d2140 25px 28px, transparent 28px) 0 0 / 112px 16px repeat-x;
+}
+.halal-rush-title {
+  margin: 4px 0 0;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  color: #ffcf1f;
+  -webkit-text-stroke: 8px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 5px 0 #1d2140;
+  transform: rotate(-2deg);
+}
+.halal-rush-sub { margin: 8px 0 10px; font-size: 15px; color: #134a96; }
+.halal-rush-steps { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 10px; }
+.halal-rush-step { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.halal-rush-step span { font-size: 16px; }
+.halal-rush-step-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 86px;
+  height: 66px;
+  background: #e9eef8;
+  border: 3px solid #1d2140;
+  border-radius: 14px;
+}
+.halal-rush-step-art img { max-width: 72px; max-height: 54px; }
+.halal-rush-duo img { position: absolute; width: 50px; }
+.halal-rush-duo img:first-child { left: 4px; top: 16px; }
+.halal-rush-duo img:last-child { right: 3px; top: 4px; }
+.halal-rush-tall img { width: auto; height: 50px; top: 7px !important; }
+.halal-rush-tall img:first-child { left: 20px; }
+.halal-rush-tall img:last-child { right: 20px; }
+.halal-rush-arr {
+  width: 0;
+  height: 0;
+  margin-bottom: 20px;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 12px solid #1d2140;
+}
+.halal-rush-how { margin: 0 0 12px; font-size: 15px; line-height: 1.35; }
+.halal-rush-how b { color: #c62f2a; font-weight: 400; }
+.halal-rush-go { font-size: 26px; padding: 8px 42px; }
+.halal-rush-go:disabled { filter: grayscale(0.7); opacity: 0.8; cursor: wait; }
+.halal-rush-keys { margin: 10px 0 0; font-size: 12px; opacity: 0.7; }
+.halal-rush-keys kbd { margin: 0 2px 0 6px; font-size: 11px; }
+
+/* ---------- closing ---------- */
+.halal-rush-closed { position: absolute; left: 50%; top: 0; width: 430px; margin-left: -215px; transform-origin: 50% 0; }
+.halal-rush-strings { position: relative; height: 74px; margin: 0 80px; }
+.halal-rush-strings::before,
+.halal-rush-strings::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  bottom: -8px;
+  width: 7px;
+  background: repeating-linear-gradient(180deg, #d9b26a 0 7px, #b98a45 7px 12px);
+  border: 2.5px solid #1d2140;
+  border-radius: 4px;
+}
+.halal-rush-strings::before { left: 0; }
+.halal-rush-strings::after { right: 0; }
+.halal-rush-sign { position: relative; }
+.halal-rush-sign {
+  padding: 10px 20px 14px;
+  text-align: center;
+  background: #fffdf6;
+  border: 4px solid #1d2140;
+  border-radius: 20px;
+  box-shadow: 0 6px 0 #1d2140, 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+.halal-rush-sign b {
+  display: block;
+  font-size: 66px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 3px;
+  color: #e23a2e;
+  -webkit-text-stroke: 7px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 5px 0 #1d2140;
+}
+.halal-rush-sign span { display: block; margin: 8px 0 10px; font-size: 18px; }
+.halal-rush-tally { display: flex; justify-content: center; gap: 12px; }
+.halal-rush-tally div { min-width: 100px; padding: 4px 8px 5px; background: #e9eef8; border: 3px solid #1d2140; border-radius: 12px; }
+.halal-rush-tally em { display: block; font-size: 30px; font-style: normal; color: #1e6b47; }
+.halal-rush-tally small { font-size: 13px; opacity: 0.75; }

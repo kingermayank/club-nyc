@@ -1,0 +1,22 @@
+# Allowlist: the image is built from app/ and server/ only. Everything else in the repo (art pipeline,
+# tools, docs, scratch, the Python venv, local databases) stays out of the build context.
+*
+!app
+!server
+
+# ...and from those two, no local installs, builds, data or secrets
+**/node_modules
+app/dist
+# art-pipeline originals; the Vite build deletes them from dist anyway (pruneSourceArt in vite.config.ts)
+app/public/art/raw
+app/public/art/preview
+server/data
+server/scripts
+**/.env
+**/.env.*
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/*.db-journal
+**/.DS_Store
+**/*.log

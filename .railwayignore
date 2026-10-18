@@ -1,0 +1,10 @@
+docs/
+tools/
+scratch/
+.venv/
+app/public/art/raw/
+app/public/art/preview/
+server/data/
+*.db
+*.db-wal
+*.db-shm

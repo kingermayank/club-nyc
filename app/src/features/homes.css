@@ -1,0 +1,78 @@
+/* ===== house parties ===== */
+/* the house-party panel (.wide); the Halloween party panels share .party-panel but keep the centred layout */
+.party-panel.wide { width: min(700px, 94%); max-height: calc(100% - 24px); text-align: left; }
+.party-panel.wide h2 { text-align: center; }
+.party-panel.wide h4 { margin: 12px 0 10px; font: var(--fs-base) var(--display); color: var(--blue-dark); }
+.pp-sub { text-align: center; margin: -4px 0 4px; font-size: var(--fs-sm); opacity: 0.8; }
+.pp-tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pp-track { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 2.5px solid var(--ink); border-radius: 14px; background: #fff; text-align: left; transition: transform 0.1s; }
+.pp-track:hover { transform: translateY(-2px); }
+.pp-track.on { background: #fff1b8; box-shadow: 0 0 0 3px var(--sun); }
+.pp-track > span:last-child { min-width: 0; }
+.pp-track b { display: block; font: var(--fs-md)/1.2 var(--display); }
+.pp-track small { display: block; overflow: hidden; font-size: var(--fs-2xs); line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; opacity: 0.7; }
+.pp-em { font-size: 24px; }
+.pp-themes, .pp-who { display: flex; flex-wrap: wrap; gap: 6px; }
+.pp-opt { display: flex; flex-direction: column; align-items: flex-start; padding: 6px 12px; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; font: var(--fs-md) var(--display); }
+.pp-opt small { font: var(--fs-2xs)/1.3 var(--body); opacity: 0.7; }
+.pp-opt.on { background: #e3f1ff; box-shadow: 0 0 0 3px var(--blue-light); }
+.pp-actions { display: flex; justify-content: center; gap: 10px; margin-top: 14px; }
+
+.party-fx { position: absolute; inset: 0; z-index: 9050; pointer-events: none; overflow: hidden; }
+.party-fx.theme-glow { background: radial-gradient(ellipse at 50% 0%, rgba(255, 190, 90, 0.18), transparent 60%); }
+.pf-bulb { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #ffe08a; box-shadow: 0 0 12px 4px rgba(255, 210, 120, 0.8); animation: pf-twinkle 1.6s ease-in-out infinite alternate; }
+@keyframes pf-twinkle { to { opacity: 0.35; transform: scale(0.8); } }
+.party-fx.theme-disco { background: rgba(40, 0, 80, 0.12); }
+.pf-ball { position: absolute; left: 50%; top: -6px; width: 64px; height: 64px; margin-left: -32px; border-radius: 50%; border: 3px solid var(--ink); background: repeating-conic-gradient(#e9eef7 0 10deg, #9aa7bd 10deg 20deg), #ccc; box-shadow: 0 0 30px 10px rgba(255, 255, 255, 0.45); animation: pf-spin 4s linear infinite; }
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+.pf-beam { position: absolute; left: 50%; top: 20px; width: 160px; height: 640px; margin-left: -80px; transform-origin: 50% 0; mix-blend-mode: screen; opacity: 0.55; background: linear-gradient(rgba(255, 80, 200, 0.75), transparent 80%); clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); animation: pf-sweep 3.2s ease-in-out infinite alternate; }
+.pf-beam.b2 { background: linear-gradient(rgba(80, 200, 255, 0.75), transparent 80%); animation-duration: 2.6s; animation-delay: -1s; }
+.pf-beam.b3 { background: linear-gradient(rgba(255, 220, 80, 0.75), transparent 80%); animation-duration: 3.8s; animation-delay: -2s; }
+.pf-beam.b4 { background: linear-gradient(rgba(120, 255, 140, 0.7), transparent 80%); animation-duration: 2.9s; animation-delay: -0.5s; }
+.pf-beam.green { background: linear-gradient(rgba(80, 255, 150, 0.8), transparent 80%); }
+.pf-beam.pink { background: linear-gradient(rgba(255, 80, 190, 0.8), transparent 80%); }
+@keyframes pf-sweep { from { transform: rotate(-38deg); } to { transform: rotate(38deg); } }
+.party-fx.theme-spooky { background: radial-gradient(ellipse at 50% 100%, rgba(120, 40, 160, 0.3), rgba(20, 0, 40, 0.25)); }
+.pf-fog { position: absolute; left: -10%; right: -10%; bottom: 0; height: 160px; background: radial-gradient(ellipse at 30% 100%, rgba(230, 220, 255, 0.4), transparent 70%), radial-gradient(ellipse at 75% 100%, rgba(230, 220, 255, 0.35), transparent 70%); animation: pf-fog 9s ease-in-out infinite alternate; }
+@keyframes pf-fog { to { transform: translateX(6%); } }
+.pf-bat { position: absolute; left: -40px; font-size: var(--fs-3xl); font-style: normal; animation: pf-bat 9s linear infinite; }
+@keyframes pf-bat { 0% { transform: translate(0, 0); } 25% { transform: translate(280px, -20px); } 50% { transform: translate(560px, 15px); } 100% { transform: translate(1100px, -10px); } }
+.party-fx.theme-bodega { background: rgba(0, 40, 20, 0.12); }
+.pf-neon { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); font: var(--fs-3xl) var(--display); color: #8bff9e; text-shadow: 0 0 6px #2bff6a, 0 0 18px #2bff6a, 0 0 2px #fff; animation: pf-flicker 2.4s steps(1) infinite; }
+@keyframes pf-flicker { 0%, 100% { opacity: 1; } 47% { opacity: 1; } 48% { opacity: 0.3; } 50% { opacity: 1; } 72% { opacity: 0.6; } 73% { opacity: 1; } }
+
+.party-chip { position: absolute; left: 12px; bottom: 74px; z-index: 9260; display: flex; align-items: center; gap: 8px; max-width: 290px; padding: 6px 12px 6px 8px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--paper); box-shadow: 0 3px 0 var(--ink); text-align: left; }
+.party-chip b { display: block; font: var(--fs-sm) var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.party-chip small { font-size: var(--fs-2xs); opacity: 0.75; }
+.pc-eq { display: flex; align-items: flex-end; gap: 2px; width: 20px; height: 18px; }
+.pc-eq i { flex: 1; background: var(--blue); border-radius: 2px; animation: pc-eq 0.8s ease-in-out infinite alternate; }
+.pc-eq i:nth-child(2) { animation-delay: -0.3s; background: #ff5aa8; }
+.pc-eq i:nth-child(3) { animation-delay: -0.55s; background: var(--green); }
+@keyframes pc-eq { from { height: 20%; } to { height: 100%; } }
+
+/* ===== StreetCheesy ===== */
+.streetcheesy { position: relative; width: min(820px, 96%); max-height: 92%; display: flex; flex-direction: column; background: var(--paper); border: 5px solid var(--ink); border-radius: 28px; box-shadow: 0 7px 0 var(--ink), 0 30px 60px rgba(0, 0, 0, 0.4); overflow: hidden; animation: pop-in 0.3s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.sc-head { display: flex; align-items: center; gap: 12px; padding: 12px 56px 12px 18px; background: linear-gradient(#ffe066, #ffc21a); border-bottom: 4px solid var(--ink); }
+.sc-logo { font-size: 34px; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.25)); }
+.sc-head b { font: var(--fs-4xl) var(--display); display: block; line-height: 1; }
+.sc-head small { font-size: var(--fs-xs); opacity: 0.85; }
+.sc-wallet { margin-left: auto; display: flex; align-items: center; gap: 4px; padding: 4px 10px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; font: var(--fs-lg) var(--display); }
+.sc-wallet img, .sc-price img, .streetcheesy .btn img { width: 18px; height: 18px; }
+/* rows as tall as their cards (the list scrolls) — a card that clips its corners would otherwise get squeezed to fit */
+.sc-list { overflow-y: auto; padding: 12px; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: max-content; gap: 12px; }
+.sc-card { display: flex; flex-direction: column; border: 3px solid var(--ink); border-radius: 18px; background: #fff; overflow: hidden; }
+.sc-card.current { box-shadow: 0 0 0 4px var(--green); }
+.sc-card.soon { opacity: 0.65; }
+.sc-photo { position: relative; height: 128px; background: #cfe8ff; display: grid; place-items: center; font-size: 40px; border-bottom: 3px solid var(--ink); overflow: hidden; }
+.sc-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sc-photo em { position: absolute; left: 8px; top: 8px; padding: 2px 8px; border-radius: 8px; border: 2px solid var(--ink); background: #1f8a3b; color: #fff; font: 12px var(--display); font-style: normal; }
+.sc-photo em.own { background: var(--blue); }
+.sc-info { padding: 8px 12px 12px; display: flex; flex-direction: column; gap: var(--sp-1); }
+.sc-price { display: flex; align-items: center; gap: 4px; font: var(--fs-2xl) var(--display); color: #1b7a3d; }
+.sc-name { font: var(--fs-xl) var(--display); }
+.sc-hood { font-size: var(--fs-xs); opacity: 0.75; }
+.sc-info p { margin: 2px 0; font-size: var(--fs-xs); line-height: 1.35; }
+.sc-perks { display: flex; flex-wrap: wrap; gap: 4px; }
+.sc-perks span { padding: 1px 7px; border-radius: 8px; background: #e9f7ee; font-size: var(--fs-2xs); }
+.sc-fine { font-size: var(--fs-2xs); font-style: italic; opacity: 0.6; margin-bottom: 6px; }
+.sc-info .btn, .sc-info .pc-status { align-self: flex-start; margin-top: var(--sp-2); }

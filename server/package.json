@@ -1,0 +1,28 @@
+{
+  "name": "club-nyc-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx scripts/economy-test.ts && tsx scripts/backup-test.ts",
+    "loadtest": "tsx scripts/loadtest.ts",
+    "clean-test-users": "tsx scripts/clean-test-users.ts",
+    "build:all": "npm --prefix ../app run build"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.5",
+    "arctic": "^3.7.0",
+    "hono": "^4.13.13",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

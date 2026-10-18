@@ -1,0 +1,39 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "club-nyc",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "app",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5173",
+        "--strictPort"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "club-nyc-server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "server",
+        "run",
+        "dev"
+      ],
+      "port": 8787
+    },
+    {
+      "name": "club-nyc-qa",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "tools/qa_stack.sh"
+      ],
+      "port": 5197
+    }
+  ]
+}

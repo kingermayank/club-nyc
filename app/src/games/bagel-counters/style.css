@@ -1,0 +1,444 @@
+/* Bagel Counters — every class is prefixed with `bagel-counters-` */
+
+.bagel-counters-root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #1d2140;
+  color: #1d2140;
+  font-family: var(--display);
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.bagel-counters-shake {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1000px;
+  height: 565px;
+  transform-origin: 50% 50%;
+}
+
+.bagel-counters-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1000px;
+  height: 565px;
+  display: block;
+  pointer-events: none;
+}
+
+/* zero-size layers / actors: children are placed with transforms in root coordinates */
+.bagel-counters-layer,
+.bagel-counters-actor,
+.bagel-counters-sprite {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.bagel-counters-actor,
+.bagel-counters-sprite { transform-origin: 0 0; }
+.bagel-counters-sprite > img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  -webkit-user-drag: none;
+}
+
+.bagel-counters-shadow {
+  position: absolute;
+  left: -30px;
+  top: -8px;
+  width: 60px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(22, 24, 56, 0.4), rgba(22, 24, 56, 0));
+  pointer-events: none;
+}
+.bagel-counters-layer > .bagel-counters-shadow { transform-origin: 30px 8px; }
+
+/* chalk drop zone on the sidewalk in front of the pallet */
+.bagel-counters-zone {
+  position: absolute;
+  left: 52px;
+  top: 470px;
+  width: 262px;
+  height: 66px;
+  border: 3px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 19px;
+  letter-spacing: 3px;
+  transition: border-color 0.25s, background 0.25s, color 0.25s;
+  pointer-events: none;
+}
+.bagel-counters-zone span { transform: translateY(17px); }
+.bagel-counters-zone.bagel-counters-on {
+  border-color: rgba(255, 224, 120, 0.95);
+  background: rgba(255, 214, 90, 0.13);
+  color: rgba(255, 236, 160, 0.95);
+  animation: bagel-counters-zone-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes bagel-counters-zone-pulse { to { background: rgba(255, 214, 90, 0.24); } }
+
+/* bouncing arrow above the pallet */
+.bagel-counters-hint {
+  position: absolute;
+  left: -19px;
+  top: -44px;
+  width: 38px;
+  height: 44px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.bagel-counters-hint svg { display: block; animation: bagel-counters-bob 0.55s ease-in-out infinite alternate; }
+.bagel-counters-hint.bagel-counters-on { opacity: 1; }
+@keyframes bagel-counters-bob { to { transform: translateY(-9px); } }
+
+/* "FULL!" tag over the stack */
+.bagel-counters-full {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 3px 10px 1px;
+  border: 3px solid #1d2140;
+  border-radius: 999px;
+  background: #ff5a4e;
+  color: #fff;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 0 #9b1c14;
+  box-shadow: 0 3px 0 #1d2140;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.bagel-counters-full.bagel-counters-on { opacity: 1; animation: bagel-counters-throb 0.4s ease-in-out infinite alternate; }
+@keyframes bagel-counters-throb { to { filter: brightness(1.18); } }
+
+/* particles */
+.bagel-counters-dust {
+  position: absolute;
+  left: -13px;
+  top: -13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f1ece2;
+  box-shadow: inset -3px -4px 0 rgba(160, 150, 170, 0.45);
+}
+.bagel-counters-bean {
+  position: absolute;
+  left: -5px;
+  top: -3.5px;
+  width: 10px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6b3e22;
+  border: 1.5px solid #1d2140;
+  box-sizing: border-box;
+}
+.bagel-counters-shard {
+  position: absolute;
+  left: -9px;
+  top: -8px;
+  width: 18px;
+  height: 16px;
+  background: linear-gradient(160deg, #e07a48 55%, #a9482a 55%);
+  clip-path: polygon(0 0, 100% 30%, 40% 100%);
+}
+.bagel-counters-dirt {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5b3a26;
+}
+.bagel-counters-drop {
+  position: absolute;
+  left: -4px;
+  top: -5px;
+  width: 8px;
+  height: 10px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #7a4a24;
+}
+.bagel-counters-petal {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff3b47;
+  border: 2px solid #1d2140;
+  box-sizing: border-box;
+}
+.bagel-counters-feather {
+  position: absolute;
+  left: -8px;
+  top: -3px;
+  width: 16px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9aa3b8;
+  border: 1.5px solid #1d2140;
+  box-sizing: border-box;
+}
+.bagel-counters-confetti {
+  position: absolute;
+  left: -5px;
+  top: -3px;
+  width: 10px;
+  height: 6px;
+  border-radius: 2px;
+}
+.bagel-counters-puddle {
+  position: absolute;
+  left: -34px;
+  top: -8px;
+  width: 68px;
+  height: 16px;
+  border-radius: 50%;
+  background: #7a4a24;
+  border: 2.5px solid #1d2140;
+  box-sizing: border-box;
+}
+.bagel-counters-warn {
+  position: absolute;
+  left: -17px;
+  top: -17px;
+  width: 34px;
+  height: 34px;
+  border: 3px solid #1d2140;
+  border-radius: 50%;
+  background: #ff5a4e;
+  box-shadow: 0 3px 0 #1d2140;
+  color: #fff;
+  font-size: 22px;
+  line-height: 30px;
+  text-align: center;
+  text-shadow: 0 2px 0 #9b1c14;
+}
+.bagel-counters-star { position: absolute; left: -10px; top: -10px; width: 20px; height: 20px; }
+.bagel-counters-star svg { display: block; }
+
+.bagel-counters-float {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+}
+.bagel-counters-float > span {
+  display: block;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 24px;
+  -webkit-text-stroke: 6px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #1d2140;
+}
+.bagel-counters-float.bagel-counters-gold > span { color: #ffd166; }
+.bagel-counters-float.bagel-counters-big > span { font-size: 32px; }
+.bagel-counters-float.bagel-counters-bad > span { color: #ff6b5e; font-size: 28px; }
+.bagel-counters-float.bagel-counters-good > span { color: #8ff07d; }
+
+/* ---------- HUD ---------- */
+.bagel-counters-hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 12px;
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.3s;
+}
+.bagel-counters-hidden { opacity: 0; }
+.bagel-counters-panel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 52px;
+  padding: 0 14px;
+  border: 3px solid #1d2140;
+  border-radius: 18px;
+  background: #fffdf6;
+  box-shadow: inset 0 -4px 0 #e9e2cf, 0 4px 0 #1d2140;
+}
+.bagel-counters-lives { gap: 2px; padding: 0 10px; }
+.bagel-counters-lives img {
+  width: 25px;
+  height: 35px;
+  transition: filter 0.3s, opacity 0.3s, transform 0.3s;
+}
+.bagel-counters-lives img.bagel-counters-lost { filter: grayscale(1) brightness(1.2); opacity: 0.3; transform: scale(0.82) rotate(-12deg); }
+.bagel-counters-level { flex-direction: column; justify-content: center; gap: 3px; min-width: 230px; padding: 0 16px; }
+.bagel-counters-level-name { font-size: 19px; line-height: 1; color: #134a96; letter-spacing: 0.4px; }
+.bagel-counters-bar {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  border: 3px solid #1d2140;
+  border-radius: 999px;
+  background: #d9d2c0;
+  overflow: hidden;
+}
+.bagel-counters-bar > i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(#ffe08a, #f4a62a);
+  box-shadow: inset 0 -3px 0 rgba(176, 98, 18, 0.35);
+  transition: width 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.bagel-counters-bar > b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1;
+  color: #1d2140;
+}
+.bagel-counters-score img { width: 40px; height: 43px; margin-left: -4px; }
+.bagel-counters-score span { display: flex; flex-direction: column; line-height: 1; }
+.bagel-counters-score small { font-size: 12px; color: #134a96; letter-spacing: 0.4px; }
+.bagel-counters-score b { font-weight: 400; font-size: 27px; min-width: 40px; }
+.bagel-counters-bump { animation: bagel-counters-bump 0.32s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes bagel-counters-bump { 40% { transform: scale(1.14); } }
+
+/* ---------- banner ---------- */
+.bagel-counters-banner {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.bagel-counters-banner.bagel-counters-on { opacity: 1; }
+.bagel-counters-banner.bagel-counters-on > * { animation: bagel-counters-banner-in 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+.bagel-counters-banner.bagel-counters-on > :nth-child(2) { animation-delay: 0.08s; }
+.bagel-counters-banner-big {
+  color: #ffd166;
+  font-size: 70px;
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-text-stroke: 10px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 7px 0 #1d2140;
+  transform: rotate(-3deg);
+}
+.bagel-counters-good .bagel-counters-banner-big { color: #8ff07d; }
+.bagel-counters-bad .bagel-counters-banner-big { color: #ff6b5e; }
+.bagel-counters-banner-sub {
+  padding: 6px 16px 4px;
+  border: 3px solid #1d2140;
+  border-radius: 999px;
+  background: #fffdf6;
+  box-shadow: 0 4px 0 #1d2140;
+  font-size: 19px;
+  white-space: nowrap;
+}
+@keyframes bagel-counters-banner-in { from { transform: scale(0.3) rotate(-8deg); opacity: 0; } }
+
+/* ---------- intro card ---------- */
+.bagel-counters-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(rgba(13, 27, 61, 0.25), rgba(13, 27, 61, 0.62));
+  z-index: 20;
+  transition: opacity 0.3s;
+}
+.bagel-counters-overlay.bagel-counters-out { opacity: 0; pointer-events: none; }
+.bagel-counters-card {
+  width: 620px;
+  padding: 16px 26px 22px;
+  border: 4px solid #1d2140;
+  border-radius: 26px;
+  background: #fffdf6;
+  box-shadow: 0 6px 0 #1d2140, 0 20px 50px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  animation: bagel-counters-pop 0.35s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+.bagel-counters-out .bagel-counters-card { transform: scale(0.9); transition: transform 0.3s; }
+@keyframes bagel-counters-pop { from { transform: scale(0.75); opacity: 0; } }
+.bagel-counters-title {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 10px;
+  font-size: 54px;
+  line-height: 1.05;
+  transform: rotate(-2deg);
+}
+.bagel-counters-title span {
+  -webkit-text-stroke: 9px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 #1d2140;
+}
+.bagel-counters-title span:first-child { color: #ffd166; }
+.bagel-counters-title span:last-child { color: #6fb6ff; }
+.bagel-counters-how {
+  display: grid;
+  grid-template-columns: 1fr 26px 1fr 1fr;
+  align-items: start;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.bagel-counters-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px 10px;
+  border: 3px solid #1d2140;
+  border-radius: 18px;
+  background: #eaf4ff;
+}
+.bagel-counters-step.bagel-counters-bad { background: #ffeae6; }
+.bagel-counters-step b { font-weight: 400; font-size: 20px; color: #134a96; }
+.bagel-counters-step.bagel-counters-bad b { color: #c0352b; }
+.bagel-counters-step span { font-family: var(--body); font-weight: 800; font-size: 13px; line-height: 1.2; }
+.bagel-counters-icons { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 56px; }
+.bagel-counters-icons img { height: 48px; width: auto; }
+.bagel-counters-icons img.bagel-counters-sm { height: 40px; }
+.bagel-counters-next { align-self: center; margin-top: -20px; }
+.bagel-counters-tip { margin: 0 0 14px; font-family: var(--body); font-weight: 800; font-size: 14px; line-height: 1.4; }
+.bagel-counters-tip img { height: 22px; vertical-align: -5px; }
+.bagel-counters-tip kbd {
+  padding: 0 6px;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  font-family: var(--body);
+  font-size: 0.9em;
+}
+.bagel-counters-start.btn { font-size: 30px; padding: 10px 60px; }

@@ -1,0 +1,26 @@
+node_modules/
+.venv/
+dist/
+.DS_Store
+__pycache__/
+*.pyc
+*.log
+
+# never commit: local databases, secrets, huge scratch files (GitHub rejects files over 100 MB)
+scratch/
+server/data/
+.env
+.env.*
+!.env.example
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+.claude/settings.local.json
+
+# generated, and too big for git: test screenshots and output (re-run the tools to make them again)
+tools/out/
+docs/flow/
+# art-pipeline originals and previews (the game ships the processed art; see .dockerignore)
+app/public/art/raw/
+app/public/art/preview/

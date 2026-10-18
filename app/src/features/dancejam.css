@@ -1,0 +1,24 @@
+/* Times Square Dance Jam */
+.jam-led { position: absolute; left: 0; top: 0; width: 400px; height: 225px; transform-origin: 0 0; overflow: hidden; z-index: 6; pointer-events: none; border-radius: 4px; opacity: 0.88; }
+.jam-led .jl-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1b1446, #2a0f3d); }
+.jam-led.on .jl-bg { background: linear-gradient(120deg, #ff3fa4, #7b3dff, #19c3ff, #ffd23f, #ff3fa4); background-size: 400% 400%; animation: jl-shift 4s linear infinite; }
+@keyframes jl-shift { to { background-position: 400% 0; } }
+.jam-led .jl-eq { position: absolute; left: 6%; right: 6%; bottom: 10%; height: 45%; display: flex; align-items: flex-end; gap: 3%; opacity: 0.25; }
+.jam-led.on .jl-eq { opacity: 0.9; }
+.jam-led .jl-eq i { flex: 1; height: 20%; border-radius: 6px 6px 0 0; background: rgba(255, 255, 255, 0.85); }
+.jam-led.on .jl-eq i { animation: jl-bar 0.9s ease-in-out infinite alternate; }
+.jam-led.on .jl-eq i:nth-child(odd) { animation-duration: 0.62s; }
+.jam-led.on .jl-eq i:nth-child(3n) { animation-duration: 0.78s; animation-delay: -0.4s; }
+@keyframes jl-bar { from { height: 12%; } to { height: 100%; } }
+.jam-led .jl-text { position: absolute; left: 0; right: 0; top: 12%; text-align: center; font: 30px var(--display); color: #fff; text-shadow: 0 3px 0 rgba(0, 0, 0, 0.35); white-space: nowrap; }
+.jam-led:not(.on) .jl-text { font-size: 22px; color: #9fa6ff; }
+.jam-dj { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; opacity: 0; transition: opacity 0.6s; pointer-events: none; }
+.jam-dj.on { opacity: 1; }
+/* in the HUD's top-right slot (under the coins): anywhere in the plaza it would cover pavement people click to walk on */
+.jam-join { position: absolute; right: 20px; top: 68px; z-index: 9260; transform: translateY(-12px); opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; padding: 8px 22px 6px; border: 3px solid var(--ink); border-radius: 18px; background: linear-gradient(#ffe066, #ffbf1a); font: var(--fs-2xl) var(--display); box-shadow: 0 4px 0 var(--ink), 0 0 0 0 rgba(255, 210, 60, 0.8); transition: transform 0.3s cubic-bezier(0.2, 1.5, 0.4, 1), opacity 0.2s; }
+.jam-join small { font: var(--fs-2xs) var(--body); opacity: 0.8; }
+.jam-join.show { transform: none; opacity: 1; pointer-events: auto; animation: jam-pulse 1.6s ease-out infinite; }
+@keyframes jam-pulse { 70% { box-shadow: 0 4px 0 var(--ink), 0 0 0 14px rgba(255, 210, 60, 0); } }
+.overlay.open ~ .jam-join, .decorating .jam-join, .stage:has(.tour) .jam-join { display: none; }
+
+/* the countdown chip (top right, under the coins) */

@@ -1,0 +1,401 @@
+/* Ferry Captain — every class is prefixed `ferry-captain-`. Outlines: #1d2140, 3px, Club Penguin chunky. */
+
+.ferry-captain-root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #1aa0ea;
+  font-family: var(--display);
+  font-weight: 400;
+  color: #1d2140;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: default;
+}
+
+.ferry-captain-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ferry-captain-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  color: #fff;
+  -webkit-text-stroke: 6px #1d2140;
+  paint-order: stroke fill;
+  /* same framing as the first game frame (panorama fit to height, left edge) so nothing jumps */
+  background: #1aa0ea url('/art/rooms/game-harbor.jpg') left top / auto 100% no-repeat;
+}
+
+/* folks waving on the Liberty Island pier */
+.ferry-captain-people {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ferry-captain-person {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+/* ---------- HUD ---------- */
+.ferry-captain-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-14px);
+  transition: opacity 0.4s, transform 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.ferry-captain-hud.ferry-captain-on {
+  opacity: 1;
+  transform: none;
+}
+.ferry-captain-pill {
+  position: absolute;
+  top: 10px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  background: #fffdf6;
+  border: 3px solid #1d2140;
+  border-radius: 18px;
+  box-shadow: inset 0 -4px 0 rgba(29, 33, 64, 0.1), 0 4px 0 #1d2140;
+}
+
+.ferry-captain-lives {
+  left: 12px;
+  gap: 2px;
+  padding: 0 8px;
+}
+.ferry-captain-lives img {
+  width: 42px;
+  height: auto;
+  transition: filter 0.3s, opacity 0.3s, transform 0.3s;
+}
+.ferry-captain-lives img.ferry-captain-lost {
+  filter: grayscale(1);
+  opacity: 0.3;
+  transform: scale(0.75) rotate(-25deg);
+}
+
+.ferry-captain-trip {
+  left: 50%;
+  width: 520px;
+  margin-left: -260px;
+  gap: 10px;
+  padding: 0 12px;
+}
+.ferry-captain-place {
+  flex: none;
+  font-size: 13px;
+  line-height: 1.02;
+  letter-spacing: 0.4px;
+  text-align: center;
+  text-transform: uppercase;
+  color: #134a96;
+}
+.ferry-captain-track {
+  position: relative;
+  flex: 1;
+  height: 18px;
+  border: 3px solid #1d2140;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 22px, rgba(255, 255, 255, 0.55) 22px 30px),
+    linear-gradient(#8fd3ff, #c9ecff);
+}
+.ferry-captain-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 7px;
+  background: linear-gradient(#ffc27a, #ff7a1a 70%, #e8630a);
+}
+.ferry-captain-mini {
+  --p: 0;
+  position: absolute;
+  left: calc((100% - 44px) * var(--p) - 3px);
+  bottom: 1px;
+  width: 50px;
+  filter: drop-shadow(0 2px 0 rgba(29, 33, 64, 0.35));
+  animation: ferry-captain-bob 1.6s ease-in-out infinite;
+}
+.ferry-captain-goal {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  height: 46px;
+  margin: 0 -4px 0 -2px;
+}
+.ferry-captain-goal canvas {
+  height: 44px;
+  width: auto;
+}
+
+.ferry-captain-coins {
+  right: 12px;
+  gap: 4px;
+  padding: 0 16px 0 6px;
+  font-size: 30px;
+}
+.ferry-captain-coins img {
+  width: 46px;
+}
+.ferry-captain-coins b {
+  font-weight: 400;
+  min-width: 34px;
+  text-align: right;
+  text-shadow: 0 2px 0 rgba(29, 33, 64, 0.15);
+}
+
+.ferry-captain-pop {
+  animation: ferry-captain-pop 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes ferry-captain-pop {
+  0% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.ferry-captain-lives img.ferry-captain-lost.ferry-captain-pop {
+  animation: ferry-captain-lose 0.45s ease;
+}
+@keyframes ferry-captain-lose {
+  0% { transform: scale(1.4); filter: none; opacity: 1; }
+  30% { transform: scale(1.1) rotate(18deg); }
+  60% { transform: scale(0.9) rotate(-18deg); }
+  100% { transform: scale(0.75) rotate(-25deg); }
+}
+
+/* ---------- banners ---------- */
+.ferry-captain-ui {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ferry-captain-banner {
+  position: absolute;
+  left: 50%;
+  top: 96px;
+  white-space: nowrap;
+  font-size: 40px;
+  color: #fff;
+  -webkit-text-stroke: 7px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 5px 0 #1d2140;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: ferry-captain-banner 2.4s cubic-bezier(0.2, 1.2, 0.4, 1) forwards;
+}
+.ferry-captain-banner-big {
+  top: 112px;
+  font-size: 54px;
+  color: #ffd166;
+  -webkit-text-stroke-width: 8px;
+  animation-duration: 3.3s;
+}
+.ferry-captain-banner-sad {
+  top: 112px;
+  font-size: 50px;
+  color: #ff8a80;
+  -webkit-text-stroke-width: 8px;
+  animation-duration: 3s;
+}
+@keyframes ferry-captain-banner {
+  0% { transform: translate(-50%, 18px) scale(0.3); opacity: 0; }
+  14% { transform: translate(-50%, 0) scale(1.1); opacity: 1; }
+  22% { transform: translate(-50%, 0) scale(1); }
+  84% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -18px) scale(0.96); opacity: 0; }
+}
+/* banners are removed by script, so without motion they simply show and go */
+@media (prefers-reduced-motion: reduce) {
+  .ferry-captain-banner { animation: none; }
+}
+
+/* ---------- cards ---------- */
+.ferry-captain-veil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(rgba(13, 27, 61, 0.12), rgba(13, 27, 61, 0.55));
+  pointer-events: auto;
+  animation: ferry-captain-fade 0.3s;
+}
+.ferry-captain-veil.ferry-captain-out {
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+@keyframes ferry-captain-fade {
+  from { opacity: 0; }
+}
+.ferry-captain-card {
+  position: relative;
+  width: 560px;
+  padding: 14px 30px 22px;
+  text-align: center;
+  background: #fffdf6;
+  border: 4px solid #1d2140;
+  border-radius: 28px;
+  box-shadow: inset 0 -6px 0 rgba(29, 33, 64, 0.08), 0 7px 0 #1d2140, 0 24px 50px rgba(0, 0, 0, 0.35);
+  animation: ferry-captain-in 0.45s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+@keyframes ferry-captain-in {
+  from { transform: scale(0.7) translateY(20px); opacity: 0; }
+}
+.ferry-captain-title {
+  margin: 2px 0 6px;
+  font-size: 56px;
+  line-height: 1.05;
+  color: #ffd166;
+  -webkit-text-stroke: 8px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 #1d2140;
+  transform: rotate(-2deg);
+}
+.ferry-captain-title-sm {
+  font-size: 38px;
+  -webkit-text-stroke-width: 7px;
+  text-shadow: 0 5px 0 #1d2140;
+}
+.ferry-captain-route {
+  font-size: 19px;
+  color: #134a96;
+}
+.ferry-captain-route b {
+  font-weight: 400;
+  color: #ff7a1a;
+}
+.ferry-captain-hero {
+  position: relative;
+  width: 360px;
+  height: 132px;
+  margin: 2px auto 8px;
+}
+.ferry-captain-hero-sea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  border: 3px solid #1d2140;
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse 14px 4px at 30% 40%, rgba(255, 255, 255, 0.8) 60%, transparent 62%),
+    radial-gradient(ellipse 18px 4px at 72% 62%, rgba(255, 255, 255, 0.7) 60%, transparent 62%),
+    linear-gradient(#45bdf7, #1f8fe0);
+}
+.ferry-captain-hero-boat {
+  position: absolute;
+  right: 22px;
+  bottom: 8px;
+  width: 196px;
+  animation: ferry-captain-bob 2.4s ease-in-out infinite;
+}
+.ferry-captain-hero .ferry-captain-feet {
+  position: absolute;
+  left: 72px;
+  top: 112px;
+}
+@keyframes ferry-captain-bob {
+  0%, 100% { translate: 0 0; rotate: -1.5deg; }
+  50% { translate: 0 -4px; rotate: 1.5deg; }
+}
+.ferry-captain-how {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.ferry-captain-how kbd {
+  display: inline-block;
+  min-width: 24px;
+  margin: 0 1px;
+  padding: 0 5px;
+  border: 2.5px solid #1d2140;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 2px 0 #1d2140;
+  font-family: var(--display);
+  font-size: 14px;
+  line-height: 19px;
+  text-align: center;
+}
+.ferry-captain-card .ferry-captain-go {
+  font-size: 28px;
+  padding: 10px 52px;
+  border-radius: 18px;
+}
+
+.ferry-captain-lead {
+  margin: 0 0 12px;
+  font-size: 17px;
+  color: #134a96;
+}
+.ferry-captain-res {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 4px 16px;
+}
+.ferry-captain-res-cap {
+  position: relative;
+  flex: none;
+  width: 128px;
+  height: 158px;
+  border: 3px solid #1d2140;
+  border-radius: 20px;
+  background: radial-gradient(circle at 50% 35%, #fff4c7, #ffd166 70%);
+  overflow: hidden;
+}
+.ferry-captain-res-cap .ferry-captain-feet {
+  position: absolute;
+  left: 64px;
+  top: 150px;
+}
+.ferry-captain-stats {
+  flex: 1;
+  display: grid;
+  gap: 8px;
+}
+.ferry-captain-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 16px 0 8px;
+  border: 3px solid #1d2140;
+  border-radius: 14px;
+  background: #e6f4ff;
+  font-size: 19px;
+}
+.ferry-captain-stat img,
+.ferry-captain-stat canvas {
+  width: 44px;
+  height: 36px;
+  object-fit: contain;
+}
+.ferry-captain-stat span {
+  flex: 1;
+  text-align: left;
+}
+.ferry-captain-stat b {
+  font-weight: 400;
+  font-size: 26px;
+}

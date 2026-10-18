@@ -1,0 +1,951 @@
+/* Slice Factory. Every class is prefixed slice-factory-. Coordinates are the 1000 × 565 stage. */
+
+.slice-factory-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #2b3047 url('/art/rooms/game-slice.jpg') 0 0 / 1000px 565px no-repeat;
+  font-family: var(--display);
+  font-weight: 400;
+  color: #1d2140;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: default;
+}
+.slice-factory-scene img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.slice-factory-scene.slice-factory-pointer {
+  cursor: pointer;
+}
+.slice-factory-scene.slice-factory-holding {
+  cursor: none;
+}
+/* the world carries the same painting so a screen shake never shows a seam */
+.slice-factory-world {
+  position: absolute;
+  inset: 0;
+  background: inherit;
+}
+.slice-factory-world *,
+.slice-factory-held,
+.slice-factory-hint {
+  pointer-events: none;
+}
+.slice-factory-bins,
+.slice-factory-wall,
+.slice-factory-pizzas,
+.slice-factory-counter,
+.slice-factory-fx {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- belt ---------- */
+.slice-factory-belt {
+  position: absolute;
+  left: 0;
+  top: 258px;
+  width: 944px;
+  height: 37px;
+  overflow: hidden;
+  background: linear-gradient(#56627a, #5c677b 30%, #5b6678);
+}
+.slice-factory-slat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 37px;
+  transform-origin: 0 100%;
+  background: linear-gradient(90deg, #36425a 0 2px, #8792a8 2px 3.3px, transparent 3.3px);
+  will-change: transform;
+}
+.slice-factory-belt-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0 846px, rgba(12, 16, 30, 0.14) 868px, rgba(12, 16, 30, 0.26) 918px, rgba(12, 16, 30, 0.62) 940px),
+    linear-gradient(rgba(12, 16, 30, 0.22), transparent 5px);
+}
+
+/* ---------- bins ---------- */
+.slice-factory-pile {
+  position: absolute;
+  clip-path: inset(-40px 0 0 0);
+}
+.slice-factory-piece {
+  position: absolute;
+  max-width: none;
+}
+.slice-factory-tape {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%) rotate(var(--r, 0deg));
+  padding: 1px 6px 0;
+  background: #f4ead0;
+  color: #2a2f4a;
+  font-size: 9.5px;
+  line-height: 13px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(29, 33, 64, 0.35);
+  clip-path: polygon(0 10%, 3% 0, 50% 6%, 97% 0, 100% 12%, 98% 50%, 100% 90%, 96% 100%, 50% 94%, 4% 100%, 0 88%, 2% 50%);
+}
+
+/* hover / selected rings around bottles, bins and the tub */
+.slice-factory-hl {
+  position: absolute;
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.12s;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.9),
+    0 0 14px 4px rgba(255, 255, 255, 0.5);
+}
+.slice-factory-hl-sauce {
+  border-radius: 20px 20px 16px 16px;
+}
+.slice-factory-hl.slice-factory-hover {
+  opacity: 0.8;
+}
+.slice-factory-hl.slice-factory-on {
+  opacity: 1;
+  box-shadow:
+    0 0 0 3px #ffd34d,
+    0 0 0 5.5px #1d2140,
+    0 0 20px 7px rgba(255, 211, 77, 0.65);
+  animation: slice-factory-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes slice-factory-pulse {
+  to {
+    box-shadow:
+      0 0 0 3px #ffe58f,
+      0 0 0 5.5px #1d2140,
+      0 0 28px 10px rgba(255, 211, 77, 0.85);
+  }
+}
+
+/* ---------- order ticket ---------- */
+.slice-factory-ticket {
+  position: absolute;
+  left: 16px;
+  top: 27px;
+  width: 284px;
+  height: 69px;
+  background: #fffaf0;
+  border: 3px solid #1d2140;
+  border-radius: 6px 6px 8px 8px;
+  box-shadow: 0 4px 0 rgba(29, 33, 64, 0.35);
+  transform-origin: 50% 0;
+}
+.slice-factory-ticket-sweet {
+  background: #ffe8f3;
+}
+.slice-factory-tclip {
+  position: absolute;
+  top: -13px;
+  width: 17px;
+  height: 21px;
+  background: linear-gradient(#8494ad, #55627b);
+  border: 2.5px solid #1d2140;
+  border-radius: 3px;
+  z-index: 2;
+}
+.slice-factory-thead {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  height: 19px;
+  padding: 3px 10px 0;
+  font-size: 13px;
+  line-height: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: 2px dashed rgba(29, 33, 64, 0.22);
+}
+.slice-factory-thead b {
+  font-weight: 400;
+  color: #d8382f;
+}
+.slice-factory-ticket-sweet .slice-factory-thead span {
+  color: #c2357d;
+}
+.slice-factory-cells {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  padding: 2px 4px 0;
+}
+.slice-factory-cell {
+  position: relative;
+  flex: 0 1 44px;
+  min-width: 30px;
+  height: 43px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 7px;
+}
+.slice-factory-cell.slice-factory-ok {
+  background: rgba(69, 194, 78, 0.18);
+}
+.slice-factory-cell.slice-factory-bad {
+  background: rgba(239, 75, 63, 0.2);
+  color: #d8382f;
+}
+.slice-factory-cell-ic {
+  width: 34px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+}
+.slice-factory-cell-ic img {
+  max-width: 31px;
+  max-height: 27px;
+}
+.slice-factory-cell-lab {
+  height: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  line-height: 16px;
+}
+.slice-factory-ico {
+  width: 17px;
+  height: 17px;
+}
+.slice-factory-ico path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.slice-factory-bar {
+  display: block;
+  width: 30px;
+  height: 8px;
+  border: 2px solid #1d2140;
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
+}
+.slice-factory-bar i {
+  display: block;
+  height: 100%;
+  background: #e2453a;
+  transition: width 0.12s;
+}
+.slice-factory-bar-white i {
+  background: #e4d6b0;
+}
+.slice-factory-tick {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(29, 33, 64, 0.45);
+  border-radius: 3px;
+  background: #fff;
+}
+.slice-factory-stamp {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  padding: 2px 6px 0;
+  border: 3px solid currentColor;
+  border-radius: 7px;
+  font-size: 16px;
+  line-height: 18px;
+  opacity: 0;
+  transform: rotate(-14deg);
+  background: rgba(255, 250, 240, 0.9);
+}
+.slice-factory-stamp.slice-factory-ready {
+  opacity: 1;
+  color: #2a9a37;
+}
+.slice-factory-stamp.slice-factory-oops {
+  opacity: 1;
+  color: #d8382f;
+}
+
+/* ---------- chalkboard ---------- */
+.slice-factory-chalk {
+  position: absolute;
+  left: 672px;
+  top: 23px;
+  width: 171px;
+  height: 91px;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow:
+    0 0 1px rgba(255, 255, 255, 0.7),
+    0 0 6px rgba(255, 255, 255, 0.18);
+}
+.slice-factory-chalk-col {
+  position: absolute;
+  left: 12px;
+  top: 6px;
+  white-space: nowrap;
+}
+.slice-factory-chalk-col2 {
+  left: 96px;
+}
+.slice-factory-chalk-lab {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  opacity: 0.72;
+}
+.slice-factory-chalk-num {
+  display: inline-block;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 32px;
+  transform-origin: 30% 60%;
+}
+.slice-factory-chalk-gold {
+  color: #ffe08a;
+}
+.slice-factory-chalk-of {
+  font-size: 12px;
+  opacity: 0.55;
+  margin-left: 1px;
+}
+.slice-factory-chalk-oops {
+  position: absolute;
+  left: 12px;
+  bottom: 9px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.slice-factory-chalk-oops .slice-factory-chalk-lab {
+  margin-right: 3px;
+}
+.slice-factory-mark svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+  overflow: visible;
+}
+.slice-factory-mark circle {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1.8;
+  stroke-dasharray: 3 2.2;
+}
+.slice-factory-mark path {
+  fill: none;
+  stroke: #ff8a7a;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-dasharray: 16;
+  stroke-dashoffset: 16;
+  transition: stroke-dashoffset 0.16s ease-in;
+}
+.slice-factory-mark.slice-factory-x path {
+  stroke-dashoffset: 0;
+}
+.slice-factory-mark.slice-factory-x .slice-factory-x2 {
+  transition-delay: 0.16s;
+}
+
+/* ---------- pies ---------- */
+.slice-factory-pizza {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+.slice-factory-pshadow {
+  position: absolute;
+  left: -70px;
+  top: -31px;
+  width: 140px;
+  height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(14, 18, 38, 0.5), rgba(14, 18, 38, 0.28) 72%, rgba(14, 18, 38, 0));
+}
+.slice-factory-bounce {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+.slice-factory-edge,
+.slice-factory-body {
+  position: absolute;
+  left: -64px;
+  top: -64px;
+  width: 128px;
+  height: 128px;
+  transform: scaleY(0.56);
+}
+.slice-factory-edge {
+  transform: translateY(4px) scaleY(0.56);
+  filter: brightness(0.62) saturate(1.25);
+}
+.slice-factory-dough {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.slice-factory-layer {
+  position: absolute;
+  inset: 0;
+}
+.slice-factory-splat,
+.slice-factory-cheese {
+  position: absolute;
+  max-width: none;
+}
+.slice-factory-top {
+  position: absolute;
+  width: 0;
+  height: 0;
+  filter: drop-shadow(0 1.5px 0 rgba(29, 33, 64, 0.35));
+}
+.slice-factory-top-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 27px;
+  max-width: none;
+}
+
+/* ---------- oven ---------- */
+.slice-factory-occluder {
+  position: absolute;
+  background: url('/art/rooms/game-slice.jpg') -840px -150px / 1000px 565px no-repeat;
+}
+.slice-factory-glow {
+  position: absolute;
+  left: 846px;
+  top: 158px;
+  width: 136px;
+  height: 112px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 220, 120, 0.9), rgba(255, 150, 50, 0.45) 55%, rgba(255, 120, 40, 0));
+  mix-blend-mode: screen;
+  opacity: 0.25;
+  animation: slice-factory-flicker 1.9s ease-in-out infinite;
+}
+@keyframes slice-factory-flicker {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  18% {
+    opacity: 0.36;
+  }
+  33% {
+    opacity: 0.18;
+  }
+  52% {
+    opacity: 0.32;
+  }
+  70% {
+    opacity: 0.22;
+  }
+  84% {
+    opacity: 0.38;
+  }
+}
+.slice-factory-flare {
+  position: absolute;
+  left: 812px;
+  top: 130px;
+  width: 190px;
+  height: 180px;
+  border-radius: 50%;
+  opacity: 0;
+}
+.slice-factory-flare.slice-factory-good {
+  mix-blend-mode: screen;
+  background: radial-gradient(closest-side, #fff2b8, rgba(255, 170, 60, 0.75) 50%, rgba(255, 120, 40, 0));
+}
+.slice-factory-flare.slice-factory-bad {
+  mix-blend-mode: multiply;
+  background: radial-gradient(closest-side, rgba(30, 24, 30, 0.95), rgba(60, 40, 44, 0.55) 55%, rgba(60, 40, 44, 0));
+}
+
+/* ---------- cheese tub ---------- */
+.slice-factory-tub {
+  position: absolute;
+}
+.slice-factory-tub-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.slice-factory-tub-pile {
+  position: absolute;
+  left: 6px;
+  top: 0;
+  width: 106px;
+  height: 40px;
+  clip-path: inset(-40px -6px 0 -6px);
+}
+.slice-factory-tub-tape {
+  font-size: 10.5px;
+  padding: 1px 8px 0;
+}
+
+/* ---------- flying things & effects ---------- */
+.slice-factory-fly {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: none;
+  will-change: transform;
+}
+.slice-factory-box {
+  position: absolute;
+  max-width: none;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 4px 0 rgba(29, 33, 64, 0.3));
+}
+.slice-factory-burnt {
+  filter: brightness(0.32) sepia(0.9) saturate(1.7) contrast(1.25);
+}
+.slice-factory-coin {
+  filter: drop-shadow(0 2px 0 rgba(29, 33, 64, 0.4));
+}
+.slice-factory-dot {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(29, 33, 64, 0.5);
+}
+.slice-factory-drip {
+  position: absolute;
+  width: 7px;
+  height: 9px;
+  border-radius: 50% 50% 50% 50% / 38% 38% 62% 62%;
+  border: 1.5px solid #1d2140;
+}
+.slice-factory-puff {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #9a9fae, #5a5e6c 58%, #3a3d4b);
+  border: 2.5px solid rgba(29, 33, 64, 0.65);
+}
+.slice-factory-float {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 22px;
+  color: #fff;
+  -webkit-text-stroke: 5px #1d2140;
+  paint-order: stroke fill;
+}
+.slice-factory-float.slice-factory-coins {
+  color: #ffd34d;
+  font-size: 28px;
+}
+.slice-factory-float.slice-factory-good {
+  color: #8ff08a;
+}
+.slice-factory-float.slice-factory-bad {
+  color: #ff7d6e;
+}
+.slice-factory-float.slice-factory-combo {
+  color: #ffb347;
+  font-size: 30px;
+}
+.slice-factory-callout {
+  position: absolute;
+  padding: 7px 13px 5px;
+  background: #fff;
+  border: 3px solid #1d2140;
+  border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(29, 33, 64, 0.35);
+  color: #d8382f;
+  font-size: 17px;
+  white-space: nowrap;
+}
+.slice-factory-callout::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 58%;
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border: solid #1d2140;
+  border-width: 3px 3px 0 0;
+  transform: translateY(-50%) rotate(45deg);
+}
+.slice-factory-banner {
+  position: absolute;
+  left: 500px;
+  top: 210px;
+  white-space: nowrap;
+  font-size: 50px;
+  color: #ffd34d;
+  -webkit-text-stroke: 9px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 #1d2140;
+}
+.slice-factory-banner.slice-factory-sweet {
+  color: #ff9ccf;
+}
+
+/* ---------- hint bubbles ---------- */
+.slice-factory-hint {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 30;
+}
+.slice-factory-hint-in {
+  position: absolute;
+  padding: 5px 11px 3px;
+  background: #ffd34d;
+  border: 3px solid #1d2140;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 rgba(29, 33, 64, 0.4);
+  font-size: 15px;
+  white-space: nowrap;
+  animation: slice-factory-bob 0.45s ease-in-out infinite alternate;
+}
+.slice-factory-hint-in::after {
+  content: '';
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: #ffd34d;
+  border: solid #1d2140;
+  border-width: 3px 0 0 3px;
+}
+.slice-factory-hint-up .slice-factory-hint-in {
+  left: var(--shift, 0px);
+  top: 12px;
+  translate: -50% 0;
+}
+.slice-factory-hint-up .slice-factory-hint-in::after {
+  left: calc(50% - var(--shift, 0px));
+  top: -8px;
+  transform: translateX(-50%) rotate(45deg);
+}
+.slice-factory-hint-down .slice-factory-hint-in {
+  left: var(--shift, 0px);
+  bottom: 12px;
+  translate: -50% 0;
+}
+.slice-factory-hint-down .slice-factory-hint-in::after {
+  left: calc(50% - var(--shift, 0px));
+  bottom: -8px;
+  transform: translateX(-50%) rotate(225deg);
+}
+.slice-factory-hint-left .slice-factory-hint-in {
+  left: 12px;
+  top: 0;
+  translate: 0 -50%;
+}
+.slice-factory-hint-left .slice-factory-hint-in::after {
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-45deg);
+}
+@keyframes slice-factory-bob {
+  from {
+    margin-top: -3px;
+  }
+  to {
+    margin-top: 3px;
+  }
+}
+.slice-factory-hint-left .slice-factory-hint-in {
+  animation-name: slice-factory-bob-x;
+}
+@keyframes slice-factory-bob-x {
+  from {
+    margin-left: 6px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
+
+/* ---------- the tool in your hand ---------- */
+.slice-factory-held {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 40;
+  filter: drop-shadow(0 8px 0 rgba(29, 33, 64, 0.26));
+}
+.slice-factory-held-rot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: rotate(160deg);
+}
+.slice-factory-held-bottle {
+  position: absolute;
+  left: -14px;
+  top: -2px;
+  width: 28px;
+  max-width: none;
+  transform-origin: 14px 2px;
+}
+.slice-factory-squeeze .slice-factory-held-bottle {
+  animation: slice-factory-squeeze 0.09s ease-in-out infinite alternate;
+}
+@keyframes slice-factory-squeeze {
+  to {
+    transform: scale(0.82, 1.05);
+  }
+}
+.slice-factory-held-top,
+.slice-factory-held-cheese {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 34px;
+  max-width: none;
+  transform: translate(-50%, -50%);
+}
+.slice-factory-held-cheese {
+  width: 48px;
+}
+
+/* ---------- cards (guest check / receipt) ---------- */
+.slice-factory-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(16, 22, 46, 0.45);
+  pointer-events: auto;
+  cursor: default;
+  animation: slice-factory-fade 0.25s;
+}
+@keyframes slice-factory-fade {
+  from {
+    opacity: 0;
+  }
+}
+.slice-factory-check {
+  position: relative;
+  width: 430px;
+  background: #fffaf0;
+  border: 3px solid #1d2140;
+  border-radius: 14px;
+  box-shadow:
+    0 6px 0 rgba(29, 33, 64, 0.55),
+    0 22px 44px rgba(0, 0, 0, 0.35);
+  transform: rotate(-1.2deg);
+  animation: slice-factory-card 0.42s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+@keyframes slice-factory-card {
+  from {
+    transform: rotate(-6deg) scale(0.6) translateY(40px);
+    opacity: 0;
+  }
+}
+.slice-factory-check-head {
+  margin: -3px -3px 0;
+  padding: 12px 0 6px;
+  background: #d8382f;
+  border: 3px solid #1d2140;
+  border-radius: 14px 14px 0 0;
+  color: #fff;
+  text-align: center;
+  font-size: 40px;
+  line-height: 44px;
+  -webkit-text-stroke: 8px #1d2140;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #1d2140;
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.09) 0 18px, transparent 18px 36px);
+}
+.slice-factory-check-end .slice-factory-check-head {
+  background-color: #2a7bd5;
+}
+.slice-factory-check-body {
+  padding: 8px 24px 4px;
+  background: repeating-linear-gradient(transparent 0 28px, #c9dbf0 28px 30px);
+  background-position: 0 7px;
+}
+.slice-factory-lede {
+  margin: 0;
+  height: 30px;
+  font-size: 15px;
+  line-height: 32px;
+  color: #d8382f;
+  white-space: nowrap;
+}
+.slice-factory-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  font-size: 17px;
+  white-space: nowrap;
+}
+.slice-factory-line > i {
+  flex: 1;
+  margin-top: 10px;
+  border-bottom: 2px dotted rgba(29, 33, 64, 0.35);
+}
+.slice-factory-line b {
+  font-weight: 400;
+}
+.slice-factory-line > b {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.slice-factory-line > b img {
+  width: 24px;
+}
+.slice-factory-line.slice-factory-total {
+  font-size: 22px;
+  color: #b8860b;
+}
+.slice-factory-how {
+  font-size: 15px;
+}
+.slice-factory-how img {
+  width: 26px;
+  flex: none;
+}
+.slice-factory-how b {
+  color: #d8382f;
+  font-weight: 400;
+}
+.slice-factory-go {
+  display: block;
+  margin: 10px auto 16px;
+  font-size: 24px;
+  padding: 9px 36px;
+}
+.slice-factory-card-av {
+  position: absolute;
+  right: -66px;
+  bottom: 2px;
+  width: 0;
+  height: 0;
+}
+
+/* ---------- music toggle ---------- */
+.slice-factory-music {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 55;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 3px solid #1d2140;
+  border-radius: 50%;
+  background: linear-gradient(#6cbcff, #2a7bd5);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.45),
+    0 3px 0 #1d2140;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.slice-factory-music svg {
+  width: 19px;
+  height: 19px;
+}
+.slice-factory-music.slice-factory-off {
+  background: linear-gradient(#c8cdd8, #8b93a6);
+}
+.slice-factory-music.slice-factory-off::after {
+  content: '';
+  position: absolute;
+  width: 26px;
+  height: 3px;
+  background: #1d2140;
+  border-radius: 2px;
+  transform: rotate(-45deg);
+}
+
+/* ---------- dessert pizza: same sprites, candy colours ---------- */
+.slice-factory-tint {
+  position: absolute;
+  display: none;
+  background: url('/art/rooms/game-slice.jpg') 0 -90px / 1000px 565px no-repeat;
+}
+.slice-factory-tint-red {
+  clip-path: path('M37.6 10L42.5 26.5L50.3 27.5L50.3 36.7L54.9 39L54.9 78L20 78L20 39L24.6 36.7L24.6 27.5L33 26.5Z M20 103L54.9 103L54.9 113L51 117.5L24 117.5L20 113Z');
+}
+.slice-factory-tint-white {
+  clip-path: path('M90.6 10L95.5 26.5L103.3 27.5L103.3 36.7L107.9 39L107.9 78L73 78L73 39L77.6 36.7L77.6 27.5L86 26.5Z M73 103L107.9 103L107.9 113L104 117.5L77 117.5L73 113Z');
+}
+.slice-factory-sweet .slice-factory-tint {
+  display: block;
+}
+.slice-factory-sweet .slice-factory-tint-red,
+.slice-factory-sweet .slice-factory-ing-bottle-red {
+  filter: hue-rotate(18deg) saturate(0.62) brightness(0.47);
+}
+.slice-factory-sweet .slice-factory-tint-white,
+.slice-factory-sweet .slice-factory-ing-bottle-white {
+  filter: sepia(1) saturate(3.2) hue-rotate(288deg) brightness(1.04);
+}
+.slice-factory-sweet :is(.slice-factory-bins, .slice-factory-tub, .slice-factory-held, .slice-factory-fx),
+.slice-factory-pz-sweet,
+.slice-factory-ticket-sweet {
+  --sf-dough: sepia(0.95) saturate(1.7) hue-rotate(-12deg) brightness(0.8);
+  --sf-red: hue-rotate(18deg) saturate(0.62) brightness(0.47);
+  --sf-white: sepia(1) saturate(3.2) hue-rotate(288deg) brightness(1.04);
+  --sf-pepperoni: hue-rotate(-14deg) saturate(1.5) brightness(1.12);
+  --sf-mushroom: sepia(0.5) saturate(2.2) hue-rotate(215deg) brightness(1.22);
+  --sf-pepper: hue-rotate(205deg) saturate(1.5) brightness(1.1);
+  --sf-sausage: sepia(0.5) saturate(0.9) brightness(0.62);
+  --sf-olive: sepia(1) saturate(2.4) brightness(1.7) hue-rotate(-8deg);
+  --sf-basil: hue-rotate(68deg) saturate(0.9) brightness(1.32);
+}
+.slice-factory-ing-dough {
+  filter: var(--sf-dough, none);
+}
+.slice-factory-ing-sauce-red {
+  filter: var(--sf-red, none);
+}
+.slice-factory-ing-sauce-white {
+  filter: var(--sf-white, none);
+}
+.slice-factory-ing-pepperoni {
+  filter: var(--sf-pepperoni, none);
+}
+.slice-factory-ing-mushroom {
+  filter: var(--sf-mushroom, none);
+}
+.slice-factory-ing-pepper {
+  filter: var(--sf-pepper, none);
+}
+.slice-factory-ing-sausage {
+  filter: var(--sf-sausage, none);
+}
+.slice-factory-ing-olive {
+  filter: var(--sf-olive, none);
+}
+.slice-factory-ing-basil {
+  filter: var(--sf-basil, none);
+}
+/* rainbow sprinkles: every cheese pile gets its own hue */
+.slice-factory-sweet :is(.slice-factory-tub, .slice-factory-held, .slice-factory-fx) .slice-factory-ing-cheese,
+.slice-factory-pz-sweet .slice-factory-ing-cheese,
+.slice-factory-ticket-sweet .slice-factory-ing-cheese {
+  filter: sepia(1) saturate(6) hue-rotate(var(--h, 0deg)) brightness(1.05);
+}
+.slice-factory-done-sweet {
+  filter: hue-rotate(-14deg) saturate(1.3) brightness(1.08);
+}
