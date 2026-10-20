@@ -1,0 +1,123 @@
+/* Hero options (app/lab/hero.html, dev only). Shared pieces first: the trailer button and dialog, then A to D. */
+
+/* ---------- lab chrome ---------- */
+.lab-label { margin: 0; padding: 10px var(--gutter); background: var(--ink); color: var(--sun); font: 17px var(--display); text-align: center; letter-spacing: 0.4px; }
+body[data-v] .lab-label { display: none; }
+.hero-v { position: relative; overflow: hidden; isolation: isolate; }
+body[data-v] .hero-v { margin-top: -72px; }
+.hero-light .site-header:not(.scrolled) { color: var(--ink); }
+.hero-light .site-header:not(.scrolled) .site-nav a:hover,
+.hero-light .site-header:not(.scrolled) .link-signin:hover,
+.hero-light .site-header:not(.scrolled) .discord-link:hover { background: rgba(29, 33, 64, 0.08); }
+
+/* ---------- shared: the background loop and its shade ---------- */
+.hv-bg { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; background: var(--night); }
+.hv-shade { position: absolute; inset: 0; z-index: -1; }
+
+/* ---------- shared: "Watch the trailer" ---------- */
+.btn-trailer { display: inline-flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 22px 0 8px; border: 3px solid rgba(255, 255, 255, 0.85); border-radius: 999px; background: rgba(11, 24, 53, 0.4); color: #fff; font: 20px/1.15 var(--display); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: transform 0.12s, background 0.12s; }
+.btn-trailer:hover { transform: translateY(-2px); background: rgba(11, 24, 53, 0.6); }
+.btn-trailer small { margin-left: 2px; font: 15px var(--display); opacity: 0.7; }
+.bt-icon { position: relative; display: grid; place-items: center; width: 42px; height: 42px; flex: none; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1b8, var(--sun)); box-shadow: 0 3px 0 var(--ink); }
+.bt-icon::after { content: ''; margin-left: 4px; border-style: solid; border-width: 8px 0 8px 13px; border-color: transparent transparent transparent var(--ink); }
+
+/* ---------- shared: the trailer dialog ---------- */
+dialog.trailer { width: min(1120px, 94vw); padding: 0; border: 5px solid var(--ink); border-radius: 24px; background: var(--ink); color: #fff; box-shadow: 0 10px 0 #000, 0 40px 120px rgba(0, 0, 0, 0.6); overflow: visible; }
+dialog.trailer::backdrop { background: rgba(8, 14, 34, 0.82); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+dialog.trailer video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 19px 19px 0 0; background: #000; }
+.trailer-note { padding: 12px 18px 14px; color: #b9c8ee; font-size: 15px; text-align: center; }
+.trailer-x { position: absolute; right: -18px; top: -18px; z-index: 2; display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 4px solid var(--ink); border-radius: 50%; background: linear-gradient(#ff7b6e, var(--red)); color: #fff; cursor: pointer; box-shadow: 0 4px 0 var(--ink); }
+.trailer-x svg { width: 24px; height: 24px; }
+
+/* ================================================================ A: the city, full bleed */
+.hero-a { display: grid; align-items: center; min-height: min(100svh, 900px); padding: 128px 0 120px; color: #fff; background: var(--night) url('/video/hero-loop.webp') center / cover; }
+.hero-a .hv-shade {
+  background:
+    linear-gradient(90deg, rgba(11, 24, 53, 0.9) 0%, rgba(11, 24, 53, 0.74) 32%, rgba(11, 24, 53, 0.2) 62%, rgba(11, 24, 53, 0) 78%),
+    linear-gradient(180deg, rgba(11, 24, 53, 0.7) 0%, rgba(11, 24, 53, 0) 22%, rgba(11, 24, 53, 0) 70%, rgba(11, 24, 53, 0.85) 100%);
+}
+.hv-copy { max-width: 610px; }
+.hero-v h1 { font-size: clamp(46px, 5.6vw, 82px); line-height: 1.08; }
+.hero-a h1 { text-shadow: 0 4px 0 rgba(11, 24, 53, 0.7); }
+.hero-a .lede { color: #e3ecff; }
+.hero-a .hero-note { color: #c5d3f3; }
+.hv-real { position: absolute; right: 28px; bottom: 26px; display: flex; align-items: center; gap: 8px; padding: 6px 14px 7px; border-radius: 999px; background: rgba(11, 24, 53, 0.55); color: #fff; font: 15px var(--display); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.hv-real i, .gw-real i { width: 10px; height: 10px; border-radius: 50%; background: #ff5a4e; box-shadow: 0 0 0 3px rgba(255, 90, 78, 0.3); }
+
+/* ================================================================ B: the game window, in daylight */
+.hero-b { padding: 120px 0 0; color: var(--ink); text-align: center;
+  background:
+    radial-gradient(120px 46px at 12% 26%, rgba(255, 255, 255, 0.95) 60%, transparent 62%),
+    radial-gradient(90px 36px at 17% 22%, rgba(255, 255, 255, 0.95) 60%, transparent 62%),
+    radial-gradient(150px 50px at 86% 18%, rgba(255, 255, 255, 0.9) 60%, transparent 62%),
+    radial-gradient(100px 38px at 80% 14%, rgba(255, 255, 255, 0.9) 60%, transparent 62%),
+    linear-gradient(180deg, #7cc6ff 0%, #b9e2ff 52%, #e3f3ff 100%); }
+.hb-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: var(--sp-5); }
+.hb-chips span { padding: 5px 14px 6px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; font: 15px var(--display); box-shadow: 0 3px 0 var(--ink); }
+.hero-b h1 { text-shadow: 0 4px 0 rgba(255, 255, 255, 0.8); }
+.hero-b .lede { margin: var(--sp-4) auto 0; color: #2d3560; }
+.hero-b .hero-cta { justify-content: center; }
+.hero-b .hero-note { color: #3d4a78; }
+.game-window { position: relative; z-index: 1; width: min(1040px, 100%); margin: 44px auto 0; aspect-ratio: 16 / 9; border: 6px solid var(--ink); border-bottom: 0; border-radius: 30px 30px 0 0; overflow: hidden; background: var(--night) url('/video/hero-loop.webp') center / cover; box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.25); }
+.game-window video { width: 100%; height: 100%; object-fit: cover; }
+.gw-real { position: absolute; left: 20px; top: 18px; display: flex; align-items: center; gap: 8px; padding: 6px 14px 7px; border-radius: 999px; background: rgba(11, 24, 53, 0.6); color: #fff; font: 15px var(--display); }
+.gw-trailer { position: absolute; left: 50%; bottom: 26px; translate: -50% 0; }
+.hb-skyline { position: absolute; left: 0; right: 0; bottom: 0; z-index: 0; width: 100%; height: 220px; }
+
+/* ================================================================ C: now showing */
+.hero-c { padding: 124px 0 108px; color: #fff;
+  background:
+    linear-gradient(90deg, rgba(11, 24, 53, 0.94) 0%, rgba(11, 24, 53, 0.78) 42%, rgba(11, 24, 53, 0.45) 100%),
+    url('/art/rooms/empire-deck.jpg') center 18% / cover; }
+.hc-grid { display: grid; grid-template-columns: 1fr 1.12fr; align-items: center; gap: 56px; }
+.hero-c h1 { text-shadow: 0 4px 0 rgba(11, 24, 53, 0.7); }
+.hero-c .lede { color: #dbe6ff; }
+.billboard { margin: 0; text-align: center; }
+.bb-marquee { display: inline-block; margin-bottom: -6px; padding: 8px 26px 10px; border: 5px solid var(--ink); border-bottom: 0; border-radius: 18px 18px 0 0; background: linear-gradient(#fff6d6, var(--sun)); color: var(--ink); font: 22px var(--display); letter-spacing: 2px; text-transform: uppercase; }
+.bb-frame { position: relative; padding: 18px; border: 5px solid var(--ink); border-radius: 26px; background-color: #3a2350;
+  background-image: radial-gradient(circle, #fff7d1 0 3.5px, #ffcf5a 4.5px, rgba(255, 207, 90, 0) 8px);
+  background-size: 26px 26px; background-position: 4px 4px;
+  box-shadow: 0 10px 0 var(--ink), 0 0 60px rgba(255, 209, 102, 0.35), 0 40px 80px rgba(0, 0, 0, 0.5); }
+.bb-frame video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 4px solid var(--ink); border-radius: 12px; background: var(--night) url('/video/hero-loop.webp') center / cover; }
+.billboard figcaption { margin-top: 24px; color: #c5d3f3; font-size: 15px; }
+
+/* ================================================================ D: the title screen */
+.hero-d { display: grid; place-items: center; min-height: min(100svh, 880px); padding: 112px 0 96px; color: #fff; text-align: center; background: var(--night) url('/video/hero-loop.webp') center / cover; }
+.hero-d .hv-bg { filter: blur(9px) saturate(1.15); transform: scale(1.08); }
+.hero-d .hv-shade { background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(11, 24, 53, 0.45), rgba(11, 24, 53, 0.82)); }
+.hd-copy { display: flex; flex-direction: column; align-items: center; }
+.hd-logo { width: min(500px, 74vw); filter: drop-shadow(0 10px 0 rgba(11, 24, 53, 0.6)); }
+.hero-d h1 { margin-top: var(--sp-4); font-size: clamp(32px, 3.4vw, 50px); text-shadow: 0 4px 0 rgba(11, 24, 53, 0.7); }
+.hero-d .hero-cta { justify-content: center; margin-top: 36px; }
+.btn-xxl { min-height: 92px; padding: 0 60px; border-width: 5px; border-radius: 28px; font-size: 42px; box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.45), 0 9px 0 var(--ink); }
+.btn-xxl:active { box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.45), 0 4px 0 var(--ink); }
+.hd-facts { margin-top: 26px; color: #dbe6ff; font: 19px var(--display); }
+.hd-facts i { font-style: normal; opacity: 0.6; }
+.hero-d .btn-trailer { margin-top: 26px; }
+body[data-v='d'] .site-header:not(.scrolled) .brand { visibility: hidden; }
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 900px) {
+  .hc-grid { grid-template-columns: 1fr; gap: 40px; }
+  .hc-copy { text-align: center; }
+  .hc-copy .hero-cta { justify-content: center; }
+}
+@media (max-width: 560px) {
+  .hero-v h1 { font-size: 42px; }
+  .btn-trailer { min-height: 54px; font-size: 18px; }
+  .bt-icon { width: 36px; height: 36px; }
+  .hero-a { align-items: end; min-height: 780px; padding: 96px 0 64px; }
+  .hero-a .hv-bg { object-position: 40% 50%; }
+  .hero-a .hv-shade { background: linear-gradient(180deg, rgba(11, 24, 53, 0.6) 0%, rgba(11, 24, 53, 0.1) 26%, rgba(11, 24, 53, 0.86) 58%, rgba(11, 24, 53, 0.97) 100%); }
+  .hero-a .hv-copy { text-align: center; }
+  .hero-a .hero-cta { justify-content: center; }
+  .hv-real { right: 50%; translate: 50% 0; top: 84px; bottom: auto; }
+  .hero-b { padding-top: 104px; }
+  .game-window { margin-top: 32px; border-width: 4px; border-radius: 20px 20px 0 0; }
+  .gw-trailer { bottom: 14px; }
+  .gw-trailer small { display: none; }
+  .hb-skyline { height: 120px; }
+  .bb-frame { padding: 12px; background-size: 20px 20px; }
+  .hd-logo { width: 78vw; }
+  .btn-xxl { min-height: 76px; padding: 0 40px; font-size: 34px; }
+}

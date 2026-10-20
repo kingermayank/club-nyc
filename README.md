@@ -9,7 +9,9 @@ npm --prefix app install    && npm --prefix app run dev      # the site     :517
 
 The landing page is at `http://localhost:5173/` and the game at **`/play`** (invite links, `/join/<name>`, open the game
 directly). Deploying: **[docs/deploy-railway.md](docs/deploy-railway.md)**. Before inviting the public: **[docs/launch/legal-callouts.md](docs/launch/legal-callouts.md)**.
-The landing page itself: **[docs/marketing/landing-page.md](docs/marketing/landing-page.md)**.
+The landing page itself: **[docs/marketing/landing-page.md](docs/marketing/landing-page.md)**. The launch trailer and
+the landing page's gameplay loop are made with Remotion in `video/` from real captured gameplay:
+**[docs/marketing/launch-video.md](docs/marketing/launch-video.md)**.
 
 Without the server the game runs single-player, as before (`?offline=1` forces it). How the multiplayer works, how to turn on Google/X sign-in, measured performance and the scaling plan: **[docs/multiplayer.md](docs/multiplayer.md)**.
 

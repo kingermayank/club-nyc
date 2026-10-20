@@ -230,7 +230,7 @@ export function openSubway() {
       <text x="${tx}" y="${ty + 11}" text-anchor="${anchor}" class="stop-sub">${s.name}</text>`
     g.addEventListener('click', () => {
       sfx.click()
-      if (s.room === here) return toast('You’re already at this station!', '📍')
+      if (s.room === here) return toast('You’re already at this station. Even the express isn’t that fast.', '📍')
       closeOverlay()
       ride(s)
     })

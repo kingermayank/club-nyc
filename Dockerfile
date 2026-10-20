@@ -10,7 +10,7 @@ WORKDIR /src/app
 COPY app/package.json app/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY app/ ./
-# vite.config.ts shares the landing-page helpers (/discord, /updates.xml) with the server
+# vite.config.ts shares the landing-page helpers (/discord) with the server
 COPY server/src/landing.ts /src/server/src/landing.ts
 RUN npm run build
 

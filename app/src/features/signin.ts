@@ -25,7 +25,7 @@ export function signInScreen(error?: string): Promise<'guest' | 'offline'> {
       <div class="signin-card">
         <div class="si-invite" hidden></div>
         <h2>Welcome to the city!</h2>
-        <p class="si-sub">A pocket-sized Manhattan to explore with real people. Work fun jobs, decorate your place, dance in Times Square.</p>
+        <p class="si-sub">A pocket-sized Manhattan to explore with real people. Work silly jobs, decorate a tiny apartment, dance in Times Square.</p>
         <div class="si-live"><i></i><span>Checking who’s around…</span></div>
         ${error ? `<div class="cr-err">${error}</div>` : ''}
         <button class="btn go si-play">Play now</button>
@@ -90,7 +90,7 @@ export function signInScreen(error?: string): Promise<'guest' | 'offline'> {
     const live = screen.querySelector<HTMLElement>('.si-live span')!
     void rest<{ count: number }>('/online')
       .then((r) => {
-        live.textContent = r.count ? `${r.count} ${r.count === 1 ? 'New Yorker is' : 'New Yorkers are'} in the city right now` : 'Quiet morning. Be the first one in the city!'
+        live.textContent = r.count ? `${r.count} ${r.count === 1 ? 'New Yorker is' : 'New Yorkers are'} in the city right now` : 'Just the pigeons so far. Be the first one in!'
         screen.querySelector('.si-live')!.classList.add(r.count ? 'busy' : 'quiet')
       })
       .catch(() => (live.textContent = 'The city is open'))

@@ -24,9 +24,16 @@ and the questions to take to a lawyer before inviting the public. Sources are li
   the question doesn't hint at the "right" answer.
 - **What's stored.** The birth date is checked by the game and again by the server, then forgotten.
 - **Under 13:**
-  - No New Yorker is created, and the player sees a friendly goodbye.
+  - First, one look: "Is that your birthday? You picked June 2016." It never mentions the age limit, so it doesn't
+    hint at a "right" answer; it catches a slip in the 100-year list. "Let me fix it" is offered once per visit: a
+    second under-13 answer goes straight to the goodbye.
+  - No New Yorker is created, and the player sees a friendly goodbye with a way out: back to the home page.
   - The guest account made for that visit is deleted on the server, so nothing from it is kept.
-  - That browser can't simply go back and pick another year for 24 hours.
+  - **No lock (owner's decision, 19 October 2026).** Play now from the home page starts over, so a person who
+    picked the wrong birthday isn't stuck. The FTC's FAQ suggests a cookie that stops children from going back to
+    enter a different age; that 24-hour lock was removed because it also stranded real teens and adults. The
+    neutral "Is that your birthday?" check stays. Ask the lawyer whether to bring a lock back (for example for the
+    rest of the browser session) before launch.
 - **Coming online after playing offline.** Those players give a birthday and agree too.
 
 **Data minimization**
@@ -93,8 +100,15 @@ show the `[…]` placeholder until each is set.
 4. **Trademarks: logos and real marks carry the most risk.**
    - **"I ♥ NY"** is a New York State trademark that needs approval to use
      ([NYS guidelines](https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/newyorkstate/ILNYLogoSheet_TM_NEW20151_1118f008-579e-43a1-8ba6-3fc6932decb6.pdf)).
-     It appears as an in-game shop, on that shop's storefront, and in the Times Square art used as the landing
-     page's hero image and the share image. Swapping the hero to another place is one line in `app/index.html`.
+     It appears as an in-game shop and its storefront in Times Square, and as small postcards and stickers on the
+     Brooklyn Bridge souvenir stand. Marketing keeps it out where it can: the landing page's hero loop frames Times
+     Square below the sign, and the share images show Liberty Island and the Empire State Building. It still shows in
+     the trailer's Times Square shots and wherever the Brooklyn Bridge appears (hero loop, trailer, Explore tile).
+     Repainting those two bits of art removes it everywhere.
+   - **"Club Penguin"** is Disney's trademark. The landing page hints at it ("Waddle on over to New York.",
+     "Remember waddling around… discovering secret rooms?") without using the name, logo, art or penguins. If the
+     name is ever used, say Club NYC isn't affiliated with or endorsed by Disney, and never suggest Disney made or
+     approved it.
    - **MTA:** it holds trademarks in the MetroCard name and the subway route bullets, and copyright in its map
      ([MTA licensing](https://www.mta.info/doing-business-with-us/licensing-program)). The game calls your ID card
      a "MetroCard", and the subway art shows route bullets.

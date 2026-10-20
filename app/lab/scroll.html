@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Landing page option E, "Cinematic scroll". Dev only: Vite serves it at /lab/scroll.html, the build leaves it out.
+         One video plays behind the whole page; scrolling reshapes it (full screen → game window → backdrop → inside
+         the letters of HANG OUT → full screen) while the content moves, flies in and transforms around it. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Club NYC: cinematic scroll (option E)</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <script type="module" src="/lab/scroll.ts"></script>
+  </head>
+  <body class="sx">
+    <div class="sx-progress" aria-hidden="true"><i></i></div>
+
+    <!-- the one video, behind everything; the script reshapes it scene by scene -->
+    <div class="sx-video" aria-hidden="true">
+      <div class="sx-video-tilt">
+        <div class="sx-video-clip">
+          <video class="sx-v on crowd" muted loop playsinline preload="auto" poster="/lab/clips/crowd-arrive.webp"></video>
+          <video class="sx-v" muted loop playsinline preload="none"></video>
+        </div>
+        <div class="sx-frame"></div>
+      </div>
+    </div>
+
+    <header class="site-header sx-header" id="top">
+      <div class="wrap header-row">
+        <a class="brand" href="/" aria-label="Club NYC home"><img src="/art/ui/logo.png" alt="Club NYC" width="900" height="507" /></a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="#explore">Explore NYC</a>
+          <a href="#fun-stuff">The fun stuff</a>
+          <a href="#safety">Safety</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <div class="header-actions">
+          <a class="link-signin" href="/play">Sign in</a>
+          <a class="btn btn-play btn-sm" href="/play?start=guest">Play now</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ 1. the city, then it shrinks into a game window ============ -->
+      <section class="sx-scene sx-open" data-scene="open" data-clip="crowd-arrive" aria-labelledby="sx-title">
+        <div class="sx-stage">
+          <p class="sx-kicker" data-range="0 .25">Free <i aria-hidden="true">·</i> Plays in your browser <i aria-hidden="true">·</i> Ages 13+</p>
+          <h1 class="sx-title" id="sx-title">
+            <span class="l1" data-range="0 .5">A city</span>
+            <span class="l2" data-range=".04 .54">you can</span>
+            <span class="l3" data-range=".08 .58">hang out in.</span>
+          </h1>
+          <div class="sx-cta" data-range="0 .3">
+            <a class="btn btn-play btn-xl" href="/play?start=guest">Play now<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <button class="sx-trailer" type="button" data-trailer="open"><span class="bt-icon" aria-hidden="true"></span>Watch the trailer<small>0:45</small></button>
+          </div>
+          <p class="sx-hint" data-range="0 .12" aria-hidden="true">Scroll<i></i></p>
+          <!-- they arrive as the window settles -->
+          <div class="sx-bubble b1" data-range=".46 .62" data-ease="back"><p>meet you on the red steps?</p><b>Ana_NYC</b></div>
+          <div class="sx-bubble b2" data-range=".54 .7" data-ease="back"><p>be there in 5!</p><b>BenFromBK</b></div>
+          <div class="sx-bubble b3" data-range=".62 .78" data-ease="back"><p>bringing pizza <img src="/art/icons/e/pizza.png" alt="" /></p><b>Cleo</b></div>
+          <p class="sx-real" data-range=".66 .8" data-ease="back"><i aria-hidden="true"></i>Real gameplay</p>
+        </div>
+      </section>
+
+      <!-- ============ 2. places stream past, sideways ============ -->
+      <section class="sx-scene sx-places" id="explore" data-scene="places" data-clip="central-park" aria-labelledby="sx-places-title">
+        <div class="sx-stage">
+          <div class="sx-giant" aria-hidden="true">
+            <span class="g1" data-range="0 1" data-ease="linear">20+ places · 20+ places · 20+ places ·</span>
+            <span class="g2" data-range="0 1" data-ease="linear">walk · subway · ferry · walk · subway · ferry ·</span>
+          </div>
+          <div class="sx-places-intro" data-range="0 .14" data-ease="out">
+            <h2 id="sx-places-title">Explore NYC</h2>
+            <p>Every corner of the city is a place you can walk into. Hop between them on the map, the subway or the ferry.</p>
+          </div>
+          <div class="sx-track" data-range=".1 .96" data-ease="linear">
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/central-park.webp"><source src="/lab/clips/central-park.mp4" type="video/mp4" /></video></div><h3>Central Park</h3><p>Bow Bridge, the Lake and a bench with your name on it.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/soho.webp"><source src="/lab/clips/soho.mp4" type="video/mp4" /></video></div><h3>SoHo</h3><p>Cobblestones, new outfits at THREAD and the latest drops at Sneaker Vault.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/chinatown.webp"><source src="/lab/clips/chinatown.mp4" type="video/mp4" /></video></div><h3>Chinatown &amp; Little Italy</h3><p>Dumplings on Mott Street, 99¢ slices on Mulberry.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/brooklyn-bridge.webp"><source src="/lab/clips/brooklyn-bridge.mp4" type="video/mp4" /></video></div><h3>Brooklyn Bridge</h3><p>Stroll the promenade with the whole skyline behind you.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/liberty-island.webp"><source src="/lab/clips/liberty-island.mp4" type="video/mp4" /></video></div><h3>Liberty Island</h3><p>Steer the ferry from Battery Park and say hi to Lady Liberty.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/grand-central.webp"><source src="/lab/clips/grand-central.mp4" type="video/mp4" /></video></div><h3>Grand Central</h3><p>Look up: the stars on the ceiling are painted backwards.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/the-met.webp"><source src="/lab/clips/the-met.mp4" type="video/mp4" /></video></div><h3>The Met</h3><p>Sit on the steps like a real New Yorker.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/high-line.webp"><source src="/lab/clips/high-line.mp4" type="video/mp4" /></video></div><h3>The High Line</h3><p>A park on an old elevated railway, high above Chelsea.</p></article>
+            <article class="sx-card"><div class="sx-card-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/rockefeller.webp"><source src="/lab/clips/rockefeller.mp4" type="video/mp4" /></video></div><h3>Rockefeller Center</h3><p>Rent some skates and take a spin around the rink.</p></article>
+            <article class="sx-card sx-card-map"><div class="sx-card-media"><img src="/art/landing/map-960.webp" alt="The illustrated map of Club NYC's Manhattan" loading="lazy" /></div><h3>The whole city on one map</h3><p>Pick a spot and you’re there. Every street also has arrows to the place next door.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 3. the video plays inside the words, then you fall through them ============ -->
+      <section class="sx-scene sx-mask" data-scene="mask" data-clip="crowd" aria-labelledby="sx-mask-title">
+        <div class="sx-stage">
+          <h2 class="sx-visually-hidden" id="sx-mask-title">Hang out</h2>
+          <!-- a cream sheet with HANG OUT cut out of it: the video plays through the letters, then the letters grow until they
+               swallow the screen. The letters are Burbank Small Bold turned into a path (fontTools), because browsers stop
+               drawing text once a glyph is thousands of pixels tall, and paths scale forever. -->
+          <svg class="sx-cover" data-range="0 .86" data-ease="in" aria-hidden="true" preserveAspectRatio="none">
+            <defs><mask id="sx-holes"><rect width="100%" height="100%" fill="#fff" /><path class="sx-mask-text" fill="#000" d="M141.6 6.3C169.3 5.9 191.7 6.6 191.7 6.6C190.7 -128.4 190.7 -236 190.7 -236C162.4 -235.3 140.2 -235.6 140.2 -235.6C140.6 -191.4 141.2 -151.5 141.2 -116.8C101.6 -116.5 78.2 -117.2 70.6 -117.2C70 -180.8 69.6 -223.7 69.6 -223.7C40.9 -223.4 20.1 -223.4 20.1 -223.4C21.8 -91.4 21.4 -5.6 21.4 -5.6C46.9 -6.3 71.9 -5.9 71.9 -5.9L71 -73.9C110.9 -74.6 132 -74.6 141.6 -74.2ZM218.5 -5C243.5 -5 268.6 -4.3 268.6 -4.3L277.5 -43.9C314.8 -43.9 341.2 -43.6 355.4 -43.2C363 -11.6 367.6 6.9 367.6 6.9C393 5.9 419.8 6.3 419.8 6.3C385.4 -118.1 355.4 -232 355.4 -232C355.4 -232 320.4 -232 280.2 -231C244.5 -96.7 218.5 -5 218.5 -5ZM316.1 -204.9C328 -157.1 338.2 -114.5 346.5 -80.2C318.5 -80.2 298.3 -80.2 285.8 -80.5C298.7 -135 310.5 -182.2 316.1 -204.9ZM447.5 -5.9C473.2 -5.9 493.4 -5.3 493.4 -5.3C491 -72.6 489.7 -132.7 489.1 -159.1C537.9 -68 574.2 6.6 574.2 6.6C602.9 5 626.7 3.3 626.7 3.3C623.4 -143.6 622.7 -235.3 622.7 -235.3C596.6 -235.3 576.8 -235.6 576.8 -235.6C580.5 -155.8 582.5 -86.8 583.1 -59.4C536.9 -147.2 500.6 -224.4 500.6 -224.4C473.6 -223.4 446.5 -221.8 446.5 -221.8C448.1 -87.5 447.5 -5.9 447.5 -5.9ZM762.6 7.6C829.3 7.6 866.2 -38 857 -123.1C789 -122.8 752.7 -123.4 752.7 -123.4C753.4 -98 753.1 -85.1 753.1 -85.1C781.1 -85.5 802.2 -84.8 812.1 -84.2C810.8 -47.2 793.3 -31.4 767.9 -31.4C731.3 -31.4 713.8 -59.4 713.8 -115.5C713.8 -165.3 730.3 -195.7 762 -195.7C784.4 -195.7 797.9 -178.2 801.9 -151.5C831.6 -156.4 853.1 -158.4 853.1 -158.4C844.5 -206.2 814.8 -235.6 763 -235.6C696.6 -235.6 661.3 -186.8 661.3 -114.8C661.3 -31.4 701.2 7.6 762.6 7.6ZM1074.8 6.9C1135.5 6.9 1175.8 -32 1175.8 -113.2C1175.8 -188.4 1140.5 -235 1075.5 -235C1011.8 -235 973.5 -188.1 974.2 -112.5C974.2 -36 1012.4 6.6 1074.8 6.9ZM1074.8 -33C1045.4 -33 1028 -60.7 1028.3 -113.5C1028.3 -167 1044.8 -195 1075.1 -195C1104.2 -195 1121.3 -169 1121.3 -113.9C1121.3 -55.8 1101.9 -33 1074.8 -33ZM1299.5 4.6C1358.3 4.6 1387 -32 1387 -112.5C1387 -162 1387.3 -232.7 1387.3 -232.7C1353.3 -231 1333.9 -232 1333.9 -232C1333.9 -232 1335.8 -162.4 1335.8 -117.5C1335.8 -56.4 1324.3 -38.6 1298.2 -38.6C1271.5 -38.6 1259.3 -59.1 1259.3 -122.8C1259.3 -155.8 1259.9 -219.8 1259.9 -219.8C1226.9 -220.4 1208.5 -222.1 1208.5 -222.1C1208.5 -222.1 1208.8 -158.7 1208.8 -109.9C1208.8 -31 1235.5 4.6 1299.5 4.6ZM1414.1 -185.5 1473.8 -185.8C1474.8 -71.6 1474.4 2.3 1474.4 2.3C1503.2 2 1525.6 2 1525.6 2C1524.3 -96.7 1524.3 -152.5 1524.3 -185.8H1583.3C1583 -209.9 1583.7 -230.7 1583.7 -230.7C1507.8 -229.7 1413.7 -229.7 1413.7 -229.7C1414.1 -203 1414.1 -185.5 1414.1 -185.5Z" /></mask></defs>
+            <rect width="100%" height="100%" fill="#fffdf6" mask="url(#sx-holes)" />
+          </svg>
+          <div class="sx-mask-after" data-range=".78 .96" data-ease="out">
+            <p class="sx-mask-big">Make friends.</p>
+            <p>Chat, wave, dance and add anyone you meet. Every name tag is a real New Yorker or one of the city’s friendly locals.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4. the fun stuff: cards stack up ============ -->
+      <section class="sx-scene sx-stack" id="fun-stuff" data-scene="stack" data-clip="party" aria-labelledby="sx-fun-title">
+        <div class="wrap sx-stack-head">
+          <h2 id="sx-fun-title">The fun stuff</h2>
+          <p>There’s always something to do, on your own or with friends.</p>
+        </div>
+        <div class="wrap sx-cards">
+          <article class="sx-feature" style="--i: 0">
+            <div class="sx-feature-copy"><span class="sx-num">01</span><h3>Your look, your rules</h3><p>Shop the city for hats, tees, puffers, sneakers and the occasional foam crown. Try things on before you buy and change your look whenever you like.</p><ul><li>8 shops, from SoHo boutiques to a Fifth Avenue toy store</li><li>A signature color your favorite pieces wear</li></ul></div>
+            <div class="sx-feature-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/creator.webp"><source src="/lab/clips/creator.mp4" type="video/mp4" /></video></div>
+          </article>
+          <article class="sx-feature" style="--i: 1">
+            <div class="sx-feature-copy"><span class="sx-num">02</span><h3>50 stamps for doing very New York things</h3><p>Ride the subway. Coo at three Times Square pigeons. Sit on the steps of the Met. Every stamp comes with a hint, and every 5 you collect pays 25 coins.</p><ul><li>Wear your favorite stamp as a title</li><li>Bonus coins every 5 stamps</li></ul></div>
+            <div class="sx-feature-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/stamps.webp"><source src="/lab/clips/stamps.mp4" type="video/mp4" /></video></div>
+          </article>
+          <article class="sx-feature" style="--i: 2">
+            <div class="sx-feature-copy"><span class="sx-num">03</span><h3>Five silly jobs that pay real coins</h3><p>Toss pizzas at Slice Factory, run the lunch line at Halal Rush, catch deliveries at Bagel Counters, steer the ferry and dance for tips in Showtime!</p><ul><li>This-week and all-time leaderboards for every job</li><li>Quick rounds you can play in a couple of minutes</li></ul></div>
+            <div class="sx-feature-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/ferry.webp"><source src="/lab/clips/ferry.mp4" type="video/mp4" /></video></div>
+          </article>
+          <article class="sx-feature" style="--i: 3">
+            <div class="sx-feature-copy"><span class="sx-num">04</span><h3>Make your place feel like home</h3><p>Every New Yorker starts in a 5th-floor walk-up in the East Village. Fill it with furniture, throw a house party, then save up for a SoHo loft or a penthouse.</p><ul><li>Friends can visit and sign your guestbook</li><li>House parties with your pick of music and vibe</li></ul></div>
+            <div class="sx-feature-media"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/party.webp"><source src="/lab/clips/party.mp4" type="video/mp4" /></video></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ 5. the Dance Jam ============ -->
+      <section class="sx-scene sx-jam" data-scene="jam" data-clip="jam" aria-labelledby="sx-jam-title">
+        <div class="sx-stage">
+          <h2 class="sx-jam-title" id="sx-jam-title">
+            <span data-range=".05 .3" data-ease="back">Every</span>
+            <span data-range=".1 .35" data-ease="back">8 minutes,</span>
+            <span class="sun" data-range=".18 .43" data-ease="back">Times Square</span>
+            <span class="sun" data-range=".24 .49" data-ease="back">dances.</span>
+          </h2>
+          <p class="sx-jam-live" data-range=".4 .6" data-ease="back"><i aria-hidden="true"></i><span class="jam-count">The next Dance Jam is soon</span></p>
+          <div class="sx-confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </section>
+
+      <!-- ============ 6. and there's more: two rows slide past each other ============ -->
+      <section class="sx-scene sx-more" data-scene="more" data-clip="snowball" aria-label="And there’s more">
+        <div class="sx-stage">
+          <div class="sx-rows" aria-hidden="true">
+            <p class="r1" data-range="0 1" data-ease="linear"><span>House parties</span><span>Snowball fights</span><span>Photo booth</span><span>Neighborhood Wars</span><span>Flash mobs</span><span>House parties</span><span>Snowball fights</span><span>Photo booth</span></p>
+            <p class="r2" data-range="0 1" data-ease="linear"><span>The Club NYC Times</span><span>Today in the City</span><span>Halal Rush</span><span>Showtime</span><span>50 stamps</span><span>The Club NYC Times</span><span>Today in the City</span></p>
+          </div>
+          <figure class="sx-polaroid p1" data-range="0 1" data-ease="linear"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/snowball.webp"><source src="/lab/clips/snowball.mp4" type="video/mp4" /></video><figcaption>Snowball fights</figcaption></figure>
+          <figure class="sx-polaroid p2" data-range="0 1" data-ease="linear"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/halal.webp"><source src="/lab/clips/halal.mp4" type="video/mp4" /></video><figcaption>Halal Rush</figcaption></figure>
+          <figure class="sx-polaroid p3" data-range="0 1" data-ease="linear"><video data-lazy muted loop playsinline preload="none" poster="/lab/clips/showtime.webp"><source src="/lab/clips/showtime.mp4" type="video/mp4" /></video><figcaption>Showtime</figcaption></figure>
+          <h2 class="sx-more-title" data-range=".3 .55" data-ease="back">And there’s more.</h2>
+        </div>
+      </section>
+
+      <!-- ============ 7. safety: the rules fly in ============ -->
+      <section class="sx-scene sx-safe" id="safety" data-scene="safe" data-clip="crowd" aria-labelledby="sx-safe-title">
+        <div class="sx-stage">
+          <div class="sx-safe-head" data-range="0 .2" data-ease="out">
+            <h2 id="sx-safe-title">Be a good neighbor</h2>
+            <p>Club NYC is for ages 13 and up. A few simple rules keep the city friendly for everyone.</p>
+          </div>
+          <ul class="sx-rules">
+            <li data-range=".12 .32" data-ease="back" style="--from: -1"><img src="/art/icons/e/heart.png" alt="" /><b>Be kind</b><span>No bullying, harassment or hate.</span></li>
+            <li data-range=".18 .38" data-ease="back" style="--from: 1"><img src="/art/icons/e/ok-hand.png" alt="" /><b>Keep it PG-13</b><span>No dating, sexual content or slurs.</span></li>
+            <li data-range=".24 .44" data-ease="back" style="--from: -1"><img src="/art/icons/e/lock.png" alt="" /><b>Keep it private</b><span>No real names, addresses or socials.</span></li>
+            <li data-range=".3 .5" data-ease="back" style="--from: 1"><img src="/art/icons/e/medal-gold.png" alt="" /><b>Play fair</b><span>No cheating, bots or extra accounts.</span></li>
+            <li data-range=".36 .56" data-ease="back" style="--from: -1"><img src="/art/icons/e/sunglasses.png" alt="" /><b>Be yourself</b><span>Don’t pretend to be staff or another player.</span></li>
+          </ul>
+          <p class="sx-safe-note" data-range=".5 .7" data-ease="out">Chat is filtered, and every player card has Report, Block and Mute. Moderators review reports with the recent chat. <a href="/rules.html">Read the community rules</a></p>
+        </div>
+      </section>
+
+      <!-- ============ 8. community and FAQ, on glass over the video ============ -->
+      <section class="sx-glass" id="faq" aria-labelledby="sx-faq-title">
+        <div class="wrap sx-glass-grid">
+          <div class="sx-discord">
+            <h2>Come hang out on Discord</h2>
+            <p>Find people to play with, get first looks at new places and tell us about bugs.</p>
+            <a class="btn btn-discord" href="/discord" rel="noopener">Join the Discord</a>
+            <p class="sx-small">Club NYC is in early access, and new things land all the time.</p>
+          </div>
+          <div class="sx-faq">
+            <h2 id="sx-faq-title">Questions?</h2>
+            <details><summary>Is Club NYC free?</summary><p>Yes. It’s free to play and there’s nothing to buy. Coins are earned in the game and can’t be bought or sold.</p></details>
+            <details><summary>Do I need to download anything?</summary><p>No. Club NYC runs in your web browser on a computer. Chrome, Edge, Firefox and Safari all work.</p></details>
+            <details><summary>Can I play on my phone?</summary><p>Not yet. The city needs a keyboard and a bigger screen, so it’s made for laptops and desktops.</p></details>
+            <details><summary>How old do I need to be?</summary><p>13 or older. We ask for your birth month and year to check, and we don’t keep them.</p></details>
+            <details><summary>How do I play with my friends?</summary><p>Share your invite link from the phone on your toolbar. Friends who open it land right next to you.</p></details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 9. the end ============ -->
+      <section class="sx-scene sx-final" data-scene="final" data-clip="crowd" aria-labelledby="sx-final-title">
+        <div class="sx-stage">
+          <h2 class="sx-final-title" id="sx-final-title"><span data-range=".1 .4" data-ease="back">Your city</span><span data-range=".18 .48" data-ease="back">is waiting.</span></h2>
+          <div class="sx-final-cta" data-range=".35 .6" data-ease="back">
+            <a class="btn btn-play btn-xl sx-magnet" href="/play?start=guest">Play now<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <p>Free <i aria-hidden="true">·</i> No download <i aria-hidden="true">·</i> Ages 13+</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="sx-footer">
+      <div class="wrap sx-footer-row">
+        <img src="/art/ui/logo.png" alt="Club NYC" width="900" height="507" />
+        <nav aria-label="Footer"><a href="/rules.html">Community rules</a><a href="/privacy.html">Privacy policy</a><a href="/terms.html">Terms of service</a><a href="/updates.xml">Updates (RSS)</a></nav>
+        <p>Club NYC is an independent game, not affiliated with or endorsed by the City of New York, the MTA or any brand parodied in it.</p>
+      </div>
+    </footer>
+
+    <dialog class="trailer" aria-label="Club NYC trailer">
+      <button class="trailer-x" type="button" aria-label="Close the trailer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+      <video controls playsinline preload="none" poster="/video/club-nyc-trailer.jpg" src="/video/club-nyc-trailer.mp4" width="1920" height="1080"></video>
+      <p class="trailer-note">Real gameplay, set to “Empire State of Mine”, one of the game’s own songs.</p>
+    </dialog>
+  </body>
+</html>

@@ -203,7 +203,7 @@ api.post('/client-errors', async (c) => {
 })
 
 // ---------- onboarding funnel events (anonymous per page-load session; a fixed list of names) ----------
-export const EVENT_NAMES = ['landing_view', 'landing_play', 'landing_discord', 'landing_send', 'creator_open', 'look_preset', 'look_shuffle', 'look_tweak', 'look_colour', 'name_screen', 'name_wheel', 'name_typed', 'creator_done', 'spawned'] as const
+export const EVENT_NAMES = ['landing_view', 'landing_play', 'landing_discord', 'landing_send', 'landing_trailer', 'creator_open', 'look_preset', 'look_shuffle', 'look_tweak', 'look_colour', 'name_screen', 'name_wheel', 'name_typed', 'creator_done', 'spawned'] as const
 const EventsBody = z.object({
   session: z.string().min(6).max(40),
   events: z.array(z.object({ name: z.enum(EVENT_NAMES), ms: z.number().int().min(0).max(36e5).optional(), detail: z.string().max(40).optional() })).max(20),
@@ -431,6 +431,7 @@ api.post('/games/:game/finish', requireUser, async (c) => {
     balance = pay.coins
     paidOut = pay.paid ?? 0
     tx(() => {
+      q.run('UPDATE game_runs SET score = ? WHERE id = ?', score, body.data.run)
       // this week's board, plus the all-time board (stored as week 'all') that never resets
       for (const w of [week, 'all'])
         q.run(
@@ -507,6 +508,31 @@ api.get('/highlights', (c) => {
     }
   }
   return c.json(highlights.body)
+})
+/**
+ * "The city so far" on the landing page: real totals, re-counted at most once a minute (every New Yorker ever made,
+ * the pizzas made at Slice Factory and its top slicer), plus how many people are out right now and in how many places.
+ */
+let soFar = { at: 0, body: {} as Record<string, unknown> }
+api.get('/stats', (c) => {
+  if (Date.now() - soFar.at > 60_000) {
+    const slicer = (week: string) =>
+      q.get<{ name: string; best: number }>(
+        `SELECT u.name, s.best FROM scores s JOIN users u ON u.id = s.user_id
+         WHERE s.game = 'slice-factory' AND s.week = ? AND u.banned_until IS NULL ORDER BY s.best DESC, s.updated_at ASC LIMIT 1`,
+        week,
+      ) ?? null
+    soFar = {
+      at: Date.now(),
+      body: {
+        newYorkers: q.get<{ n: number }>('SELECT COUNT(*) AS n FROM users WHERE profile_done = 1')!.n,
+        pizzas: q.get<{ n: number }>(`SELECT COALESCE(SUM(score), 0) AS n FROM game_runs WHERE game = 'slice-factory'`)!.n,
+        topSlicer: slicer(weekId()),
+        slicerRecord: slicer('all'),
+      },
+    }
+  }
+  return c.json({ ...soFar.body, online: onlineCount(), places: Object.keys(roomCounts()).length })
 })
 /** "Who's in the city?" — busy rooms with a few faces, for the map and the community panel. */
 api.get('/city', requireUser, (c) => c.json({ count: onlineCount(), rooms: cityPulse(), parties: partiesFor(c.get('user').id) }))

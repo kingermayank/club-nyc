@@ -9,7 +9,7 @@ When something goes wrong later, use [runbook.md](runbook.md).
 > Before you invite players, read [launch/legal-callouts.md](launch/legal-callouts.md).
 
 **What players see:** the landing page at `/`, the game at `/play`. Invite links (`/join/<name>`) open the game
-directly. `/discord` sends people to your Discord invite, and `/updates.xml` is the "What's new" feed.
+directly. `/discord` sends people to your Discord invite.
 
 Railway's docs were checked on 16 October 2026 for this guide. Links are in [Sources](#sources) at the end.
 
@@ -219,7 +219,7 @@ There's nothing to set under Build: Railway builds the `Dockerfile` automaticall
 
    `version` is the Git commit that's running (or the package version for CLI deploys).
 4. Open the site. The landing page loads at `/`. Press **Play now**: you go straight to making a New Yorker. Give a birth month and year, tick "I agree", and walk around as a guest.
-   Also check: `/robots.txt` and `/sitemap.xml` show your `https://` address, `/updates.xml` lists the latest updates, and `/discord` goes to your invite (or back to the landing page with an "opens soon" note).
+   Also check: `/robots.txt` and `/sitemap.xml` show your `https://` address, and `/discord` goes to your invite (or back to the landing page with an "opens soon" note).
 5. About a minute after the start, the logs should show the first snapshot: `[ops] backup club-nyc-2026-10-16T12-00-00Z.db (…) in … ms`. Snapshot names use UTC time.
 6. Open `https://<your domain>/admin.html` and log in with your `ADMIN_TOKEN`.
 

@@ -121,7 +121,7 @@ async def main():
         await shot(pg, 'shop-sneaker-vault', 1000)
         await js(pg, "document.querySelector('.catalog .x-btn').click(); import('/src/features/playerCard.ts').then(m=>m.openPlayerCard())")
         await shot(pg, 'player-card-wardrobe', 1200)
-        await js(pg, "document.querySelector('.pc-tab.look').click()")
+        await js(pg, "[...document.querySelectorAll('.pc-view')].find((b) => b.textContent === 'Look').click()")
         await shot(pg, 'player-card-edit-look', 800)
         await js(pg, "document.querySelector('.player-card .x-btn').click()")
 

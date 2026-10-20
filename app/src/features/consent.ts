@@ -8,8 +8,10 @@ import { MIN_AGE, oldEnough } from '../data/policy'
  *  - A new New Yorker gives a birth month and year (a neutral age question: every year is on the list, nothing is
  *    pre-picked) and ticks "I agree to the Terms, Privacy Policy and Community Rules". The server records which
  *    version they agreed to and when; the birthday is only checked, never stored.
- *  - Under 13: a friendly goodbye, nothing from the visit is kept, and this browser can't simply go back and try
- *    another year for a day.
+ *  - A birthday that works out under 13 gets one look first ("Is that your birthday?"), so a slip in the 100-year
+ *    list can be fixed. It never says why it's asking, and it's offered once per visit.
+ *  - Under 13: a friendly goodbye, and nothing from the visit is kept. "Back to the home page" is the way out, and
+ *    Play now there starts over (no lock: the owner's call, see docs/launch/legal-callouts.md).
  *  - Players from before (or after a policy update) agree once more, in a panel, before heading back in.
  */
 export interface Birth {
@@ -43,7 +45,7 @@ export function consentFields(o: { birthday?: boolean; birth?: Birth | null; agr
     }
     // (the game's keys shouldn't fire while you pick)
     for (const s of [month, year]) s.addEventListener('keydown', (e) => e.stopPropagation())
-    row.append(month, year, el('small', 'cr-dob-note', 'To check your age. We don’t keep it.'))
+    row.append(month, year)
     box.append(row)
   }
   const agree = el('label', 'cr-age', `<input type="checkbox" ${o.agreed ? 'checked' : ''}><span>I agree to ${LINKS}.</span>`)
@@ -53,6 +55,8 @@ export function consentFields(o: { birthday?: boolean; birth?: Birth | null; agr
   return {
     box,
     birth,
+    /** back to the year (after "Let me fix it") */
+    fixBirthday: () => year?.focus(),
     agreed: () => tick.checked,
     /** what's missing, as the sentence to show and the field to shake (null = good to go) */
     problem(): { target: HTMLElement; msg: string } | null {
@@ -72,26 +76,44 @@ export function shake(target: HTMLElement) {
 }
 
 // ---------- under 13 ----------
-const BLOCK_KEY = 'club-nyc:too-young'
-const BLOCK_MS = 24 * 3600_000
-/** this browser said "under 13" in the last day (no going back to pick another year) */
-export function tooYoungRecently(): boolean {
-  try {
-    const t = Number(localStorage.getItem(BLOCK_KEY))
-    return t > 0 && Date.now() - t < BLOCK_MS
-  } catch {
-    return false
-  }
-}
 export const isOldEnough = (b: Birth) => oldEnough(b.m, b.y)
+
+/**
+ * One look before the goodbye: "Is that your birthday? You picked June 2016." Neutral on purpose (it never mentions
+ * the age limit, so it doesn't hint at a "right" answer); it just catches a slip in a long list. Resolves true when
+ * they say it's right, false when they want to fix it (closing it counts as fixing it).
+ */
+export function confirmBirthday(b: Birth): Promise<boolean> {
+  return new Promise((resolve) => {
+    let settled = false
+    const done = (sure: boolean) => {
+      if (settled) return
+      settled = true
+      resolve(sure)
+    }
+    const p = el('div', 'panel birthday-check', `<div class="panel-art">📅</div><h2>Is that your birthday?</h2><p>You picked <b>${MONTHS[b.m - 1]} ${b.y}</b>.</p>`)
+    const row = el('div', 'choices two')
+    const fix = el('button', 'btn ghost', 'Let me fix it')
+    const yes = el('button', 'btn go', 'Yes, that’s right')
+    fix.onclick = () => {
+      sfx.click()
+      done(false)
+      closeOverlay()
+    }
+    yes.onclick = () => {
+      sfx.click()
+      done(true)
+      closeOverlay()
+    }
+    row.append(fix, yes)
+    p.append(row)
+    // (above the New Yorker creator too, which sits over the usual overlay layer)
+    openOverlay(p, { backdrop: false, onClose: () => done(false), cls: 'over-creator' })
+  })
+}
 
 /** A friendly goodbye for someone under 13. (Online, the caller also deletes the guest account made for the visit.) */
 export function tooYoungScreen() {
-  try {
-    localStorage.setItem(BLOCK_KEY, String(Date.now()))
-  } catch {
-    /* private mode */
-  }
   stage.root.querySelectorAll('.creator').forEach((n) => n.remove())
   closeOverlay()
   const screen = el(
@@ -125,6 +147,10 @@ export function consentPanel(kind: 'new' | 'update'): Promise<{ birth: Birth | n
     const err = el('div', 'cr-err')
     const ok = el('button', 'btn go', kind === 'new' ? 'Agree and continue' : 'Agree and play')
     let settled = false
+    // the birthday check is open on top: closing this panel for it isn't "closed without an answer"
+    let checking = false
+    // one "Let me fix it" per visit
+    let checked = false
     ok.onclick = () => {
       const problem = f.problem()
       if (problem) {
@@ -133,14 +159,32 @@ export function consentPanel(kind: 'new' | 'update'): Promise<{ birth: Birth | n
       }
       sfx.click()
       const birth = f.birth()
+      if (kind === 'new' && birth && !isOldEnough(birth)) {
+        if (checked) {
+          settled = true
+          closeOverlay()
+          return resolve('too-young')
+        }
+        checked = true
+        checking = true
+        void confirmBirthday(birth).then((sure) => {
+          checking = false
+          if (sure) {
+            settled = true
+            return resolve('too-young')
+          }
+          show()
+          f.fixBirthday()
+        })
+        return
+      }
       settled = true
       closeOverlay()
-      if (kind === 'new' && birth && !isOldEnough(birth)) return resolve('too-young')
       resolve({ birth })
     }
     p.append(f.box, err, ok)
     // there's no way around it: closed without an answer (Escape), the panel comes straight back
-    const show = () => openOverlay(p, { backdrop: false, onClose: () => void (settled || setTimeout(show, 0)) })
+    const show = () => openOverlay(p, { backdrop: false, onClose: () => void (settled || checking || setTimeout(show, 0)) })
     show()
   })
 }

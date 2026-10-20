@@ -17,7 +17,7 @@ import { rest } from '../net/server'
 import type { PlayerPlace } from './apartment'
 
 /** Club Penguin–style player card: you on the left, your stuff on the right. */
-export function openPlayerCard(tab: 'items' | 'look' = 'items') {
+export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
   const card = el('div', 'player-card')
   const left = el('div', 'pc-left')
   const right = el('div', 'pc-right')
@@ -41,7 +41,7 @@ export function openPlayerCard(tab: 'items' | 'look' = 'items') {
     }
     pickWrap.append(sel)
     left.append(pickWrap)
-    // (your account, invites and sign-in live in their own tab on the right: the left side is just you)
+    // (your account, invites and sign-in live in the Account tab on the right: the left side is just you)
   }
   const setLook = (look: Look) => {
     save.look = look
@@ -50,35 +50,45 @@ export function openPlayerCard(tab: 'items' | 'look' = 'items') {
     drawLeft()
   }
 
+  // the right side: three tabs (your wardrobe, your look, your account) over whichever one is open
+  let view = tab
   let slot: Slot | 'all' = 'all'
-  const drawItems = () => {
+  const drawRight = () => {
     right.innerHTML = ''
+    const views = el('div', 'pc-views')
+    const mkView = (id: typeof view, label: string) => {
+      const b = el('button', 'pc-view' + (view === id ? ' on' : ''), label)
+      b.onclick = () => {
+        sfx.click()
+        view = id
+        drawRight()
+      }
+      views.append(b)
+    }
+    mkView('items', 'Wardrobe')
+    mkView('look', 'Look')
+    if (link.account) mkView('account', 'Account')
+    right.append(views)
+    if (view === 'look') right.append(lookEditor(() => save.look, setLook))
+    else if (view === 'account') {
+      const pane = el('div', 'pc-acct-pane')
+      pane.append(accountRow())
+      right.append(pane)
+    } else drawItems()
+  }
+  const drawItems = () => {
     const tabs = el('div', 'pc-tabs')
     const mk = (id: Slot | 'all', label: string) => {
       const b = el('button', 'pc-tab' + (slot === id ? ' on' : ''), label)
       b.onclick = () => {
         sfx.click()
         slot = id
-        drawItems()
+        drawRight()
       }
       tabs.append(b)
     }
     mk('all', 'All')
     SLOTS.forEach((s) => mk(s, SLOT_LABEL[s]))
-    const lookBtn = el('button', 'pc-tab look', 'Edit look ✂️')
-    lookBtn.onclick = () => {
-      sfx.click()
-      drawLook()
-    }
-    tabs.append(lookBtn)
-    if (link.account) {
-      const acctBtn = el('button', 'pc-tab acct', 'Account')
-      acctBtn.onclick = () => {
-        sfx.click()
-        drawAccount()
-      }
-      tabs.append(acctBtn)
-    }
     right.append(tabs)
     const grid = el('div', 'pc-grid')
     const owned = save.owned.filter((id) => ITEM[id] && (slot === 'all' || ITEM[id].slot === slot))
@@ -95,37 +105,15 @@ export function openPlayerCard(tab: 'items' | 'look' = 'items') {
         if (worn && !['body', 'legs', 'feet'].includes(def.slot)) delete items[def.slot]
         else items[def.slot] = id
         setLook({ ...save.look, items })
-        drawItems()
+        drawRight()
       }
       grid.append(b)
     }
-    if (!owned.length) grid.append(el('p', 'muted', 'Nothing here yet. The shops around town have plenty.'))
+    if (!owned.length) grid.append(el('p', 'muted', 'Nothing here yet. Very minimalist. The shops around town can fix that.'))
     right.append(grid)
   }
-
-  const drawLook = () => {
-    right.innerHTML = ''
-    const back = el('button', 'pc-tab', '← Back to items')
-    back.onclick = () => {
-      sfx.click()
-      drawItems()
-    }
-    right.append(back, lookEditor(() => save.look, setLook))
-  }
-  const drawAccount = () => {
-    right.innerHTML = ''
-    const back = el('button', 'pc-tab', '← Back to items')
-    back.onclick = () => {
-      sfx.click()
-      drawItems()
-    }
-    const pane = el('div', 'pc-acct-pane', '<h3>Your account</h3>')
-    pane.append(accountRow())
-    right.append(back, pane)
-  }
   drawLeft()
-  if (tab === 'look') drawLook()
-  else drawItems()
+  drawRight()
   openOverlay(card)
 }
 
@@ -134,7 +122,7 @@ export const openWardrobe = () => openPlayerCard('items')
 /** skin / hair / hair colour pickers (shared with the creator) */
 export function lookEditor(get: () => Look, set: (l: Look) => void, o: { colour?: boolean } = {}): HTMLElement {
   const box = el('div', 'look-editor')
-  const row = (title: string, opts: string[], cur: () => number, pick: (i: number) => void, swatch: (i: number) => string, order = opts.map((_, i) => i)) => {
+  const row = (title: string, opts: string[], cur: () => number, pick: (i: number) => void, swatch: (i: number) => string, order = opts.map((_, i) => i)): HTMLElement => {
     const r = el('div', 'le-row', `<h4>${title}</h4>`)
     const list = el('div', 'le-opts')
     order.forEach((i) => {
@@ -149,11 +137,21 @@ export function lookEditor(get: () => Look, set: (l: Look) => void, o: { colour?
     })
     r.append(list)
     box.append(r)
+    return list
   }
-  row('Skin', SKINS, () => get().skin, (i) => set({ ...get(), skin: i }), (i) => `<i style="background:${SKINS[i]}"></i>`, SKIN_ORDER)
-  row('Hair', HAIR_STYLES, () => HAIR_STYLES.indexOf(get().hair), (i) => set({ ...get(), hair: HAIR_STYLES[i] }), (i) =>
-    `<span class="hair-thumb">${avatarPortraitHead({ ...get(), hair: HAIR_STYLES[i], items: {} })}</span>`)
-  row('Hair color', HAIR_COLORS, () => get().hairColor, (i) => set({ ...get(), hairColor: i }), (i) => `<i style="background:${HAIR_COLORS[i]}"></i>`)
+  // each hairstyle is shown on you: your skin and hair color (redrawn when either changes)
+  const hairThumb = (i: number) => `<span class="hair-thumb">${avatarPortraitHead({ ...get(), hair: HAIR_STYLES[i], items: {} })}</span>`
+  let hairList: HTMLElement | null = null
+  const redrawHair = () => hairList?.querySelectorAll<HTMLElement>('.le-opt').forEach((b) => (b.innerHTML = hairThumb(Number(b.dataset.i))))
+  row('Skin', SKINS, () => get().skin, (i) => {
+    set({ ...get(), skin: i })
+    redrawHair()
+  }, (i) => `<i style="background:${SKINS[i]}"></i>`, SKIN_ORDER)
+  hairList = row('Hair', HAIR_STYLES, () => HAIR_STYLES.indexOf(get().hair), (i) => set({ ...get(), hair: HAIR_STYLES[i] }), hairThumb)
+  row('Hair color', HAIR_COLORS, () => get().hairColor, (i) => {
+    set({ ...get(), hairColor: i })
+    redrawHair()
+  }, (i) => `<i style="background:${HAIR_COLORS[i]}"></i>`)
   if (o.colour === false) return box
   // your signature colour: the Signature Hoodie (and anything else marked `signature`) wears it
   const sigName = () => SIG_COLORS[get().color ?? 5]?.name ?? ''

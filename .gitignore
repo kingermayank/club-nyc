@@ -24,3 +24,6 @@ docs/flow/
 # art-pipeline originals and previews (the game ships the processed art; see .dockerignore)
 app/public/art/raw/
 app/public/art/preview/
+
+# design-lab clips (npm --prefix video run clips makes them again)
+app/lab/clips/

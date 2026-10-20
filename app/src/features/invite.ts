@@ -32,7 +32,7 @@ export function openInvite() {
   }
   const url = inviteLink(save.name)
   const no = account.me?.memberNo ?? 0
-  const pitch = `Come hang out with me in Club NYC, a cozy online New York. Make a New Yorker in 30 seconds and you’ll land right next to me 🗽`
+  const pitch = `Come hang out with me in Club NYC, a cozy online New York. No rent, no subway delays. Make a New Yorker in 30 seconds and you’ll land right next to me 🗽`
   p.insertAdjacentHTML(
     'afterbegin',
     `<div class="inv-head"><div class="panel-art">💌</div><div><h2>Bring your friends to the city</h2>

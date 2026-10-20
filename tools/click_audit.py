@@ -1369,7 +1369,7 @@ def skip_destructive(it):
 
 async def job_player_card(A, P):
     await explore(A, P, 'player-card', lambda: toolbar_click(P, 'Player card & wardrobe'), skip=skip_destructive,
-                  recurse=lambda it, e: 'Edit look' in (it['text'] or ''), where='your player card')
+                  recurse=lambda it, e: (it['text'] or '').strip() in ('Look', 'Account'), where='your player card')
 
 
 async def job_books(A, P):
@@ -1502,7 +1502,7 @@ async def job_map(A, P):
         obs = await P.observe(lambda: P.page.mouse.click(pt[0], pt[1]), timeout=2.6, settle=0.6)
         e = A.record(P, area, f'map: {tip}', obs, kind='map-pin', where='map', repro=f'Times Square → Map → click “{tip}”', source=A.src.find(f"id: '{s['id']}'", prefer=('map.ts',)))
         if e['result'] in ('CLOSED-ONLY',) and s['id'] in ('times-square',):
-            e['evidence'].insert(0, 'this is where you already are: the map just closes, no message (the subway says “You’re already at this station!”)')
+            e['evidence'].insert(0, 'this is where you already are: the map just closes, no message (the subway says “You’re already at this station. Even the express isn’t that fast.”)')
         for r in e['_sig'].get('room', []):
             A.rooms_seen.add(r)
         if e['result'] in PROBLEMS:

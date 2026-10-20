@@ -108,6 +108,7 @@ function landingFunnel(now: number) {
     spawned: fromLanding('spawned'),
     sent: reached('landing_send'),
     discord: reached('landing_discord'),
+    trailer: reached('landing_trailer'),
   }
 }
 

@@ -13,7 +13,7 @@ Chrome lays it out) minus half the cap height (canvas measureText of "H") — th
 centres. Symbol-only labels (?, ›, ▲) use their own ink box instead. That is compared with the centre of the box's
 padding area; anything more than max(1.2px, 6% of the font size) off is reported. Also checked: labels cut off by
 their box, art past a rounded border, text running out of its pill, wrapped text whose lines nearly touch, inline
-icons off their text line, low-contrast text, cut-off descenders, off-centre icons in icon buttons, buttons too short to hit, cramped description-to-button and heading-to-description spacing, HUD pieces on top of each other, and name tags on top of each other.
+icons off their text line, low-contrast text, cut-off descenders, off-centre icons in icon buttons, buttons too short to hit, cramped description-to-button and heading-to-description spacing, HUD pieces on top of each other, name tags on top of each other, and pictures squashed or stretched out of their own proportions.
 """
 import asyncio, json, os, sys, time
 from playwright.async_api import async_playwright
@@ -350,6 +350,9 @@ AUDIT_JS = r"""
     // panels, the room itself (people, tags, bubbles: they sit under the HUD on purpose), tooltips, confetti
     if (e.closest('.overlay, .scene, .overhead-layer, .tb-tip, .hover-label, .tour, .creator, .game-shell') || e.matches('.stage, .viewport, .overlay, .fx-layer, .confetti')) return false
     const r = e.getBoundingClientRect()
+    // a click area stretched over its whole container (inset: 0) sits under that container's chips and buttons on purpose
+    const box = e.offsetParent
+    if (box && Math.abs(r.width - box.clientWidth) < 3 && Math.abs(r.height - box.clientHeight) < 3) return false
     return r.width * r.height < 160000
   })
   for (let i = 0; i < chrome.length; i++) for (let j = i + 1; j < chrome.length; j++) {
@@ -365,6 +368,16 @@ AUDIT_JS = r"""
     const ra = tags[i].getBoundingClientRect(), rb = tags[j].getBoundingClientRect()
     const ox = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left), oy = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
     if (ox > 2 && oy > 2) out.push({ kind: 'tags-overlap', el: 'name tags', by: Math.round(Math.min(ox, oy)), text: tags[i].innerText + ' / ' + tags[j].innerText, rect: [Math.min(ra.left, rb.left), Math.min(ra.top, rb.top), Math.max(ra.right, rb.right) - Math.min(ra.left, rb.left), Math.max(ra.bottom, rb.bottom) - Math.min(ra.top, rb.top)] })
+  }
+  // 8. pictures drawn out of their own proportions: a box of one shape filled ('object-fit: fill', the default) with
+  // art of another squashes or stretches it (the illustrated icons are trimmed to their art, so few are square)
+  for (const e of document.querySelectorAll('img')) {
+    if (!e.complete || !e.naturalWidth || !visible(e) || getComputedStyle(e).objectFit !== 'fill') continue
+    const cs = getComputedStyle(e)
+    const w = e.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = e.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)
+    if (w < 8 || h < 8) continue
+    const off = (w / h) / (e.naturalWidth / e.naturalHeight)
+    if (Math.abs(off - 1) > 0.03) out.push({ kind: 'stretched', el: path(e), by: Math.round(Math.abs(off - 1) * 100), text: (e.getAttribute('src') || '').split('/').pop().slice(0, 40), rect: rectOf(e) })
   }
   // de-duplicate identical findings (lists of identical chips)
   const seen = new Set()
@@ -553,7 +566,7 @@ def report(findings, base):
         by_kind.setdefault(f['kind'], []).append(f)
     names = {'text-high': 'Text sits high in its box', 'text-low': 'Text sits low in its box', 'clipped': 'Content cut off (vertically)', 'clipped-x': 'Content cut off (horizontally)',
              'bleeds': 'Drawn past a rounded border', 'spills': 'Text runs past its box', 'icon-high': 'Inline icon sits above the text', 'icon-low': 'Inline icon sits below the text',
-             'overlap': 'HUD pieces overlap', 'tags-overlap': 'Name tags overlap', 'cramped': 'Wrapped text with lines nearly touching (line-height as a multiple of the font size)',
+             'overlap': 'HUD pieces overlap', 'tags-overlap': 'Name tags overlap', 'stretched': 'Pictures squashed or stretched out of their own proportions (by: % off)', 'cramped': 'Wrapped text with lines nearly touching (line-height as a multiple of the font size)',
              'low-contrast': 'Text hard to read against its background (contrast ratio)', 'descenders': 'Descenders (g, y, p) cut off by a field or a clipping box',
              'icon-off-centre': 'Icon not centred in its button',
              'small-target': 'Button too short to hit comfortably (height in px; text buttons ≥ 28, icon buttons ≥ 24)',

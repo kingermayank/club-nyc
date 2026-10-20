@@ -369,7 +369,7 @@ function payout(id: string, title: string, r: GameResult, run: Promise<string | 
     setTimeout(() => card.remove(), 350)
     world.player.emote('cheer', 2)
     done()
-    if (shown > 0) void import('../features/mail').then((m) => m.sendPostcard({ id: 'first-paycheck', from: `${title} crew`, art: '🪙', title: 'Your first paycheck!', text: `Nice shift! <b>${shown}</b> coins went straight onto your MetroCard. Every job has a weekly leaderboard and a stamp to collect. Come back any time.` }))
+    if (shown > 0) void import('../features/mail').then((m) => m.sendPostcard({ id: 'first-paycheck', from: `${title} crew`, art: '🪙', title: 'Your first paycheck!', text: `Nice shift! <b>${shown}</b> coins went straight onto your MetroCard. Not rent money yet, but it’s a start. Every job has a weekly leaderboard and a stamp to collect.` }))
     // first shift without a neighborhood: now the team choice means something (every coin counts for it)
     if (!save.team) {
       setTimeout(() => {

@@ -242,23 +242,27 @@ const SHOES: ItemDef[] = [
 ]
 
 // ---------- head ----------
-const capDome = (col: string) => P('M -31 -106 C -31 -130 -16 -139 0 -139 C 16 -139 31 -130 31 -106 C 20 -110 -20 -110 -31 -106 Z', col)
+/** hats sit up on the forehead, so the eyes (and a little hair) always show */
+const lift = (dy: number, svg: string) => `<g transform="translate(0 ${-dy})">${svg}</g>`
+const capDome = (col: string) => P('M -30 -114 C -30 -138 -16 -147 0 -147 C 16 -147 30 -138 30 -114 C 20 -118 -20 -118 -30 -114 Z', col)
+const capBrim = (fx: number, col: string) =>
+  P(`M ${-27 + fx} -114 Q ${fx} -107 ${27 + fx} -114 Q ${32 + fx} -110 ${23 + fx} -108.5 Q ${fx} -103 ${-23 + fx} -108.5 Q ${-32 + fx} -110 ${-27 + fx} -114 Z`, col)
 const HATS: ItemDef[] = [
   {
     id: 'nyc-cap', name: 'NYC Cap', slot: 'head', price: 12, shop: 'iloveny',
-    draw: (c) => capDome('#1f2d5c') + (c.back ? '' : P(`M ${-28 + c.fx} -106 Q ${c.fx} -98 ${28 + c.fx} -106 Q ${33 + c.fx} -101 ${24 + c.fx} -99 Q ${c.fx} -92 ${-24 + c.fx} -99 Q ${-33 + c.fx} -101 ${-28 + c.fx} -106 Z`, '#18234a') + T(c.fx, -116, 10, 'NYC', '#fff', 'font-weight="900"')) + C(0, -139, 2.6, '#1f2d5c', 1.6),
+    draw: (c) => capDome('#1f2d5c') + (c.back ? '' : capBrim(c.fx, '#18234a') + T(c.fx, -124, 10, 'NYC', '#fff', 'font-weight="900"')) + C(0, -147, 2.6, '#1f2d5c', 1.6),
   },
   {
     id: 'sig-cap', name: 'Color Cap', slot: 'head', price: 14, shop: 'iloveny',
-    draw: (c) => capDome(c.sig) + (c.back ? '' : P(`M ${-28 + c.fx} -106 Q ${c.fx} -98 ${28 + c.fx} -106 Q ${33 + c.fx} -101 ${24 + c.fx} -99 Q ${c.fx} -92 ${-24 + c.fx} -99 Q ${-33 + c.fx} -101 ${-28 + c.fx} -106 Z`, shade(c.sig, 0.18)) + `<circle cx="${c.fx}" cy="-118" r="4.5" fill="#fff" stroke="${ink(c.sig)}" stroke-width="1.6"/>`) + C(0, -139, 2.6, c.sig, 1.6),
+    draw: (c) => capDome(c.sig) + (c.back ? '' : capBrim(c.fx, shade(c.sig, 0.18)) + `<circle cx="${c.fx}" cy="-126" r="4.5" fill="#fff" stroke="${ink(c.sig)}" stroke-width="1.6"/>`) + C(0, -147, 2.6, c.sig, 1.6),
   },
   {
     id: 'sig-beanie', name: 'Color Beanie', slot: 'head', price: 12, shop: 'iloveny', flattensHair: true,
-    draw: (c) => P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', c.sig) + R(-33, -110, 66, 11, 5, shade(c.sig, 0.16)) + blob([[0, -147, 6]], '#ffffff'),
+    draw: (c) => lift(5, P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', c.sig) + R(-33, -110, 66, 11, 5, shade(c.sig, 0.16)) + blob([[0, -147, 6]], '#ffffff')),
   },
   {
     id: 'nyc-beanie', name: 'Big Apple Beanie', slot: 'head', price: 10, shop: 'iloveny', flattensHair: true,
-    draw: () => P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', '#e8483f') + R(-33, -110, 66, 11, 5, '#c7362f') + blob([[0, -147, 6]], '#ffffff'),
+    draw: () => lift(5, P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', '#e8483f') + R(-33, -110, 66, 11, 5, '#c7362f') + blob([[0, -147, 6]], '#ffffff')),
   },
   {
     id: 'foam-crown', name: 'Foam Liberty Crown', slot: 'head', price: 12, shop: 'liberty', alsoAt: ['iloveny'],
@@ -283,7 +287,7 @@ const HATS: ItemDef[] = [
   },
   {
     id: 'bucket-hat', name: 'Bucket Hat', slot: 'head', price: 18, shop: 'thread', flattensHair: true,
-    draw: () => P('M -38 -108 Q -36 -116 -26 -118 L -22 -136 Q 0 -144 22 -136 L 26 -118 Q 36 -116 38 -108 Q 0 -100 -38 -108 Z', '#f0d58c') + Pn('M -23 -122 Q 0 -126 23 -122 L 24 -118 Q 0 -122 -24 -118 Z', '#c9a24a'),
+    draw: () => lift(5, P('M -38 -108 Q -36 -116 -26 -118 L -22 -136 Q 0 -144 22 -136 L 26 -118 Q 36 -116 38 -108 Q 0 -100 -38 -108 Z', '#f0d58c') + Pn('M -23 -122 Q 0 -126 23 -122 L 24 -118 Q 0 -122 -24 -118 Z', '#c9a24a')),
   },
   {
     id: 'propeller', name: 'Propeller Beanie', slot: 'head', price: 15, shop: 'toys',
@@ -303,7 +307,7 @@ const HATS: ItemDef[] = [
   },
   {
     id: 'captain-hat', name: 'Ferry Captain Hat', slot: 'head', price: 0, reward: 'ferry-captain', flattensHair: true,
-    draw: (c) => P('M -33 -124 Q -30 -140 0 -142 Q 30 -140 33 -124 Q 0 -118 -33 -124 Z', '#ffffff') + R(-28, -126, 56, 12, 3, '#1f2d5c') + (c.back ? '' : P(`M ${-26 + c.fx} -114 Q ${c.fx} -106 ${26 + c.fx} -114 Q ${c.fx} -100 ${-26 + c.fx} -114 Z`, '#14193a') + C(c.fx, -121, 4, '#f2c14e', 1.4)),
+    draw: (c) => lift(4, P('M -33 -124 Q -30 -140 0 -142 Q 30 -140 33 -124 Q 0 -118 -33 -124 Z', '#ffffff') + R(-28, -126, 56, 12, 3, '#1f2d5c') + (c.back ? '' : P(`M ${-26 + c.fx} -114 Q ${c.fx} -106 ${26 + c.fx} -114 Q ${c.fx} -100 ${-26 + c.fx} -114 Z`, '#14193a') + C(c.fx, -121, 4, '#f2c14e', 1.4))),
   },
   {
     id: 'party-hat', name: 'Paper Party Hat', slot: 'head', price: 0, reward: 'stamps-5',
@@ -466,12 +470,12 @@ export const STARTER_ITEMS = ITEMS.filter((i) => i.price === 0 && !i.reward).map
 export const SHOPS: Record<string, { name: string; tagline: string }> = {
   iloveny: { name: 'I ♥ NY Souvenirs', tagline: 'Every tourist essential, priced to move' },
   thread: { name: 'THREAD', tagline: 'SoHo Style · Fall Collection' },
-  sneakers: { name: 'Sneaker Vault', tagline: 'This week’s drops' },
+  sneakers: { name: 'Sneaker Vault', tagline: 'This week’s drops. Camping out optional.' },
   maison: { name: 'Maison Malle', tagline: 'Fifth Avenue · Since 1854 (allegedly)' },
   toys: { name: 'Toy Palace', tagline: 'Fun for kids of all ages (you)' },
   broadway: { name: 'Broadway Merch', tagline: 'Take the show home' },
   liberty: { name: 'Liberty Island Kiosk', tagline: 'Foam crowns & torches' },
-  rink: { name: 'Rink Rentals', tagline: 'Skates for the season' },
+  rink: { name: 'Rink Rentals', tagline: 'Skates for the season. Falling is free.' },
 }
 
 // tint is used by some callers for icons

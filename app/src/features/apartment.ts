@@ -305,7 +305,7 @@ function startDrag(i: number, img: HTMLImageElement) {
       save.furniture.splice(i, 1)
       save.storage.push(f.id)
       sfx.whoosh()
-      if (!inTray) toast('That doesn’t fit there. Back to storage it goes.', '📦')
+      if (!inTray) toast('That doesn’t fit there. Classic New York apartment. Back to storage it goes.', '📦')
     } else sfx.pop()
     persist()
     render()

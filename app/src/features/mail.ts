@@ -67,7 +67,7 @@ export function openMail(start = 0) {
     const p = list[i]
     desk.innerHTML = ''
     if (!p) {
-      desk.append(el('div', 'postcard-mail empty', '<div class="pm-art">📭</div><b>No postcards yet</b><p>The city writes when something’s happening: invites, paychecks, news from your building.</p>'))
+      desk.append(el('div', 'postcard-mail empty', '<div class="pm-art">📭</div><b>No postcards yet</b><p>The city writes when something’s happening: invites, paychecks, news from your building (mostly about the elevator).</p>'))
     } else {
       p.read = true
       const card = el('div', 'postcard-mail', `<div class="pm-front"><div class="pm-art">${p.art}</div><div class="pm-stamp">NYC</div></div>

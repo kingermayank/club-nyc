@@ -1,6 +1,6 @@
 import { sfx, setMuted } from './audio'
 import { save, persist } from './state'
-import { stage, el } from './engine/stage'
+import { stage, el, W, toStage } from './engine/stage'
 import { ui, openOverlay, closeOverlay } from './engine/ui'
 import { world, onRoomChange } from './engine/world'
 import { api } from './game'
@@ -44,7 +44,8 @@ const MOVES: { pose: Pose; label: string; key: string }[] = [
   { pose: 'jump', label: 'Jump', key: 'J' },
 ]
 
-function popMenu(cls: string, items: { html: string; act: () => void }[]) {
+/** a small menu that pops up right above the toolbar button that opened it (kept on the stage) */
+function popMenu(cls: string, items: { html: string; act: () => void }[], from: HTMLElement) {
   const m = el('div', 'pop-menu ' + cls)
   for (const it of items) {
     const b = el('button', '', it.html)
@@ -56,6 +57,13 @@ function popMenu(cls: string, items: { html: string; act: () => void }[]) {
     m.append(b)
   }
   openOverlay(m, { cls: 'clear' })
+  // centred on its button unless that would push it off the stage's edge; it grows out of the button
+  const EDGE = 10
+  const r = from.getBoundingClientRect()
+  const [x] = toStage({ clientX: r.left + r.width / 2, clientY: r.top })
+  const left = Math.round(Math.min(Math.max(x - m.offsetWidth / 2, EDGE), W - EDGE - m.offsetWidth))
+  m.style.left = `${left}px`
+  m.style.transformOrigin = `${Math.round(x - left)}px 100%`
 }
 
 export function buildHud() {
@@ -71,7 +79,7 @@ export function buildHud() {
     homeBtn.classList.toggle('active', isHomeRoom(world.room.id))
   })
 
-  const tb = (name: string, label: string, fn: () => void, key?: string) => {
+  const tb = (name: string, label: string, fn: (b: HTMLButtonElement) => void, key?: string) => {
     const b = el('button', 'tb-btn', icon(name))
     // one small label on hover, the same for every button: its name and its key
     b.append(el('span', 'tb-tip', `${label}${key ? `<kbd>${key}</kbd>` : ''}`))
@@ -80,30 +88,30 @@ export function buildHud() {
       e.stopPropagation()
       sfx.click()
       if (ui.busy && !ui.modal) return
-      fn()
+      fn(b)
     }
     stage.toolbar.append(b)
     return b
   }
-  tb('emote', 'Emotes', () => popMenu('emotes', EMOTES.map((e) => ({ html: e, act: () => emoteBubble(e) }))))
-  tb('dance', 'Moves', () =>
+  tb('emote', 'Emotes', (b) => popMenu('emotes', EMOTES.map((e) => ({ html: e, act: () => emoteBubble(e) })), b))
+  tb('dance', 'Moves', (b) =>
     popMenu('moves', [
       // each move shows a little you doing it (Club Penguin's action menu is all pictures)
       ...MOVES.map((m) => ({ html: `${posePictogram(save.look, m.pose)}<span>${m.label}<kbd>${m.key}</kbd></span>`, act: () => world.player.emote(m.pose, m.pose === 'dance' ? 0 : 3) })),
       { html: `${posePictogram(save.look, 'sit')}<span>Sit<kbd>S</kbd></span>`, act: () => sitHere() },
       { html: `${posePictogram({ ...save.look, items: { ...save.look.items, hand: undefined } }, 'wave', 0.12)}<span>Snowball<kbd>T</kbd></span>`, act: () => void import('./features/snowball').then((m) => m.armSnowball()) },
-    ]),
+    ], b),
   )
   stage.toolbar.append(chatBar())
   tb('map', 'Map', () => api.openMap(), 'M')
   tb('metrocard', 'Subway', () => api.openSubway(), 'U')
   tb('news', 'Club NYC Times', () => api.newspaper(), 'N')
-  tb('phone', 'Phone: camera & invite friends', () =>
+  tb('phone', 'Phone: camera & invite friends', (b) =>
     popMenu('phone', [
       { html: '📸 Group photo<kbd>B</kbd>', act: () => openCamera() },
       { html: '💌 Invite friends<kbd>I</kbd>', act: () => void import('./features/invite').then((m) => m.openInvite()) },
       { html: '🗽 How to play<kbd>?</kbd>', act: replayTour },
-    ]),
+    ], b),
   )
   stage.toolbar.append(el('div', 'tb-gap'))
   tb('wave', 'Friends & leaderboards', () => import('./social/community').then((m) => m.openCommunity()), 'F')

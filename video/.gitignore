@@ -1,0 +1,13 @@
+node_modules
+dist
+.DS_Store
+.env
+
+# Ignore the output video from Git but not videos you import into src/.
+out
+
+# generated: footage from capture/capture.py, the soundtrack from capture/music.py, and game files copied by
+# scripts/copy-assets.mjs. Re-make them with the commands in docs/marketing/launch-video.md.
+public/footage
+public/audio
+public/game

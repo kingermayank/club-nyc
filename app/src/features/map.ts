@@ -149,7 +149,7 @@ export function openMap() {
     }
     if (spot.note === 'snack') return toast('A hot dog cart on every corner. Mustard? Obviously.', '🌭')
     // already standing there: say so (the subway does the same) instead of just closing the map
-    if (spot.room && spot.room === world.room.id) return toast(`You’re already at ${spot.label}! Pick somewhere else to go.`, '📍')
+    if (spot.room && spot.room === world.room.id) return toast(`You’re already at ${spot.label}! Fastest commute in New York history. Pick somewhere else to go.`, '📍')
     closeOverlay()
     if (spot.room) goto(spot.room)
   }

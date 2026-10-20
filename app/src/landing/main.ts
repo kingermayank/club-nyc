@@ -1,18 +1,23 @@
 import './landing.css'
+import { heroVideos, trailerDialog } from './media'
+import { cityStats } from './stats'
+import { jamState } from '../data/jam'
 
 /**
  * The landing page's extras. Everything on it works without this script; it adds:
  *  - the header's solid look once you scroll,
  *  - "Welcome back" and a Continue button for people who've played before (their save is in this browser),
- *  - the live player count (only once the city is busy, and only real numbers),
+ *  - the live player count (only once the city is busy, and only real numbers), and "The city so far" (stats.ts),
  *  - phones: Club NYC plays on a computer, so Play offers to send the link there instead of a dead end,
  *  - pre-launch placeholders (no Discord invite or contact email yet) answer with a note instead of a broken link,
+ *  - the hero's silent gameplay loop, and "Watch the trailer" (media.ts),
+ *  - the tiles' gameplay loops (loaded as you scroll near them) and the Dance Jam countdown, on the game's own clock,
  *  - anonymous funnel events (landing → Play → creator → city) for the moderator dashboard. The game picks up
  *    this page's session id, so a visit and the New Yorker it turns into count as one journey.
  */
 
 // ---------- funnel events (POST /api/events, the same endpoint the game uses) ----------
-type LandingEvent = 'landing_view' | 'landing_play' | 'landing_discord' | 'landing_send'
+type LandingEvent = 'landing_view' | 'landing_play' | 'landing_discord' | 'landing_send' | 'landing_trailer'
 const SESSION_KEY = 'club-nyc:session'
 const newId = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
 const session = (() => {
@@ -99,7 +104,10 @@ const home = `${location.origin}/`
 if (phone) {
   playLabels('Send to my computer', 'Get the link')
   const heroNote = $('.hero-note')
-  if (heroNote) heroNote.textContent = 'Club NYC plays on a computer. We’ll get you the link.'
+  if (heroNote) {
+    heroNote.textContent = 'Club NYC plays on a computer. We’ll get you the link.'
+    heroNote.hidden = false
+  }
   const mail = $<HTMLAnchorElement>('#sheet-email')!
   mail.href = `mailto:?subject=${encodeURIComponent('Club NYC: play on my computer')}&body=${encodeURIComponent(`Club NYC, a cozy online New York you can hang out in. Open this on a computer and press Play now: ${home}`)}`
   mail.addEventListener('click', () => track('landing_send', 'email'))
@@ -175,5 +183,55 @@ fetch('/api/online')
     live.hidden = false
   })
   .catch(() => {})
+
+// ---------- the city so far: real totals on a departures board ----------
+cityStats()
+
+// ---------- the gameplay loop and the trailer ----------
+heroVideos()
+trailerDialog((from) => track('landing_trailer', from))
+
+// ---------- the tiles: each one's loop loads as you scroll near it and plays only while you can see it ----------
+// (people who prefer less motion, or whose browser asks to save data, get the still)
+const lessMotion = matchMedia('(prefers-reduced-motion: reduce)').matches || !!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+const playing = new IntersectionObserver(
+  (entries) => {
+    for (const e of entries) {
+      const v = e.target as HTMLVideoElement
+      if (e.isIntersecting) void v.play().catch(() => {})
+      else v.pause()
+    }
+  },
+  { threshold: 0.35 },
+)
+const nearby = new IntersectionObserver(
+  (entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue
+      const v = e.target as HTMLVideoElement
+      nearby.unobserve(v)
+      v.poster = `/video/clips/${v.dataset.clip}.webp`
+      if (lessMotion) continue
+      v.src = `/video/clips/${v.dataset.clip}.mp4`
+      playing.observe(v)
+    }
+  },
+  { rootMargin: '400px 0px' },
+)
+for (const v of $$<HTMLVideoElement>('video[data-clip]')) nearby.observe(v)
+
+// ---------- the Dance Jam tile counts down on the game's own clock (a show every 8 minutes) ----------
+const jamCount = $('.jam-count')
+const jamWhen = $('.jam-when')
+function jamTick() {
+  if (!jamCount || !jamWhen) return
+  const j = jamState()
+  const left = Math.max(0, Math.ceil(((j.on ? j.end : j.next) - Date.now()) / 1000))
+  const mmss = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`
+  jamCount.textContent = j.on ? 'On now!' : mmss
+  jamWhen.textContent = j.on ? `${mmss} left in Times Square` : 'until the next one in Times Square'
+}
+jamTick()
+setInterval(jamTick, 1000)
 
 track('landing_view', `${phone ? 'phone' : 'computer'}${returning ? ':returning' : ''}`)

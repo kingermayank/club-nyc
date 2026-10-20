@@ -60,8 +60,9 @@ export const world = {
 
 const PHRASES = [
   'Anyone seen my MetroCard?', 'Best slice in the city. No contest.', 'I’m walkin’ here!', 'Bacon, egg & cheese o’clock.',
-  'Who’s going to the Dance Jam?', 'Let’s get halal.', 'Stand clear of the closing doors!', 'This city never sleeps…',
-  'Is that a celebrity?!', 'Fuggedaboutit!', 'My feet hurt. Worth it.', 'Coffee first. Then sightseeing.', '🍕', '🗽', '😎',
+  'Who’s going to the Dance Jam?', 'Let’s get halal.', 'Stand clear of the closing doors!', 'This city never sleeps. Neither do the pigeons.',
+  'Is that a celebrity?!', 'Fuggedaboutit!', 'My feet hurt. Worth it.', 'Coffee first. Then sightseeing.', 'That pigeon just judged my outfit.',
+  'Walking fast counts as cardio.', 'Just saw a rat carry a whole slice. Respect.', '🍕', '🗽', '😎',
 ]
 
 // ---------- depth & speed ----------

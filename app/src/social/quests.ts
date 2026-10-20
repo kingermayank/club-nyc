@@ -43,10 +43,10 @@ const DAILY: Daily[] = [
   { id: 'places', text: 'Visit 4 different places', hint: 'Hop on the subway or click a taxi.', metric: 'places', target: 4 },
   { id: 'chat', text: 'Say hi in chat 3 times', hint: 'Press Enter, type, Enter. Be a good neighbor!', metric: 'chats', target: 3 },
   { id: 'jam', text: 'Dance at the Dance Jam', hint: 'Times Square, every 8 minutes. Get on the floor and press D.', metric: 'jams', target: 1 },
-  { id: 'snacks', text: 'Grab 2 NYC snacks', hint: 'Hot dogs, pretzels, slices, boba…', metric: 'snacks', target: 2 },
+  { id: 'snacks', text: 'Grab 2 NYC snacks', hint: 'Hot dogs, pretzels, slices, boba. A balanced diet.', metric: 'snacks', target: 2 },
   { id: 'photo', text: 'Take a group photo', hint: 'Open your phone (toolbar) or press B. Everyone nearby squeezes in.', metric: 'photos', target: 1 },
-  { id: 'shop', text: 'Buy something new to wear', hint: 'THREAD in SoHo, I ♥ NY in Times Square, Fifth Avenue…', metric: 'buys', target: 1 },
-  { id: 'sign', text: 'Sign a guestbook', hint: 'Visit someone’s apartment and leave a note.', metric: 'signs', target: 1 },
+  { id: 'shop', text: 'Buy something new to wear', hint: 'THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
+  { id: 'sign', text: 'Sign a guestbook', hint: 'Visit someone’s apartment and leave a note. Compliment the square footage.', metric: 'signs', target: 1 },
   { id: 'share', text: 'Share your invite link', hint: 'Phone → Invite friends. They land right next to you.', metric: 'shares', target: 1 },
   { id: 'rides', text: 'Ride the subway twice', hint: 'Click the MetroCard on your toolbar.', metric: 'rides', target: 2 },
   { id: 'mob', text: 'Start or join a flash mob', hint: 'Press D near other New Yorkers.', metric: 'mobs', target: 1 },
@@ -228,7 +228,7 @@ function check() {
     changed = true
     confetti(100)
     void import('../features/tour').then((t) =>
-      t.pointAt(undefined, 'You’re officially a New Yorker!', 'That’s your first-day list done. Here’s an Everything Bagel bean bag for your place 🥯 From now on there are three new challenges every day, the same for everyone in the city.'),
+      t.pointAt(undefined, 'You’re officially a New Yorker!', 'That’s your first-day list done, so you’re allowed to complain about the subway now. Here’s an Everything Bagel bean bag for your place 🥯 From now on there are three new challenges every day, the same for everyone in the city.'),
     )
     save.storage.push('bagel-bag')
     persist()
@@ -257,7 +257,7 @@ function check() {
     save.daily.bonus = true
     persist()
     confetti(70)
-    setTimeout(() => api.earn(DAILY_BONUS, 'All of today’s challenges done!', 'daily-quests-done'), 900)
+    setTimeout(() => api.earn(DAILY_BONUS, 'All of today’s challenges done. Overachiever.', 'daily-quests-done'), 900)
   }
   bumpBox()
 }

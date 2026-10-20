@@ -189,6 +189,8 @@ const MIGRATIONS = [
   // (a player's age is checked at sign-up from their birth month and year, which are never stored)
   `ALTER TABLE users ADD COLUMN consent_version TEXT;
    ALTER TABLE users ADD COLUMN consent_at INTEGER;`,
+  // v8: each accepted shift's score (Slice Factory: pizzas made), so the landing page can count the whole city's pizzas
+  `ALTER TABLE game_runs ADD COLUMN score INTEGER;`,
 ]
 
 function migrate() {

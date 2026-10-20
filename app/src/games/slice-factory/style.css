@@ -575,8 +575,8 @@
   position: absolute;
   right: -10px;
   top: 58%;
-  width: 13px;
-  height: 13px;
+  width: 16px;
+  height: 16px;
   background: #fff;
   border: solid #1d2140;
   border-width: 3px 3px 0 0;
@@ -620,8 +620,9 @@
 .slice-factory-hint-in::after {
   content: '';
   position: absolute;
-  width: 11px;
-  height: 11px;
+  z-index: -1; /* under the words, so the tail never cuts a letter */
+  width: 14px;
+  height: 14px;
   background: #ffd34d;
   border: solid #1d2140;
   border-width: 3px 0 0 3px;

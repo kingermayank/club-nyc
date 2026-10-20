@@ -11,9 +11,6 @@
   Feature images: every <figure class="shot"> is a placeholder describing the picture it's waiting for.
   The full shot list with sizes and alt text is in docs/marketing/landing-page.md. Swap a placeholder for an
   <img> (or a muted, looping <video>) and keep the alt text.
-
-  What's new: add each update at the top of #whats-new (newest first, dated, with an id). The server turns
-  that list into the RSS feed at /updates.xml, so there is nothing else to update.
 -->
 <html lang="en">
   <head>
@@ -22,21 +19,20 @@
     <title>Club NYC: free cozy multiplayer NYC game in your browser</title>
     <meta name="description" content="A cozy online New York. Make a New Yorker in 30 seconds, explore 20+ places, work silly jobs and hang out with friends. Free, in your browser, ages 13+." />
     <link rel="icon" type="image/png" href="/art/icons/taxi.png" />
-    <link rel="alternate" type="application/rss+xml" title="Club NYC: what’s new" href="/updates.xml" />
     <meta name="theme-color" content="#0b1835" />
     <link rel="preload" href="/fonts/BurbankSmall-Bold.otf" as="font" type="font/otf" crossorigin />
     <link rel="preload" href="/fonts/BurbankSmall-Medium.otf" as="font" type="font/otf" crossorigin />
-    <link rel="preload" as="image" href="/art/landing/times-square-1600.webp" imagesrcset="/art/landing/times-square-960.webp 960w, /art/landing/times-square-1600.webp 1600w" imagesizes="(max-width: 900px) 100vw, 58vw" fetchpriority="high" />
+    <link rel="preload" as="image" href="/video/hero-loop.webp" type="image/webp" fetchpriority="high" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Club NYC" />
-    <meta property="og:title" content="Club NYC: a city you can hang out in" />
+    <meta property="og:title" content="Club NYC: waddle on over to New York" />
     <meta property="og:description" content="A cozy online New York. Make a New Yorker in 30 seconds, work silly jobs, decorate your apartment and meet your friends in Times Square. Free, in your browser." />
     <meta property="og:image" content="/og/club-nyc.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Times Square in Club NYC, with the words: A city you can hang out in." />
+    <meta property="og:image:alt" content="Liberty Island in Club NYC, with the words: Waddle on over to New York." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Club NYC: a city you can hang out in" />
+    <meta name="twitter:title" content="Club NYC: waddle on over to New York" />
     <meta name="twitter:description" content="A cozy online New York. Make a New Yorker in 30 seconds and meet your friends in Times Square. Free, in your browser." />
     <meta name="twitter:image" content="/og/club-nyc.jpg" />
     <script type="application/ld+json">
@@ -62,8 +58,7 @@
             "inLanguage": "en",
             "isAccessibleForFree": true,
             "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-            "audience": { "@type": "PeopleAudience", "suggestedMinAge": 13 },
-            "releaseNotes": "/#whats-new"
+            "audience": { "@type": "PeopleAudience", "suggestedMinAge": 13 }
           }
         ]
       }
@@ -79,11 +74,9 @@
           <a href="#explore">Explore NYC</a>
           <a href="#fun-stuff">The fun stuff</a>
           <a href="#safety">Safety</a>
-          <a href="#whats-new">What’s new</a>
           <a href="#faq">FAQ</a>
         </nav>
         <div class="header-actions">
-          <a class="link-signin" href="/play">Sign in</a>
           <a class="discord-link" href="/discord" data-discord="header" rel="noopener" aria-label="Join the Club NYC Discord">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.32 4.37A19.8 19.8 0 0 0 15.4 2.84a.07.07 0 0 0-.08.04c-.21.38-.45.87-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.53.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08 0l.37.3a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z"/></svg>
             <span>Discord</span>
@@ -94,39 +87,59 @@
     </header>
 
     <main id="main">
-      <!-- ============ hero ============ -->
+      <!-- ============ hero: the city, full bleed ============ -->
       <section class="hero" aria-labelledby="hero-title">
-        <div class="wrap hero-grid">
+        <!-- real gameplay, silent, behind everything: 1440p for high-density laptops and wide monitors, 1080p for other big screens -->
+        <video class="hero-video" data-hero-video muted loop playsinline preload="none" poster="/video/hero-loop.webp" width="1920" height="1080" aria-hidden="true">
+          <source src="/video/hero-loop-1440.webm" type="video/webm" media="(min-width: 1100px) and (-webkit-min-device-pixel-ratio: 1.5), (min-width: 1100px) and (min-resolution: 1.5dppx), (min-width: 1700px)" />
+          <source src="/video/hero-loop-1440.mp4" type="video/mp4" media="(min-width: 1100px) and (-webkit-min-device-pixel-ratio: 1.5), (min-width: 1100px) and (min-resolution: 1.5dppx), (min-width: 1700px)" />
+          <source src="/video/hero-loop-1080.webm" type="video/webm" media="(min-width: 1100px)" />
+          <source src="/video/hero-loop-1080.mp4" type="video/mp4" media="(min-width: 1100px)" />
+          <source src="/video/hero-loop.webm" type="video/webm" />
+          <source src="/video/hero-loop.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="wrap">
           <div class="hero-copy">
-            <p class="eyebrow">Free <i aria-hidden="true">·</i> Plays in your browser <i aria-hidden="true">·</i> Ages 13+</p>
             <p class="welcome-back" hidden></p>
-            <h1 id="hero-title">A city you can hang&nbsp;out&nbsp;in.</h1>
-            <p class="lede">A cozy online New York. Make a New Yorker in 30 seconds, explore 20+ places and meet your friends in Times Square.</p>
+            <h1 id="hero-title">Waddle on over to New&nbsp;York.</h1>
+            <p class="lede">Remember waddling around, meeting strangers, playing mini&#8209;games, and discovering secret rooms? Imagine all that nostalgia, but in NYC.</p>
             <div class="hero-cta">
               <a class="btn btn-play btn-xl" href="/play?start=guest" data-play="hero"><span class="play-label">Play now</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-              <a class="hero-more" href="#explore">See what’s inside</a>
+              <button class="btn-trailer" type="button" data-trailer="hero"><span class="bt-icon" aria-hidden="true"></span>Watch the trailer</button>
             </div>
-            <p class="hero-note">No download. No sign-up. Nothing to buy.</p>
+            <!-- phones only: main.ts explains that the city plays on a computer -->
+            <p class="hero-note" hidden></p>
             <p class="live-count" hidden><i aria-hidden="true"></i><span></span></p>
           </div>
-          <figure class="hero-art">
-            <div class="postcard">
-              <img src="/art/landing/times-square-1600.webp" srcset="/art/landing/times-square-960.webp 960w, /art/landing/times-square-1600.webp 1600w" sizes="(max-width: 900px) 100vw, 58vw" width="1600" height="905" fetchpriority="high" alt="Times Square in Club NYC at dusk: theater marquees, giant glowing billboards, the red steps and a souvenir shop on the corner." />
-            </div>
-            <span class="sticker">Free to play!</span>
-            <figcaption>Times Square, where everybody meets</figcaption>
-          </figure>
         </div>
+        <!-- the video runs longer than 5 seconds, so it can be paused (WCAG 2.2.2) -->
+        <button class="hero-pause" type="button" data-video-toggle aria-label="Pause the gameplay video" hidden><span aria-hidden="true"></span></button>
       </section>
 
-      <!-- ============ the short version ============ -->
-      <section class="facts" aria-label="At a glance">
-        <ul class="wrap facts-row">
-          <li><img src="/art/icons/e/coin.png" alt="" width="40" height="40" /><div><b>Free to play</b><span>Coins are earned in the game, never bought</span></div></li>
-          <li><img src="/art/icons/e/globe.png" alt="" width="40" height="40" /><div><b>No download</b><span>Runs in Chrome, Edge, Firefox and Safari</span></div></li>
-          <li><img src="/art/icons/e/shush.png" alt="" width="40" height="40" /><div><b>Friendly chat</b><span>Filtered, with report, block and mute</span></div></li>
-          <li><img src="/art/icons/e/friends.png" alt="" width="40" height="40" /><div><b>Made for friends</b><span>Your invite link drops them next to you</span></div></li>
-        </ul>
+      <!-- ============ at a glance ============ -->
+      <section class="glance" aria-label="At a glance">
+        <div class="wrap bento glance-row">
+          <div class="tile t-jam">
+            <img src="/art/icons/e/disco-ball.png" alt="" width="64" height="64" />
+            <p class="t-kicker">Dance Jam</p>
+            <p class="t-count jam-count">Every 8 min</p>
+            <p class="t-small jam-when">in Times Square</p>
+          </div>
+          <div class="tile t-chat">
+            <div class="chat-line"><p>anyone in Times Square?</p><b>Ana_NYC</b></div>
+            <div class="chat-line"><p>omw!</p><b>BenFromBK</b></div>
+            <div class="chat-line"><p>save me a spot <img src="/art/icons/e/pizza.png" alt="" width="18" height="18" /></p><b>Cleo</b></div>
+          </div>
+          <a class="tile t-map" href="#explore">
+            <img src="/art/landing/map-960.webp" alt="" width="960" height="637" loading="lazy" />
+            <span class="t-label"><b>20+ places</b>on one map</span>
+          </a>
+          <div class="tile t-free">
+            <b>Free</b>
+            <span>Plays right in your browser. Coins are earned in the game, never bought.</span>
+          </div>
+        </div>
       </section>
 
       <!-- ============ how it works ============ -->
@@ -161,23 +174,17 @@
         <div class="wrap">
           <h2 id="explore-title" class="section-title">Explore NYC</h2>
           <p class="section-sub">20+ places, all a click away. Walk, take the subway or hop on the ferry.</p>
-          <ul class="places">
-            <li class="place place-map">
-              <img src="/art/landing/map-960.webp" width="960" height="637" loading="lazy" alt="The Club NYC map: Manhattan as a bright illustrated island, from Central Park down to the Statue of Liberty." />
-              <div><h3>The whole city on one map</h3><p>Pick a spot and you’re there. Every street also has blue arrows to the place next door.</p></div>
-            </li>
-            <li class="place"><img src="/art/landing/central-park-640.webp" width="640" height="362" loading="lazy" alt="Central Park in Club NYC: a lawn, the Lake, Bow Bridge and a horse carriage." /><div><h3>Central Park</h3><p>Bow Bridge, the Lake and a bench with your name on it.</p></div></li>
-            <li class="place"><img src="/art/landing/soho-640.webp" width="640" height="362" loading="lazy" alt="A cobblestone street in SoHo with a clothing shop, a sneaker store and a café." /><div><h3>SoHo</h3><p>Cobblestones, new outfits at THREAD and the latest drops at Sneaker Vault.</p></div></li>
-            <li class="place"><img src="/art/landing/chinatown-640.webp" width="640" height="362" loading="lazy" alt="Chinatown and Little Italy: a dumpling house, a boba shop, lanterns and a 99 cent pizza place." /><div><h3>Chinatown &amp; Little Italy</h3><p>Dumplings on Mott Street, 99¢ slices on Mulberry.</p></div></li>
-            <li class="place"><img src="/art/landing/brooklyn-bridge-640.webp" width="640" height="362" loading="lazy" alt="The Brooklyn Bridge promenade with its stone arches and the skyline behind it." /><div><h3>Brooklyn Bridge</h3><p>Stroll the promenade with the whole skyline behind you.</p></div></li>
-            <li class="place"><img src="/art/landing/liberty-island-640.webp" width="640" height="362" loading="lazy" alt="Liberty Island with the Statue of Liberty, a souvenir kiosk and the harbor." /><div><h3>Liberty Island</h3><p>Steer the ferry from Battery Park and say hi to Lady Liberty.</p></div></li>
-            <li class="place"><img src="/art/landing/grand-central-640.webp" width="640" height="362" loading="lazy" alt="The main concourse of Grand Central Terminal with its golden clock and big windows." /><div><h3>Grand Central</h3><p>Look up: the stars on the ceiling are painted backwards.</p></div></li>
-            <li class="place"><img src="/art/landing/the-met-640.webp" width="640" height="362" loading="lazy" alt="The front steps of the Met with fountains, banners and a hot dog cart." /><div><h3>The Met</h3><p>Sit on the steps like a real New Yorker.</p></div></li>
-            <li class="place"><img src="/art/landing/high-line-640.webp" width="640" height="362" loading="lazy" alt="The High Line: a leafy walkway on an old railway above the streets of Chelsea." /><div><h3>The High Line</h3><p>A park on an old elevated railway, high above Chelsea.</p></div></li>
-            <li class="place"><img src="/art/landing/rockefeller-640.webp" width="640" height="362" loading="lazy" alt="Rockefeller Center with the ice rink, flags and the golden statue." /><div><h3>Rockefeller Center</h3><p>Rent some skates and take a spin around the rink.</p></div></li>
-            <li class="place"><img src="/art/landing/subway-640.webp" width="640" height="362" loading="lazy" alt="A subway platform with turnstiles, a bench, a subway map and a train pulling in." /><div><h3>The Subway</h3><p>Ride anywhere, then dance for tips at Showtime.</p></div></li>
-          </ul>
-          <p class="swipe-hint" aria-hidden="true">Swipe for more places →</p>
+          <div class="bento places-bento">
+            <article class="tile clip big"><video data-clip="central-park" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>Central Park</h3><p>Bow Bridge, the Lake and a bench with your name on it.</p></div></article>
+            <article class="tile clip"><video data-clip="soho" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>SoHo</h3><p>New outfits at THREAD and the latest drops at Sneaker Vault.</p></div></article>
+            <article class="tile clip"><video data-clip="chinatown" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>Chinatown &amp; Little Italy</h3><p>Dumplings on Mott Street, 99¢ slices on Mulberry.</p></div></article>
+            <article class="tile clip"><video data-clip="brooklyn-bridge" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>Brooklyn Bridge</h3><p>Stroll the promenade with the whole skyline behind you.</p></div></article>
+            <article class="tile clip"><video data-clip="liberty-island" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>Liberty Island</h3><p>Steer the ferry from Battery Park and say hi to Lady Liberty.</p></div></article>
+            <article class="tile clip"><video data-clip="grand-central" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>Grand Central</h3><p>Look up: the stars on the ceiling are painted backwards.</p></div></article>
+            <article class="tile clip"><video data-clip="the-met" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>The Met</h3><p>Sit on the steps like a real New Yorker.</p></div></article>
+            <article class="tile clip"><video data-clip="rockefeller" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>Rockefeller Center</h3><p>Rent some skates and take a spin around the rink.</p></div></article>
+            <article class="tile clip"><video data-clip="high-line" muted loop playsinline preload="none" aria-hidden="true"></video><div class="clip-text"><h3>The High Line</h3><p>A park on an old elevated railway, high above Chelsea.</p></div></article>
+          </div>
         </div>
       </section>
 
@@ -186,100 +193,37 @@
         <div class="wrap">
           <h2 id="fun-title" class="section-title">The fun stuff</h2>
           <p class="section-sub">There’s always something to do, on your own or with friends.</p>
-
-          <article class="feature">
-            <figure class="shot" data-shot="wardrobe">
-              <div class="shot-frame" role="img" aria-label="A New Yorker trying on a puffer jacket in the THREAD clothing catalog.">
-                <img class="shot-icon" src="/art/icons/e/shopping-bag.png" alt="" width="72" height="72" loading="lazy" />
-                <span class="shot-tag">Screenshot coming soon</span>
-                <p class="shot-brief">A New Yorker trying on outfits in THREAD, SoHo’s clothing shop. The catalog is open with a puffer jacket, a beanie and sneakers, and the New Yorker on the left is already wearing them.</p>
-              </div>
-            </figure>
-            <div class="feature-copy">
-              <p class="kicker"><img src="/art/icons/e/scissors.png" alt="" width="28" height="28" loading="lazy" />Dress your New Yorker</p>
-              <h3>Your look, your rules</h3>
-              <p>Shop the city for hats, tees, puffers, sneakers and the occasional foam crown. Try things on before you buy, mix and match in your wardrobe and change your look whenever you like.</p>
-              <ul class="ticks">
-                <li>8 shops, from SoHo boutiques to a Fifth Avenue toy store</li>
-                <li>Pick a signature color that your favorite pieces wear</li>
-                <li>Unlock work uniforms by doing the job</li>
-              </ul>
-            </div>
-          </article>
-
-          <article class="feature flip">
-            <figure class="shot" data-shot="stamps">
-              <div class="shot-frame" role="img" aria-label="The Club NYC stamp book, with earned stamps in color and the rest still to find.">
-                <img class="shot-icon" src="/art/icons/e/medal-gold.png" alt="" width="72" height="72" loading="lazy" />
-                <span class="shot-tag">Screenshot coming soon</span>
-                <p class="shot-brief">The stamp book open to its Around Town page: a few stamps earned in full color (the subway, the pigeons, the Met steps) and the rest as dashed outlines with a hint for how to earn them.</p>
-              </div>
-            </figure>
-            <div class="feature-copy">
-              <p class="kicker"><img src="/art/icons/e/book.png" alt="" width="28" height="28" loading="lazy" />Collect stamps</p>
-              <h3>50 stamps for doing very New York things</h3>
-              <p>Ride the subway. Coo at three Times Square pigeons. Sit on the steps of the Met. Every stamp comes with a hint, and every 5 you collect pays 25 coins.</p>
-              <ul class="ticks">
-                <li>Hints for every stamp, so there’s always a next one to chase</li>
-                <li>Wear your favorite stamp as a title on your player card</li>
-                <li>Bonus coins every 5 stamps</li>
-              </ul>
-            </div>
-          </article>
-
-          <article class="feature">
-            <figure class="shot" data-shot="jobs">
-              <div class="shot-frame" role="img" aria-label="Slice Factory, one of Club NYC’s job games: pizzas on a conveyor belt getting their toppings.">
-                <img class="shot-icon" src="/art/icons/e/pizza.png" alt="" width="72" height="72" loading="lazy" />
-                <span class="shot-tag">Gameplay clip coming soon</span>
-                <p class="shot-brief">A short, silent loop of Slice Factory mid-shift: pizzas gliding along the conveyor, toppings dropping on, the coin count ticking up. A still of the five job title cards side by side works too.</p>
-              </div>
-            </figure>
-            <div class="feature-copy">
-              <p class="kicker"><img src="/art/icons/e/joystick.png" alt="" width="28" height="28" loading="lazy" />Play games</p>
-              <h3>Five silly jobs that pay real coins</h3>
-              <p>Toss pizzas at Slice Factory, run the lunch line at Halal Rush, catch deliveries at Bagel Counters, steer the ferry in Ferry Captain and dance for tips on the subway in Showtime!</p>
-              <ul class="ticks">
-                <li>This-week and all-time leaderboards for every job</li>
-                <li>Every coin you earn counts for your team in Neighborhood Wars</li>
-                <li>Quick rounds you can play in a couple of minutes</li>
-              </ul>
-            </div>
-          </article>
-
-          <article class="feature flip">
-            <figure class="shot" data-shot="apartment">
-              <div class="shot-frame" role="img" aria-label="A decorated Club NYC apartment with a bean bag, a jukebox, plants and a rug.">
-                <img class="shot-icon" src="/art/icons/e/couch.png" alt="" width="72" height="72" loading="lazy" />
-                <span class="shot-tag">Screenshot coming soon</span>
-                <p class="shot-brief">A cozy East Village walk-up in decorate mode: a bean bag, a jukebox, plants and a rug placed by the window, with the furniture tray open along the bottom.</p>
-              </div>
-            </figure>
-            <div class="feature-copy">
-              <p class="kicker"><img src="/art/icons/e/home.png" alt="" width="28" height="28" loading="lazy" />Design your own apartment</p>
-              <h3>Make your place feel like home</h3>
-              <p>Every New Yorker starts in a 5th-floor walk-up in the East Village. Fill it with furniture, put things exactly where you want them and throw a house party. Then save up for a SoHo loft or a penthouse on Billionaires’ Row.</p>
-              <ul class="ticks">
-                <li>Three homes to own, with a Brooklyn brownstone on the way</li>
-                <li>Friends can visit and sign your guestbook, even when you’re out</li>
-                <li>House parties with your pick of music and vibe</li>
-              </ul>
-            </div>
-          </article>
-
-          <h3 class="more-title">And there’s more</h3>
-          <ul class="more">
-            <li><img src="/art/icons/e/handshake.png" alt="" width="44" height="44" loading="lazy" /><b>Make friends</b><span>Add anyone you meet, see where your friends are and jump straight to them.</span></li>
-            <li><img src="/art/icons/e/disco-ball.png" alt="" width="44" height="44" loading="lazy" /><b>Dance Jam</b><span>The Times Square stage lights up every 8 minutes. Get on the floor for tips.</span></li>
-            <li><img src="/art/icons/e/dancer.png" alt="" width="44" height="44" loading="lazy" /><b>Flash mobs</b><span>Start dancing near people and watch the whole block join in.</span></li>
-            <li><img src="/art/icons/e/flag.png" alt="" width="44" height="44" loading="lazy" /><b>Neighborhood Wars</b><span>Pick Downtown, Midtown, Uptown or the Harbor and help your team win the week.</span></li>
-            <li><img src="/art/icons/e/party-popper.png" alt="" width="44" height="44" loading="lazy" /><b>House parties</b><span>Pick the music and the vibe, then invite your friends or the whole city.</span></li>
-            <li><img src="/art/icons/e/camera.png" alt="" width="44" height="44" loading="lazy" /><b>Group photos</b><span>Squeeze everyone nearby into a photo booth strip and save it.</span></li>
-            <li><img src="/art/icons/e/newspaper.png" alt="" width="44" height="44" loading="lazy" /><b>The Club NYC Times</b><span>The city’s own paper: news, leaderboards and advice from the bodega cat.</span></li>
-            <li><img src="/art/icons/e/calendar.png" alt="" width="44" height="44" loading="lazy" /><b>Today in the City</b><span>Three new challenges every day, the same for everyone in the city.</span></li>
-          </ul>
-          <p class="swipe-hint" aria-hidden="true">Swipe for more →</p>
+          <div class="bento fun-bento">
+            <article class="tile f-dress">
+              <div class="f-copy"><p class="t-kicker">Dress your New Yorker</p><h3>Your look, your rules</h3><p>Hats, tees, puffers, sneakers and the occasional foam crown, from 8 shops around the city. Try things on before you buy.</p></div>
+              <div class="f-media"><video data-clip="creator" muted loop playsinline preload="none" aria-hidden="true"></video></div>
+            </article>
+            <article class="tile f-stamps">
+              <p class="t-kicker">Collect stamps</p>
+              <h3>50 very New York things to do</h3>
+              <div class="f-media"><video data-clip="stamps" muted loop playsinline preload="none" aria-hidden="true"></video></div>
+              <p>Every stamp comes with a hint, and every 5 you collect pays 25 coins.</p>
+            </article>
+            <article class="tile f-over f-jobs"><video data-clip="ferry" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Play games</p><h3>Five silly jobs that pay real coins</h3></article>
+            <article class="tile f-over f-home"><video data-clip="party" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Your apartment</p><h3>Decorate it, then throw a party</h3></article>
+            <article class="tile f-over f-mob"><video data-clip="flashmob" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Start a flash mob anywhere</p></article>
+            <article class="tile f-over f-jam"><video data-clip="jam" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Dance Jams in Times Square</p></article>
+            <article class="tile f-mini f-wars"><img src="/art/icons/e/flag.png" alt="" width="44" height="44" loading="lazy" /><b>Neighborhood Wars</b><span>Pick Downtown, Midtown, Uptown or the Harbor and help your team win the week.</span></article>
+            <article class="tile f-mini f-photo"><img src="/art/icons/e/camera.png" alt="" width="44" height="44" loading="lazy" /><b>Group photos</b><span>Squeeze everyone nearby into a photo booth strip and save it.</span></article>
+            <article class="tile f-mini f-today"><img src="/art/icons/e/calendar.png" alt="" width="44" height="44" loading="lazy" /><b>Today in the City</b><span>Three new challenges every day, the same for everyone.</span></article>
+            <article class="tile f-mini f-news"><img src="/art/icons/e/newspaper.png" alt="" width="44" height="44" loading="lazy" /><b>The Club NYC Times</b><span>News, leaderboards and advice from the bodega cat.</span></article>
+          </div>
           <p class="mid-cta"><a class="btn btn-play" href="/play?start=guest" data-play="features"><span class="play-label">Play now</span></a></p>
+        </div>
+      </section>
+
+      <!-- ============ the city so far: real totals from the server (/api/stats), flipped in like a departures board ============ -->
+      <!-- main.ts fills it in; it stays hidden if the numbers can't be fetched (nothing here is ever made up) -->
+      <section class="section so-far" id="so-far" aria-labelledby="so-far-title" hidden>
+        <div class="wrap">
+          <h2 id="so-far-title" class="section-title">The city so far</h2>
+          <p class="section-sub">Real numbers, straight from the city. They change every minute.</p>
+          <div class="board"></div>
         </div>
       </section>
 
@@ -301,17 +245,10 @@
               <h3>How we keep the city friendly</h3>
               <ul class="ticks">
                 <li>Chat is filtered, and links, emails and phone numbers are removed automatically.</li>
-                <li>Report, block and mute are on every player’s card.</li>
                 <li>Moderators review reports along with the recent chat, and a pile of reports pauses someone’s chat right away.</li>
                 <li>Guests don’t give us an email address, and linking an account is optional.</li>
                 <li>No filter is perfect. If something slips through, report it and we’ll act on it.</li>
               </ul>
-            </div>
-            <div class="safety-links">
-              <a class="btn btn-ghost" href="/rules.html">Read the community rules</a>
-              <a href="/privacy.html">Privacy policy</a>
-              <a href="/terms.html">Terms of service</a>
-              <p>Parents and guardians: questions are welcome at <a href="mailto:[CONTACT EMAIL]">[CONTACT EMAIL]</a>.</p>
             </div>
           </div>
         </div>
@@ -340,58 +277,10 @@
         </div>
       </section>
 
-      <!-- ============ what's new (newest first) ============ -->
-      <section class="section news" id="whats-new" aria-labelledby="news-title">
-        <div class="wrap">
-          <h2 id="news-title" class="section-title">What’s new in the city</h2>
-          <p class="section-sub">Club NYC is in early access, and new things land all the time.</p>
-          <div class="coming">
-            <h3><img src="/art/icons/e/construction.png" alt="" width="32" height="32" loading="lazy" />Coming next</h3>
-            <ul>
-              <li>A fresh look for every New Yorker, with new avatar art</li>
-              <li>Brooklyn: the Park Slope Brownstone opens its doors</li>
-              <li>The Club NYC Discord server</li>
-            </ul>
-          </div>
-          <ol class="updates">
-            <li class="update" id="update-2026-10-17-first-day">
-              <time datetime="2026-10-17">Oct 17, 2026</time>
-              <h3><a href="#update-2026-10-17-first-day">A smoother first day</a></h3>
-              <ul>
-                <li><b class="tag improved">Improved</b>Rosa’s welcome tour is now five quick cards, with a glowing spot that shows you where to walk.</li>
-                <li><b class="tag improved">Improved</b>Your New in Town list is down to five steps, and still pays 110 coins.</li>
-                <li><b class="tag improved">Improved</b>Bigger buttons and more breathing room across the whole city.</li>
-                <li><b class="tag new">New</b>Your account settings have their own tab on your player card.</li>
-              </ul>
-            </li>
-            <li class="update" id="update-2026-10-17-leaderboards">
-              <time datetime="2026-10-17">Oct 17, 2026</time>
-              <h3><a href="#update-2026-10-17-leaderboards">Leaderboards for every job</a></h3>
-              <ul>
-                <li><b class="tag new">New</b>Every job opens with a lobby: how to play, plus This week, All time and Friends leaderboards.</li>
-                <li><b class="tag improved">Improved</b>Name tags float above everyone and slide apart in a crowd.</li>
-                <li><b class="tag improved">Improved</b>Calmer notifications, so the city is easier to take in.</li>
-              </ul>
-            </li>
-            <li class="update" id="update-2026-10-16-friends">
-              <time datetime="2026-10-16">Oct 16, 2026</time>
-              <h3><a href="#update-2026-10-16-friends">Bring your friends</a></h3>
-              <ul>
-                <li><b class="tag new">New</b>Invite links: friends who open yours land right next to you, already friends.</li>
-                <li><b class="tag new">New</b>Three new challenges every day in Today in the City.</li>
-                <li><b class="tag new">New</b>Report, block and mute on every player card, backed by moderators.</li>
-              </ul>
-            </li>
-          </ol>
-          <p class="rss-note"><a href="/updates.xml">Follow updates with RSS</a></p>
-        </div>
-      </section>
-
       <!-- ============ FAQ ============ -->
       <section class="section faq" id="faq" aria-labelledby="faq-title">
         <div class="wrap faq-wrap">
           <h2 id="faq-title" class="section-title">Questions? We’ve got answers</h2>
-          <h3 class="faq-group">Playing</h3>
           <details>
             <summary>What is Club NYC?</summary>
             <p>A cozy online New York you play in your web browser. You make a New Yorker, explore 20+ places from Times Square to Liberty Island, work silly jobs for coins, decorate your apartment and hang out with real people.</p>
@@ -421,15 +310,9 @@
             <p>Explore 20+ places, work five jobs for coins, shop for outfits, collect 50 stamps, decorate your apartment, dance at the Dance Jam in Times Square, start flash mobs, throw house parties and take on three new challenges every day.</p>
           </details>
           <details>
-            <summary>Is the game finished?</summary>
-            <p>Club NYC is in early access: you can play right now, and new places and features land all the time. See <a href="#whats-new">What’s new</a> for the latest.</p>
-          </details>
-          <details>
             <summary>Will my progress be saved?</summary>
             <p>Yes. Your New Yorker, coins, wardrobe and apartment are saved to the city. As a guest, your progress lives in this browser until you link an account.</p>
           </details>
-
-          <h3 class="faq-group">Safety and parents</h3>
           <details>
             <summary>How old do I need to be?</summary>
             <p>13 or older. When you make your New Yorker we ask for your birth month and year to check, and we don’t keep them. You also agree to our Terms, Privacy Policy and Community Rules.</p>
@@ -439,15 +322,17 @@
             <p>We work hard on it. Chat is filtered, and links, emails and phone numbers are removed automatically. Every player’s card has Report, Block and Mute, and moderators review reports along with the recent chat. Our <a href="/rules.html">community rules</a> explain what’s allowed and what happens when rules are broken.</p>
           </details>
           <details>
+            <summary>How do I report someone?</summary>
+            <p>Click the player, then Report on their player card, and pick what’s going on. You can also block them, so you won’t see them or their chat anymore.</p>
+          </details>
+          <details>
             <summary>What information do you collect?</summary>
             <p>As little as we can. Guests don’t give us an email address. If you link Google, X or Discord, we get what we need to sign you in. The <a href="/privacy.html">privacy policy</a> has the details, including how to delete your account.</p>
           </details>
           <details>
-            <summary>How do I report someone?</summary>
-            <p>Click the player, then Report on their player card, and pick what’s going on. You can also block them, so you won’t see them or their chat anymore.</p>
+            <summary>Is the game finished?</summary>
+            <p>Club NYC is in early access: you can play right now, and new places and features land all the time. The <a href="/discord" data-discord="faq" rel="noopener">Discord</a> gets first looks at what’s coming.</p>
           </details>
-
-          <h3 class="faq-group">Help</h3>
           <details>
             <summary>I found a bug. Where do I tell you?</summary>
             <p>Thank you! Tell us in the <a href="/discord" data-discord="faq" rel="noopener">Discord</a> or email <a href="mailto:[CONTACT EMAIL]">[CONTACT EMAIL]</a> with your in-game name and what happened.</p>
@@ -466,7 +351,7 @@
       <!-- ============ last call ============ -->
       <section class="final" aria-labelledby="final-title">
         <div class="wrap final-inner">
-          <h2 id="final-title">The city is waiting.</h2>
+          <h2 id="final-title">The Big Apple is waiting.</h2>
           <p>Make your New Yorker in 30 seconds and say hi in Times Square.</p>
           <a class="btn btn-play btn-xl" href="/play?start=guest" data-play="final"><span class="play-label">Play now</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
           <p class="final-note">Free <i aria-hidden="true">·</i> No download <i aria-hidden="true">·</i> Ages 13+</p>
@@ -478,21 +363,19 @@
       <div class="wrap footer-grid">
         <div class="footer-brand">
           <img src="/art/ui/logo.png" alt="Club NYC" width="900" height="507" loading="lazy" />
-          <p>A city you can hang out in.</p>
+          <p>A cozy online hangout, set in New York.</p>
         </div>
         <nav aria-label="Play">
           <h2>Play</h2>
           <a href="/play?start=guest" data-play="footer">Play now</a>
           <a href="/play">Sign in</a>
-          <a href="#whats-new">What’s new</a>
           <a href="#faq">FAQ</a>
         </nav>
         <nav aria-label="Community">
           <h2>Community</h2>
           <a href="/discord" data-discord="footer" rel="noopener">Discord</a>
           <a href="/rules.html">Community rules</a>
-          <a href="#safety">Safety &amp; parents</a>
-          <a href="/updates.xml">Updates (RSS)</a>
+          <a href="#safety">Safety</a>
         </nav>
         <nav aria-label="Help and legal">
           <h2>Help &amp; legal</h2>
@@ -507,6 +390,13 @@
         <p>© 2026 [COMPANY NAME]</p>
       </div>
     </footer>
+
+    <dialog class="trailer" aria-label="Club NYC trailer">
+      <button class="trailer-x" type="button" aria-label="Close the trailer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+      <video controls playsinline preload="none" poster="/video/club-nyc-trailer.jpg" src="/video/club-nyc-trailer.mp4" width="1920" height="1080"></video>
+    </dialog>
 
     <!-- phones: Club NYC plays on a computer, so Play now offers to send the link there -->
     <dialog class="phone-sheet" id="phone-sheet" aria-labelledby="phone-sheet-title">

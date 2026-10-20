@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Hero options for the landing page. Dev only: Vite serves it at /lab/hero.html, the build leaves it out.
+         /lab/hero.html shows every option one after another; /lab/hero.html?v=a (b, c, d) shows one on its own. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Club NYC: hero options</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <script type="module" src="/lab/hero.ts"></script>
+  </head>
+  <body>
+    <header class="site-header" id="top">
+      <div class="wrap header-row">
+        <a class="brand" href="/" aria-label="Club NYC home"><img src="/art/ui/logo.png" alt="Club NYC" width="900" height="507" /></a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="#explore">Explore NYC</a>
+          <a href="#fun-stuff">The fun stuff</a>
+          <a href="#safety">Safety</a>
+          <a href="#whats-new">What’s new</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <div class="header-actions">
+          <a class="link-signin" href="/play">Sign in</a>
+          <a class="discord-link" href="/discord" rel="noopener" aria-label="Join the Club NYC Discord">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.32 4.37A19.8 19.8 0 0 0 15.4 2.84a.07.07 0 0 0-.08.04c-.21.38-.45.87-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.53.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08 0l.37.3a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z"/></svg>
+            <span>Discord</span>
+          </a>
+          <a class="btn btn-play btn-sm" href="/play?start=guest">Play now</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ A: the city, full bleed ============ -->
+      <p class="lab-label" data-v="a">Option A · The city, full bleed</p>
+      <section class="hero-v hero-a" data-v="a" aria-labelledby="a-title">
+        <video class="hv-bg" data-hero-video muted loop playsinline preload="none" poster="/video/hero-loop.webp" aria-hidden="true">
+          <source src="/video/hero-loop.webm" type="video/webm" />
+          <source src="/video/hero-loop.mp4" type="video/mp4" />
+        </video>
+        <div class="hv-shade"></div>
+        <div class="wrap">
+          <div class="hv-copy">
+            <p class="eyebrow">Free <i aria-hidden="true">·</i> Plays in your browser <i aria-hidden="true">·</i> Ages 13+</p>
+            <h1 id="a-title">A city you can hang&nbsp;out&nbsp;in.</h1>
+            <p class="lede">A cozy online New York. Make a New Yorker in 30 seconds, explore 20+ places and meet your friends in Times Square.</p>
+            <div class="hero-cta">
+              <a class="btn btn-play btn-xl" href="/play?start=guest">Play now<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+              <button class="btn-trailer" type="button" data-trailer><span class="bt-icon" aria-hidden="true"></span>Watch the trailer<small>0:45</small></button>
+            </div>
+            <p class="hero-note">No download. No sign-up. Nothing to buy.</p>
+          </div>
+        </div>
+        <p class="hv-real"><i aria-hidden="true"></i>Real gameplay</p>
+      </section>
+
+      <!-- ============ B: the game, framed, in daylight ============ -->
+      <p class="lab-label" data-v="b">Option B · The game window</p>
+      <section class="hero-v hero-b" data-v="b" aria-labelledby="b-title">
+        <div class="wrap">
+          <p class="hb-chips"><span>Free</span><span>Plays in your browser</span><span>Ages 13+</span></p>
+          <h1 id="b-title">A city you can hang&nbsp;out&nbsp;in.</h1>
+          <p class="lede">Make a New Yorker in 30 seconds, explore 20+ places and meet your friends in Times&nbsp;Square.</p>
+          <div class="hero-cta">
+            <a class="btn btn-play btn-xl" href="/play?start=guest">Play now<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+          <p class="hero-note">No download. No sign-up. Nothing to buy.</p>
+          <div class="game-window">
+            <video data-hero-video muted loop playsinline preload="none" poster="/video/hero-loop.webp" aria-label="Real gameplay: New Yorkers walking, chatting and dancing around the city">
+              <source src="/video/hero-loop.webm" type="video/webm" />
+              <source src="/video/hero-loop.mp4" type="video/mp4" />
+            </video>
+            <p class="gw-real"><i aria-hidden="true"></i>Real gameplay</p>
+            <button class="btn-trailer gw-trailer" type="button" data-trailer><span class="bt-icon" aria-hidden="true"></span>Watch the trailer<small>0:45</small></button>
+          </div>
+        </div>
+        <svg class="hb-skyline" viewBox="0 0 1440 220" preserveAspectRatio="none" aria-hidden="true"><path d="M0 220V150h60v-40h40v60h50V90h30V60h30v30h30v90h60v-70h50v-40h20v40h30v110h40V80h40V40h20V20h10v20h20v40h40v140h60v-90h70v-40h40v130h50V70h30V30h12V10h6v20h12v40h30v150h60v-60h40v-50h50v110h50V100h40v-30h30v150h60v-80h40V90h30v130h40v-60h40v60z" fill="#a9d6f5"/></svg>
+      </section>
+
+      <!-- ============ C: a billboard in the city ============ -->
+      <p class="lab-label" data-v="c">Option C · Now showing</p>
+      <section class="hero-v hero-c" data-v="c" aria-labelledby="c-title">
+        <div class="wrap hc-grid">
+          <div class="hc-copy">
+            <p class="eyebrow">Free <i aria-hidden="true">·</i> Plays in your browser <i aria-hidden="true">·</i> Ages 13+</p>
+            <h1 id="c-title">A city you can hang&nbsp;out&nbsp;in.</h1>
+            <p class="lede">A cozy online New York. Make a New Yorker in 30 seconds, explore 20+ places and meet your friends in Times Square.</p>
+            <div class="hero-cta">
+              <a class="btn btn-play btn-xl" href="/play?start=guest">Play now<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+              <button class="btn-trailer" type="button" data-trailer><span class="bt-icon" aria-hidden="true"></span>Watch the trailer<small>0:45</small></button>
+            </div>
+          </div>
+          <figure class="billboard">
+            <p class="bb-marquee">Now showing</p>
+            <div class="bb-frame">
+              <video data-hero-video muted loop playsinline preload="none" poster="/video/hero-loop.webp" aria-label="Real gameplay: New Yorkers walking, chatting and dancing around the city">
+                <source src="/video/hero-loop.webm" type="video/webm" />
+                <source src="/video/hero-loop.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <figcaption>Real gameplay, recorded in the city</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ============ D: the title screen ============ -->
+      <p class="lab-label" data-v="d">Option D · Title screen</p>
+      <section class="hero-v hero-d" data-v="d" aria-labelledby="d-title">
+        <video class="hv-bg" data-hero-video muted loop playsinline preload="none" poster="/video/hero-loop.webp" aria-hidden="true">
+          <source src="/video/hero-loop.webm" type="video/webm" />
+          <source src="/video/hero-loop.mp4" type="video/mp4" />
+        </video>
+        <div class="hv-shade"></div>
+        <div class="wrap hd-copy">
+          <img class="hd-logo" src="/art/ui/logo.png" alt="Club NYC" width="900" height="507" />
+          <h1 id="d-title">A city you can hang&nbsp;out&nbsp;in.</h1>
+          <div class="hero-cta">
+            <a class="btn btn-play btn-xxl" href="/play?start=guest">Play now<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+          <p class="hd-facts">Free <i aria-hidden="true">·</i> No download <i aria-hidden="true">·</i> Ages 13+</p>
+          <button class="btn-trailer" type="button" data-trailer><span class="bt-icon" aria-hidden="true"></span>Watch the trailer<small>0:45</small></button>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="trailer" aria-label="Club NYC trailer">
+      <button class="trailer-x" type="button" aria-label="Close the trailer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+      <video controls playsinline preload="none" poster="/video/club-nyc-trailer.jpg" src="/video/club-nyc-trailer.mp4"></video>
+      <p class="trailer-note">Real gameplay, set to “Empire State of Mine”, one of the game’s own songs.</p>
+    </dialog>
+  </body>
+</html>

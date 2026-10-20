@@ -17,7 +17,7 @@ import { installGracefulShutdown, startBackups, healthReport } from './ops.ts'
 import { rateLimit, byPlayer } from './limits.ts'
 import { purgeOld } from './moderation.ts'
 import { siteHeaders, staticMtime } from './headers.ts'
-import { fillPlaceholders, discordTarget, discordInvite, updatesFeed } from './landing.ts'
+import { fillPlaceholders, discordTarget, discordInvite } from './landing.ts'
 
 const app = new Hono()
 // no request body the game sends comes near this (a cloud save is ~20 KB); bigger ones are refused before
@@ -61,8 +61,8 @@ if (existsSync(config.staticDir)) {
       .replace('</head>', `  <link rel="canonical" href="${url}" />\n  </head>`)
       .replace(/(property="og:image" content=")\/(?!\/)/, `$1${config.publicUrl}/`)
       .replace(/(name="twitter:image" content=")\/(?!\/)/, `$1${config.publicUrl}/`)
-      // structured data: every site link absolute ("url", "image", "releaseNotes")
-      .replace(/("(?:url|image|releaseNotes)": ")\//g, `$1${config.publicUrl}/`)
+      // structured data: every site link absolute ("url", "image")
+      .replace(/("(?:url|image)": ")\//g, `$1${config.publicUrl}/`)
       .replace('<meta property="og:type"', `<meta property="og:url" content="${url}" />\n    <meta property="og:type"`)
   const fill = (html: string, legal = false) =>
     fillPlaceholders(html, { contactEmail: config.contactEmail, companyName: config.companyName, governingState: config.governingState, mailingAddress: config.mailingAddress, legal })
@@ -76,9 +76,6 @@ if (existsSync(config.staticDir)) {
   }
   // "Join the Discord": one address to change (DISCORD_INVITE_URL); until it's set, the page says it opens soon
   app.get('/discord', (c) => c.redirect(discordTarget(config.discordInvite)))
-  // the landing page's "What's new", as RSS
-  const feed = updatesFeed(landing, config.publicUrl)
-  app.get('/updates.xml', (c) => c.body(feed, 200, { 'Content-Type': 'application/rss+xml; charset=utf-8' }))
   const withMeta = (title: string, description: string, image: string, url: string) =>
     page
       .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
@@ -89,7 +86,7 @@ if (existsSync(config.staticDir)) {
       .replace(/(property="og:image" content=")[^"]*/, `$1${abs(image)}`)
       .replace(/(name="twitter:image" content=")[^"]*/, `$1${abs(image)}`)
       .replace('<meta property="og:type"', `<meta property="og:url" content="${url}" />\n    <meta property="og:type"`)
-  const game = withMeta('Club NYC: a city you can hang out in', 'A cozy online New York. Make a New Yorker in 30 seconds, work silly jobs, decorate your apartment and meet your friends in Times Square.', '/og/club-nyc.jpg', abs('/play'))
+  const game = withMeta('Club NYC: waddle on over to New York', 'A cozy online New York. Make a New Yorker in 30 seconds, work silly jobs, decorate your apartment and meet your friends in Times Square.', '/og/club-nyc.jpg', abs('/play'))
   app.get('/join/:name', (c) => {
     const name = c.req.param('name').replace(/[^A-Za-z0-9_]/g, '').slice(0, 14)
     if (!name) return c.html(game)

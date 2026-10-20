@@ -8,14 +8,14 @@ import type { Actor } from '../engine/actor'
 import { quadTransform, type Pt } from '../geometry'
 import { AvatarView } from '../avatar/render'
 import type { Look } from '../avatar/look'
-import { play, stop, TRACK } from '../music'
 import { RESIDENTS } from '../social/residents'
 import { api } from '../game'
 import { jamState, JAM_PERIOD } from '../data/jam'
 
 /**
  * Dance Jam — the Times Square stage comes alive on a city-wide schedule (everyone online sees the same show,
- * no server needed): the LED wall lights up, a DJ takes the decks, the anthem plays, the crowd floods the plaza.
+ * no server needed): the LED wall lights up, a DJ takes the decks, the crowd floods the plaza. No music: a song
+ * playing on its own in the background was too much (the owner's call, 19 October 2026).
  * Dance on the floor in front of the stage to earn tips.
  */
 const PERIOD = JAM_PERIOD
@@ -31,7 +31,6 @@ let joinBtn: HTMLElement | null = null
 let dj: { view: AvatarView; el: HTMLElement } | null = null
 let floor: [number, number, number, number] = [330, 400, 670, 520]
 let wasOn: boolean | null = null
-let playingSince = 0
 let danced = 0
 let rewardedJam = -1
 const crew = new Set<Actor>()
@@ -78,7 +77,6 @@ onRoom('times-square', ({ geo, scene }) => {
   stage.root.append(joinBtn)
   tick(0)
   return () => {
-    stop()
     led = null
     dj = null
     joinBtn?.remove()
@@ -102,8 +100,6 @@ function tick(dt: number) {
       if (save.created) toast('🪩 DANCE JAM! Get to the middle of the plaza and dance (D)', '🪩')
       fillCrowd()
     } else {
-      stop()
-      playingSince = 0
       for (const a of crew) {
         a.mob = false
         a.held = null
@@ -111,11 +107,7 @@ function tick(dt: number) {
       crew.clear()
     }
   }
-  if (j.on && playingSince !== j.since) {
-    playingSince = j.since
-    play(j.track, j.since)
-    if (led) led.querySelector('.jl-text')!.textContent = `♪ ${TRACK[j.track]?.title ?? ''}`
-  }
+  if (j.on && led) led.querySelector('.jl-text')!.textContent = 'DANCE JAM · ON NOW'
   if (!j.on && led) led.querySelector('.jl-text')!.textContent = `DANCE JAM · NEXT SHOW ${mmss(j.next - now)}`
   const p = world.player
   const [x1, y1, x2, y2] = floor

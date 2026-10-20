@@ -228,10 +228,11 @@
 .halal-rush-bubble::after {
   content: '';
   position: absolute;
-  left: calc(50% - 8px);
+  z-index: -1; /* under the order, so the tail never covers it */
+  left: calc(50% - 8.5px);
   bottom: -10px;
-  width: 14px;
-  height: 14px;
+  width: 17px;
+  height: 17px;
   background: inherit;
   border-right: 3px solid #1d2140;
   border-bottom: 3px solid #1d2140;
@@ -581,6 +582,7 @@
   position: absolute;
   top: -10px;
   bottom: -8px;
+  box-sizing: content-box; /* 7px of rope between the borders */
   width: 7px;
   background: repeating-linear-gradient(180deg, #d9b26a 0 7px, #b98a45 7px 12px);
   border: 2.5px solid #1d2140;

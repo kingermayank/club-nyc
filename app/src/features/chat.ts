@@ -1,6 +1,6 @@
 import { sfx } from '../audio'
 import { save, bump } from '../state'
-import { el, stage } from '../engine/stage'
+import { el } from '../engine/stage'
 import { ui } from '../engine/ui'
 import { world, onRoomChange } from '../engine/world'
 import { link } from '../net/link'
@@ -165,10 +165,9 @@ export function chatBar(): HTMLElement {
     true,
   )
   onRoomChange(() => setLog(false))
-  if (!log.isConnected) {
-    log.append(el('div', 'chat-log-head', '<b>Chat</b><small>Only people in this room can see what you say</small>'), logList)
-    stage.root.append(log)
-  }
+  // the log opens out of the chat bar, edge to edge with it (like the quick phrases)
+  if (!log.childElementCount) log.append(el('div', 'chat-log-head', '<b>Chat</b><small>Only people in this room can see what you say</small>'), logList)
+  bar.append(log)
   // Enter anywhere opens the chat; Escape closes the log
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && log.classList.contains('open')) return setLog(false)

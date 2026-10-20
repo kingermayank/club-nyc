@@ -153,7 +153,7 @@ Club Penguin's card is loved because it is **your avatar, big, on a background y
 | Creator, screen 1 | "Who's walking into Manhattan?": 8 ready-made looks, Surprise me (curated reroll), skin / hair / hair colour rows, **a colour ring around the avatar** (Club Penguin's signup idea), sparkle and hop on every change | `features/creator.ts` |
 | Creator, screen 2 | "What do New Yorkers call you?": two-wheel NYC name picker (every pair fits 14 characters) or type your own with live availability, 13+ box, "Walk into the city" | `features/creator.ts` |
 | Moved into the world | Team pick → after your first job (or next visit); MetroCard → flips in at the corner after the tour (click to save the PNG); outfit and gift → come with the look | `game.ts`, `games/host.ts`, `features/creator.ts` `flipMetroCard` |
-| Player card | "Edit look" has the colour row too | `features/playerCard.ts` |
+| Player card | Three tabs on the right: Wardrobe (your items, filtered by category), Look (skin, hair, hair colour and your colour) and Account | `features/playerCard.ts` |
 | Tests | `tools/mp_test.py`, `tools/launch_test.py` and `tools/tour_test.py` drive the new 2-screen creator | |
 
 **Since then (also built):**

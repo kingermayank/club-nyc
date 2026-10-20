@@ -6,7 +6,7 @@ import { lookEditor } from './playerCard'
 import { HAIR_STYLES, SIG_COLORS, SKIN_ORDER, type Look } from '../avatar/look'
 import { TEAMS, type TeamId } from '../social/teams'
 import { track } from '../net/events'
-import { consentFields, isOldEnough, tooYoungRecently, tooYoungScreen, type Birth } from './consent'
+import { confirmBirthday, consentFields, isOldEnough, tooYoungScreen, type Birth } from './consent'
 
 /**
  * First-run onboarding, two screens and about 40 seconds (docs/avatar-redesign.md):
@@ -46,11 +46,6 @@ export interface CreatorOpts {
 }
 
 export function openCreator(done: () => void, opts: CreatorOpts = {}) {
-  // said "under 13" in this browser in the last day: no going back to pick another year
-  if (tooYoungRecently()) {
-    opts.tooYoung?.()
-    return tooYoungScreen()
-  }
   const openedAt = performance.now()
   track('creator_open')
   let look: Look = structuredClone(PRESETS[Math.floor(Math.random() * PRESETS.length)])
@@ -58,6 +53,8 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
   let nameErr = ''
   // the birthday and "I agree" (kept if the name screen redraws, e.g. after a taken name)
   let birth: Birth | null = null
+  // an under-13 birthday gets one "Is that your birthday?" per visit (a second one goes straight to the goodbye)
+  let birthdayChecked = false
   let agreed = false
   let avail: { name: string; ok: boolean; reason: string | null } | null = null
   let wheelA = 0
@@ -311,8 +308,15 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
         birth = consent.birth()
         agreed = true
         if (birth && !isOldEnough(birth)) {
-          opts.tooYoung?.()
-          tooYoungScreen()
+          const goodbye = () => {
+            opts.tooYoung?.()
+            tooYoungScreen()
+          }
+          if (birthdayChecked) goodbye()
+          else {
+            birthdayChecked = true
+            void confirmBirthday(birth).then((sure) => (sure ? goodbye() : consent.fixBirthday()))
+          }
           return false
         }
         name = v

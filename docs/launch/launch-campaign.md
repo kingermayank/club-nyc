@@ -33,7 +33,7 @@ Pre-launch, launch week and the four weeks after. Written October 16, 2026. Days
 |---|---|
 | **A place to hang out with your actual friends** | Live chat, friends, "who's in the city," apartment visits, guestbooks, house parties where everyone hears the same song. Invite links that drop a friend next to you (PLANNED FOR LAUNCH). |
 | **The city's in-jokes, playable** | 24 illustrated places; Slice Factory, Halal Rush, Bagel Counters, Ferry Captain and Showtime!; StreetCheesy; the Club NYC Times; parody brands like Starducks and NYKE; party music like "Empire State of Mine." |
-| **Always something happening** | A Dance Jam every 8 minutes, flash mobs, snowball fights, weekly Neighborhood Wars, and 57 clearly labeled city locals so rooms never feel dead. |
+| **Always something happening** | A Dance Jam every 8 minutes, flash mobs, weekly Neighborhood Wars, and 57 clearly labeled city locals so rooms never feel dead. |
 
 **Use:** hang out, New Yorker, the city, your friends, free, in your browser, 13+.
 **Avoid:** metaverse, revolutionary, AI-powered, "for kids," "official," anything that hints at Disney involvement, and "hand-drawn" (the README says the art was generated with an image model; see Risks).
@@ -126,7 +126,7 @@ If a gate slips, move the date, or run L as a quieter community launch and save 
 
 | Day | In the game | Outside the game |
 |---|---|---|
-| **L+1 Wed** | **Snowball Showdown** in Central Park: Uptown Acorns vs Downtown Slices. Prime Time Jam. | **Show HN** in the morning: the technical write-up. Follow up with press who asked for interviews. |
+| **L+1 Wed** | **Neighborhood Wars kickoff** in Central Park: Uptown Acorns vs Downtown Slices. Prime Time Jam. | **Show HN** in the morning: the technical write-up. Follow up with press who asked for interviews. |
 | **L+2 Thu** | **Flash Mob Thursday:** creators start flash mobs at set times, going for a takeover (6+ dancers). | Creators' night; creators post their strips. Pitch Time Out and Secret NYC for weekend lists. |
 | **L+3 Fri** | **Friday Night Block Party:** scheduled public parties; the first Party of the Night. | "Come to the block party" posts from NYC creators, each with a join link and a calendar file. |
 | **L+4 Sat** | **Campus Night** pilots (NYU, Columbia, CUNY hosts) or a Showtime! high-score night. | Student papers and club channels. |

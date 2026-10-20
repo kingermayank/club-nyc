@@ -38,7 +38,7 @@ Club NYC is a free multiplayer game set in a pocket-sized, illustrated New York 
 - **100+ outfit pieces and 25+ furniture pieces.** Homes come from StreetCheesy, a parody listings app.
 - **Real-time multiplayer:** live chat with a filter, friends, "who's in the city," apartment visits, guestbooks and likes.
 - **House parties** with synced music.
-- **A Dance Jam in Times Square every 8 minutes,** plus flash mobs and snowball fights.
+- **A Dance Jam in Times Square every 8 minutes,** plus flash mobs anywhere in the city.
 - **4 neighborhood teams** competing in a weekly Neighborhood Wars.
 - **51 stamps** (achievements).
 - **The Club NYC Times,** an in-game newspaper that covers real New York moments.

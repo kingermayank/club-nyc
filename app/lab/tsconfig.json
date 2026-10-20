@@ -1,0 +1,5 @@
+{
+  // type-checks the design explorations in this folder: npx tsc -p lab
+  "extends": "../tsconfig.json",
+  "include": ["*.ts", "../src/vite-env.d.ts"]
+}

@@ -37,7 +37,7 @@ function dailyCapNote() {
   const day = new Date().toDateString()
   if (capNoted === day) return
   capNoted = day
-  toast('That’s all the coins the city hands out today. More tomorrow! Jobs, photos and friends are still fun. 🌙', '🪙')
+  toast('That’s all the coins the city hands out today. Even New York has a budget. More tomorrow! Friends and photos are still free. 🌙', '🪙')
 }
 
 /** The API rooms, features and games use to talk to the world. */
@@ -70,7 +70,7 @@ export const api: Game = {
   },
   spend(n, reason) {
     if (save.coins < n) {
-      world.player.say('I’m out of coins! Time to earn some. 🪙')
+      world.player.say('I’m out of coins. Peak New York. Time to earn some! 🪙')
       sfx.squawk()
       return false
     }
@@ -85,7 +85,7 @@ export const api: Game = {
     if (!def) return false
     if (save.owned.includes(item)) return true
     if (save.coins < def.price) {
-      world.player.say('I’m out of coins! Time to earn some. 🪙')
+      world.player.say('I’m out of coins. Peak New York. Time to earn some! 🪙')
       sfx.squawk()
       return false
     }
@@ -213,7 +213,7 @@ export async function startGame(host: HTMLElement) {
             if (online) accountStamps()
             // the MetroCard is earned in the city now: it flips in at the corner once the tour is done
             setTimeout(() => void import('./features/creator').then((m) => m.flipMetroCard(account.me?.memberNo ?? 0)), 900)
-            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. THREAD in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building!`, go: { label: 'Take me to SoHo', room: 'soho' } })), 6000)
+            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. THREAD in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take me to SoHo', room: 'soho' } })), 6000)
             setTimeout(dailyBonus, 3200)
           }, 500)
         },
@@ -242,7 +242,7 @@ export async function startGame(host: HTMLElement) {
     release()
     player.setName(save.name)
     import('./engine/world').then((m) => m.refreshTag(player))
-    toast(`Welcome online, <b>${save.name}</b>! Your progress came with you.`, '🗽')
+    toast(`Welcome online, <b>${save.name}</b>! Your progress came with you. No moving van required.`, '🗽')
     goLive()
     dailyBonus()
     startQuests()
@@ -417,7 +417,7 @@ async function inviteForReturning() {
   const name = pendingInvite()
   if (!name) return
   clearInvite()
-  if (name.toLowerCase() === save.name.toLowerCase()) return toast('That’s your own invite link. Send it to a friend! 💌', '💌')
+  if (name.toLowerCase() === save.name.toLowerCase()) return toast('That’s your own invite link. Bold move, inviting yourself. Send it to a friend! 💌', '💌')
   let who: { user: { id: string; name: string }; online: boolean }
   try {
     who = await rest(`/invite/${encodeURIComponent(name)}`)

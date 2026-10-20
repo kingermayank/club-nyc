@@ -2,7 +2,7 @@ import { defineConfig, type Plugin } from 'vite'
 import { mkdirSync, writeFileSync, rmSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve, basename, join } from 'node:path'
 import { brotliCompressSync, gzipSync, constants as zlib } from 'node:zlib'
-import { discordTarget, updatesFeed } from '../server/src/landing.ts'
+import { discordTarget } from '../server/src/landing.ts'
 
 /** Dev-only: lets the browser save renders (avatar sheets, etc.) into scratch/exports for the art pipeline. */
 function exportEndpoint(): Plugin {
@@ -80,10 +80,6 @@ function gameRoutes(): Plugin {
       res.statusCode = 302
       res.setHeader('Location', discordTarget(discord()))
       return res.end()
-    }
-    if (path === '/updates.xml') {
-      res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8')
-      return res.end(updatesFeed(readFileSync(resolve(import.meta.dirname, 'index.html'), 'utf8'), `http://${req.headers.host}`))
     }
     if (path === '/play' || path === '/play/' || /^\/join\/[^/]+\/?$/.test(path)) req.url = '/play.html' + (query ? '?' + query : '')
     next()

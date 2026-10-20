@@ -154,8 +154,8 @@ async def main():
         st, html, _ = http('/')
         check('og:image' in html and '/og/club-nyc.jpg' in html, 'the home page has a link-preview card')
         # ---------- the landing page (/) and the game (/play) ----------
-        check(st == 200 and 'A city you can hang' in html and 'data-play="hero"' in html, 'the front page is the landing page, with a Play now button', st)
-        check(f'<link rel="canonical" href="{BASE}/"' in html and f'content="{BASE}/og/club-nyc.jpg"' in html and '"VideoGame"' in html and '"url": "/"' not in html and f'"releaseNotes": "{BASE}/#whats-new"' in html,
+        check(st == 200 and 'Waddle on over to New' in html and 'data-play="hero"' in html, 'the front page is the landing page, with a Play now button', st)
+        check(f'<link rel="canonical" href="{BASE}/"' in html and f'content="{BASE}/og/club-nyc.jpg"' in html and '"VideoGame"' in html and '"url": "/"' not in html,
               'the landing page has an absolute canonical URL, an absolute share image and VideoGame structured data')
         st2, game, _ = http('/play')
         check(st2 == 200 and '/src/' not in game and 'noindex' in game and 'data-play="hero"' not in game, 'the game is served at /play (and asks search engines to index the landing page instead)', st2)
@@ -230,7 +230,7 @@ async def main():
             st = await api(A, '/profile', 'POST', {'name': 'Kid' + tag, 'look': kid_look, 'team': 'midtown', 'birth': {'m': 1, 'y': 2000}})
             check(st['status'] == 400 and (st['body'] or {}).get('error') == 'consent', 'the server refuses a profile without agreeing to the Terms, Privacy Policy and Rules', st)
 
-            # ---------- under 13: a friendly goodbye, nothing kept, no going back to try another year ----------
+            # ---------- under 13: one neutral check, a friendly goodbye, nothing kept, and a way back out ----------
             kid = await b.new_context(viewport={'width': 1000, 'height': 565})
             K = watch(await kid.new_page())
             await K.goto(BASE + '/play?start=guest', wait_until='networkidle')
@@ -239,14 +239,26 @@ async def main():
             await K.wait_for_selector('.creator-name input')
             await K.fill('.creator-name input', 'Kid' + tag)
             await K.select_option('.cr-month', '6'); await K.select_option('.cr-year', str(time.localtime().tm_year - 10)); await K.click('.cr-age input')
+            # one look first, in case it was a slip in the year list: neutral, it never mentions the age limit
+            await K.click('.creator-actions .btn.go')
+            await K.wait_for_selector('.birthday-check', timeout=6000)
+            ask = (await K.inner_text('.birthday-check')).lower()
+            check(str(time.localtime().tm_year - 10) in ask and 'age' not in ask and 'old' not in ask and '13' not in ask,
+                  'an under-13 birthday gets one neutral “Is that your birthday?” first (no hint at the age limit)', ask)
+            await K.click('.birthday-check .btn.ghost')
+            await K.wait_for_timeout(400)
+            check(await K.evaluate("!!document.querySelector('.creator-name input') && !document.querySelector('.too-young') && !localStorage.getItem('club-nyc:too-young')"),
+                  '“Let me fix it” goes back to the birthday, with nothing locked')
+            # the same answer again: straight to the goodbye (one look per visit, so it can't be used to guess)
             await K.click('.creator-actions .btn.go')
             await K.wait_for_selector('.too-young', timeout=6000)
+            check(await K.evaluate("document.querySelector('.too-young a.btn')?.getAttribute('href') === '/'"), 'the goodbye has a way out: back to the home page')
             await K.wait_for_timeout(600)
             gone = (await api(K, '/me'))['body']
             check(gone.get('user') is None, 'an under-13 sign-up sees a friendly goodbye, and the guest account made for the visit is deleted', gone)
             await K.goto(BASE + '/play?start=guest', wait_until='networkidle')
-            await K.wait_for_selector('.too-young', timeout=8000)
-            check(not await K.evaluate("!!document.querySelector('.creator-card')"), 'going back right away doesn’t offer the creator again (no picking another year)')
+            await K.wait_for_selector('.creator-card', timeout=10000)
+            check(not await K.evaluate("!!document.querySelector('.too-young')"), 'Play now after the goodbye starts over with a new New Yorker (nobody is locked out)')
             await kid.close()
 
             # ---------- A: New Yorker #1 (carries on from the creator) ----------
@@ -337,6 +349,11 @@ async def main():
             await onboard(D, D_NAME, 0)
             await finish_onboarding(D)
             d_id = (await api(D, '/me'))['body']['user']['id']
+            # the landing page's "The city so far": real totals, nothing invented
+            st, body, _ = http('/api/stats')
+            s = json.loads(body) if st == 200 else {}
+            check(st == 200 and s.get('newYorkers', 0) >= 4 and s.get('online', 0) >= 1 and s.get('places', 0) >= 1 and isinstance(s.get('pizzas'), int),
+                  'the landing page’s “The city so far” counts the real New Yorkers, pizzas and who’s out right now', {k: s.get(k) for k in ('newYorkers', 'online', 'places', 'pizzas')})
             for pg in (A, B, C):
                 await api(pg, '/reports', 'POST', {'target': d_id, 'reason': 'harassment', 'context': f'{D_NAME}: (test) rude message'})
             await D.wait_for_timeout(800)

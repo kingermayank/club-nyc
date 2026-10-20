@@ -143,20 +143,31 @@ function hair(style: HairStyle, col: string, flat: boolean): { back: string; fro
 }
 
 // ---------- face ----------
+/**
+ * Where the eyes sit. The face sits low on the head (a big forehead reads as young and friendly), the eyes are big
+ * with big pupils looking at you (two sparkles each), and the smile is small. Glasses follow the eyes (FACE_DROP).
+ */
+export const EYE_Y = -94
+/** how far the face moved down from where glasses were drawn for */
+const FACE_DROP = 5
 function face(c: Ctx, mood: 'smile' | 'grin' | 'o'): string {
   const { fx, d } = c
-  const eye = (x: number) =>
-    E(x, -99, 5.4, 7.2, '#ffffff', 2.4) +
-    E(x + 1.4 * d, -98, 3.5, 4.8, O, 0) +
-    `<circle cx="${x + 1.4 * d - 1.3}" cy="-100" r="1.5" fill="#fff"/>`
-  const brows = `<path d="M ${-15 + fx} -110 Q ${-11 + fx} -113 ${-7 + fx} -111 M ${7 + fx} -111 Q ${11 + fx} -113 ${15 + fx} -110" fill="none" stroke="${O}" stroke-width="2.3" stroke-linecap="round"/>`
+  const eye = (x: number) => {
+    const px = x + 0.6 * d
+    return (
+      E(x, EYE_Y, 5.8, 7, '#ffffff', 2.2) +
+      E(px, EYE_Y + 0.8, 4.4, 5.5, O, 0) +
+      `<circle cx="${px - 1.6}" cy="${EYE_Y - 1.3}" r="1.9" fill="#fff"/><circle cx="${px + 1.7}" cy="${EYE_Y + 2.6}" r="0.9" fill="#fff"/>`
+    )
+  }
+  const brows = `<path d="M ${-15 + fx} -104 Q ${-11 + fx} -106.5 ${-7 + fx} -105 M ${7 + fx} -105 Q ${11 + fx} -106.5 ${15 + fx} -104" fill="none" stroke="${O}" stroke-width="2" stroke-linecap="round"/>`
   const mouth =
     mood === 'grin'
-      ? P(`M ${-7 + fx} -86 Q ${fx} -86 ${7 + fx} -86 Q ${6 + fx} -77 ${fx} -77 Q ${-6 + fx} -77 ${-7 + fx} -86 Z`, '#8a2b3a', 'stroke-width="2.2"') + Pn(`M ${-3 + fx} -79.5 Q ${fx} -82 ${3 + fx} -79.5 Q ${fx} -77.6 ${-3 + fx} -79.5 Z`, '#ff7b8f')
+      ? P(`M ${-6 + fx} -83.5 Q ${fx} -83.5 ${6 + fx} -83.5 Q ${5 + fx} -75.5 ${fx} -75.5 Q ${-5 + fx} -75.5 ${-6 + fx} -83.5 Z`, '#8a2b3a', 'stroke-width="2.1"') + Pn(`M ${-2.6 + fx} -77.8 Q ${fx} -80 ${2.6 + fx} -77.8 Q ${fx} -76.2 ${-2.6 + fx} -77.8 Z`, '#ff7b8f')
       : mood === 'o'
-        ? E(fx, -82, 3.4, 4.2, '#8a2b3a', 2.2)
-        : `<path d="M ${-6 + fx} -85 Q ${fx} -79 ${6 + fx} -85" fill="none" stroke="${O}" stroke-width="2.5" stroke-linecap="round"/>`
-  const blush = `<ellipse cx="${-18 + fx * 0.6}" cy="-88" rx="4.6" ry="2.6" fill="#ff7b9c" opacity=".45"/><ellipse cx="${18 + fx * 0.6}" cy="-88" rx="4.6" ry="2.6" fill="#ff7b9c" opacity=".45"/>`
+        ? E(fx, -80, 3, 3.6, '#8a2b3a', 2.1)
+        : `<path d="M ${-5 + fx} -83.5 Q ${fx} -78.5 ${5 + fx} -83.5" fill="none" stroke="${O}" stroke-width="2.4" stroke-linecap="round"/>`
+  const blush = `<ellipse cx="${-17.5 + fx * 0.6}" cy="-85.5" rx="5" ry="3" fill="#ff7b9c" opacity=".5"/><ellipse cx="${17.5 + fx * 0.6}" cy="-85.5" rx="5" ry="3" fill="#ff7b9c" opacity=".5"/>`
   return `<g class="av-eyes">${eye(-11 + fx)}${eye(11 + fx)}</g>${brows}${blush}${mouth}`
 }
 
@@ -258,7 +269,7 @@ export function avatarMarkup(look: Look, o: RenderOpts = {}): string {
     else headParts.push(face(c, o.mood ?? 'smile'))
   }
   const faceItem = item(look, 'face')
-  if (faceItem?.draw && show('face') && !back) headParts.push(faceItem.draw(c))
+  if (faceItem?.draw && show('face') && !back) headParts.push(`<g transform="translate(0 ${FACE_DROP})">${faceItem.draw(c)}</g>`)
   if (!only && !back) headParts.push(hairParts.front)
   if (hat?.draw && show('head')) headParts.push(hat.draw(c))
   parts.push(`<g class="av-head"><g transform="${HEAD_SCALE}">${headParts.join('')}</g></g>`)
@@ -431,7 +442,7 @@ export class AvatarView {
     if (t > this.blinkAt) {
       const b = t - this.blinkAt
       const s = b < 0.12 ? 0.12 : 1
-      this.g.eyes?.setAttribute('transform', `translate(0 -99) scale(1 ${s}) translate(0 99)`)
+      this.g.eyes?.setAttribute('transform', `translate(0 ${EYE_Y}) scale(1 ${s}) translate(0 ${-EYE_Y})`)
       if (b > 0.14) this.blinkAt = t + 2.5 + Math.random() * 3.5
     }
     if (this.g.prop) this.g.prop.setAttribute('transform', `translate(0 -149) scale(${Math.cos(t * 18)} 1) translate(0 149)`)
