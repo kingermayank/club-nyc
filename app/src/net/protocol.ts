@@ -7,6 +7,8 @@
  * The server batches outgoing events per room instance every tick (~15 Hz) and sends ONE JSON
  * string to everyone in that instance.
  */
+// multiplayer mini-games ({ t: 'mp', k: … }): their own messages, see app/src/mp/shared/protocol.ts
+import type { MpC2S, MpS2C } from '../mp/shared/protocol'
 
 export interface LookWire {
   skin: number
@@ -54,6 +56,8 @@ export type C2S =
   | { t: 'tag'; ti: string; tm: string } // title / team changed
   | { t: 'party'; on: boolean; track?: string; theme?: string; pub?: boolean } // host a party at home (or change the music)
   | { t: 'ping'; c: number }
+  | { t: 'txt'; i: string; k: TextKind } // a preset text to a friend from your phone ("Meet me here!")
+  | MpC2S // multiplayer mini-games: lobbies, races, Carb-Jitsu
 
 // ---------- server -> client ----------
 export type S2C =
@@ -73,6 +77,7 @@ export type S2C =
   | { t: 'fa'; i: string; n: string } // friend request accepted
   | { t: 'n'; k: 'gb' | 'like' | 'ref' | 'refpaid'; i: string; n: string; m?: string; c?: number } // guestbook note / like / a friend joined through your invite / you were paid for it
   | { t: '$'; c: number; why?: string; owned?: string[]; homes?: string[] } // your wallet changed on the server
+  | { t: 'xp'; x: number; g: number; why?: string; lv: number; up?: boolean; b?: number } // you earned XP (x: new total, g: gained, lv: level, up: a new level, b: its coin bonus)
   | { t: 'ann'; m: string } // an announcement from the Club NYC team
   | { t: 'mod'; k: 'warn' | 'mute' | 'unmute'; m: string; until?: number } // a moderator (or the auto-moderator) acted on your account
   | { t: 'party'; p: PartyWire | null } // the party in this room started, changed or ended
@@ -80,7 +85,13 @@ export type S2C =
   | { t: 'o'; n: number } // how many people are in the city (sent when it changes, at most every 2 s)
   | { t: 'pong'; c: number }
   | { t: 'sys'; m: string } // system message (warnings, mute notices)
+  | { t: 'txt'; i: string; n: string; k: TextKind; r: string | null } // a friend texted you (r: the room they're in)
   | { t: 'kick'; m: string; k?: 'replaced' | 'banned' | 'deleted' | 'maintenance' }
+  | MpS2C // multiplayer mini-games: lobbies, races, Carb-Jitsu
+
+/** what your phone can text a friend: presets only (no free text to moderate) */
+export const TEXT_KINDS = ['meet', 'hi', 'game'] as const
+export type TextKind = (typeof TEXT_KINDS)[number]
 
 export const POSES = ['idle', 'dance', 'wave', 'cheer', 'jump', 'sit', 'skate'] as const
 export const EMOTES = ['😀', '😂', '😍', '😎', '😮', '😢', '😡', '🍕', '🗽', '❤️', '🚕', '☕', '🎉', '👍', '💡', '👋', '🕺', '🎃', '❄️', '🐦']

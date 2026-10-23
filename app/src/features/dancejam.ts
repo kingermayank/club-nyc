@@ -187,7 +187,7 @@ export function openDanceJam(): void {
   const p = el('div', 'panel', `<div class="panel-art">🎧</div><h2>Dance Jam</h2>
     <p>The DJ is setting up. The next show starts in <b class="jam-count">${mmss(j.next - Date.now())}</b>, then every ${PERIOD / 60000} minutes after that.</p>
     <p class="muted">When the music starts, dance in the middle of the plaza to earn tips. Bring friends: the bigger the crowd, the bigger the show.</p>`)
-  const ok = el('button', 'btn go', 'I’ll be here 🪩')
+  const ok = el('button', 'btn go', 'I’ll Be Here 🪩')
   ok.onclick = () => closeOverlay()
   p.append(ok, closeButton())
   openOverlay(p)

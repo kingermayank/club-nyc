@@ -16,6 +16,10 @@ import './features/theater'
 import './features/piano'
 import './features/apartment'
 import './features/extras'
+import './features/downtown'
+import './features/souvenirs'
+// multiplayer mini-games: the signs in the rooms, lobbies, invites (app/src/mp)
+import './mp'
 import './social/flashmob'
 import { startCommunity } from './social/community'
 import { initParty } from './features/party'
@@ -28,6 +32,7 @@ import { rest } from './net/server'
 import { ROOMS } from './data/rooms'
 import { isHomeRoom } from './data/homes'
 import { nycDay, weekStart, visitReward, WELCOME_GIFTS } from './data/economy'
+import { XP_FOR_CLAIM, jobXp } from './data/levels'
 
 export const coinIcon = `<img src="/art/icons/coin.png" alt="" width="20" height="20">`
 
@@ -60,6 +65,9 @@ export const api: Game = {
       save.coins += n
       persist()
       renderCoins()
+      // offline, the XP that comes with a claim (or a shift) is counted locally; online the server awards it
+      const xpReason = reason === 'job' ? 'job' : XP_FOR_CLAIM[reason]
+      if (xpReason) void import('./social/levels').then((m) => m.xpEvent(xpReason, reason === 'job' ? `${Date.now()}` : ref ?? reason, reason === 'job' ? jobXp(n) : undefined))
     }
     if (n > 0) {
       bumpCoins()
@@ -107,6 +115,8 @@ export const api: Game = {
     if (save.stamps.includes(id) || !STAMPS[id]) return
     save.stamps.push(id)
     persist()
+    // every stamp is worth XP (the server pays it once per stamp)
+    void import('./social/levels').then((m) => m.xpEvent('stamp', id))
     const s = STAMPS[id]
     setTimeout(() => {
       sfx.stamp()
@@ -213,7 +223,7 @@ export async function startGame(host: HTMLElement) {
             if (online) accountStamps()
             // the MetroCard is earned in the city now: it flips in at the corner once the tour is done
             setTimeout(() => void import('./features/creator').then((m) => m.flipMetroCard(account.me?.memberNo ?? 0)), 900)
-            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. THREAD in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take me to SoHo', room: 'soho' } })), 6000)
+            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. THREAD in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take Me to SoHo', room: 'soho' } })), 6000)
             setTimeout(dailyBonus, 3200)
           }, 500)
         },
@@ -275,7 +285,7 @@ export async function startGame(host: HTMLElement) {
       save.tour = 'offered'
       persist()
       setTimeout(
-        () => notify('New in the city? Rosa, your building’s super, can show you how everything works.', '🗽', [{ label: 'Show me around', act: () => void import('./features/tour').then((m) => m.startTour()) }], 12000),
+        () => notify('New in the city? Rosa, your building’s super, can show you how everything works.', '🗽', [{ label: 'Show Me Around', act: () => void import('./features/tour').then((m) => m.startTour()) }], 12000),
         4500,
       )
     }
@@ -302,13 +312,13 @@ export async function startGame(host: HTMLElement) {
 /** Your offline name is taken (or not allowed) online: pick another. Resolves with an error or null. */
 function pickOnlineName(problem: string, claimWith: Parameters<typeof claimProfile>[3] = {}): Promise<string | null> {
   return new Promise((resolve) => {
-    const p = el('div', 'panel', `<div class="panel-art">🏷️</div><h2>Pick your online name</h2><p>${problem} Names are 2–14 letters, numbers or underscores. This is what everyone in the city sees.</p>`)
+    const p = el('div', 'panel', `<div class="panel-art">🏷️</div><h2>Pick Your Online Name</h2><p>${problem} Names are 2–14 letters, numbers or underscores. This is what everyone in the city sees.</p>`)
     const input = document.createElement('input')
     input.className = 'name-input'
     input.maxLength = 14
     input.value = save.name.replace(/[^A-Za-z0-9_]/g, '').slice(0, 14)
     input.oninput = () => (input.value = input.value.replace(/[^A-Za-z0-9_]/g, ''))
-    const ok = el('button', 'btn go', 'Claim it')
+    const ok = el('button', 'btn go', 'Claim It')
     const submit = async () => {
       ok.disabled = true
       const err = await claimProfile(input.value, save.look, save.team, claimWith)
@@ -432,7 +442,7 @@ async function inviteForReturning() {
     if (who.online) return notify(`You opened <b>${them.name}</b>’s invite link. They’re in the city right now.`, '💌', [{ label: 'Go', act: () => goToFriend(them.id) }], 12000)
     return toast(`You and <b>${them.name}</b> are already friends. They’re offline right now.`, '💌')
   }
-  notify(`You opened <b>${them.name}</b>’s invite link.${who.online ? ' They’re in the city right now!' : ''}`, '💌', [{ label: 'Add friend', act: () => void addFriend(them.id, them.name) }], 14000)
+  notify(`You opened <b>${them.name}</b>’s invite link.${who.online ? ' They’re in the city right now!' : ''}`, '💌', [{ label: 'Add Friend', act: () => void addFriend(them.id, them.name) }], 14000)
 }
 
 /** Players who made a New Yorker offline confirm they're 13+ before going online. */

@@ -1,7 +1,7 @@
 import { sfx } from '../audio'
 import { save, persist } from '../state'
 import { stage, el } from '../engine/stage'
-import { confetti } from '../engine/ui'
+import { confetti, ui } from '../engine/ui'
 import { onRoomChange, world, guideTo } from '../engine/world'
 import { api } from '../game'
 import { EARN, QUEST_REWARDS, nycDay, weekStart, WELCOME_GIFTS } from '../data/economy'
@@ -20,11 +20,11 @@ interface Quest {
 
 // rewards come from QUEST_REWARDS (data/economy.ts), the same table the server pays from
 const QUESTS: Quest[] = [
-  { id: 'walk', text: 'Take a walk', hint: 'Click anywhere on the ground.', done: () => (save.stats.walks ?? 0) > 0 },
-  { id: 'gift', text: 'Pick up your welcome gift', hint: 'Click Sal’s glowing hot dog cart in Times Square.', done: () => WELCOME_GIFTS.some((id) => save.owned.includes(id)) },
-  { id: 'friend', text: 'Make a friend', hint: 'Click any New Yorker, then Add Friend.', done: () => save.friends.length > 0 },
-  { id: 'job', text: 'Work a shift', hint: 'The pizzeria, the halal cart or the ferry.', done: () => Object.keys(save.stats).some((k) => k.startsWith('played:')) },
-  { id: 'subway', text: 'Ride the subway', hint: 'Click the MetroCard on your toolbar.', done: () => save.stamps.includes('straphanger') },
+  { id: 'walk', text: 'Take a Walk', hint: 'Click anywhere on the ground.', done: () => (save.stats.walks ?? 0) > 0 },
+  { id: 'gift', text: 'Pick Up Your Welcome Gift', hint: 'Click Sal’s glowing hot dog cart in Times Square.', done: () => WELCOME_GIFTS.some((id) => save.owned.includes(id)) },
+  { id: 'friend', text: 'Make a Friend', hint: 'Click any New Yorker, then Add Friend.', done: () => save.friends.length > 0 },
+  { id: 'job', text: 'Work a Shift', hint: 'The pizzeria, the halal cart or the ferry.', done: () => Object.keys(save.stats).some((k) => k.startsWith('played:')) },
+  { id: 'subway', text: 'Ride the Subway', hint: 'Click the MetroCard on your toolbar.', done: () => save.stamps.includes('straphanger') },
 ]
 const reward = (q: Quest) => QUEST_REWARDS[q.id] ?? 0
 
@@ -38,18 +38,18 @@ interface Daily {
   target: number
 }
 const DAILY: Daily[] = [
-  { id: 'shifts', text: 'Work 2 shifts', hint: 'Any job counts: pizza, halal, bagels, the ferry, the subway show.', metric: 'shifts', target: 2 },
-  { id: 'earn', text: 'Earn 100 coins', hint: 'Jobs, quests, Dance Jam tips: it all adds up.', metric: 'earned', target: 100 },
-  { id: 'places', text: 'Visit 4 different places', hint: 'Hop on the subway or click a taxi.', metric: 'places', target: 4 },
-  { id: 'chat', text: 'Say hi in chat 3 times', hint: 'Press Enter, type, Enter. Be a good neighbor!', metric: 'chats', target: 3 },
+  { id: 'shifts', text: 'Work 2 Shifts', hint: 'Any job counts: pizza, halal, bagels, the ferry, the subway show.', metric: 'shifts', target: 2 },
+  { id: 'earn', text: 'Earn 100 Coins', hint: 'Jobs, quests, Dance Jam tips: it all adds up.', metric: 'earned', target: 100 },
+  { id: 'places', text: 'Visit 4 Different Places', hint: 'Hop on the subway or click a taxi.', metric: 'places', target: 4 },
+  { id: 'chat', text: 'Say Hi in Chat 3 Times', hint: 'Press Enter, type, Enter. Be a good neighbor!', metric: 'chats', target: 3 },
   { id: 'jam', text: 'Dance at the Dance Jam', hint: 'Times Square, every 8 minutes. Get on the floor and press D.', metric: 'jams', target: 1 },
-  { id: 'snacks', text: 'Grab 2 NYC snacks', hint: 'Hot dogs, pretzels, slices, boba. A balanced diet.', metric: 'snacks', target: 2 },
-  { id: 'photo', text: 'Take a group photo', hint: 'Open your phone (toolbar) or press B. Everyone nearby squeezes in.', metric: 'photos', target: 1 },
-  { id: 'shop', text: 'Buy something new to wear', hint: 'THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
-  { id: 'sign', text: 'Sign a guestbook', hint: 'Visit someone’s apartment and leave a note. Compliment the square footage.', metric: 'signs', target: 1 },
-  { id: 'share', text: 'Share your invite link', hint: 'Phone → Invite friends. They land right next to you.', metric: 'shares', target: 1 },
-  { id: 'rides', text: 'Ride the subway twice', hint: 'Click the MetroCard on your toolbar.', metric: 'rides', target: 2 },
-  { id: 'mob', text: 'Start or join a flash mob', hint: 'Press D near other New Yorkers.', metric: 'mobs', target: 1 },
+  { id: 'snacks', text: 'Grab 2 NYC Snacks', hint: 'Hot dogs, pretzels, slices, boba. A balanced diet.', metric: 'snacks', target: 2 },
+  { id: 'photo', text: 'Take a Group Photo', hint: 'Find a photo booth (the I ♥ NY shop in Times Square has one). Everyone nearby squeezes in.', metric: 'photos', target: 1 },
+  { id: 'shop', text: 'Buy Something New to Wear', hint: 'THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
+  { id: 'sign', text: 'Sign a Guestbook', hint: 'Visit someone’s apartment and leave a note. Compliment the square footage.', metric: 'signs', target: 1 },
+  { id: 'share', text: 'Share Your Invite Link', hint: 'Phone → Invite friends. They land right next to you.', metric: 'shares', target: 1 },
+  { id: 'rides', text: 'Ride the Subway Twice', hint: 'Click the MetroCard on your toolbar.', metric: 'rides', target: 2 },
+  { id: 'mob', text: 'Start or Join a Flash Mob', hint: 'Press D near other New Yorkers.', metric: 'mobs', target: 1 },
 ]
 const DAILY_BY_ID = Object.fromEntries(DAILY.map((d) => [d.id, d]))
 const DAILY_REWARD = EARN['daily-quest'].amount
@@ -112,7 +112,7 @@ function renderStarter(q: Quest) {
   const doneCount = QUESTS.filter((x) => save.quests[x.id]).length
   box.className = 'quests'
   box.innerHTML = `<button class="q-head"><b>New in Town</b><span>${doneCount}/${QUESTS.length}</span><i>${open ? '▴' : '▾'}</i></button>
-    <div class="q-now"><span class="q-dot"></span><div class="q-text"><b>${q.text}</b><small>${q.hint}</small><button class="q-show">Show me</button></div><em>+${reward(q)}</em></div>
+    <div class="q-now"><span class="q-dot"></span><div class="q-text"><b>${q.text}</b><small>${q.hint}</small><button class="q-show">Show Me</button></div><em>+${reward(q)}</em></div>
     ${open ? `<ul class="q-list">${QUESTS.map((x) => `<li class="${save.quests[x.id] ? 'done' : x === q ? 'now' : ''}">${save.quests[x.id] ? '✓' : '○'} ${x.text}</li>`).join('')}</ul>` : ''}`
   bindHead()
   box.querySelector<HTMLButtonElement>('.q-show')!.onclick = (e) => {
@@ -122,37 +122,46 @@ function renderStarter(q: Quest) {
   }
 }
 
-/** "Show me": Rosa points at the thing to do (or offers to take you where it is). */
+/**
+ * "Show me": Rosa points at the thing to do. If it's somewhere else, one click takes you there first and then she points
+ * at it (a card saying "it's in Times Square" with a second button felt like nothing happened).
+ */
 async function showMe(id: string) {
   const t = await import('../features/tour')
-  const map = t.toolbarButton('Map')
-  const take = (room: string, label: string) => ({ label, act: () => api.goto(room) })
   const here = (re: RegExp) => (t.hotspot(re)() ? t.hotspot(re) : null)
+  /** go to a place and resolve once you're standing in it (and the room has drawn) */
+  const arrive = async (room: string) => {
+    if (world.room.id === room) return
+    api.goto(room)
+    for (let i = 0; i < 50 && world.room.id !== room; i++) await new Promise((ok) => setTimeout(ok, 100))
+    await new Promise((ok) => setTimeout(ok, 700))
+  }
+  const nearestPerson = () => {
+    const p = world.player.pos
+    return [...stage.scene.querySelectorAll<HTMLElement>('.actor:not(.is-player)')].sort((a, b) => dist(a, p) - dist(b, p))[0]
+  }
   switch (id) {
     case 'walk':
-      return t.pointAtWalk('Take a walk', 'Click anywhere on the ground and your New Yorker walks there. Try the glowing spot!')
+      return t.pointAtWalk('Take a Walk', 'Click anywhere on the ground and your New Yorker walks there. Try the glowing spot!')
     case 'gift':
-      if (world.room.id === 'times-square') {
-        guideTo('hotdog')
-        return t.pointAt(t.hotspot(/hot dog/i), 'Your welcome gift', 'Sal at the hot dog cart has a free gift for every new New Yorker. Click the cart!')
-      }
-      return t.pointAt(map, 'Your welcome gift', 'Sal’s hot dog cart is in Times Square.', { label: 'Take me there', act: () => {
-        api.goto('times-square')
-        setTimeout(() => guideTo('hotdog'), 1100)
-      } })
+      await arrive('times-square')
+      guideTo('hotdog')
+      return t.pointAt(t.hotspot(/hot dog/i), 'Your Welcome Gift', 'Sal at the hot dog cart has a free gift for every new New Yorker. Click the cart!')
     case 'friend': {
-      const p = world.player.pos
-      const people = [...stage.scene.querySelectorAll<HTMLElement>('.actor:not(.is-player)')]
-      const near = people.sort((a, b) => dist(a, p) - dist(b, p))[0]
-      if (near) return t.pointAt(() => near.querySelector('svg'), 'Make a friend', 'Click someone to open their card, then press Add Friend. A wave (W) first never hurts!')
-      return t.pointAt(t.toolbarButton('Friends & leaderboards'), 'Make a friend', 'Nobody’s here right now. Times Square is the busiest place in the city.', take('times-square', 'Take me to Times Square'))
+      // nobody around: Times Square is the busiest place in the city
+      if (!nearestPerson()) await arrive('times-square')
+      const near = nearestPerson()
+      if (near) return t.pointAt(() => near.querySelector('svg'), 'Make a Friend', 'Click someone to open their card, then press Add Friend. A wave (W) first never hurts!')
+      return t.pointAt(t.toolbarButton('Friends & Leaderboards'), 'Make a Friend', 'Nobody’s out right now. Your Friends list shows who’s around once they are.')
     }
     case 'subway':
-      return t.pointAt(t.toolbarButton('Subway'), 'Ride the subway', 'Click your MetroCard and pick any stop.')
+      return t.pointAt(t.toolbarButton('Subway'), 'Ride the Subway', 'Click your MetroCard and pick any stop.')
     case 'job': {
-      const h = here(/halal bros|order a slice|order counter|board the train|ferry tickets|board the ferry/i)
-      if (h) return t.pointAt(h, 'Work a shift', 'Click it and choose “Work a shift”. Every job has a weekly leaderboard.')
-      return t.pointAt(map, 'Work a shift', 'Jobs: 99¢ Slice in Little Italy, the Halal Bros cart on Fifth Avenue, Bean There café in SoHo, the ferry at Battery Park and Showtime in the subway.', take('pizza', 'Take me to 99¢ Slice'))
+      const jobs = /halal bros|order a slice|order counter|board the train|ferry tickets|board the ferry/i
+      if (!here(jobs)) await arrive('pizza')
+      const h = here(jobs)
+      if (h) return t.pointAt(h, 'Work a Shift', 'Click it and choose “Work a Shift”. Every job has a weekly leaderboard.')
+      return t.pointAt(t.toolbarButton('Map'), 'Work a Shift', 'Jobs: 99¢ Slice in Little Italy, the Halal Bros cart on Fifth Avenue, Bean There café in SoHo, the ferry at Battery Park and Showtime in the subway.')
     }
   }
 }
@@ -223,12 +232,13 @@ function check() {
     api.earn(reward(q), `✓ ${q.text}`, 'quest', q.id)
   }
   // the list is done (just now, or by someone who'd finished these five before the list was shortened): Rosa closes
-  // the first-day story, once (the Local stamp marks it)
-  if (!current() && !save.stamps.includes('local')) {
+  // the first-day story, once (the Local stamp marks it). Not over a game or a panel, though (a first shift often
+  // finishes the list, and her card would sit on top of the game and take its keys): she waits until you're free.
+  if (!current() && !save.stamps.includes('local') && !ui.busy && !ui.modal) {
     changed = true
     confetti(100)
     void import('../features/tour').then((t) =>
-      t.pointAt(undefined, 'You’re officially a New Yorker!', 'That’s your first-day list done, so you’re allowed to complain about the subway now. Here’s an Everything Bagel bean bag for your place 🥯 From now on there are three new challenges every day, the same for everyone in the city.'),
+      t.pointAt(undefined, 'You’re Officially a New Yorker!', 'That’s your first-day list done, so you’re allowed to complain about the subway now. Here’s an Everything Bagel bean bag for your place 🥯 From now on there are three new challenges every day, the same for everyone in the city.'),
     )
     save.storage.push('bagel-bag')
     persist()

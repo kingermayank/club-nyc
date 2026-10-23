@@ -1,0 +1,84 @@
+/* The launch waitlist (LAUNCH_MODE=waitlist, see server/src/waitlist.ts): the email form on the landing page, its sheet,
+   and the Coming Soon page. The server marks <html data-launch="waitlist" | "open">; each call to action comes in both
+   versions and only the one for the current mode shows. */
+html[data-launch='waitlist'] .when-open,
+html:not([data-launch='waitlist']) .when-soon { display: none !important; }
+
+/* ---------- the form ---------- */
+.wl-form { position: relative; width: 100%; max-width: 620px; }
+.wl-kicker { margin-bottom: var(--sp-3); color: var(--sun); font: 22px/1.3 var(--display); }
+.wl-row { display: flex; gap: 12px; }
+.wl-input { flex: 1 1 220px; min-width: 0; height: 68px; margin: 0; padding: 0 22px; border: 4px solid var(--ink); border-radius: 22px; background: #fff; color: var(--ink); font: 21px/1.3 var(--field); box-shadow: inset 0 3px 0 rgba(29, 33, 64, 0.08), 0 7px 0 var(--ink); -webkit-appearance: none; appearance: none; }
+.wl-input::placeholder { color: #7d84a3; opacity: 1; }
+.wl-input:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; border-radius: 22px; }
+.wl-input[aria-invalid='true'] { border-color: var(--red); }
+.wl-form .btn-xl { flex: none; padding: 0 30px; font-size: 27px; }
+.wl-form .btn:disabled { cursor: progress; filter: saturate(0.7); transform: none; }
+/* what went wrong, right under the field (in words: never only a red border) */
+.wl-msg { margin-top: 14px; color: #ffd6d1; font: 17px/1.35 var(--display); }
+.wl-msg:empty { display: none; }
+.wl-fine { margin-top: 14px; color: #c5d3f3; font-size: 15px; line-height: 1.45; }
+.wl-fine a { color: inherit; }
+/* the honeypot: off screen and out of the Tab order. People never see it; form-filling bots do. */
+.wl-hp { position: absolute; left: -10000px; top: 0; width: 1px; height: 1px; overflow: hidden; }
+
+/* joined: the form makes way for a little celebration */
+.wl-done { display: flex; align-items: center; gap: 16px; padding: 14px 22px 14px 16px; border: 4px solid var(--ink); border-radius: 22px; background: linear-gradient(#efffef, #b9f0bf); color: var(--ink); box-shadow: 0 7px 0 var(--ink); text-align: left; animation: wl-pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.wl-done img { width: 52px; height: 52px; flex: none; }
+.wl-done b { display: block; font: 24px/1.25 var(--display); font-weight: 400; }
+.wl-done span { display: block; margin-top: 3px; color: #24452e; font-size: 17px; line-height: 1.4; }
+@keyframes wl-pop { from { transform: scale(0.92); opacity: 0; } }
+.wl-again { margin-top: 12px; min-height: 32px; padding: 0 2px; border: 0; background: none; color: inherit; font: 16px/1.3 var(--display); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; opacity: 0.85; }
+.wl-again:hover { opacity: 1; }
+
+/* "Join the Waitlist" in the header while the hero's form is on screen: the field says hello */
+.wl-flash .wl-input { animation: wl-flash 1s ease-out; }
+@keyframes wl-flash { 30% { box-shadow: 0 0 0 7px rgba(255, 209, 102, 0.75), 0 7px 0 var(--ink); } }
+
+/* on a light card (the sheet, the Coming Soon page) */
+.wl-light .wl-msg { color: #b3261e; }
+.wl-light .wl-fine { color: var(--muted); }
+.wl-light .wl-again { color: var(--blue-dark); }
+
+/* ---------- the hero, waitlist version ---------- */
+.hero-join { margin-top: 30px; }
+.hero-join-more { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 24px; }
+.hero-join-more .btn-trailer { min-height: 60px; font-size: 20px; }
+.wl-count { display: inline-flex; align-items: center; gap: 9px; color: #e3ecff; font: 18px/1.3 var(--display); }
+.wl-count i { width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.25); }
+.preview-link { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--sp-4); padding: 6px 14px; border-radius: 999px; background: rgba(11, 24, 53, 0.55); color: #fff; font: 16px/1.3 var(--display); text-decoration: none; }
+.preview-link:hover { background: rgba(11, 24, 53, 0.75); }
+
+/* ---------- the last call, waitlist version ---------- */
+.final .wl-form { margin: 32px auto 0; text-align: left; }
+.final .wl-form .btn { margin-top: 0; }
+.final .wl-done { max-width: 620px; margin: 32px auto 0; }
+.final .wl-again { display: block; margin: 12px auto 0; }
+
+/* ---------- the "Join the Waitlist" sheet (header, mid-page and footer buttons) ---------- */
+.join-sheet { margin: auto; }
+.join-sheet .wl-form { margin-top: 18px; text-align: left; }
+.join-sheet .wl-row { flex-direction: column; }
+.join-sheet .wl-input { flex: none; height: 60px; font-size: 19px; }
+.join-sheet .wl-form .btn-xl { width: 100%; min-height: 60px; font-size: 24px; }
+.join-sheet .wl-done { margin-top: 18px; }
+.join-sheet .wl-done b { font-size: 21px; }
+.join-sheet .wl-done span { font-size: 16px; }
+
+@media (max-width: 560px) {
+  /* the form makes the hero's words taller than Play Now did: a taller hero keeps the city showing above them, and
+     the fade darkens sooner so the headline stays readable */
+  html[data-launch='waitlist'] .hero { min-height: 880px; }
+  html[data-launch='waitlist'] .hero-shade { background: linear-gradient(180deg, rgba(11, 24, 53, 0.6) 0%, rgba(11, 24, 53, 0.1) 17%, rgba(11, 24, 53, 0.82) 36%, rgba(11, 24, 53, 0.97) 100%); }
+  .wl-row { flex-direction: column; }
+  .wl-input { flex: none; height: 60px; font-size: 19px; }
+  .wl-form .btn-xl { width: 100%; min-height: 60px; font-size: 24px; }
+  .wl-kicker { font-size: 20px; }
+  .hero-join-more { gap: 14px; }
+  .hero-join-more .btn-trailer { width: 100%; justify-content: center; }
+  .wl-done { padding: 12px 16px 12px 12px; }
+  .wl-done img { width: 44px; height: 44px; }
+  .wl-done b { font-size: 21px; }
+  .wl-done span { font-size: 16px; }
+  .join-sheet { margin: auto auto 12px; }
+}

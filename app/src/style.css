@@ -4,8 +4,9 @@
    The font's own metrics (ascent 75%, descent 25%) put capitals ~0.1em above the middle of every line box, so text in
    pills, buttons and checkboxes sat high with a thick gap underneath. The overrides centre capitals optically.
    85/15 rather than the exact 86/14: Chrome rounds the ascent to whole pixels, and 85% lands it right at the sizes
-   the UI uses most (14, 15, 16, 22px); measured with tools/pixel_audit.py. Descenders (g, y, p) reach 0.27em below
-   the baseline, past the 15% descent: anything that clips its text (inputs, ellipsis) needs line-height ≥ 1.3. */
+   the UI uses most (14, 15, 16, 22px); measured with tools/pixel_audit.py. Descenders (g, y, p) reach 0.28em below
+   the baseline, past the 15% descent. Chrome cuts what's typed into a field at the font's descent, whatever the line
+   height, so fields use the 'Field' faces below (var(--field)); text that clips with an ellipsis needs line-height 1.3+. */
 @font-face {
   font-family: 'Burbank Display';
   src: url('/fonts/BurbankSmall-Bold.otf') format('opentype');
@@ -33,6 +34,27 @@
   descent-override: 15%;
   line-gap-override: 0%;
 }
+/* the same faces for anything typed into a field (and its placeholder), with room for descenders: ascent 98%, descent
+   28%. Since 98 - 28 = 85 - 15 the baseline sits exactly where it would with the faces above, so only the clipping
+   changes (without these, the bottoms of g, y, p and j were cut off as you typed). */
+@font-face {
+  font-family: 'Burbank Field';
+  src: url('/fonts/BurbankSmall-Medium.otf') format('opentype');
+  font-weight: 100 599;
+  font-display: block;
+  ascent-override: 98%;
+  descent-override: 28%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Burbank Display Field';
+  src: url('/fonts/BurbankSmall-Bold.otf') format('opentype');
+  font-weight: 100 900;
+  font-display: block;
+  ascent-override: 98%;
+  descent-override: 28%;
+  line-gap-override: 0%;
+}
 
 :root {
   --ink: #1d2140;
@@ -45,7 +67,10 @@
   --green: #3cb371;
   --display: 'Burbank Display', 'Lilita One', 'Arial Rounded MT Bold', system-ui, sans-serif;
   --body: 'Burbank', 'Nunito', system-ui, sans-serif;
-  --serif: 'Old Standard TT', Georgia, serif;
+  /* what you type into a field (see the 'Field' faces) */
+  --field: 'Burbank Field', var(--body);
+  --field-display: 'Burbank Display Field', var(--display);
+  --serif: 'Times New Roman', Times, Georgia, serif;
   /* The type scale: every text size in the game is one of these (stage px; the stage is scaled to fit the window).
      Change a step here and every label on that step follows. Sizes that only size an icon or emoji art stay literal. */
   --fs-3xs: 10px; /* tiny badges, counters */
@@ -77,8 +102,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1835; fon
 /* no lonely last word on its own line ("…on your name / tag.") */
 body { text-wrap: pretty; }
 button { font: inherit; color: inherit; cursor: pointer; }
-/* fields clip their text to the line box: room for g, y and p below the baseline (see the @font-face note) */
-input, select, textarea { line-height: 1.3; }
+/* fields: type in the 'Field' faces, which leave room for g, y and p below the baseline (see the @font-face notes) */
+input, select, textarea { font-family: var(--field); line-height: 1.3; }
 /* keyboard focus: the game's own sun-yellow ring instead of the browser's blue double ring */
 :focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
 .chat-input:focus-visible, .creator-name input:focus-visible { outline: none; }
@@ -177,21 +202,9 @@ img.ji { display: inline-block; width: 1.25em; height: 1.25em; margin: 0 0.04em;
 .bb-live { position: absolute; left: 8px; top: 8px; padding: 2px 8px; border-radius: 6px; background: var(--red); color: #fff; font: 16px var(--display); }
 .bb-caption { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font: 30px var(--display); color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; }
 
-/* Broadway stage */
-.stage-show { position: absolute; left: 0; top: 0; width: 800px; height: 450px; transform-origin: 0 0; overflow: hidden; z-index: 8; pointer-events: none; opacity: 0; transition: opacity 0.4s; }
-.house-dark .stage-show, .stage-show.open { opacity: 1; }
-.show-art { position: absolute; inset: -4%; background-size: cover; background-position: center; transition: transform 9s ease-out; }
-.stage-show.pan .show-art { transform: scale(1.12) translateX(-3%); }
-.curtain { position: absolute; top: 0; bottom: 0; width: 52%; background: repeating-linear-gradient(90deg, #b3121f 0 22px, #d42633 22px 34px, #8f0d18 34px 46px); box-shadow: inset 0 -30px 40px rgba(0, 0, 0, 0.35); transition: transform 1.4s cubic-bezier(0.6, 0, 0.2, 1); }
-.curtain.left { left: 0; border-right: 4px solid #5a0710; }
-.curtain.right { right: 0; border-left: 4px solid #5a0710; }
-.stage-show.open .curtain.left { transform: translateX(-100%); }
-.stage-show.open .curtain.right { transform: translateX(100%); }
-.valance { position: absolute; left: 0; right: 0; top: 0; height: 12%; background: repeating-linear-gradient(90deg, #8f0d18 0 40px, #b3121f 40px 80px); border-bottom: 6px solid #e2b04a; border-radius: 0 0 50% 50% / 0 0 30% 30%; }
-.house-dark .room-bg, .house-dark .cutout { filter: brightness(0.32) saturate(0.7); }
-.house-dark .actor { filter: brightness(0.5); }
-.house-lights { position: absolute; inset: 0; pointer-events: none; z-index: 9001; background: conic-gradient(from 160deg at 30% -10%, transparent 0 8deg, rgba(255, 240, 180, 0.18) 8deg 14deg, transparent 14deg), conic-gradient(from 190deg at 70% -10%, transparent 0 6deg, rgba(255, 240, 180, 0.18) 6deg 12deg, transparent 12deg); animation: sweep 3s ease-in-out infinite alternate; }
-@keyframes sweep { to { transform: translateX(30px); } }
+/* Broadway Theater: the house lights go down before a show (the show itself: features/broadway/broadway.css) */
+.house-dark .room-bg, .house-dark .cutout { filter: brightness(0.32) saturate(0.7); transition: filter 0.9s; }
+.house-dark .actor { filter: brightness(0.5); transition: filter 0.9s; }
 
 /* floor piano */
 .piano-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; }
@@ -230,6 +243,9 @@ img.ji { display: inline-block; width: 1.25em; height: 1.25em; margin: 0 0.04em;
 
 /* ================= HUD ================= */
 .hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; z-index: 9200; }
+/* the strip lets clicks through to the city, but every widget in it (place sign, help, mail, online count, level, coins)
+   is solid: the pointer stops there, so nothing behind it lights up and no click walks you underneath it */
+.hud-left > *, .hud-right > * { pointer-events: auto; }
 .place-plate { display: flex; flex-direction: column; padding: 6px 16px 8px; background: linear-gradient(var(--blue-light), var(--blue)); border: 3px solid var(--ink); border-radius: 16px; color: #fff; box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 3px 0 var(--ink); gap: 3px; }
 .place-plate b { font-family: var(--display); font-size: var(--fs-2xl); font-weight: 400; text-shadow: 0 2px 0 var(--blue-dark); line-height: 1.1; }
 .place-plate span { font-size: var(--fs-xs); opacity: 0.92; }
@@ -275,7 +291,9 @@ img.ji { display: inline-block; width: 1.25em; height: 1.25em; margin: 0 0.04em;
 @keyframes fade-in { from { opacity: 0; } }
 @keyframes pop-in { from { transform: scale(0.8); opacity: 0; } }
 .panel { position: relative; width: min(500px, 92%); max-height: 90%; overflow: auto; padding: 20px 24px 22px; background: var(--paper); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 0 6px 0 var(--ink), 0 22px 50px rgba(0, 0, 0, 0.35); animation: pop-in 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); text-align: center; }
-.panel h2 { margin: 0 0 var(--sp-2); font-family: var(--display); font-weight: 400; font-size: var(--fs-5xl); color: var(--blue-dark); }
+/* the title keeps clear of the close button in the corner (equal room both sides, so it stays centred): long titles
+   like "Liberty Enlightening the World" wrap instead of running under the X */
+.panel h2 { margin: 0 0 var(--sp-2); padding: 0 30px; font-family: var(--display); font-weight: 400; font-size: var(--fs-5xl); color: var(--blue-dark); text-wrap: balance; }
 .panel p { margin: 0 0 var(--sp-4); font-size: var(--fs-lg); line-height: 1.4; }
 .panel-art { margin: -4px auto 10px; }
 .show-thumb { width: 100%; max-height: 180px; object-fit: cover; border: 3px solid var(--ink); border-radius: 14px; }
@@ -367,7 +385,7 @@ a.btn { text-decoration: none; }
 .creator-right h2 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: var(--fs-4xl); color: var(--blue-dark); }
 .creator-name { display: flex; align-items: center; gap: 10px; }
 .creator-name span { font-family: var(--display); font-size: var(--fs-lg); color: var(--blue-dark); }
-.creator-name input { flex: 1; padding: 7px 12px; border: 3px solid var(--ink); border-radius: 12px; font: var(--fs-2xl)/1.3 var(--display); color: var(--ink); background: #fff; outline: none; user-select: text; }
+.creator-name input { flex: 1; padding: 7px 12px; border: 3px solid var(--ink); border-radius: 12px; font: var(--fs-2xl)/1.3 var(--field-display); color: var(--ink); background: #fff; outline: none; user-select: text; }
 .creator-name input:focus { box-shadow: 0 0 0 4px var(--sun); }
 .creator-name input.shake { animation: shake 0.4s; }
 @keyframes shake { 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
@@ -409,8 +427,9 @@ a.btn { text-decoration: none; }
 .cat-icon { width: 86px; height: 86px; display: grid; place-items: center; }
 .cat-icon .item-icon, .cat-icon img { width: 100%; height: 100%; object-fit: contain; }
 .cat-foot { display: flex; justify-content: center; align-items: center; gap: 16px; padding-top: 8px; font-size: var(--fs-md); }
-.cat-flip { width: 36px; height: 36px; border: 3px solid var(--ink); border-radius: 50%; background: var(--sun); font: var(--fs-3xl) var(--display); line-height: 1; box-shadow: 0 3px 0 var(--ink); }
-.cat-flip:disabled { opacity: 0.35; }
+/* page turns are the shared small buttons (.btn.small.ghost); the chevron is drawn, so the label stays Title Case */
+.cat-flip { min-width: 96px; }
+.cat-flip svg { width: 12px; height: 12px; flex: none; }
 
 /* ================= map postcard ================= */
 .postcard { position: relative; width: 740px; padding: 11px; background: #fff; border: 4px solid var(--ink); border-radius: 6px; box-shadow: 0 10px 0 rgba(29, 33, 64, 0.45), 0 25px 60px rgba(0, 0, 0, 0.45); transform: rotate(-0.8deg); animation: map-in 0.4s cubic-bezier(0.2, 1.3, 0.4, 1); }
@@ -425,7 +444,8 @@ a.btn { text-decoration: none; }
 .map-party b { font-size: var(--fs-sm); font-weight: 400; }
 .map-party small { font-size: var(--fs-3xs); color: #fff; }
 @keyframes party-bob { to { transform: translateY(-5px) rotate(-2deg); } }
-.map-tip { position: absolute; transform: translate(-50%, -110%); padding: 4px 12px; background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; font-family: var(--display); font-size: var(--fs-base); line-height: 1.3; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.12s; box-shadow: 0 3px 0 var(--ink); z-index: 3; }
+/* placed in pixels by features/map.ts (above its landmark, or below at the top edge, and kept inside the frame) */
+.map-tip { position: absolute; left: 0; top: 0; padding: 4px 12px; background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; font-family: var(--display); font-size: var(--fs-base); line-height: 1.3; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.12s; box-shadow: 0 3px 0 var(--ink); z-index: 3; }
 .map-tip.show { opacity: 1; }
 .you-are-here { position: absolute; width: 0; height: 0; z-index: 2; pointer-events: none; }
 .you-are-here span { position: absolute; left: 0; bottom: 0; transform: translate(-50%, 0); padding: 3px 10px; background: var(--red); color: #fff; border: 3px solid var(--ink); border-radius: 999px; font-family: var(--display); font-size: var(--fs-sm); line-height: 17px; white-space: nowrap; animation: pin-bob 0.8s ease-in-out infinite alternate; }
@@ -500,60 +520,7 @@ a.btn { text-decoration: none; }
 .ride-caption b { color: #fff; }
 .ride-caption.show { opacity: 1; animation: pop-in 0.3s; }
 
-/* ================= newspaper ================= */
-.newspaper { position: relative; width: 780px; height: 540px; display: flex; flex-direction: column; animation: paper-in 0.45s cubic-bezier(0.2, 1.2, 0.4, 1); }
-@keyframes paper-in { from { transform: rotate(-12deg) scale(0.5); opacity: 0; } }
-.np-sheet { flex: 1; overflow-y: auto; padding: 18px 26px 14px; background: #f3eee0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E"); color: #1d1b16; font-family: var(--serif); box-shadow: 0 2px 0 #c9c0a8, 0 20px 40px rgba(0, 0, 0, 0.5); border-radius: 3px; user-select: text; }
-/* the page fades out at the bottom edge while there's more to scroll (a mask would also clip the paper's shadow) */
-.np-sheet::after { content: ''; position: sticky; bottom: 0; display: block; height: 30px; margin: -30px -26px 0; background: linear-gradient(rgba(243, 238, 224, 0), #f3eee0 85%); pointer-events: none; }
-.np-sheet.turn-r { animation: turn-r 0.4s ease-out; }
-.np-sheet.turn-l { animation: turn-l 0.4s ease-out; }
-@keyframes turn-r { from { transform: perspective(1200px) rotateY(18deg); opacity: 0.4; } }
-@keyframes turn-l { from { transform: perspective(1200px) rotateY(-18deg); opacity: 0.4; } }
-.np-head { text-align: center; border-bottom: 3px double #1d1b16; margin-bottom: 10px; }
-.np-ears { display: flex; justify-content: space-between; align-items: flex-end; }
-.np-ear { width: 118px; padding: 4px; border: 1px solid #1d1b16; font-size: 10px; line-height: 1.2; font-style: italic; text-align: center; }
-.np-ear.right { font-style: normal; font-weight: 700; }
-.np-ear small { font-weight: 400; display: block; }
-.np-mast { font-family: 'UnifrakturMaguntia', 'Old English Text MT', serif; font-size: 46px; line-height: 1; margin: -38px 0 6px; }
-.np-dateline { display: flex; justify-content: space-between; border-top: 1px solid #1d1b16; border-bottom: 1px solid #1d1b16; padding: 3px 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-.np-front { display: grid; grid-template-columns: 1fr 230px; gap: 16px; }
-.np-lead h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 30px; line-height: 1.05; margin: 2px 0 6px; }
-.np-kicker { font: 700 10px Helvetica, Arial, sans-serif; letter-spacing: 2px; color: #a3121f; }
-.np-deck { font-style: italic; font-size: 14px; margin: 0 0 8px; line-height: 1.3; }
-.np-fig { margin: 0 0 8px; }
-.np-fig img { width: 100%; display: block; border: 1px solid #1d1b16; filter: sepia(0.18) contrast(1.05); }
-.np-fig.lead img { max-height: 230px; object-fit: cover; }
-.np-fig figcaption { font-size: 10px; font-style: italic; margin-top: 3px; color: #555; }
-.np-cols { column-count: 2; column-gap: 16px; column-rule: 1px solid #c9c0a8; font-size: 13px; line-height: 1.45; }
-.np-cols p { margin: 0 0 8px; }
-.dropcap::first-letter { float: left; font-family: 'Playfair Display', serif; font-size: 44px; line-height: 0.85; padding: 4px 6px 0 0; }
-.np-rail { border-left: 1px solid #1d1b16; padding-left: 14px; }
-.np-story h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; line-height: 1.12; margin: 2px 0 6px; }
-.np-story p { font-size: 12.5px; line-height: 1.42; margin: 0 0 8px; }
-.np-story.small h3 { font-size: 16px; }
-.np-story { border-bottom: 1px solid #c9c0a8; margin-bottom: 10px; }
-.np-box { border: 2px solid #1d1b16; padding: 6px 8px; margin-bottom: 10px; font-size: 12px; }
-.np-box b { font: 700 11px Helvetica, Arial, sans-serif; letter-spacing: 2px; }
-.np-box p { margin: 4px 0 0; }
-.np-section { font: 900 13px Helvetica, Arial, sans-serif; letter-spacing: 3px; text-transform: uppercase; border-top: 3px double #1d1b16; border-bottom: 1px solid #1d1b16; padding: 4px 0; margin-bottom: 12px; }
-.np-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.np-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.np-grid2.wide-left { grid-template-columns: 1.2fr 1fr; }
-.np-grid3 .np-fig img, .np-grid2 .np-fig img { height: 150px; object-fit: cover; }
-.np-advice { border: 2px solid #1d1b16; padding: 10px 14px; background: rgba(255, 255, 255, 0.35); }
-.np-advice h3, .np-secrets h3, .np-classifieds h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; margin: 0 0 2px; }
-.np-byline { font-size: 11px; font-style: italic; margin-bottom: 8px; }
-.np-advice .q { font-weight: 700; font-size: 13px; margin: 8px 0 2px; }
-.np-advice .a { font-size: 13px; margin: 0 0 6px; line-height: 1.4; }
-.np-secrets ol { margin: 4px 0 12px; padding-left: 18px; font-size: 12.5px; line-height: 1.45; }
-.np-classifieds p { font-size: 12px; margin: 0 0 6px; line-height: 1.35; }
-.np-classifieds b { font-family: Helvetica, Arial, sans-serif; font-size: 10px; letter-spacing: 1px; }
-.np-folio { text-align: center; font-size: 10px; letter-spacing: 2px; margin-top: 10px; color: #777; text-transform: uppercase; }
-.np-nav { display: flex; justify-content: center; align-items: center; gap: 18px; padding-top: 10px; color: #fff; font-family: var(--display); }
-.np-btn { padding: 4px 14px; border: 3px solid var(--ink); border-radius: 12px; background: var(--paper); color: var(--ink); font: 16px var(--display); box-shadow: 0 3px 0 var(--ink); }
-.np-btn:disabled { opacity: 0.4; }
-.newspaper .x-btn { top: -14px; right: -14px; }
+/* ================= newspaper: moved to features/newspaper.css ================= */
 
 /* ================= stamp book ================= */
 .stamp-book { position: relative; display: grid; grid-template-columns: 250px 1fr; width: 820px; height: 480px; border: 5px solid var(--ink); border-radius: 24px; overflow: hidden; box-shadow: 0 7px 0 var(--ink), 0 30px 60px rgba(0, 0, 0, 0.45); animation: cat-in 0.4s cubic-bezier(0.2, 1.3, 0.4, 1); }
@@ -644,6 +611,13 @@ a.btn { text-decoration: none; }
 .lobby-btns .lobby-back { margin-right: auto; }
 /* above every mini-game's own overlays (Slice Factory's sits at 60), so you can always leave */
 .game-quit { position: absolute; top: 10px; right: 10px; z-index: 1000; width: 34px; height: 34px; border: 3px solid var(--ink); border-radius: 50%; background: linear-gradient(#ff8a80, #e53935); color: #fff; font-weight: 900; box-shadow: 0 3px 0 var(--ink); }
+/* Escape in a job game: "Leave Slice Factory?" (a second Escape leaves, Enter stays) */
+.game-leave { position: absolute; inset: 0; z-index: 1001; display: grid; place-items: center; background: rgba(11, 24, 53, 0.55); animation: fade-in 0.15s; }
+.game-leave-card { display: grid; justify-items: center; gap: var(--sp-1); width: 340px; padding: 18px 22px 20px; background: var(--paper); border: 5px solid var(--ink); border-radius: 24px; box-shadow: 0 6px 0 var(--ink); text-align: center; animation: pop-in 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.game-leave-card b { font: var(--fs-3xl)/1.15 var(--display); font-weight: 400; text-wrap: balance; }
+.game-leave-card small { font-size: var(--fs-sm); opacity: 0.75; }
+.game-leave-card kbd { padding: 0 5px; border: 1.5px solid currentColor; border-radius: 5px; font: inherit; }
+.game-leave-btns { display: flex; justify-content: center; gap: var(--sp-2); margin-top: var(--sp-3); }
 .payout { position: absolute; inset: 0; z-index: 9640; display: grid; place-items: center; background: rgba(11, 24, 53, 0.7); animation: fade-in 0.25s; }
 .payout.out { opacity: 0; transition: opacity 0.3s; }
 .payout-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 420px; padding: 18px 22px 20px; background: var(--paper); border: 5px solid var(--ink); border-radius: 28px; box-shadow: 0 7px 0 var(--ink); text-align: center; animation: pop-in 0.4s cubic-bezier(0.2, 1.5, 0.4, 1); }
@@ -720,14 +694,17 @@ a.btn { text-decoration: none; }
 
 /* ================= community ================= */
 .community { position: relative; display: flex; flex-direction: column; width: 760px; height: 480px; background: var(--paper); border: 5px solid var(--ink); border-radius: 28px; box-shadow: 0 7px 0 var(--ink), 0 30px 60px rgba(0, 0, 0, 0.4); overflow: hidden; animation: pop-in 0.3s cubic-bezier(0.2, 1.4, 0.4, 1); }
-.cm-head { display: flex; align-items: center; gap: 14px; padding: 12px 56px 10px 18px; background: linear-gradient(#78c2ff, var(--blue)); border-bottom: 4px solid var(--ink); }
-.cm-head h2 { margin: 0; font: var(--fs-4xl) var(--display); color: #fff; text-shadow: 0 2px 0 var(--blue-dark); }
-.cm-tabs { display: flex; gap: 6px; flex: 1; }
+.cm-head { display: flex; align-items: center; gap: 10px; padding: 12px 56px 10px 18px; background: linear-gradient(#78c2ff, var(--blue)); border-bottom: 4px solid var(--ink); }
+.cm-head h2 { margin: 0; font: var(--fs-3xl) var(--display); color: #fff; text-shadow: 0 2px 0 var(--blue-dark); }
+.cm-tabs { display: flex; gap: 4px; flex: 1; }
+/* five tabs (City, Friends, Boards, Teams, Games), the bell and the close button share one row */
+.cm-head .cm-tab { padding: 0 8px; }
 .cm-tab, .pc-view { display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; border: 3px solid var(--ink); border-radius: 12px; background: #e9f4ff; font: var(--fs-base) var(--display); min-height: 34px; }
-.cm-tab i { font-style: normal; padding: 0 6px; margin-left: 3px; border-radius: 8px; background: var(--sun); }
+/* the count on a tab ("Friends 0"): a pill with the number centred in it, not sitting on the line below */
+.cm-tab i { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 1px 6px 0; margin-left: 4px; border-radius: 999px; background: var(--sun); font-style: normal; line-height: 1; }
 .cm-tab.on, .pc-view.on { background: var(--sun); transform: translateY(-2px); box-shadow: 0 3px 0 var(--ink); }
 /* icon buttons centre their picture (the browser's default button padding would push a 20px icon off to the right) */
-.cm-bell { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 3px solid var(--ink); border-radius: 50%; background: #fff; font-size: 16px; line-height: 0; }
+.cm-bell { flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 3px solid var(--ink); border-radius: 50%; background: #fff; font-size: 16px; line-height: 0; }
 .cm-bell img.ji { margin: 0; vertical-align: 0; }
 .cm-bell.off { opacity: 0.6; }
 .cm-body { flex: 1; overflow-y: auto; padding: 12px 18px 14px; }
@@ -875,7 +852,8 @@ a.btn { text-decoration: none; }
 .mc-mag { position: absolute; left: 0; right: 0; bottom: 12px; height: 16px; background: var(--ink); }
 
 /* ================= quests ================= */
-.quests { position: absolute; left: 0; top: 60px; width: 250px; pointer-events: auto; background: var(--paper); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); overflow: hidden; }
+/* the first-day list sits a clear 10px below the place plate (and its shadow) */
+.quests { position: absolute; left: 0; top: 74px; width: 250px; pointer-events: auto; background: var(--paper); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); overflow: hidden; }
 .quests.bump { animation: bump 0.4s ease-out; }
 .q-head { display: flex; align-items: center; gap: 8px; width: 100%; padding: 5px 10px; border: 0; background: linear-gradient(#ffe27a, var(--sun)); border-bottom: 2.5px solid var(--ink); text-align: left; }
 .q-head b { flex: 1; font: var(--fs-base) var(--display); font-weight: 400; }
@@ -933,17 +911,16 @@ a.btn { text-decoration: none; }
 .overlay.open:has(.newspaper) ~ .toasts { left: 12px; transform: none; align-items: flex-start; }
 .stage:has(.lobby, .payout, .game-shell) .toasts { top: 14px; left: 14px; transform: none; align-items: flex-start; }
 
-.np-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 4px 0 8px; }
-.np-table th { text-align: left; font: 700 10px Helvetica, Arial, sans-serif; letter-spacing: 1px; border-bottom: 2px solid #1d1b16; padding: 3px 4px; }
-.np-table td { border-bottom: 1px solid #c9c0a8; padding: 4px; }
-.np-small { font-size: 11px; font-style: italic; }
-
 /* ================= multiplayer ================= */
 /* chat bar in the toolbar */
 .toolbar { gap: 3px; }
 .chat-bar { display: flex; align-items: center; gap: 4px; margin: 0 6px; padding: 3px; background: rgba(19, 74, 150, 0.45); border: 2px solid var(--ink); border-radius: 16px; box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.25); }
-.chat-input { width: 236px; height: 32px; padding: 0 12px; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; font: var(--fs-base)/1.3 var(--body); color: var(--ink); outline: none; user-select: text; }
+.chat-input { width: 236px; height: 32px; padding: 0 12px; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; font: var(--fs-base)/1.3 var(--field); color: var(--ink); outline: none; user-select: text; }
 .chat-input::placeholder { color: rgba(29, 33, 64, 0.42); }
+/* placeholders too (Chrome draws them with a "normal" line height, which with the 85/15 metrics ended above the bottom
+   of g, y and p): the 'Field' faces, so nothing moves when you start typing */
+input::placeholder, textarea::placeholder { font-family: var(--field); }
+.creator-name input::placeholder, .name-input::placeholder { font-family: var(--field-display); }
 .chat-input:focus { box-shadow: 0 0 0 3px var(--sun); }
 .chat-send, .chat-log-btn { position: relative; width: 32px; height: 32px; padding: 4px; border: 2.5px solid var(--ink); border-radius: 11px; background: linear-gradient(#ffe08a, var(--sun)); display: grid; place-items: center; box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6); transition: transform 0.1s; }
 .chat-send { background: linear-gradient(#7ee08f, var(--green)); }
@@ -955,14 +932,17 @@ a.btn { text-decoration: none; }
    centres them in the circle (measured; Chrome rounds the baseline to a whole pixel, so finer nudges do nothing) */
 .chat-log-btn[data-unread]::after, .mail-count { position: absolute; top: -8px; right: -8px; min-width: 16px; height: 16px; padding: 1px 2px 0; border: 2px solid var(--ink); border-radius: 8px; background: var(--red); color: #fff; font: var(--fs-xs)/10px var(--display); text-align: center; pointer-events: none; }
 .chat-log-btn[data-unread]::after { content: attr(data-unread); }
+/* the badge pokes out over the chat box next door: the button sits above it (hovering lifted it, which hid the bug) */
+.chat-log-btn { z-index: 1; }
 /* the log sits on the chat bar, its edges lined up with the bar's (left/right: minus the bar's 2px border), clear of the toolbar */
 .chat-log { position: absolute; left: -2px; right: -2px; bottom: calc(100% + 16px); transform: translateY(12px); display: flex; flex-direction: column; background: var(--paper); border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); z-index: 1; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; }
 .chat-log.open { opacity: 1; transform: none; pointer-events: auto; }
-.chat-log-head { display: flex; align-items: baseline; gap: 8px; padding: 7px 14px 4px; border-bottom: 2px dashed rgba(29, 33, 64, 0.15); }
+.chat-log-head { display: flex; align-items: baseline; gap: 8px; padding: 7px 14px 5px; border-bottom: 2px dashed rgba(29, 33, 64, 0.15); }
 .chat-log-head b { font: var(--fs-lg) var(--display); }
-.chat-log-head small { font-size: var(--fs-2xs); opacity: 0.6; }
 .chat-log-list { max-height: 168px; overflow-y: auto; padding: 6px 14px 8px; user-select: text; }
-.chat-log-list:empty::before { content: 'Quiet in here. Suspiciously quiet. Type below and press Enter to say hi.'; display: block; padding: 6px 0 4px; font-size: var(--fs-sm); opacity: 0.55; }
+/* nothing said yet: one short line, with the same space above its capitals as below its baseline (measured) */
+.chat-log-list:empty { padding: 10px 14px 7px; }
+.chat-log-list:empty::before { content: 'Quiet in here. Say hi!'; display: block; font-size: var(--fs-sm); line-height: 1.3; opacity: 0.55; }
 .chat-line { font-size: var(--fs-md); line-height: 1.35; padding: 1px 0; overflow-wrap: anywhere; }
 .chat-line b { font: var(--fs-md) var(--display); color: var(--team, var(--blue-dark)); margin-right: 6px; cursor: pointer; }
 .chat-line b:hover { text-decoration: underline; }
@@ -1061,7 +1041,7 @@ a.btn { text-decoration: none; }
 .cr-avail.checking { opacity: 0.6; }
 .cr-avail.ok { color: #1b7a3d; }
 .cr-avail.bad { color: var(--red); }
-.name-input { display: block; width: 260px; margin: 6px auto 14px; padding: 9px 14px; border: 3px solid var(--ink); border-radius: 14px; font: var(--fs-2xl)/1.3 var(--display); text-align: center; user-select: text; }
+.name-input { display: block; width: 260px; margin: 6px auto 14px; padding: 9px 14px; border: 3px solid var(--ink); border-radius: 14px; font: var(--fs-2xl)/1.3 var(--field-display); text-align: center; user-select: text; }
 
 /* player cards */
 /* tiny buttons size their inline icons to the text (the 18px .btn icon would sit high on 12px words) */
@@ -1095,17 +1075,10 @@ a.btn { text-decoration: none; }
 /* guestbooks */
 .gb-write { display: flex; align-items: center; gap: 6px; margin-top: 12px; }
 .gb-write span { font-size: var(--fs-xs); opacity: 0.7; white-space: nowrap; }
-.gb-write input { flex: 1; padding: 7px 10px; border: 2.5px solid var(--ink); border-radius: 10px; font: var(--fs-md)/1.3 var(--body); user-select: text; }
+.gb-write input { flex: 1; padding: 7px 10px; border: 2.5px solid var(--ink); border-radius: 10px; font: var(--fs-md)/1.3 var(--field); user-select: text; }
 .gb-entry.real b::after { content: ' ●'; color: #2ecc71; }
 .payout-rank.live b { min-width: 40px; }
 .cm-toggles { display: flex; gap: 6px; }
-
-/* newspaper: commemorative banner + NYC Moments spread */
-.np-banner { font-family: 'Playfair Display', Georgia, serif; font-size: 33px !important; letter-spacing: 1px; text-transform: uppercase; line-height: 1 !important; }
-.np-inside p { margin: 6px 0 0; font-size: 11.5px; line-height: 1.3; }
-.np-inside i { color: #a3121f; font-style: normal; font: 700 9px Helvetica, Arial, sans-serif; letter-spacing: 1px; }
-.np-small { font-size: 11px; font-style: italic; }
-.np-grid3.moments .np-fig img { height: 170px; object-fit: cover; }
 
 /* ================= launch: invites, safety, desktop-only ================= */
 /* sign-in: who invited you, the rules */
@@ -1133,7 +1106,7 @@ a.btn { text-decoration: none; }
 .inv-head h2 { margin: 0; }
 .inv-sub { margin: var(--sp-1) 0 0; font-size: var(--fs-md); opacity: 0.8; }
 .inv-link { display: flex; gap: 8px; margin: 14px 0 8px; }
-.inv-link input { flex: 1; min-width: 0; padding: 8px 12px; border: 3px solid var(--ink); border-radius: 14px; font: var(--fs-base)/1.3 var(--body); background: #fff; user-select: text; }
+.inv-link input { flex: 1; min-width: 0; padding: 8px 12px; border: 3px solid var(--ink); border-radius: 14px; font: var(--fs-base)/1.3 var(--field); background: #fff; user-select: text; }
 .inv-share { display: flex; flex-wrap: wrap; gap: 6px; }
 .inv-share a { text-decoration: none; }
 .inv-x { width: 14px; height: 14px; flex: none; }
@@ -1172,7 +1145,7 @@ a.btn { text-decoration: none; }
 .do-card h1 { margin: 6px 0 6px; font: var(--fs-6xl) var(--display); font-weight: 400; }
 .do-card p { margin: 0 0 14px; font-size: var(--fs-base); line-height: 1.4; }
 .do-link { display: flex; gap: 6px; }
-.do-link input { flex: 1; min-width: 0; padding: 10px; border: 3px solid var(--ink); border-radius: 12px; font: var(--fs-md)/1.3 var(--body); }
+.do-link input { flex: 1; min-width: 0; padding: 10px; border: 3px solid var(--ink); border-radius: 12px; font: var(--fs-md)/1.3 var(--field); }
 .do-copy, .do-btn { padding: 10px 14px; border: 3px solid var(--ink); border-radius: 12px; background: linear-gradient(#8be28b, #2fa54a); color: #fff; font: var(--fs-lg) var(--display); text-decoration: none; box-shadow: 0 3px 0 var(--ink); }
 .do-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 12px 0; }
 .do-btn { background: linear-gradient(#78c2ff, var(--blue)); }
@@ -1217,17 +1190,11 @@ a.btn { text-decoration: none; }
 @keyframes go-bob { to { transform: translate(-50%, -78%); } }
 @keyframes go-out { to { transform: translate(-50%, -140%) scale(0.6); opacity: 0; } }
 
-/* ---------- map filter tabs (Places / Jobs) ---------- */
-.map-tabs { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; padding: 6px; background: var(--paper); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); z-index: 4; line-height: 1; }
-.map-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 64px; padding: 5px 0 4px; border: 3px solid transparent; border-radius: 11px; background: none; font: var(--fs-sm) var(--display); color: var(--ink); cursor: pointer; transition: transform 0.15s cubic-bezier(0.2, 1.6, 0.4, 1), background 0.15s; }
-.map-tab img.ji { width: 30px; height: 30px; margin: 0; filter: saturate(0.55); transition: filter 0.15s; }
-.map-tab:hover { transform: translateY(-2px); }
-.map-tab:hover img.ji, .map-tab.on img.ji { filter: none; }
-.map-tab.on { background: #fff2bf; border-color: var(--ink); }
-.postcard-art.jobs .map-cut { filter: saturate(0.6) brightness(0.92); }
-.map-job { position: absolute; transform: translate(-50%, -50%); width: 54px; height: 54px; padding: 0; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #8fd0ff, var(--blue) 70%); box-shadow: 0 3px 0 var(--ink), inset 0 -4px 0 rgba(0, 0, 0, 0.15); cursor: pointer; z-index: 3; animation: job-in 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) both; transition: transform 0.15s cubic-bezier(0.2, 1.6, 0.4, 1); line-height: 0; }
-.map-job img.ji { width: 34px; height: 34px; margin: 0; vertical-align: 0; }
-.map-job:hover { transform: translate(-50%, -54%) scale(1.14); }
+/* ---------- map pins: newer places the map art doesn't draw (Wall Street…), icon centred in a round badge ---------- */
+.map-pin { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6cf, var(--sun) 70%); box-shadow: 0 3px 0 var(--ink); cursor: pointer; z-index: 2; line-height: 1; transition: transform 0.15s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.map-pin span { display: grid; place-items: center; font-size: 24px; }
+.map-pin img.ji { width: 28px; height: 28px; margin: 0; vertical-align: 0; }
+.map-pin:hover { transform: translate(-50%, -54%) scale(1.12); }
 @keyframes job-in { from { transform: translate(-50%, -50%) scale(0); } }
 
 /* payout card: the job's stamp + where to spend */
@@ -1261,6 +1228,14 @@ a.btn { text-decoration: none; }
 .payout-card > .payout-coins { grid-column: 1; grid-row: 6; flex-direction: column; gap: var(--sp-1); }
 .payout-card > .payout-score { grid-column: 1; grid-row: 7; }
 .payout-card > .payout-rank, .payout-card > .payout-stamp, .payout-card > .payout-reward { width: 100%; box-sizing: border-box; }
+/* the job's leaderboard, after the run (games/host.ts leaderboard): compact rows so the card stays one screen */
+.payout-card > .payout-board { width: 100%; }
+.payout-board .lobby-tabs button { min-height: 30px; padding: 4px 0; font-size: var(--fs-base); }
+.payout-board .lobby-rows { min-height: 0; padding: 3px 0; }
+.payout-board .lobby-rows li { padding: 2px 10px; font-size: var(--fs-base); }
+.payout-board .lobby-rows .lobby-empty { padding: 14px 12px; }
+.payout-board .lobby-me { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px 6px; line-height: 1.3; text-wrap: balance; }
+.payout-board .lobby-me .payout-brag { margin-left: auto; }
 .payout-card > .payout-btns { margin-top: var(--sp-2); }
 
 /* ---------- creator v2: looks, wheels, reactions (features/creator.ts) ---------- */
@@ -1318,6 +1293,8 @@ a.btn { text-decoration: none; }
 .consent-panel { text-align: center; }
 .consent-panel .cr-consent { margin: 4px 0 6px; }
 .consent-panel .cr-err { min-height: 18px; margin-bottom: 8px; }
+/* "Not Now" (back to the home page) next to the primary "Agree and Continue" */
+.consent-panel .consent-btns { display: flex; justify-content: center; gap: var(--sp-2); }
 /* MetroCard flipping in at the corner after the tour */
 .mc-corner { position: absolute; right: 14px; bottom: 76px; z-index: 9550; width: 300px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; animation: card-flip 0.8s cubic-bezier(0.2, 1.3, 0.4, 1); transition: transform 0.2s, opacity 0.5s; }
 /* a keepsake moment, not a billboard: four-fifths size, tucked into the corner for a few seconds */
@@ -1375,7 +1352,13 @@ a.btn { text-decoration: none; }
 .hud-left { display: flex; align-items: flex-start; gap: 8px; }
 .mail-desk { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 22px 26px 18px; background: #6b4a2f repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0 2px, transparent 2px 46px); border: 5px solid var(--ink); border-radius: 26px; box-shadow: 0 7px 0 var(--ink); animation: pop-in 0.3s cubic-bezier(0.2, 1.4, 0.4, 1); }
 .postcard-mail { display: grid; grid-template-columns: 200px 300px; background: #fffaf0; border: 3px solid var(--ink); border-radius: 10px; box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35); transform: rotate(-1.5deg); animation: card-flip 0.5s cubic-bezier(0.2, 1.3, 0.4, 1); }
-.postcard-mail.empty { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 380px; padding: 20px; text-align: center; }
+/* every postcard is the same size (the longest, Rosa's welcome with its button, fits), so paging with ◀ ▶ never makes
+   the frame jump; anything longer scrolls inside the card */
+.postcard-mail { height: 252px; box-sizing: border-box; }
+.pm-back { min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.postcard-mail.paged { animation: pm-swap 0.18s ease-out; }
+@keyframes pm-swap { from { opacity: 0; } }
+.postcard-mail.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 506px; padding: 20px; text-align: center; }
 .postcard-mail.empty p { margin: 0; font-size: var(--fs-sm); opacity: 0.75; }
 .pm-front { position: relative; display: grid; place-items: center; background: linear-gradient(160deg, #8fd0ff, #3d72d9); border-right: 3px dashed rgba(29, 33, 64, 0.35); border-radius: 8px 0 0 8px; min-height: 190px; }
 .pm-art, .pm-front .pm-art { font-size: 74px; line-height: 1; }

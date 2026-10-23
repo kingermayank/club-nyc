@@ -1,6 +1,6 @@
 # Club NYC: legal and compliance callouts before launch
 
-Status on 18 October 2026. **This is not legal advice.** It records what the game does, what's still to fill in,
+Status on 20 October 2026 (the launch waitlist and email sign-in added). **This is not legal advice.** It records what the game does, what's still to fill in,
 and the questions to take to a lawyer before inviting the public. Sources are linked inline.
 
 ## In place
@@ -35,6 +35,31 @@ and the questions to take to a lawyer before inviting the public. Sources are li
     neutral "Is that your birthday?" check stays. Ask the lawyer whether to bring a lock back (for example for the
     rest of the browser session) before launch.
 - **Coming online after playing offline.** Those players give a birthday and agree too.
+
+**The launch waitlist (20 October 2026)**
+- **What a signup stores** (`waitlist` table): the email address, where on the site it was entered, the in-game
+  name of the player whose invite link brought them (if any), and when they joined, confirmed and got the launch
+  email. No name, age, IP address or tracking. The privacy policy has a "The Waitlist" section and the retention row.
+- **Double opt-in** whenever email is set up: a confirmation email first, and only confirmed addresses (or ones that
+  joined while no confirmation email could be sent) are counted in public or get the launch email.
+- **One-click unsubscribe** in every waitlist email: a visible link, plus `List-Unsubscribe` and
+  `List-Unsubscribe-Post` headers so mail apps show their own button (RFC 8058, which Gmail and Yahoo expect from
+  bulk senders). Unsubscribing deletes the address: only a keyed fingerprint stays, so it's never emailed again.
+- **Deletion requests:** the moderator dashboard's Waitlist tab finds an address and deletes it for good, and
+  exports the list as CSV (formula-looking cells are defused).
+- **The launch email** goes once per person, names who it's from, says why they're getting it, and prints
+  `COMPANY_NAME` and `MAILING_ADDRESS` at the bottom (US CAN-SPAM wants a postal address in commercial email).
+- **Honest numbers:** the public "in line" count only shows from `WAITLIST_PUBLIC_MIN` (100) real, confirmed
+  signups. Nothing is invented.
+
+**Email sign-in (20 October 2026)**
+- One-time links: only a SHA-256 of the token is stored, a link works once for 15 minutes, and the records are
+  deleted after a day. Per-address limits (3 per 15 minutes, 10 a day) stop anyone from flooding an inbox.
+- The server gives the same answer whether or not an address has an account, so nobody can use it to find out who
+  plays.
+- The email address is stored with the account (like Google's) and deleted with it.
+- The privacy policy, terms and rules were updated and `POLICY_VERSION` bumped to `2026-10-20`, so returning players
+  agree to the new version.
 
 **Data minimization**
 - **Guests:** no email, real name or birthday stored.
@@ -72,7 +97,8 @@ show the `[…]` placeholder until each is set.
 | `COMPANY_NAME` | Terms and privacy policy (the party players contract with), landing footer | Your legal name, or your company's |
 | `CONTACT_EMAIL` | Everywhere help, appeals and privacy requests go | An inbox someone reads; the game shows it to banned players |
 | `GOVERNING_STATE` | Terms § 12: governing law and courts | A legal choice: ask your lawyer |
-| `MAILING_ADDRESS` | Terms: where legal notices go | Many people use a registered agent or PO box |
+| `MAILING_ADDRESS` | Terms: where legal notices go; the bottom of every waitlist email | Many people use a registered agent or PO box (a PO box registered with the USPS counts for CAN-SPAM) |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Waitlist confirmations, the launch email, sign-in links | See [sign-in-setup.md](../sign-in-setup.md). Also accept Resend's data processing agreement (DPA) in its dashboard: it handles players' email addresses for you |
 | `DISCORD_INVITE_URL` | `/discord` | A never-expiring invite; until set, buttons say "opens soon" |
 
 ## Questions for a lawyer
@@ -127,7 +153,18 @@ show the `[…]` placeholder until each is set.
      a public site at this traffic.
 7. **AI-generated art.**
    - Check whether any platform or jurisdiction you launch in expects you to disclose AI-generated art.
-8. **California (CalOPPA).**
+8. **The waitlist and under-13s.**
+   - The waitlist form asks only for an email address: no age question. If the site were ever found to be
+     "directed to children" (question 1), collecting a child's email to send more than one message would need a
+     parent's consent under COPPA. The "one-time contact" exception doesn't fit, because the waitlist sends a
+     confirmation and later the launch email.
+   - Options: add an "I'm 13 or older" tick box to the waitlist form, or accept the risk with the teen-and-adult
+     marketing. Ask the lawyer which.
+9. **Waitlist consent records (EU and UK).**
+   - For each signup we can show when the person joined and when they clicked the confirmation link (double
+     opt-in), but not the exact words they saw. Ask whether that's enough proof of consent, or whether to also
+     store a copy of the form's wording version.
+10. **California (CalOPPA).**
    - It requires a conspicuous privacy policy, which is done. Whether a free game counts as a "commercial" site is
      itself a question for counsel
      ([California AG](https://oag.ca.gov/system/files/attachments/press_releases/CalOPPA%20Letter_0.pdf)).
@@ -138,7 +175,10 @@ show the `[…]` placeholder until each is set.
   `POLICY_VERSION`, so everyone agrees again.
 - **Keep the pages honest.** If the game starts collecting something new, the privacy policy says it first.
 - **Answer requests and reports:** deletion requests and appeals through `CONTACT_EMAIL`, and reports in the
-  moderator dashboard.
+  moderator dashboard. A waitlist deletion request: `/admin.html` → Waitlist → find the address → Delete.
+- **Email only the people who asked:** the waitlist is for telling people Club NYC is open. Anything more (a
+  newsletter, event reminders) needs its own opt-in, a visible unsubscribe link and the postal address, like the
+  launch email has. Keep spam complaints low (Gmail and Yahoo start filtering bulk senders above 0.3%).
 - **Discord:**
   - Use a never-expiring invite, through `/discord`. Expired invites can be taken over by other servers
     ([Check Point](https://research.checkpoint.com/2025/from-trust-to-threat-hijacked-discord-invites-used-for-multi-stage-malware-delivery/)).

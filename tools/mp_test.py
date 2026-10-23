@@ -168,7 +168,8 @@ async def run():
             check('A gets a live friend request notification', True)
             await shot(A, '4-friend-request')
             await A.click('.notice:has-text("wants to be friends") .notice-btn:has-text("Accept")')
-            await B.wait_for_selector('.toast:has-text("accepted your friend request")', timeout=4000)
+            # (toasts play two at a time, so the New Friend stamp and XP notices can go first)
+            await B.wait_for_selector('.toast:has-text("accepted your friend request")', timeout=10000)
             check('B is told A accepted', True)
         except Exception as e:
             check('friend request round trip', False, str(e)[:120])

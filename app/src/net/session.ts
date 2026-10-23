@@ -49,7 +49,7 @@ export async function signIn(): Promise<'online' | 'offline'> {
     // guest. Otherwise the front door offers guest play or Google / X / Discord.
     const quick = q.get('start') === 'guest' && !login
     if (q.has('start')) history.replaceState(null, '', location.pathname + location.search.replace(/[?&]start=[^&]*/, '').replace(/^&/, '?'))
-    const choice = quick ? 'guest' : await (await import('../features/signin')).signInScreen(login === 'failed' ? 'That sign-in didn’t work. Try again, or just hit Play now.' : undefined)
+    const choice = quick ? 'guest' : await (await import('../features/signin')).signInScreen(login === 'failed' ? 'That sign-in didn’t work. Try again, or just hit Play Now.' : undefined)
     if (choice === 'offline') return 'offline'
     try {
       await rest('/auth/guest', { method: 'POST' })
@@ -58,6 +58,20 @@ export async function signIn(): Promise<'online' | 'offline'> {
     }
     p = await probe()
     if (p.state !== 'in') return 'offline'
+  }
+  // the Google / X / Discord account just used already has its own New Yorker: switch to it, or stay (asked first,
+  // since a guest left behind can't be reached again)
+  if (login === 'switch') {
+    const info = await rest<import('../features/signin').SwitchInfo>('/auth/switch').catch(() => null)
+    if (info) {
+      const go = await (await import('../features/signin')).switchScreen(info)
+      const r = await rest<{ switched: boolean }>('/auth/switch', { json: { go } }).catch(() => null)
+      if (r?.switched) {
+        const again = await probe()
+        if (again.state === 'banned') return banScreen(again.ban)
+        if (again.state === 'in') p = again
+      }
+    }
   }
   const me = p.me
   account.me = me
@@ -83,6 +97,8 @@ async function loadCloud(me: Me) {
   if (me.look) save.look = { ...me.look, items: { ...me.look.items } }
   save.team = me.team || save.team
   save.owner = me.id
+  // XP is the server's too (levels can't be edited in a save)
+  if (typeof me.xp === 'number') save.xp = me.xp
   persist()
 }
 

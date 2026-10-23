@@ -6,7 +6,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GAME_PORT="${GAME_PORT:-8797}"
 WEB_PORT="${WEB_PORT:-5197}"
-DB="${TMPDIR:-/tmp}/club-nyc-qa.db"
+# one throwaway database per stack, so several private stacks (different ports) can run side by side
+DB="${TMPDIR:-/tmp}/club-nyc-qa-$GAME_PORT.db"
 rm -f "$DB" "$DB-wal" "$DB-shm"
 trap 'kill 0' EXIT
 (cd "$ROOT/server" && PORT="$GAME_PORT" DB_PATH="$DB" PUBLIC_URL="http://localhost:$WEB_PORT" BACKUP_EVERY_HOURS=0 npx tsx src/index.ts) &

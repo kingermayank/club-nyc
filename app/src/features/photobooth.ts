@@ -33,6 +33,9 @@ interface Theme {
 const THEMES: Record<string, Theme> = {
   Starducks: { bg: '#0e6b4a', frame: '#f4efe3', ink: '#0b3d2c', title: 'STARDUCKS · SOHO', sticker: ['☕', '🦆', '🥐', '💚'] },
   'I ♥ NY': { bg: '#e1262b', frame: '#ffffff', ink: '#1d2140', title: 'I ♥ NY · TIMES SQUARE', sticker: ['❤️', '🗽', '🚕', '🍕'] },
+  // the booth up on Sky Deck 102 at One World Trade, and the Halloween Parade's spooky one
+  'Sky Deck': { bg: '#1d3b6e', frame: '#fff4d6', ink: '#1d2140', title: 'SKY DECK 102 · ONE WORLD TRADE', sticker: ['🏙️', '✨', '🗽', '🌉'] },
+  Halloween: { bg: '#2b1a3d', frame: '#ffb347', ink: '#1d2140', title: 'HALLOWEEN PARADE · 6TH AVE', sticker: ['🎃', '👻', '🦇', '🍬'] },
   default: { bg: '#2a3b8f', frame: '#fffdf6', ink: '#1d2140', title: 'CLUB NYC', sticker: ['🗽', '🍕', '🚕', '✨'] },
 }
 const POSES = [
@@ -127,7 +130,7 @@ export function openPhotoBooth(where = 'default') {
   const flash = box.querySelector<HTMLElement>('.pb-flash')!
   const actions = box.querySelector<HTMLElement>('.pb-actions')!
   preview.innerHTML = frameSvg(people, POSES[0], t, 0)
-  const go = el('button', 'btn go', 'Take 4 photos')
+  const go = el('button', 'btn go', 'Take 4 Photos')
   actions.append(go)
   box.append(closeButton())
   openOverlay(box, { backdrop: false })
@@ -155,9 +158,9 @@ export function openPhotoBooth(where = 'default') {
   const showStrip = async () => {
     await stickersReady
     const svg = stripSvg(people, where)
-    box.querySelector('.pb-body')!.innerHTML = `<h2>Your strip!</h2><div class="pb-strip">${svg.replace('<svg ', '<svg class="pb-strip-svg" ')}</div><div class="pb-actions"></div>`
+    box.querySelector('.pb-body')!.innerHTML = `<h2>Your Strip!</h2><div class="pb-strip">${svg.replace('<svg ', '<svg class="pb-strip-svg" ')}</div><div class="pb-actions"></div>`
     const bar = box.querySelector<HTMLElement>('.pb-actions')!
-    const dl = el('button', 'btn go', '⬇️ Save photo')
+    const dl = el('button', 'btn go', '⬇️ Save Photo')
     dl.onclick = async () => {
       const c = await toPng(svg)
       const a = document.createElement('a')

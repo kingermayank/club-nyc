@@ -1,9 +1,10 @@
 import { sfx } from '../audio'
 import { el } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton, toast } from '../engine/ui'
-import { world, goto, guideTo } from '../engine/world'
+import { world, goto } from '../engine/world'
 import { GEO } from '../data/geo'
 import { partyOn, PARTY } from '../data/party'
+import { ROOMS } from '../data/rooms'
 
 const MAP_W = 1000
 const MAP_H = 664
@@ -20,7 +21,7 @@ const SPOTS: { id: string; label: string; room?: string; soon?: boolean; note?: 
   { id: 'high-line', label: 'The High Line', room: 'high-line' },
   { id: 'chelsea', label: 'Chelsea Market', room: 'chelsea-market' },
   { id: 'soho', label: 'SoHo', room: 'soho' },
-  { id: 'wtc', label: 'One World Trade', soon: true },
+  { id: 'wtc', label: 'One World Trade', room: 'one-world-trade' },
   { id: 'chinatown', label: 'Chinatown & Little Italy', room: 'chinatown' },
   { id: 'hotdog', label: 'Hot Dog Cart', note: 'snack' },
   { id: 'brooklyn-bridge', label: 'Brooklyn Bridge', room: 'brooklyn-bridge' },
@@ -34,17 +35,12 @@ const SPOTS: { id: string; label: string; room?: string; soon?: boolean; note?: 
   { id: 'subway-5', label: 'Subway', note: 'subway' },
 ]
 
-/** Where each job lives: the map's Jobs tab drops a badge on its neighborhood and, after the trip, an arrow on the spot. */
-const JOBS: { title: string; icon: string; spot: string; room: string; obj: string; dx?: number; dy?: number }[] = [
-  { title: 'Slice Factory', icon: 'pizza', spot: 'chinatown', room: 'pizza', obj: 'counter' },
-  { title: 'Halal Rush', icon: 'gyro', spot: 'fifth-ave', room: 'fifth-ave', obj: 'halal-cart' },
-  { title: 'Bagel Counters', icon: 'bagel', spot: 'soho', room: 'coffee', obj: 'counter' },
-  { title: 'Showtime!', icon: 'dancer', spot: 'times-square', room: 'subway', obj: 'train' },
-  { title: 'Ferry Captain', icon: 'ferry', spot: 'battery-park', room: 'battery-park', obj: 'ferry' },
+/** Places the map art doesn't draw (newer parts of the city): a round pin on the spot, in map coordinates. */
+const PINS: { id: string; label: string; room: string; at: [number, number]; icon: string }[] = [
+  { id: 'wall-street', label: 'Wall Street', room: 'wall-street', at: [562, 498], icon: '🐂' },
 ]
-/** the map remembers the last tab you used (Club Penguin's map did) */
-let mapTab: 'places' | 'jobs' = 'places'
-const ico = (name: string) => `<img class="ji" src="/art/icons/e/${name}.png" alt="" draggable="false">`
+/** a place opens on the map as soon as its room exists; until then it's Coming Soon */
+const open = (room?: string) => !!room && !!ROOMS[room]
 
 interface Shape {
   spot: (typeof SPOTS)[number]
@@ -91,7 +87,8 @@ export function openMap() {
     shapes.push(s)
     if (spot.id === here || (spot.room && spot.room === here)) {
       const pin = el('div', 'you-are-here', '<span>You are here</span>')
-      pin.style.cssText = `left:${((x + w / 2) / MAP_W) * 100}%;top:${((y + h * 0.3) / MAP_H) * 100}%`
+      // the pill hangs above this point: keep it inside the frame for landmarks on the top edge (Central Park, the Met)
+      pin.style.cssText = `left:${(Math.min(Math.max(x + w / 2, 70), MAP_W - 70) / MAP_W) * 100}%;top:${(Math.max(y + h * 0.3, 52) / MAP_H) * 100}%`
       art.append(pin)
     }
   }
@@ -111,6 +108,29 @@ export function openMap() {
     }
     return null
   }
+  /** a landmark is Coming Soon if it's marked so, or its room doesn't exist yet */
+  const soonOf = (spot: (typeof SPOTS)[number]) => !!spot.soon || (!!spot.room && !open(spot.room))
+  /**
+   * The hover label goes above its landmark, or below it when there's no room above (Central Park and the Met sit at
+   * the top edge), and slides sideways to stay inside the map: it's never cut off by the frame.
+   */
+  const showTip = (text: string, [x, y, w, h]: [number, number, number, number]) => {
+    tip.textContent = text
+    const aw = art.offsetWidth
+    const ah = art.offsetHeight
+    const sx = aw / MAP_W
+    const sy = ah / MAP_H
+    const tw = tip.offsetWidth
+    const th = tip.offsetHeight
+    const pad = 6
+    let top = y * sy - th - pad
+    if (top < pad) top = (y + h) * sy + pad
+    if (top + th > ah - pad) top = Math.max(pad, (y + h / 2) * sy - th / 2)
+    const left = Math.min(Math.max((x + w / 2) * sx - tw / 2, pad), aw - tw - pad)
+    tip.style.left = `${left}px`
+    tip.style.top = `${top}px`
+    tip.classList.add('show')
+  }
   let hovered: Shape | null = null
   art.onpointermove = (e) => {
     const s = hitAt(e)
@@ -120,11 +140,7 @@ export function openMap() {
     art.classList.toggle('pointing', !!s)
     if (!s) return tip.classList.remove('show')
     s.img.classList.add('hover')
-    const [x, y, w] = s.rect
-    tip.textContent = s.spot.soon ? `${s.spot.label} · coming soon 🚧` : s.spot.label
-    tip.style.left = `${((x + w / 2) / MAP_W) * 100}%`
-    tip.style.top = `${(y / MAP_H) * 100}%`
-    tip.classList.add('show')
+    showTip(soonOf(s.spot) ? `${s.spot.label} (Coming Soon)` : s.spot.label, s.rect)
     sfx.tick()
   }
   art.onpointerleave = () => {
@@ -137,7 +153,8 @@ export function openMap() {
     if (!s) return
     const spot = s.spot
     sfx.click()
-    if (spot.soon) return toast(`${spot.label} is still under construction. Very New York of it. 🚧`, '🚧')
+    if (spot.id === 'brooklyn') return toast('Brooklyn is Coming Soon. Club NYC is Manhattan only for now (Brooklyn says it was cool first anyway).', '🚧')
+    if (soonOf(spot)) return toast(`${spot.label} is Coming Soon. Still under construction. Very New York of it.`, '🚧')
     if (spot.note === 'subway') {
       closeOverlay()
       return void import('./subway').then((m) => m.openSubway())
@@ -155,54 +172,36 @@ export function openMap() {
   }
   art.append(tip)
 
-  // Places / Jobs tabs: Jobs drops a badge for every job; picking one travels there and points at it
-  const jobs = JOBS.filter((j) => cut[j.spot]).map((j) => {
-    const [x, y, w, h] = cut[j.spot].rect
-    const b = el('button', 'map-job', ico(j.icon)) as HTMLButtonElement
-    b.setAttribute('aria-label', `${j.title} · earn coins`)
-    b.style.left = `${((x + w / 2) / MAP_W) * 100}%`
-    b.style.top = `${((y + h * 0.42) / MAP_H) * 100}%`
+  // newer places as round pins (same hover label and click as the landmarks drawn on the map)
+  for (const pin of PINS) {
+    if (!open(pin.room)) continue
+    const [px, py] = pin.at
+    const b = el('button', 'map-pin', `<span>${pin.icon}</span>`) as HTMLButtonElement
+    b.setAttribute('aria-label', pin.label)
+    b.style.left = `${(px / MAP_W) * 100}%`
+    b.style.top = `${(py / MAP_H) * 100}%`
+    if (pin.room === here) {
+      const you = el('div', 'you-are-here', '<span>You are here</span>')
+      you.style.cssText = `left:${(px / MAP_W) * 100}%;top:${((py - 22) / MAP_H) * 100}%`
+      art.append(you)
+    }
     b.onpointerenter = () => {
       hovered?.img.classList.remove('hover')
       hovered = null
-      tip.textContent = `${j.title} · earn coins`
-      tip.style.left = b.style.left
-      tip.style.top = `calc(${b.style.top} - 30px)`
-      tip.classList.add('show')
+      showTip(pin.label, [px - 22, py - 22, 44, 44])
       sfx.tick()
     }
     b.onpointerleave = () => tip.classList.remove('show')
-    // keep the map's own place-hover from replacing the job's tip while you're on a badge
     b.onpointermove = (e) => e.stopPropagation()
     b.onclick = (e) => {
       e.stopPropagation()
       sfx.click()
+      if (pin.room === world.room.id) return toast(`You’re already at ${pin.label}! Fastest commute in New York history. Pick somewhere else to go.`, '📍')
       closeOverlay()
-      const point = () => setTimeout(() => guideTo(j.obj), 700)
-      if (world.room.id === j.room) point()
-      else void goto(j.room).then(point)
+      goto(pin.room)
     }
-    return b
-  })
-  const tabs = el('div', 'map-tabs')
-  const setTab = (t: typeof mapTab) => {
-    mapTab = t
-    tabs.querySelectorAll('.map-tab').forEach((n) => n.classList.toggle('on', (n as HTMLElement).dataset.tab === t))
-    art.classList.toggle('jobs', t === 'jobs')
-    jobs.forEach((b) => (t === 'jobs' ? art.append(b) : b.remove()))
+    art.append(b)
   }
-  for (const [id, label, icon] of [['places', 'Places', 'liberty'], ['jobs', 'Jobs', 'chef-hat']] as const) {
-    const t = el('button', 'map-tab', `${ico(icon)}<span>${label}</span>`)
-    t.dataset.tab = id
-    t.onclick = (e) => {
-      e.stopPropagation()
-      sfx.tick()
-      setTab(id)
-    }
-    tabs.append(t)
-  }
-  art.append(tabs)
-  setTab(mapTab)
 
   if (partyOn()) {
     const party = el('button', 'map-party', '<span>🎃</span><b>Halloween Parade</b><small>Sixth Ave · now!</small>')

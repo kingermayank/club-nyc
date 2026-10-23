@@ -1,4 +1,5 @@
 import { sfx } from '../audio'
+import { subway as foley } from '../foley'
 import { save, persist, bump } from '../state'
 import { el, stage } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton, hold, toast } from '../engine/ui'
@@ -46,6 +47,9 @@ const STATIONS: Station[] = [
   { room: 'chinatown', name: 'Canal St', place: 'Chinatown', at: project(40.719, -74.0002), lines: ['J', 'Z', 'N', 'Q', 'R', 'W', '6'], label: { side: 'r', dy: 3 } },
   { room: 'brooklyn-bridge', name: 'Brooklyn Bridge–City Hall', place: 'Brooklyn Bridge', at: project(40.7132, -74.0042), lines: ['4', '5', '6', 'J', 'Z'], label: { side: 'r', dx: 14, dy: 40 } },
   { room: 'battery-park', name: 'South Ferry', place: 'Battery Park', at: project(40.7019, -74.0131), lines: ['1', 'R', 'W'], label: { side: 'l', dx: -2, dy: 3 } },
+  // Lower Manhattan: the Oculus links WTC Cortlandt (1), Cortlandt St (R/W), World Trade Center (E) and Park Pl (2/3)
+  { room: 'one-world-trade', name: 'WTC Cortlandt', place: 'One World Trade', at: project(40.7116, -74.0124), lines: ['1', '2', '3', 'E', 'R', 'W'], label: { side: 'l' } },
+  { room: 'wall-street', name: 'Wall St', place: 'Wall Street', at: project(40.7068, -74.0091), lines: ['2', '3', '4', '5'], label: { side: 'r', dx: 12, dy: 52 } },
 ]
 const byRoom = (r: string) => STATIONS.find((s) => s.room === r)!
 
@@ -59,8 +63,10 @@ const pos = (id: string) => BENDS[id] ?? byRoom(id).at
 
 /** Each route: station rooms (stops) and BENDS names, uptown to downtown. */
 const ROUTES: { line: string; via: string[]; shift?: number }[] = [
-  { line: '1', via: ['central-park', 'subway', 'high-line', 'Rector St', 'battery-park'] },
-  { line: 'N', via: ['fifth-ave', '57 St–7 Av', 'subway', 'empire-deck', 'soho', 'chinatown', 'Church St', 'Rector St', 'battery-park'] },
+  { line: '1', via: ['central-park', 'subway', 'high-line', 'one-world-trade', 'Rector St', 'battery-park'] },
+  { line: '2', via: ['subway', 'high-line', 'one-world-trade', 'wall-street'] },
+  { line: 'N', via: ['fifth-ave', '57 St–7 Av', 'subway', 'empire-deck', 'soho', 'chinatown', 'one-world-trade', 'Rector St', 'battery-park'] },
+  { line: '4', via: ['the-met', 'grand-central', 'brooklyn-bridge', 'wall-street'] },
   { line: '6', via: ['the-met', 'grand-central', 'soho', 'chinatown', 'brooklyn-bridge'] },
   // 6 Av line runs one avenue east of Times Sq: nudge it a hair east so it clears that dot.
   { line: 'B', via: ['central-park', 'rockefeller', 'empire-deck'], shift: 3 },
@@ -81,6 +87,7 @@ function hereRoom(): string {
     'times-square': 'subway', 'fifth-ave': 'fifth-ave', soho: 'soho', chinatown: 'chinatown', 'high-line': 'high-line',
     'central-park': 'central-park', 'the-met': 'the-met', rockefeller: 'rockefeller', 'grand-central': 'grand-central',
     'empire-state': 'empire-deck', 'brooklyn-bridge': 'brooklyn-bridge', 'battery-park': 'battery-park', liberty: 'battery-park',
+    wtc: 'one-world-trade', 'wall-street': 'wall-street',
   }
   return bySpot[r.mapSpot ?? ''] ?? 'subway'
 }
@@ -187,7 +194,7 @@ export function openSubway() {
       <text class="sw-river"><textPath href="#sw-east" startOffset="50%" text-anchor="middle">EAST RIVER</textPath></text>
       <text class="sw-boro" x="24" y="380" text-anchor="middle" transform="rotate(-90 24 380)">NEW JERSEY</text>
       <text class="sw-boro" x="420" y="150" text-anchor="middle">QUEENS</text>
-      <text class="sw-boro" x="402" y="500" text-anchor="middle">BROOKLYN</text><image href="/art/icons/e/construction.png" x="440" y="486" width="18" height="18"><title>Coming soon</title></image>
+      <text class="sw-boro" x="402" y="500" text-anchor="middle">BROOKLYN</text><image href="/art/icons/e/construction.png" x="440" y="486" width="18" height="18"><title>Brooklyn (Coming Soon)</title></image>
       <text class="sw-small" x="${f1(gov[0] + 20)}" y="${f1(gov[1] + 36)}" text-anchor="middle">Governors Is.</text>
       ${bridge()}
       <image href="/art/icons/e/liberty.png" x="${lx - 12}" y="${ly - 20}" width="24" height="24"/>
@@ -244,10 +251,12 @@ export function openSubway() {
   const side = el('div', 'sw-side')
   side.innerHTML = `<div class="sw-title"><span class="mta">M</span><div><b>Club NYC Subway</b><small>Uptown · Downtown · All Night</small></div></div>`
   const info = el('div', 'sw-info', `<b>Where to?</b><span>Hover a station, click to ride.</span>`)
-  const legend = el('div', 'sw-legend', ['1', 'N', '6', 'B', 'S'].map((l) => `<div>${bullet(l, 20)}<span>${{ 1: 'Broadway–7 Av Local', N: 'Broadway Express', 6: 'Lexington Av Local', B: '6 Av Express', S: '42 St Shuttle' }[l]}</span></div>`).join(''))
+  const legend = el('div', 'sw-legend', ['1', '2', 'N', '4', '6', 'B', 'S'].map((l) => `<div>${bullet(l, 20)}<span>${{ 1: 'Broadway–7 Av Local', 2: '7 Av Express', N: 'Broadway Express', 4: 'Lexington Av Express', 6: 'Lexington Av Local', B: '6 Av Express', S: '42 St Shuttle' }[l]}</span></div>`).join(''))
   side.append(info, legend, el('div', 'sw-tip', '🎵 Tip: board the train at Times Sq for <b>Showtime</b> and dance for tips!'))
   p.append(svg, side, closeButton())
   openOverlay(p)
+  // on the platform, a train pulls in while you pick your stop
+  if (world.room.id === 'subway') foley.arrive()
 }
 
 // ---------- the ride ----------
@@ -304,22 +313,26 @@ export function ride(s: Station) {
     caption.classList.add('show')
   }
 
+  // the sounds of a real ride (foley.ts): the two-tone chime, the doors, the wheels over the joints, the brakes
+  let stopClatter = () => {}
   const steps: [number, () => void][] = [
     [0, () => {
-      sfx.chime()
+      foley.chime()
       say(firstRide ? '“Please swipe again… at this turnstile.” <small>Classic. You made it on.</small>' : '“Stand clear of the closing doors, please.”')
     }],
+    [520, () => foley.doorsClose()],
     [900, () => {
       car.classList.add('moving')
-      sfx.train()
+      stopClatter = foley.ride(2.9)
     }],
     [2000, () => say(`🚇 ${bullet(line, 16)} to <b>${s.place}</b>`)],
+    [3300, () => foley.brake()],
     [3600, () => {
       car.classList.remove('moving')
       car.classList.add('arriving')
-      sfx.ding()
       say(`“This is <b>${s.name}</b>.”`)
     }],
+    [4000, () => foley.doorsOpen()],
     [4700, () => {
       car.classList.add('out')
       api.stamp('straphanger')
@@ -329,6 +342,7 @@ export function ride(s: Station) {
     }],
     [5300, () => {
       cancelAnimationFrame(raf)
+      stopClatter()
       car.remove()
       release()
     }],

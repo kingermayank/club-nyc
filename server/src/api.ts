@@ -4,6 +4,8 @@ import { deleteCookie } from 'hono/cookie'
 import { z } from 'zod'
 import { q, tx, publicUser, type UserRow } from './db.ts'
 import { requireUser, currentUser, linkedProviders, SESSION_COOKIE, type Env } from './auth.ts'
+import { awardXp } from './xp.ts'
+import { jobXp } from '../../app/src/data/levels.ts'
 import { config } from './config.ts'
 import { cleanChat } from './game/filter.ts'
 import { GAMES, TEAMS, validLook, nameProblem, weekId } from './game/rules.ts'
@@ -425,11 +427,14 @@ api.post('/games/:game/finish', requireUser, async (c) => {
   const week = weekId()
   let balance: number | undefined
   let paidOut = 0
+  let xpGained = 0
   if (!suspicious) {
     // shift pay goes straight into the server wallet (once per run, within today's ceiling)
     const pay = payJob(me.id, coins, body.data.run)
     balance = pay.coins
     paidOut = pay.paid ?? 0
+    // and every accepted shift is worth XP (more for a better shift), once per run
+    xpGained = awardXp(me.id, 'job', { amount: jobXp(coins), ref: body.data.run }).gained
     tx(() => {
       q.run('UPDATE game_runs SET score = ? WHERE id = ?', score, body.data.run)
       // this week's board, plus the all-time board (stored as week 'all') that never resets
@@ -447,7 +452,7 @@ api.post('/games/:game/finish', requireUser, async (c) => {
         )
     })
   }
-  return c.json({ accepted: !suspicious, paid: paidOut, coins: balance ?? ensureWallet(me).coins, ...rankFor(game, week, me.id) })
+  return c.json({ accepted: !suspicious, paid: paidOut, coins: balance ?? ensureWallet(me).coins, xp: xpGained, ...rankFor(game, week, me.id) })
 })
 
 function rankFor(game: string, week: string, userId: string) {

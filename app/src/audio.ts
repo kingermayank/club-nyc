@@ -1,4 +1,5 @@
 // Tiny WebAudio synth so the prototype has sound without any asset files.
+import { cafe } from './foley'
 let ctx: AudioContext | null = null
 let muted = false
 
@@ -16,6 +17,8 @@ function ac() {
   if (ctx.state === 'suspended') ctx.resume()
   return ctx
 }
+/** The one shared AudioContext, for the other sound modules (foley.ts, the theater show); null while muted. */
+export const audioCtx = (): AudioContext | null => (muted ? null : ac())
 
 function tone(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.15, delay = 0, slideTo?: number) {
   if (muted) return
@@ -62,11 +65,18 @@ export const sfx = {
     tone(NOTE(83), 0.08, 'square', 0.06)
     tone(NOTE(88), 0.25, 'square', 0.06, 0.08)
   },
+  /** a purchase: the cash drawer's clunk, the register bell, a couple of coins landing */
   register: () => {
-    tone(NOTE(84), 0.1, 'triangle', 0.1)
-    tone(NOTE(91), 0.3, 'triangle', 0.1, 0.1)
-    noise(0.15, 0.05, 3000, 0.05)
+    noise(0.06, 0.07, 240)
+    tone(120, 0.1, 'sine', 0.1, 0, 70)
+    noise(0.04, 0.035, 2600, 0.05)
+    tone(NOTE(96), 0.55, 'sine', 0.07, 0.07)
+    tone(NOTE(100), 0.45, 'sine', 0.04, 0.07)
+    tone(NOTE(103), 0.06, 'triangle', 0.035, 0.22)
+    tone(NOTE(98), 0.07, 'triangle', 0.03, 0.27)
   },
+  /** the café's espresso machine (see foley.ts) */
+  espresso: () => cafe.espresso(),
   honk: () => {
     tone(392, 0.28, 'square', 0.07)
     tone(494, 0.28, 'square', 0.05)
@@ -100,6 +110,13 @@ export const sfx = {
     tone(NOTE(79), 0.12, 'triangle', 0.1, 0.2)
     tone(NOTE(84), 0.4, 'triangle', 0.12, 0.3)
   },
+  /** a new level: a quick rising arpeggio, then a bright held chord */
+  levelUp: () => {
+    ;[60, 64, 67, 72, 76].forEach((n, i) => tone(NOTE(n), 0.14, 'triangle', 0.09, i * 0.08))
+    ;[72, 76, 79].forEach((n) => tone(NOTE(n), 0.8, 'sine', 0.05, 0.45))
+  },
+  /** a little XP: one soft sparkle */
+  xp: () => tone(NOTE(91), 0.12, 'sine', 0.04, 0, NOTE(96)),
   toot: () => tone(180, 0.7, 'sawtooth', 0.06),
   squawk: () => tone(1200, 0.2, 'sawtooth', 0.05, 0, 700),
   piano: (midi: number) => {

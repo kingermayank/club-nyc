@@ -10,6 +10,8 @@ export interface PublicUser {
   memberSince: string
   /** member number (1, 2, 3… in the order New Yorkers arrived) */
   memberNo?: number
+  /** total XP (data/levels.ts turns it into a level and title) */
+  xp?: number
 }
 export interface Me extends PublicUser {
   profileDone: boolean

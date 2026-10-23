@@ -700,6 +700,8 @@ function run(ctx: MiniGameContext) {
       layer.animate([{ scale: '1.25 .7' }, { scale: '.9 1.12' }, { scale: '1 1' }], { duration: 260, easing: 'ease-out' })
       crumbs(to.x, to.y + 6, 5, [tr.color, tr.color, '#ffffff'], 6)
       snd.scoop()
+      if (f === 'chicken' || f === 'lamb') snd.sizzle()
+      else if (f === 'salad' || f === 'falafel') snd.crunch()
     })
     sfx.pop()
     refreshHint()
@@ -1060,7 +1062,7 @@ function run(ctx: MiniGameContext) {
       b.el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }).onfinish = () => b.el.remove()
     }
     after(0.33, () => resolve(c, b))
-    sfx.whoosh()
+    snd.serve()
   }
 
   function resolve(c: Cust, b: BuildState) {
@@ -1245,7 +1247,7 @@ function run(ctx: MiniGameContext) {
     <div class="${P}card">
       <div class="${P}awning"></div>
       <h1 class="${P}title">Halal Rush</h1>
-      <p class="${P}sub">Lunch rush at the Halal Bros cart · W 49th St &amp; 5th Ave</p>
+      <p class="${P}sub">Lunch rush at the Halal Bros cart · W 57th St &amp; 5th Ave</p>
       <div class="${P}steps">
         <div class="${P}step"><div class="${P}step-art"><img src="${ART}container.png" alt=""></div><span>Grab</span></div>
         <i class="${P}arr"></i>

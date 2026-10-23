@@ -1,8 +1,9 @@
-"""Rosa's first-day tour, the "Show me" pointers and the job lobby, in a real browser.
+"""Rosa's first-day tour, the "Show me" pointers and a job's results card, in a real browser.
 usage: .venv/bin/python tools/tour_test.py [base_url]     (default http://localhost:5197 — run `bash tools/qa_stack.sh` first)
 A brand-new player signs up through the UI, then we walk the whole tour (every card must spotlight something that's
-actually on screen, and the card must sit inside the stage), try "Show me" on the first-day list, open a job lobby
-(this week / all time / friends), and replay the tour with the ? button. Screenshots: tools/out/tour-*.png."""
+actually on screen, and the card must sit inside the stage), try "Show me" on the first-day list, play a job (how to
+play first, Escape asks before leaving, the This Week / All Time / Friends boards on the results card), and replay the
+tour with the ? button. Screenshots: tools/out/tour-*.png."""
 import asyncio, os, sys, time
 from playwright.async_api import async_playwright
 
@@ -70,10 +71,10 @@ async def main():
         # the "try it" card: walking moves the tour on by itself
         await pg.wait_for_timeout(500)
         st = await pg.evaluate(CARD_STATE)
-        check('the walking card spotlights your New Yorker', st and st['title'] == 'Walk around' and st['hole'][0] > 10, st)
+        check('the walking card spotlights your New Yorker', st and st['title'].lower() == 'walk around' and st['hole'][0] > 10, st)
         await pg.screenshot(path=os.path.join(OUT, 'tour-1-walk.png'))
         await pg.mouse.click(300, 470)  # the pavement
-        await pg.wait_for_function("() => document.querySelector('.tour-body b')?.textContent !== 'Walk around'", timeout=5000)
+        await pg.wait_for_function("() => (document.querySelector('.tour-body b')?.textContent ?? '').toLowerCase() !== 'walk around'", timeout=5000)
         check('walking moves the tour on by itself', True)
         # every other card: a real spotlight inside the stage
         seen, bad, i = [], [], 2
@@ -90,7 +91,7 @@ async def main():
             last = st['buttons'][-1] if st['buttons'] else ''
             # the newest card's button (a card that's just been left fades out for a moment)
             await pg.locator('.tour-next').last.click(timeout=8000)
-            if 'Let’s go' in last:
+            if 'let’s go' in last.lower():
                 break
         # five cards in all (the user's rule: onboarding is 4-5 steps): welcome, walk, then these three
         check('every tour card spotlights something on screen and fits inside the game (5 cards in all)', not bad and len(seen) == 3, f'{len(seen)} cards: {seen}' if not bad else bad)
@@ -104,51 +105,73 @@ async def main():
         await pg.wait_for_timeout(300)
         st = await pg.evaluate(CARD_STATE)
         await pg.screenshot(path=os.path.join(OUT, 'tour-show-me.png'))
-        check('“Show me” points at the next thing to do', st and st['title'] and 'Got it' in ' '.join(st['buttons']), st)
+        check('“Show me” points at the next thing to do', st and st['title'] and 'got it' in ' '.join(st['buttons']).lower(), st)
         await pg.click('.tour-next')
         # a quest that's elsewhere offers to take you there
-        # finish the steps before the job (walk, welcome gift, a friend) the way play would (the list checks the underlying stats), so "Work a shift" is next
+        # finish the steps before the job (walk, welcome gift, a friend) the way play would (the list checks the underlying stats), so "Work a Shift" is next
         await pg.evaluate("""() => { const s = clubNyc.save; s.stats.walks = 1; s.stats.clicks = 1; s.stats.snacks = 1; if (!s.owned.includes('nyc-cap')) s.owned.push('nyc-cap')
           const r = clubNyc.residents?.[0]?.id ?? null; if (r && !s.friends.includes(r)) s.friends.push(r); else if (!r) s.friends.push(s.friends[0] ?? 'local'); if (!s.stamps.includes('straphanger')) s.stamps.push('straphanger') }""")
         await pg.evaluate("clubNyc.api.goto('central-park')")
-        await pg.wait_for_function("() => document.querySelector('.q-now b')?.textContent === 'Work a shift'", timeout=8000)
+        await pg.wait_for_function("() => document.querySelector('.q-now b')?.textContent === 'Work a Shift'", timeout=8000)
         await pg.wait_for_timeout(1500)
         await pg.click('.q-show')
         await pg.wait_for_selector('.tour-card', timeout=4000)
-        acts = await pg.evaluate("[...document.querySelectorAll('.tour-card button')].map(b => b.textContent)")
-        has_take = any('Take me' in a for a in acts)
-        check('a job that’s elsewhere offers “Take me there”', has_take, acts)
-        if has_take:
-            await pg.click('.tour-act')
-            await pg.wait_for_timeout(2600)
-            room = await pg.evaluate("clubNyc.world.room.id")
-            check('“Take me there” goes there', room == 'pizza', room)
-        else:
-            await pg.click('.tour-next')
+        # Show Me for a job that's elsewhere takes you there in one click, then points at the counter
+        await pg.wait_for_timeout(4000)
+        room = await pg.evaluate("clubNyc.world.room.id")
+        st = await pg.evaluate(CARD_STATE)
+        check('Show Me for a job elsewhere takes you there and points at it', room == 'pizza' and st and st['title'] == 'Work a Shift' and not st['centered'], (room, st))
+        if st:
+            await pg.locator('.tour-next').last.click()
+            await pg.wait_for_timeout(400)
 
-        # ---------- the job lobby: how it works + leaderboards ----------
+        # ---------- a job: how to play first, the leaderboard after (on the results card) ----------
         await pg.evaluate("clubNyc.api.playGame('slice-factory')")
-        await pg.wait_for_selector('.lobby', timeout=6000)
-        await pg.wait_for_timeout(600)
-        tabs = await pg.evaluate("[...document.querySelectorAll('.lobby-tabs button')].map(b => b.textContent)")
-        await pg.screenshot(path=os.path.join(OUT, 'tour-lobby.png'))
-        check('a job opens a lobby with this week / all time / friends', tabs == ['This week', 'All time', 'Friends'], tabs)
-        for t in range(3):
-            await pg.locator('.lobby-tabs button').nth(t).click()
-            await pg.wait_for_timeout(500)
-            txt = await pg.evaluate("document.querySelector('.lobby-rows').innerText")
-            check(f'the “{tabs[t]}” board loads', 'Loading' not in txt and 'Couldn’t' not in txt, txt[:60].replace('\n', ' | '))
-        await pg.click('.lobby-back')
-        await pg.wait_for_timeout(700)
-        check('“Back to the city” leaves the lobby', not await pg.evaluate("!!document.querySelector('.game-shell')"))
-        await pg.evaluate("clubNyc.api.playGame('slice-factory')")
-        await pg.wait_for_selector('.lobby-full', timeout=6000)
-        await pg.click('.lobby-full')
-        await pg.wait_for_selector('.community', timeout=5000)
-        on = await pg.evaluate("document.querySelector('.cm-chip.on')?.textContent ?? ''")
-        check('“Full leaderboard” opens that game’s leaderboard', 'Slice Factory' in on, on)
+        await pg.wait_for_selector('.game-shell .game-root *', timeout=10000)
+        await pg.wait_for_timeout(800)
+        check('a job opens straight on its own how-to-play screen (no lobby first)', not await pg.evaluate("!!document.querySelector('.lobby')"))
         await pg.keyboard.press('Escape')
         await pg.wait_for_timeout(400)
+        check('Escape in a job asks before leaving', await pg.evaluate("!!document.querySelector('.game-leave')"))
+        await pg.keyboard.press('Enter')
+        await pg.wait_for_timeout(300)
+        check('Enter keeps you playing', not await pg.evaluate("!!document.querySelector('.game-leave')") and await pg.evaluate("!!document.querySelector('.game-shell')"))
+        await pg.evaluate("clubNyc.endGame()")
+        await pg.wait_for_selector('.payout .lobby-tabs button', timeout=8000)
+        await pg.wait_for_timeout(600)
+        tabs = await pg.evaluate("[...document.querySelectorAll('.payout .lobby-tabs button')].map(b => b.textContent)")
+        await pg.screenshot(path=os.path.join(OUT, 'tour-results-board.png'))
+        check('the results card has This Week / All Time / Friends boards', tabs == ['This Week', 'All Time', 'Friends'], tabs)
+        for t in range(len(tabs)):
+            await pg.locator('.payout .lobby-tabs button').nth(t).click()
+            await pg.wait_for_timeout(600)
+            txt = await pg.evaluate("document.querySelector('.payout .lobby-rows')?.innerText ?? ''")
+            check(f'the “{tabs[t]}” board loads', 'Loading' not in txt and 'Couldn’t' not in txt, txt[:60].replace('\n', ' | '))
+        await pg.keyboard.press('Escape')
+        await pg.wait_for_timeout(900)
+        check('Escape on the results card heads back to the city', not await pg.evaluate("!!document.querySelector('.game-shell, .payout:not(.out)')"))
+        # that shift finished the first-day list: Rosa's "officially a New Yorker" card waits until you're back in the
+        # city (over the game it would have taken the game's keys), and the neighborhood picker waits for her card
+        no_team = not await pg.evaluate("clubNyc.save.team")
+        try:
+            await pg.wait_for_function("() => (document.querySelector('.tour-body b')?.textContent ?? '').includes('Officially a New Yorker')", timeout=6000)
+            ok = True
+        except Exception:
+            ok = False
+        check('the first-day celebration shows once you’re back in the city', ok)
+        if ok:
+            await pg.wait_for_timeout(1800)
+            check('…and nothing else pops up on top of it', not await pg.evaluate("!!document.querySelector('.overlay.open')"))
+            await pg.locator('.tour-next').last.click()
+        if no_team:
+            try:
+                await pg.wait_for_selector('.overlay.open .community', timeout=6000)
+                picked = True
+            except Exception:
+                picked = False
+            check('then it asks a New Yorker without a neighborhood to pick one', picked)
+            await pg.keyboard.press('Escape')
+        await pg.wait_for_timeout(600)
 
         # ---------- the HUD: the online counter sits left of the coins ----------
         r = await pg.evaluate("""() => { const a = document.querySelector('.online-pill')?.getBoundingClientRect(), b = document.querySelector('.coin-plate').getBoundingClientRect(), j = document.querySelector('.jam-chip')?.getBoundingClientRect()

@@ -203,6 +203,25 @@ export class SliceSound {
   sparkle() {
     ;[76, 79, 83, 88, 91].forEach((m, i) => this.tone(NOTE(m), 0.25, 'triangle', 0.06, i * 0.06))
   }
+  /** the pie's done: the oven's bell (two strikes of a little brass bell, with its metallic overtone) */
+  ovenDing() {
+    for (const [at, f] of [[0, 1568], [0.16, 2093]] as const) {
+      this.tone(f, 0.7, 'sine', 0.075, at)
+      this.tone(f * 2.76, 0.25, 'sine', 0.012, at)
+      this.tone(f * 5.4, 0.12, 'sine', 0.005, at)
+    }
+  }
+  /** a burnt pie: the crust crackles and the smoke alarm chirps twice (every New York kitchen's smoke alarm) */
+  burnt() {
+    for (let i = 0; i < 10; i++) this.noise(0.02, 0.05 + Math.random() * 0.03, 'highpass', 2200 + Math.random() * 2400, Math.random() * 0.3)
+    this.tone(3150, 0.07, 'square', 0.018, 0.34)
+    this.tone(3150, 0.07, 'square', 0.018, 0.5)
+  }
+  /** the pie lands in its box: a cardboard thunk */
+  box() {
+    this.tone(190, 0.1, 'triangle', 0.08, 0, 140)
+    this.noise(0.06, 0.05, 'bandpass', 850, 0, 1.2)
+  }
 
   // ---------- music ----------
   startMusic() {

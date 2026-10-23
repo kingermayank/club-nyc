@@ -4,7 +4,8 @@ button, labels clipped by their box, art spilling past rounded borders, text run
 usage: .venv/bin/python tools/pixel_audit.py [base_url]      (default: its own private stack — see tools/stack.py)
 Walks a fresh player through the main screens (front door, creator, city HUD, toolbar menus, chat, community,
 player card, stamps, map, subway, a shop, the apartment, a job lobby, the invite panel, Rosa's tour), then the
-landing page (/) at laptop and phone widths, measures
+landing page (/) at laptop and phone widths (open, and the pre-launch waitlist version with its sheet) and the
+Coming Soon page, measures
 every visible element on each, and writes docs/launch/pixel-audit.md plus 2x crops of each problem in
 tools/out/pixel-audit/ (full 2x screenshots of every screen in tools/out/pixel-audit/screens/). Exit code 0 = nothing found.
 
@@ -461,10 +462,10 @@ async def run(base):
         steps = [
             ('emotes', '[aria-label="Emotes"]'),
             ('moves', '[aria-label="Moves"]'),
-            ('phone menu', '[aria-label="Phone: camera & invite friends"]'),
-            ('community', '[aria-label="Friends & leaderboards"]'),
-            ('player card', '[aria-label="Player card & wardrobe"]'),
-            ('stamp book', '[aria-label="Stamp book"]'),
+            ('phone menu', '[aria-label="Phone: Invite & Text Friends"]'),
+            ('community', '[aria-label="Friends & Leaderboards"]'),
+            ('player card', '[aria-label="Player Card & Wardrobe"]'),
+            ('stamp book', '[aria-label="Stamp Book"]'),
             ('map', '[aria-label="Map"]'),
             ('subway', '[aria-label="Subway"]'),
             ('newspaper', '[aria-label="Club NYC Times"]'),
@@ -491,7 +492,7 @@ async def run(base):
             pass
         # community tabs
         try:
-            await pg.click('[aria-label="Friends & leaderboards"]')
+            await pg.click('[aria-label="Friends & Leaderboards"]')
             for tab in ['Leaderboards', 'Neighborhoods', 'City']:
                 try:
                     await pg.click(f'.cm-tab:has-text("{tab}")', timeout=3000)
@@ -529,12 +530,11 @@ async def run(base):
         if await pg.evaluate("!!document.querySelector('.tray-actions')"):
             await pg.click('.tray-actions .btn.go')
         await pg.wait_for_timeout(500)
-        # a job: its lobby, the game itself, then the payout card (clubNyc.endGame is a dev-build hook)
+        # a job: the game itself (it opens on its own how-to-play screen), then the results card with the leaderboard
+        # (clubNyc.endGame is a dev-build hook)
         await pg.evaluate("clubNyc.api.playGame('slice-factory')")
         try:
-            await pg.wait_for_selector('.lobby', timeout=6000)
-            await audit('job lobby', 1200)
-            await pg.click('.lobby-start')
+            await pg.wait_for_selector('.game-shell .game-root *', timeout=8000)
             await audit('game: Slice Factory', 2500)
             await pg.evaluate("clubNyc.endGame()")
             await pg.wait_for_selector('.payout', timeout=6000)
@@ -546,16 +546,22 @@ async def run(base):
         await pg.keyboard.press('i')
         await audit('invite panel', 1200)
         await close()
-        # the landing page (/), at laptop and phone widths, one screen at a time
+        # the landing page (/), at laptop and phone widths, one screen at a time; then its pre-launch version
+        # (LAUNCH_MODE=waitlist: ?launch=waitlist previews it on a dev server) with its "Join the Waitlist" sheet,
+        # and the Coming Soon page that stands in for /play before launch
         for w, h, mobile in [(1280, 800, False), (390, 844, True)]:
-            lp = await (await b.new_context(viewport={'width': w, 'height': h}, device_scale_factor=2, is_mobile=mobile, has_touch=mobile)).new_page()
-            await lp.goto(base + '/', wait_until='networkidle')
-            await lp.evaluate('document.fonts.ready')
-            total = await lp.evaluate('document.documentElement.scrollHeight')
-            for i, y in enumerate(range(0, total, h)):
-                await lp.evaluate(f'window.scrollTo(0, {y})')
-                await audit(f'landing {w} {i + 1:02d}', 350, lp)
-            await lp.context.close()
+            for path, tag in (('/', 'landing'), ('/?launch=waitlist', 'waitlist landing'), ('/soon.html', 'coming soon')):
+                lp = await (await b.new_context(viewport={'width': w, 'height': h}, device_scale_factor=2, is_mobile=mobile, has_touch=mobile)).new_page()
+                await lp.goto(base + path, wait_until='networkidle')
+                await lp.evaluate('document.fonts.ready')
+                total = await lp.evaluate('document.documentElement.scrollHeight')
+                for i, y in enumerate(range(0, total, h)):
+                    await lp.evaluate(f'window.scrollTo(0, {y})')
+                    await audit(f'{tag} {w} {i + 1:02d}', 350, lp)
+                if tag == 'waitlist landing':
+                    await lp.evaluate("document.querySelector('[data-join=footer]').click()")
+                    await audit(f'{tag} {w} sheet', 600, lp)
+                await lp.context.close()
         await b.close()
     return findings
 

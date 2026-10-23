@@ -7,6 +7,9 @@ import { openOverlay, closeButton, toast } from '../engine/ui'
 import { api } from '../game'
 
 const PER_PAGE = 6
+const chevron = (d: string) => `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+const CHEVRON_LEFT = chevron('M8 2 L4 6 L8 10')
+const CHEVRON_RIGHT = chevron('M4 2 L8 6 L4 10')
 
 /** Each shop is split into sections, and each shelf in the room opens its own section. */
 const SECTIONS: Record<string, { id: string; label: string; has: (i: ItemDef) => boolean }[]> = {
@@ -65,7 +68,7 @@ export function openCatalog(shopId: string, section?: string) {
       <div class="cat-page">
         ${secs.length > 1 ? '<div class="cat-tabs"></div>' : ''}
         <div class="cat-grid"></div>
-        <div class="cat-foot"><button class="cat-flip prev${page === 0 ? ' gone' : ''}" ${page === 0 ? 'disabled aria-hidden="true" tabindex="-1"' : 'title="Previous page"'}>‹</button><span>Page ${page + 1} of ${pages}</span><button class="cat-flip next${page >= pages - 1 ? ' gone' : ''}" ${page >= pages - 1 ? 'disabled aria-hidden="true" tabindex="-1"' : 'title="Next page"'}>›</button></div>
+        <div class="cat-foot"><button class="btn small ghost cat-flip prev${page === 0 ? ' gone' : ''}" ${page === 0 ? 'disabled aria-hidden="true" tabindex="-1"' : 'aria-label="Previous page"'}>${CHEVRON_LEFT}Back</button><span>Page ${page + 1} of ${pages}</span><button class="btn small ghost cat-flip next${page >= pages - 1 ? ' gone' : ''}" ${page >= pages - 1 ? 'disabled aria-hidden="true" tabindex="-1"' : 'aria-label="Next page"'}>Next${CHEVRON_RIGHT}</button></div>
       </div>`
     const tabs = mag.querySelector('.cat-tabs')
     if (tabs) {

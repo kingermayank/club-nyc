@@ -1,0 +1,12 @@
+/* "Link Email" on the player card's Account tab (features/accountEmail.ts) */
+.pc-account .link-email { background: linear-gradient(#fff, #eaeef7); color: var(--ink); text-shadow: none; }
+.pc-email { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); flex-basis: 100%; }
+.pc-email-form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) 6px; width: 100%; }
+.pc-email-input { flex: 1 1 180px; min-width: 0; height: 32px; margin: 0; padding: 0 10px; border: 2.5px solid var(--ink); border-radius: 10px; background: #fff; color: var(--ink); font: var(--fs-sm)/1.3 var(--field); outline: none; user-select: text; }
+.pc-email-input:focus-visible { box-shadow: 0 0 0 3px rgba(42, 123, 213, 0.35); }
+.pc-email-input[aria-invalid='true'] { border-color: var(--red); }
+.pc-email-msg { margin: 0; font-size: var(--fs-xs); line-height: 1.35; opacity: 0.75; }
+.pc-email-msg.bad { color: #b3261e; opacity: 1; }
+.pc-email-sent { display: flex; align-items: center; gap: var(--sp-2); padding: 8px 12px; border: 2.5px solid var(--ink); border-radius: 12px; background: linear-gradient(#efffef, #c9f2cf); font-size: var(--fs-sm); line-height: 1.35; }
+.pc-email-sent img { width: 28px; height: 28px; flex: none; object-fit: contain; }
+.pc-email-sent b { font-family: var(--display); font-weight: 400; }

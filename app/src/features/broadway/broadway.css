@@ -1,0 +1,119 @@
+/* ================= a night at the Broadway Theater ================= */
+/* The view is an in-world scene (like the subway car), so positions are literal px on the 1000 x 565 stage. */
+.overlay.bw-overlay { background: #000; }
+/* contain: paint clips the stage like overflow: hidden (the wings, the fog's drift, falling confetti) and keeps the
+   show's painting to itself */
+.bw-show { position: relative; width: 1000px; height: 565px; contain: paint; background: #07040a; color: #fff; font-family: var(--body); animation: bw-in 0.8s ease-out; user-select: none; }
+@keyframes bw-in { from { opacity: 0; } }
+.bw-back { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #2a1638, #07040a 70%); }
+
+/* ---------- the set, behind the arch ---------- */
+.bw-set-wrap { position: absolute; contain: paint; }
+.bw-set { display: block; width: 100%; height: 100%; filter: brightness(0.22) saturate(0.55); transition: filter 1.4s ease; }
+.bw-setfx { position: absolute; inset: 0; pointer-events: none; }
+.lights-full .bw-set { filter: brightness(1); }
+.lights-duet .bw-set { filter: brightness(0.55) saturate(0.9); }
+.lights-chorus .bw-set { filter: brightness(1.08) saturate(1.12); }
+.lights-moment .bw-set { filter: brightness(0.62) saturate(1.05); }
+.lights-blackout .bw-set { filter: brightness(0.06); transition-duration: 0.35s; }
+.lights-bow .bw-set { filter: brightness(0.25); }
+
+/* Phantom: the train's headlight glares out of the tunnel, and purple fog rolls over the stage */
+.bw-headlight { position: absolute; width: 0; height: 0; }
+.bw-headlight::before { content: ''; position: absolute; left: -90px; top: -90px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 250, 220, 0.95), rgba(255, 236, 170, 0.35) 45%, transparent); mix-blend-mode: screen; animation: bw-headlight 2.4s ease-in forwards; }
+@keyframes bw-headlight { 0% { transform: scale(0.15); opacity: 0.2; } 70% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.15); opacity: 0.85; } }
+.bw-fog { position: absolute; left: 0; right: 0; top: 400px; height: 120px; pointer-events: none; opacity: 0; transition: opacity 1.5s;
+  background: radial-gradient(ellipse 22% 42% at 18% 62%, rgba(186, 150, 255, 0.4), transparent 70%), radial-gradient(ellipse 26% 46% at 52% 70%, rgba(160, 120, 240, 0.35), transparent 70%), radial-gradient(ellipse 20% 40% at 84% 60%, rgba(196, 160, 255, 0.4), transparent 70%);
+  animation: bw-fog 7s ease-in-out infinite alternate; }
+@keyframes bw-fog { from { transform: translateX(-30px); } to { transform: translateX(30px); } }
+.bw-phantom.open .bw-fog { opacity: 0.75; }
+.bw-phantom.train .bw-fog { opacity: 1; }
+
+/* The Pizza King: the sun comes up behind the rock */
+.bw-pizza-king .bw-setfx { background: radial-gradient(circle at 50% 42%, rgba(255, 236, 150, 0.85), transparent 38%); mix-blend-mode: screen; opacity: 0; transition: opacity 1.2s; }
+.bw-pizza-king.sunrise .bw-setfx { opacity: 1; }
+
+/* Bagels!: the marquee bulbs on the staircase chase */
+.bw-bagels .bw-setfx { background: radial-gradient(circle, rgba(255, 246, 200, 0.95) 0 2px, transparent 3.5px) 0 0 / 24px 19px; mix-blend-mode: screen; opacity: 0; transition: opacity 0.5s; -webkit-mask-image: linear-gradient(transparent 32%, #000 36%, #000 77%, transparent 80%); mask-image: linear-gradient(transparent 32%, #000 36%, #000 77%, transparent 80%); }
+.bw-bagels.marquee .bw-setfx { opacity: 1; animation: bw-chase 0.5s steps(2) infinite; }
+@keyframes bw-chase { to { background-position: 12px 0; } }
+
+/* ---------- the curtain: the theater's own painted curtain, in two halves that gather to the sides ---------- */
+.bw-curtain { position: absolute; top: 59px; width: 383.05px; height: 390.2px; background: url('/art/cutouts/broadway/curtain.png') 0 0 / 766.1px 390.2px no-repeat; transition: transform 1.6s cubic-bezier(0.6, 0, 0.25, 1), filter 1.2s; filter: brightness(0.8); }
+.bw-curtain.l { left: 67.5px; transform-origin: 0 50%; }
+.bw-curtain.r { left: 450.55px; background-position: -383.05px 0; transform-origin: 100% 50%; }
+.bw-show.open .bw-curtain { transform: scaleX(0.11); }
+.lights-bow .bw-curtain { filter: brightness(1.05); }
+
+/* the arch, the swags, the pillars, the floor and the footlights */
+.bw-frame { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; pointer-events: none; }
+.bw-glow { position: absolute; left: 0; right: 0; bottom: 0; height: 190px; background: radial-gradient(ellipse 58% 64% at 50% 100%, rgba(255, 196, 110, 0.4), transparent 72%); mix-blend-mode: screen; opacity: 0; transition: opacity 1s; pointer-events: none; }
+.lights-full .bw-glow, .lights-chorus .bw-glow, .lights-bow .bw-glow { opacity: 1; }
+.lights-duet .bw-glow, .lights-moment .bw-glow { opacity: 0.55; }
+
+/* ---------- the cast ---------- */
+/* its own stacking context: performers layer by depth among themselves, under the words and the end card */
+.bw-cast { position: absolute; inset: 0; pointer-events: none; isolation: isolate; }
+.bw-actor { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; transition: filter 0.8s; }
+.bw-shadow { position: absolute; left: -26px; top: -7px; width: 52px; height: 14px; border-radius: 50%; background: rgba(10, 4, 16, 0.4); }
+.lights-house .bw-actor, .lights-blackout .bw-actor { filter: brightness(0.2); }
+.lights-moment .bw-actor { filter: brightness(0.85); }
+.bw-actor svg { transform-origin: 50% 96%; }
+.bw-actor.bow svg { animation: bw-bow 1.05s ease-in-out; }
+@keyframes bw-bow { 0%, 100% { transform: none; } 38%, 62% { transform: translateY(5px) scale(1.04, 0.82); } }
+.bw-actor.appear svg { animation: bw-appear 0.7s ease-out; }
+@keyframes bw-appear { from { opacity: 0; transform: translateY(24px) scale(0.9); } }
+
+/* a pool of light on the soloist, the rest of the stage down */
+.bw-dim { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.7s; background: radial-gradient(ellipse 105px 165px at var(--x, 450px) var(--y, 420px), transparent 52%, rgba(6, 0, 16, 0.6) 100%); }
+.bw-show.solo .bw-dim { opacity: 1; }
+
+/* ---------- light beams from the two spotlights on the arch ---------- */
+.bw-lights { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; }
+.bw-beam { position: absolute; left: -64px; top: 0; width: 128px; height: 0; transform-origin: 50% 0; clip-path: polygon(45% 0, 55% 0, 100% 100%, 0 100%); background: linear-gradient(var(--c, rgba(255, 240, 200, 0.5)), rgba(255, 255, 255, 0.04)); opacity: 0; transition: opacity 0.5s; }
+.bw-pool { position: absolute; left: -72px; top: -18px; width: 144px; height: 36px; border-radius: 50%; background: radial-gradient(closest-side, var(--c, rgba(255, 240, 200, 0.5)), transparent); opacity: 0; transition: opacity 0.5s; }
+.bw-beam.on { opacity: 0.85; }
+.bw-pool.on { opacity: 1; }
+.lights-house .bw-pool.on { opacity: 0.9; }
+
+/* ---------- confetti, roses, sparkles ---------- */
+.bw-fx { position: absolute; inset: 0; pointer-events: none; contain: paint; }
+.bw-confetti { position: absolute; top: -20px; width: 8px; height: 13px; animation: bw-fall linear forwards; }
+.bw-petal { position: absolute; top: -20px; width: 12px; height: 9px; border-radius: 60% 0 60% 0; background: #e5283b; box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.18); animation: bw-fall 2.8s ease-in forwards; }
+@keyframes bw-fall { to { transform: translate(var(--dx), 600px) rotate(var(--r)); } }
+.bw-sparkle { position: absolute; width: 10px; height: 10px; margin: -5px; background: #fff3b0; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); animation: bw-sparkle 1.2s ease-out forwards; }
+@keyframes bw-sparkle { from { transform: scale(0.3); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(1.4) rotate(90deg); opacity: 0; } }
+
+/* ---------- words ---------- */
+.bw-title { position: absolute; left: 450px; top: 252px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; white-space: nowrap; transition: opacity 0.7s, transform 0.7s; pointer-events: none; }
+.bw-title small { font: var(--fs-xs)/1.3 var(--display); letter-spacing: 3px; text-transform: uppercase; color: #ffe7a8; }
+.bw-title b { font: 400 var(--fs-7xl)/1.15 var(--display); color: #ffd166; text-shadow: -2px -2px 0 #3a0610, 2px -2px 0 #3a0610, -2px 2px 0 #3a0610, 2px 2px 0 #3a0610, 0 5px 0 #3a0610, 0 0 22px rgba(255, 200, 90, 0.55); }
+.bw-title i { font: var(--fs-lg)/1.4 var(--body); color: #fff4d6; text-shadow: 0 2px 0 rgba(58, 6, 16, 0.9); }
+.title-off .bw-title { opacity: 0; transform: translate(-50%, -62%); }
+.bw-lyric { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); width: 720px; text-align: center; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.bw-lyric span { display: inline-block; padding: 6px 18px 8px; border-radius: 14px; background: rgba(14, 6, 26, 0.8); border: 2px solid rgba(255, 228, 160, 0.28); font: var(--fs-base)/1.4 var(--body); color: #fff4d6; }
+.bw-lyric.on { opacity: 1; }
+
+/* ---------- always on screen: Skip and Leave ---------- */
+.bw-controls { position: absolute; top: 12px; right: 12px; display: flex; gap: var(--sp-2); }
+.bw-controls .btn { min-width: 0; }
+.carded .bw-controls { display: none; }
+
+/* ---------- the end card ---------- */
+.bw-show .bw-card { position: absolute; left: 50%; top: 47%; width: 480px; max-height: none; margin: 0; overflow: visible; transform: translate(-50%, -46%) scale(0.92); opacity: 0; pointer-events: none; animation: none; transition: opacity 0.35s, transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); color: var(--ink); }
+.bw-show .bw-card.on { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
+.bw-show.carded .bw-cast, .bw-show.carded .bw-lights { opacity: 0.5; transition: opacity 0.4s; }
+.bw-card h2 { margin-bottom: var(--sp-1); }
+.bw-card p { margin-bottom: var(--sp-3); }
+.bw-card .bw-reward { display: flex; align-items: center; justify-content: center; gap: var(--sp-2); margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: 12px; background: #fff3c4; font: var(--fs-md)/1.35 var(--body); }
+.bw-card .bw-next { margin: 0; font-size: var(--fs-sm); color: #5a5f7a; }
+.bw-card-actions { display: flex; justify-content: center; gap: var(--sp-2); margin-top: var(--sp-3); }
+.bw-card-actions .btn { white-space: nowrap; }
+
+/* ---------- a provided video, on a screen that drops in front of the set ---------- */
+.bw-screen { position: absolute; left: 100px; top: 58px; width: 700px; height: 394px; border: 5px solid #1b1018; border-radius: 6px; background: #000; box-shadow: 0 0 0 3px #d9a441, 0 18px 40px rgba(0, 0, 0, 0.6); transform: translateY(-470px); transition: transform 1.2s cubic-bezier(0.5, 0, 0.2, 1); }
+.bw-screen video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
+.screen-down .bw-screen { transform: none; }
+
+/* good news during the show (a stamp, XP) waits top left, clear of the surtitles and of Skip / Leave */
+.overlay.open.bw-overlay ~ .toasts { top: 12px; bottom: auto; left: 12px; transform: none; flex-direction: column; align-items: flex-start; }

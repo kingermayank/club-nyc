@@ -65,6 +65,12 @@ export interface SaveState {
   daily: { day: string; picks: string[]; base: Record<string, number>; places: string[]; done: string[]; bonus: boolean }
   /** postcard inbox (features/mail.ts) */
   mail?: import('./features/mail').Postcard[]
+  /** total XP (data/levels.ts turns it into a level and title); online it mirrors the server's */
+  xp?: number
+  /** offline XP bookkeeping (social/levels.ts): things that pay once, and today's counts */
+  xpLog?: { refs: string[]; day: string; counts: Record<string, number>; today: number }
+  /** fridge magnets from the Brooklyn Bridge souvenir stand (data/souvenirs.ts), shown on your apartment fridge */
+  magnets?: string[]
 }
 
 export const freshSave = (): SaveState => ({

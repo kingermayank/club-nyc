@@ -191,6 +191,69 @@ const MIGRATIONS = [
    ALTER TABLE users ADD COLUMN consent_at INTEGER;`,
   // v8: each accepted shift's score (Slice Factory: pizzas made), so the landing page can count the whole city's pizzas
   `ALTER TABLE game_runs ADD COLUMN score INTEGER;`,
+  // v9: the launch waitlist (landing page "coming soon" mode): one row per email, lowercased
+  `CREATE TABLE waitlist (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     email TEXT NOT NULL UNIQUE,
+     source TEXT,
+     referrer TEXT,
+     confirm_hash TEXT,
+     confirmed_at INTEGER,
+     notified_at INTEGER,
+     unsubscribed_at INTEGER,
+     created_at INTEGER NOT NULL
+   );
+   CREATE INDEX waitlist_created ON waitlist(created_at);`,
+  // v10: levels: XP only goes up (users.xp is the running total; xp_log says where every point came from)
+  `ALTER TABLE users ADD COLUMN xp INTEGER NOT NULL DEFAULT 0;
+   CREATE TABLE xp_log (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     user_id TEXT NOT NULL,
+     amount INTEGER NOT NULL,
+     reason TEXT NOT NULL,
+     ref TEXT,
+     day TEXT NOT NULL,
+     at INTEGER NOT NULL
+   );
+   CREATE INDEX xp_log_user_day ON xp_log(user_id, day, reason);
+   CREATE UNIQUE INDEX xp_log_once ON xp_log(user_id, reason, ref) WHERE ref IS NOT NULL;`,
+  // v11: multiplayer mini-games: one row per match, one per player in it (weekly boards, history, XP)
+  `CREATE TABLE mp_matches (
+     id TEXT PRIMARY KEY,
+     game TEXT NOT NULL,
+     room TEXT NOT NULL,
+     mode TEXT,
+     players INTEGER NOT NULL,
+     started_at INTEGER NOT NULL,
+     ended_at INTEGER,
+     data TEXT
+   );
+   CREATE INDEX mp_matches_game ON mp_matches(game, ended_at);
+   CREATE TABLE mp_results (
+     match_id TEXT NOT NULL,
+     user_id TEXT NOT NULL,
+     game TEXT NOT NULL,
+     place INTEGER NOT NULL,
+     score INTEGER NOT NULL,
+     team TEXT,
+     won INTEGER NOT NULL DEFAULT 0,
+     day TEXT NOT NULL,
+     week TEXT NOT NULL,
+     at INTEGER NOT NULL,
+     PRIMARY KEY (match_id, user_id)
+   );
+   CREATE INDEX mp_results_board ON mp_results(game, week, user_id);
+   CREATE INDEX mp_results_user ON mp_results(user_id, at);`,
+  // v12: email sign-in: one-time links (only a hash of the token is stored); an email identity lives in identities
+  `CREATE TABLE email_logins (
+     token_hash TEXT PRIMARY KEY,
+     email TEXT NOT NULL,
+     guest_id TEXT,
+     expires_at INTEGER NOT NULL,
+     used_at INTEGER,
+     created_at INTEGER NOT NULL
+   );
+   CREATE INDEX email_logins_email ON email_logins(email, created_at);`,
 ]
 
 function migrate() {
@@ -273,6 +336,8 @@ export interface UserRow {
   muted_until: number | null
   mute_reason: string | null
   name_reset: number
+  /** total XP (app/src/data/levels.ts turns it into a level and a title) */
+  xp: number
 }
 
 export const publicUser = (u: UserRow) => ({
@@ -283,4 +348,5 @@ export const publicUser = (u: UserRow) => ({
   title: u.title ?? '',
   memberSince: new Date(u.created_at).toISOString().slice(0, 10),
   memberNo: u.member_no ?? 0,
+  xp: u.xp ?? 0,
 })

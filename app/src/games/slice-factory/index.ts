@@ -920,7 +920,7 @@ class SliceFactory {
   private bakeGood(gain: number, combo: number, sweet: boolean) {
     this.flare('good')
     this.snd.sizzle()
-    this.ctx.sfx.ding()
+    this.snd.ovenDing()
     const box = sprite('pizza-box', 'box', this.counter, 104)
     at(box, BOX.x, BOX.y)
     box.animate(
@@ -957,6 +957,7 @@ class SliceFactory {
           ],
           { duration: 300, delay: 120, easing: 'ease-out' },
         )
+        this.snd.box()
         this.later(0.14, () => {
           this.ctx.sfx.register()
           this.shownMade++
@@ -979,6 +980,7 @@ class SliceFactory {
   private bakeBad(why: string, slot: number) {
     this.flare('bad')
     this.smoke(MOUTH.x - 6, MOUTH.y - 14, 10)
+    this.snd.burnt()
     this.snd.sad()
     this.shake()
     this.callout(why)
@@ -1082,8 +1084,12 @@ class SliceFactory {
     const k = e.key.toLowerCase()
     const find = (key: string) => this.sources.find((s) => s.key === key)
     let src: Source | undefined
-    if (k === 'escape') this.setTool(null)
-    else if (k === 'q') src = find('sauce-red')
+    if (k === 'escape') {
+      // Escape puts a held tool down (and only then is it the game's: with empty hands it asks to leave)
+      if (!this.tool) return
+      e.preventDefault()
+      this.setTool(null)
+    } else if (k === 'q') src = find('sauce-red')
     else if (k === 'w') src = find('sauce-white')
     else if (k === 'e') src = find('cheese')
     else if (k >= '1' && k <= '6') src = find(TOPPINGS[Number(k) - 1].id)

@@ -150,7 +150,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
     }
 
     if (s === 'look') {
-      put(el('h2', '', 'Who’s walking into Manhattan?'), el('p', 'cr-sub', 'Start from a look, or make it yours. You can change all of this later from your player card.'))
+      put(el('h2', '', 'Who’s Walking into Manhattan?'), el('p', 'cr-sub', 'Start from a look, or make it yours. You can change all of this later from your player card.'))
       const presets = el('div', 'cr-presets')
       PRESETS.forEach((p) => {
         const b = el('button', 'cr-preset', headPortrait(p, 'smile'))
@@ -182,7 +182,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
         setLook(l)
       }, { colour: false }))
       drawRing()
-      const nx = el('button', 'btn go', 'That’s me →')
+      const nx = el('button', 'btn go', 'That’s Me →')
       nx.onclick = () => {
         sfx.pop()
         track('name_screen', { once: true })
@@ -192,7 +192,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
     }
 
     if (s === 'name') {
-      put(el('h2', '', 'What do New Yorkers call you?'), el('p', 'cr-sub', 'Spin a name or type your own. It goes on your name tag.'))
+      put(el('h2', '', 'What Do New Yorkers Call You?'), el('p', 'cr-sub', 'Spin a name or type your own. It goes on your name tag.'))
       // two-wheel NYC name picker: every combination is pre-approved and fits the 14-character limit
       const wheels = el('div', 'cr-wheels')
       const wheel = (list: string[], get: () => number, setIdx: (i: number) => void) => {
@@ -328,7 +328,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
         name = cleanName(input.value)
         go('look')
       }
-      const nx = el('button', 'btn go', 'Walk into the city →')
+      const nx = el('button', 'btn go', 'Walk into the City →')
       const submit = () => {
         if (!ok()) return
         if (!opts.claim) return finish()

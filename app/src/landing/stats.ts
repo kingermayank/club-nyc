@@ -1,9 +1,11 @@
 /**
- * "The city so far": real totals from the server (GET /api/stats, re-counted once a minute), shown on a departures
+ * "The City So Far": real totals from the server (GET /api/stats, re-counted once a minute), shown on a departures
  * board whose digits flip into place when you scroll to it.
  *  - New Yorkers who've moved in (everyone who's made one), and the number you'd be.
  *  - Pizzas made at Slice Factory, and this week's top slicer.
  *  - Who's out right now, only once the city is busy (a handful of people reads as "empty").
+ * Before launch (LAUNCH_MODE=waitlist) the same board says "Next Stop: Club NYC": the doors open SOON, how many people
+ * are in line (GET /api/waitlist/count, only once that's a real crowd) and how many places are waiting.
  * Nothing is made up: small numbers get honest copy ("NEW", "HIRING", "Could be you"), and if the numbers can't be fetched
  * the section stays hidden.
  */
@@ -73,7 +75,8 @@ function card(c: Card): HTMLElement {
   const row = make('span', 'flap-row')
   row.setAttribute('aria-hidden', 'true')
   for (const ch of c.value) {
-    if (ch === ',') row.append(make('i', '', ','))
+    // commas and the plus in "20+" sit between the flaps instead of flipping
+    if (ch === ',' || ch === '+') row.append(make('i', '', ch))
     else {
       const flap = make('b', '', ch)
       flap.dataset.to = ch
@@ -109,15 +112,31 @@ function flip(board: HTMLElement) {
   })
 }
 
-export function cityStats() {
+/**
+ * Before launch: when the doors open, how many people are in line (only once the server says it's a real crowd; it
+ * sends null below that) and the places waiting for them. The first and last are facts, not live numbers.
+ */
+function soonCards(inLine: number | null): Card[] {
+  const out: Card[] = [{ icon: ['door', 110, 128], value: 'SOON', label: 'The doors open', sub: ['Everyone on the waitlist ', 'hears first'] }]
+  if (inLine) out.push({ icon: ['friends', 128, 90], value: fmt(inLine), label: inLine === 1 ? 'New Yorker in line' : 'New Yorkers in line', sub: ['You’d be ', `#${fmt(inLine + 1)}`] })
+  out.push({ icon: ['map', 128, 113], value: '20+', label: 'Places to explore', sub: ['From Liberty Island to ', 'Central Park'] })
+  return out
+}
+
+export function cityStats(soon = false) {
   const section = document.querySelector<HTMLElement>('.so-far')
   const board = section?.querySelector<HTMLElement>('.board')
   if (!section || !board) return
-  fetch('/api/stats')
-    .then((r) => (r.ok ? (r.json() as Promise<CityStats>) : null))
-    .then((s) => {
-      if (!s || typeof s.newYorkers !== 'number') return
-      const list = cards(s)
+  const load: Promise<Card[] | null> = soon
+    ? fetch('/api/waitlist/count')
+        .then((r) => (r.ok ? (r.json() as Promise<{ count: number | null }>) : null))
+        .then((r) => (r ? soonCards(typeof r.count === 'number' && r.count > 0 ? r.count : null) : null))
+    : fetch('/api/stats')
+        .then((r) => (r.ok ? (r.json() as Promise<CityStats>) : null))
+        .then((s) => (s && typeof s.newYorkers === 'number' ? cards(s) : null))
+  load
+    .then((list) => {
+      if (!list) return
       board.classList.toggle('two', list.length === 2)
       board.replaceChildren(...list.map(card))
       section.hidden = false

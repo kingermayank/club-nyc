@@ -9,7 +9,9 @@ import { world } from '../engine/world'
 import type { Actor } from '../engine/actor'
 import { TEAMS, teamText, type TeamId } from '../social/teams'
 import { isFriend } from '../social/friends'
-import { refreshTag, titleName } from '../engine/world'
+import { refreshTag } from '../engine/world'
+import { myLevel } from '../social/levels'
+import { levelOf } from '../data/levels'
 import { STAMPS } from '../data/stamps'
 import { nycDay, weekStart } from '../data/economy'
 import { link } from '../net/link'
@@ -29,18 +31,17 @@ export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
       <div class="pc-name">${save.name}</div>
       ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
       <div class="pc-stats"><span><img src="/art/icons/coin.png" alt="">${save.coins}</span><span><img src="/art/icons/stamps.png" alt="">${save.stamps.filter((id) => STAMPS[id]).length}/${Object.keys(STAMPS).length}</span><span><img src="/art/icons/wave.png" alt="">${save.friends.length}</span></div>`
-    // pick a title from the stamps you’ve earned — other players see it on your card when they click you
-    const pickWrap = el('label', 'pc-title-pick', '<span>Title</span>')
-    const sel = document.createElement('select')
-    sel.innerHTML = `<option value="">None</option>` + save.stamps.filter((id) => STAMPS[id]).map((id) => `<option value="${id}" ${save.title === id ? 'selected' : ''}>${STAMPS[id].name}</option>`).join('')
-    sel.onchange = () => {
-      save.title = sel.value
-      persist()
-      refreshTag(world.player)
-      sfx.pop()
-    }
-    pickWrap.append(sel)
-    left.append(pickWrap)
+    // your level and title come from XP (everything you do in the city earns it); titles aren't picked any more
+    const l = myLevel()
+    left.append(
+      el(
+        'div',
+        'pc-level',
+        `<div class="pc-level-head"><b>Level ${l.level} · ${l.title}</b><span>${l.xp.toLocaleString('en-US')} XP</span></div>` +
+          `<div class="pc-level-bar" role="progressbar" aria-valuemin="${l.floor}" aria-valuemax="${l.next}" aria-valuenow="${l.xp}"><i style="width:${Math.round(l.progress * 100)}%"></i></div>` +
+          `<small>${(l.next - l.xp).toLocaleString('en-US')} XP to Level ${l.level + 1}: ${l.nextTitle}</small>`,
+      ),
+    )
     // (your account, invites and sign-in live in the Account tab on the right: the left side is just you)
   }
   const setLook = (look: Look) => {
@@ -115,6 +116,15 @@ export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
   drawLeft()
   drawRight()
   openOverlay(card)
+  // the left side can change while the card is open (a level-up, coins from a quest, a new stamp): keep it current
+  const shown = () => `${save.coins}|${save.stamps.length}|${save.friends.length}|${save.xp ?? 0}|${save.team}`
+  let last = shown()
+  const live = window.setInterval(() => {
+    if (!card.isConnected) return clearInterval(live)
+    if (shown() === last) return
+    last = shown()
+    drawLeft()
+  }, 800)
 }
 
 export const openWardrobe = () => openPlayerCard('items')
@@ -189,7 +199,7 @@ export function npcCard(a: Actor) {
       ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
       ${r ? `<div class="pc-bio">${r.title ? `<b>${r.title}</b> · ` : ''}${r.bio}</div>` : ''}
       ${link.account ? '<span class="pc-local">City local · computer-run</span>' : ''}</div>
-    <div class="pc-right"><h3>Their style</h3><div class="pc-grid small">${items
+    <div class="pc-right"><h3>Their Style</h3><div class="pc-grid small">${items
       .map((id) => {
         const d = ITEM[id]
         if (!d) return ''
@@ -251,13 +261,12 @@ export function remoteCard(a: Actor) {
   const id = rem.id
   sfx.click()
   const team = TEAMS[rem.team as TeamId]
-  const title = titleName(rem.title)
   const card = el('div', 'player-card npc remote')
   card.innerHTML = `<div class="pc-left"><div class="pc-portrait">${avatarPortrait(a.look)}</div><div class="pc-name">${esc(a.name)}${link.friends.has(id) ? ' ★' : ''}</div>
       ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
-      ${title ? `<div class="pc-bio"><b>${title}</b></div>` : ''}
+      <span class="pc-level-chip" hidden></span>
       <div class="pc-meta"><span class="pc-live">● Here now</span></div></div>
-    <div class="pc-right"><h3>Their style</h3><div class="pc-grid small">${styleGrid(a.look)}</div></div>`
+    <div class="pc-right"><h3>Their Style</h3><div class="pc-grid small">${styleGrid(a.look)}</div></div>`
   const actions = el('div', 'pc-actions')
   const safety = el('div', 'pc-safety')
   card.querySelector('.pc-right')!.append(actions, safety)
@@ -284,6 +293,12 @@ export function remoteCard(a: Actor) {
     }
     if (!card.isConnected) return
     if (info) {
+      // their level and title (from their XP, which the server keeps)
+      const l = levelOf(info.user.xp ?? 0)
+      const chip = card.querySelector<HTMLElement>('.pc-level-chip')!
+      chip.innerHTML = `<b>${l.level}</b>${l.title}`
+      chip.title = `Level ${l.level}`
+      chip.hidden = false
       const since = new Date(info.user.memberSince + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
       card.querySelector('.pc-meta')!.innerHTML = `<span class="pc-live">● Here now</span><span>New Yorker since ${since}</span><span>❤️ ${info.likes} · 🏠 ${info.furniture.length} things</span>`
     }
@@ -319,11 +334,11 @@ export function remoteCard(a: Actor) {
     btn(safety, '🚩 Report', 'tiny', async () => {
       const { choose } = await import('../engine/ui')
       const reason = await choose(`Report ${esc(a.name)}`, 'What’s going on? Moderators see this report and their recent chat.', [
-        { label: 'Mean or bullying', value: 'bullying' },
-        { label: 'Inappropriate chat', value: 'chat' },
-        { label: 'Inappropriate name or outfit', value: 'name' },
-        { label: 'Asking for personal info', value: 'personal-info' },
-        { label: 'Something else', value: 'other' },
+        { label: 'Mean or Bullying', value: 'bullying' },
+        { label: 'Inappropriate Chat', value: 'chat' },
+        { label: 'Inappropriate Name or Outfit', value: 'name' },
+        { label: 'Asking for Personal Info', value: 'personal-info' },
+        { label: 'Something Else', value: 'other' },
       ])
       if (reason) void mp.report(id, a.name, reason)
     })
@@ -338,7 +353,7 @@ export function remoteCard(a: Actor) {
   void draw()
 }
 
-/** Your account: guests can attach Google / X so their New Yorker follows them anywhere. */
+/** Your account: guests can attach Google / X / Discord / their email so their New Yorker follows them anywhere. */
 function accountRow(): HTMLElement {
   const box = el('div', 'pc-account')
   void (async () => {
@@ -346,7 +361,7 @@ function accountRow(): HTMLElement {
     const me = account.me
     if (!me) return
     const linked = me.providers.filter((p) => p !== 'guest')
-    const label = (p: string) => (p === 'google' ? 'Google' : p === 'x' ? 'X' : p === 'discord' ? 'Discord' : p)
+    const label = (p: string) => (p === 'google' ? 'Google' : p === 'x' ? 'X' : p === 'discord' ? 'Discord' : p === 'email' ? 'Email' : p)
     const week = Math.max(me.week ?? 0, save.week?.start === weekStart(nycDay()) ? save.week.days : 0)
     if (me.memberNo)
       box.append(
@@ -356,20 +371,20 @@ function accountRow(): HTMLElement {
     box.append(row)
     if (linked.length) {
       row.append(el('span', 'pc-acct-ok', `✓ Saved with ${linked.map(label).join(' & ')}`))
-      const out = el('button', 'btn tiny', 'Sign out')
+      const out = el('button', 'btn tiny', 'Sign Out')
       out.onclick = () => void signOut()
       row.append(out)
     } else {
       const note = el('span', 'pc-acct-guest', 'Guest account. Link one to keep your New Yorker on any device:')
       row.append(note)
-      let providers = { google: false, x: false, discord: false }
+      let providers = { google: false, x: false, discord: false, email: false }
       try {
         providers = await rest('/auth/providers')
       } catch {
         /* buttons stay disabled */
       }
       // no sign-in switched on (or unreachable): say what a guest account means instead of offering nothing
-      if (!import.meta.env.DEV && !providers.google && !providers.x && !providers.discord)
+      if (!import.meta.env.DEV && !providers.google && !providers.x && !providers.discord && !providers.email)
         note.textContent = 'Guest account: your New Yorker is saved to this browser. Sign-in options are coming soon.'
       for (const p of ['google', 'x', 'discord'] as const) {
         if (!providers[p] && !import.meta.env.DEV) continue
@@ -379,11 +394,17 @@ function accountRow(): HTMLElement {
         b.onclick = () => (location.href = `/api/auth/${p}`)
         row.append(b)
       }
+      // email: a one-time link to your inbox links it to this New Yorker (features/accountEmail.ts)
+      if (providers.email) {
+        const b = el('button', 'btn tiny link-email', 'Link Email')
+        b.onclick = () => void import('./accountEmail').then((m) => m.openLinkEmail(box, row, me.name))
+        row.append(b)
+      }
     }
     const extras = el('div', 'pc-acct-row')
-    const inv = el('button', 'btn tiny go', '💌 Invite friends')
+    const inv = el('button', 'btn tiny go', '💌 Invite Friends')
     inv.onclick = () => void import('./invite').then((m) => m.openInvite())
-    const del = el('button', 'btn tiny ghost pc-delete', 'Delete account…')
+    const del = el('button', 'btn tiny ghost pc-delete', 'Delete Account…')
     del.onclick = () => void deleteAccount(me.name)
     extras.append(inv, del)
     box.append(extras)
@@ -393,14 +414,14 @@ function accountRow(): HTMLElement {
 
 /** Leaving for good: type your name to confirm, and everything is removed. */
 async function deleteAccount(name: string) {
-  const p = el('div', 'panel', `<div class="panel-art">🗑️</div><h2>Delete your account?</h2>
+  const p = el('div', 'panel', `<div class="panel-art">🗑️</div><h2>Delete Your Account?</h2>
     <p>This permanently removes <b>${esc(name)}</b>: your New Yorker, coins, wardrobe, apartment, friends and scores. It can’t be undone.</p>
     <p class="muted">Type your name to confirm.</p>`)
   const input = document.createElement('input')
   input.className = 'name-input'
   input.placeholder = name
   input.onkeydown = (e) => e.stopPropagation()
-  const go = el('button', 'btn danger', 'Delete forever')
+  const go = el('button', 'btn danger', 'Delete Forever')
   go.disabled = true
   input.oninput = () => (go.disabled = input.value.trim() !== name)
   go.onclick = async () => {
@@ -414,7 +435,7 @@ async function deleteAccount(name: string) {
       go.disabled = false
     }
   }
-  const keep = el('button', 'btn ghost', 'Keep my account')
+  const keep = el('button', 'btn ghost', 'Keep My Account')
   keep.onclick = () => closeOverlay()
   p.append(input, go, keep, closeButton())
   openOverlay(p)

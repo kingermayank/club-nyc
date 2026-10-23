@@ -70,7 +70,10 @@ class Server:
     def start(self):
         env = {**os.environ, 'NODE_ENV': 'production', 'PORT': str(PORT), 'PUBLIC_URL': BASE, 'DB_PATH': os.path.join(self.db_dir, 'launch.db'),
                'ADMIN_TOKEN': TOKEN, 'CONTACT_EMAIL': 'moderators@example.test', 'REFERRAL_ACTIVATION_MS': '12000', 'PLAYTIME_TICK_MS': '3000',
-               'BACKUP_DIR': os.path.join(self.db_dir, 'backups')}
+               'BACKUP_DIR': os.path.join(self.db_dir, 'backups'),
+               # production defaults to the launch waitlist (Coming Soon); these checks are about the open city
+               # (tools/waitlist_test.py covers waitlist mode)
+               'LAUNCH_MODE': 'open'}
         self.proc = subprocess.Popen(['npx', 'tsx', 'src/index.ts'], cwd=os.path.join(ROOT, 'server'), env=env, stdout=self.log, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
         for _ in range(60):
             try:
@@ -161,8 +164,11 @@ async def main():
         check(st2 == 200 and '/src/' not in game and 'noindex' in game and 'data-play="hero"' not in game, 'the game is served at /play (and asks search engines to index the landing page instead)', st2)
         check(http('/no-such-page')[0] == 404, 'unknown addresses answer 404 (with the landing page), so search engines don’t index them')
         robots, sitemap = http('/robots.txt')[1], http('/sitemap.xml')[1]
-        check(f'Sitemap: {BASE}/sitemap.xml' in robots and 'Disallow: /api/' in robots and f'<loc>{BASE}/</loc>' in sitemap and '/play' not in sitemap,
-              'robots.txt points to a sitemap of the landing and policy pages (not the game or the API)')
+        locs = [l[len(BASE):] for l in re.findall(r'<loc>([^<]+)</loc>', sitemap)]
+        check(f'Sitemap: {BASE}/sitemap.xml' in robots and 'Disallow: /api/' in robots and '/' in locs and '/rules.html' in locs
+              and not any(l == '/play' or l.startswith(('/play?', '/play/', '/api', '/join')) for l in locs),
+              'robots.txt points to a sitemap of the landing, policy and help pages (not the game or the API)', [l for l in locs if not l.startswith('/help/')])
+        check(any(l.startswith('/help/') for l in locs) == os.path.exists(os.path.join(ROOT, 'app/dist/help/search-index.json')), 'the sitemap lists the Help Center pages', sum(l.startswith('/help/') for l in locs))
         check(http('/og/invite.jpg')[0] == 200 and http('/rules.html')[0] == 200 and http('/privacy.html')[0] == 200 and http('/terms.html')[0] == 200, 'preview images and the rules / privacy / terms pages are served')
 
         # ---------- security + caching headers ----------
@@ -207,7 +213,8 @@ async def main():
             await A.goto(BASE + '/play', wait_until='networkidle')
             await A.wait_for_selector('.si-live.busy, .si-live.quiet', timeout=8000)
             live = await A.evaluate("document.querySelector('.si-live')?.innerText ?? ''")
-            check('city' in live.lower() and not await A.evaluate("!!document.querySelector('.si-founding')"), 'the front door shows who’s in the city (no founding-member countdown)', live)
+            # (an empty city says so too: "Just the pigeons so far")
+            check(('city' in live.lower() or 'pigeons' in live.lower()) and not await A.evaluate("!!document.querySelector('.si-founding')"), 'the front door shows who’s in the city (no founding-member countdown)', live)
             await A.click('.si-play')
             await A.wait_for_selector('.creator-card', timeout=10000)
             await A.click('.creator-actions .btn.go')  # screen 1: That's me
@@ -468,7 +475,7 @@ async def main():
             await A.click('.consent-panel .btn.go')
             await A.wait_for_selector('.online-pill.on', timeout=15000)
             me = (await api(A, '/me'))['body']['user']
-            check('head back in' in asked and me.get('consentVersion') == POLICY, 'after a policy update, a returning player agrees to the new version before heading in', (asked, me.get('consentVersion')))
+            check('head back in' in asked.lower() and me.get('consentVersion') == POLICY, 'after a policy update, a returning player agrees to the new version before heading in', (asked, me.get('consentVersion')))
             check(not csp_errors, 'no Content-Security-Policy violations in any browser all run', csp_errors[:3])
             await b.close()
     finally:

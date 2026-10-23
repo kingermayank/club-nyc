@@ -322,6 +322,11 @@ const FACE: ItemDef[] = [
     draw: (c) => (c.back ? '' : R(-19 + c.fx, -106, 15, 11, 4, '#1f2433', 2.4) + R(4 + c.fx, -106, 15, 11, 4, '#1f2433', 2.4) + L(-4 + c.fx, -102, 4 + c.fx, -102, O, 2.4) + L(-15 + c.fx, -103, -11 + c.fx, -103, '#8fa6d8', 1.6) + L(8 + c.fx, -103, 12 + c.fx, -103, '#8fa6d8', 1.6)),
   },
   {
+    // the SoHo street vendor's "designer" pair: sold only at his table, so no shop lists it
+    id: 'designer-shades', name: '“Designer” Shades', slot: 'face', price: 5, shop: 'street',
+    draw: (c) => (c.back ? '' : R(-20 + c.fx, -107, 16, 12, 5, '#3a2618', 2.4) + R(4 + c.fx, -107, 16, 12, 5, '#3a2618', 2.4) + L(-4 + c.fx, -102, 4 + c.fx, -102, '#e2b04a', 2.4) + C(-17 + c.fx, -104, 1.3, '#e2b04a', 0) + C(17 + c.fx, -104, 1.3, '#e2b04a', 0)),
+  },
+  {
     id: 'round-glasses', name: 'Round Specs', slot: 'face', price: 15, shop: 'thread',
     draw: (c) => (c.back ? '' : `<circle cx="${-11 + c.fx}" cy="-99" r="8" fill="rgba(255,255,255,.18)" stroke="${O}" stroke-width="2.2"/><circle cx="${11 + c.fx}" cy="-99" r="8" fill="rgba(255,255,255,.18)" stroke="${O}" stroke-width="2.2"/>` + L(-3 + c.fx, -100, 3 + c.fx, -100, O, 2.2)),
   },
@@ -366,6 +371,8 @@ const NECK: ItemDef[] = [
 // ---------- in hand (drawn around the right hand at 0,0) ----------
 const HAND: ItemDef[] = [
   { id: 'coffee', name: 'Deli Coffee', slot: 'hand', price: 3, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#2d6fd1') + Pn('M -5.6 1 L 5.6 1 L 5.4 4 L -5.4 4 Z', '#fff') + R(-7, -7, 14, 4, 2, '#f4f4f8', 1.6) },
+  // Bean There's latte: a white cup, a cardboard sleeve, and a name scribbled on it (never quite yours)
+  { id: 'latte', name: 'Oat Latte', slot: 'hand', price: 4, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#ffffff') + Pn('M -5.7 2 L 5.7 2 L 5.4 7 L -5.4 7 Z', '#b9875a') + R(-7, -7, 14, 4, 2, '#3a3f4b', 1.6) + `<path d="M -3.5 -1 q 1.2 -1.6 2.4 0 t 2.4 0 t 2.4 0" fill="none" stroke="${O}" stroke-width="1"/>` },
   { id: 'pizza-slice', name: 'Dollar Slice', slot: 'hand', price: 1, shop: 'pizza', draw: () => P('M -3 2 L 18 -10 Q 20 -2 16 6 Z', '#ffd36b') + P('M 16 6 Q 20 -2 18 -10 L 21 -11 Q 24 -1 19 8 Z', '#d99a45') + C(10, -2, 1.8, '#d6303a', 1) + C(14, 2, 1.6, '#d6303a', 1) },
   { id: 'bagel', name: 'Everything Bagel', slot: 'hand', price: 2, shop: 'coffee', draw: () => E(6, 0, 10, 8, '#d69a52') + E(6, 0, 3, 2.2, '#fffaf0', 1.6) + [[1, -4], [10, -4], [12, 2], [2, 3]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="${O}"/>`).join('') },
   { id: 'hotdog', name: 'Hot Dog', slot: 'hand', price: 2, shop: 'street', draw: () => R(-4, -4, 24, 9, 4.5, '#f0c27b') + R(-6, -2, 28, 5, 2.5, '#c8553d', 2) + `<path d="M -3 -0.5 Q 0 -3 3 -0.5 T 9 -0.5 T 15 -0.5 T 20 -0.5" fill="none" stroke="#ffd23f" stroke-width="1.6"/>` },
@@ -393,9 +400,20 @@ const globe = (inner: string) => () =>
   R(-8, 4, 20, 7, 2.5, '#8a5a35') + C(2, -6, 11, 'rgba(205,236,255,.92)') + inner +
   `<circle cx="-4" cy="-10" r="1" fill="#fff"/><circle cx="7" cy="-3" r="1.1" fill="#fff"/><circle cx="1" cy="-14" r=".9" fill="#fff"/><circle cx="-5" cy="-2" r=".8" fill="#fff"/>` +
   `<path d="M -5 -13 Q -2 -16 2 -15" stroke="#fff" stroke-width="1.5" fill="none" opacity=".9"/>`
-const toyCar = (body: string, extra: string) => () =>
-  P('M -8 2 L -8 -4 Q -7 -7 -3 -7 L -1 -11 L 9 -11 L 12 -7 Q 16 -7 16 -3 L 16 2 Z', body, 'stroke-width="2"') + extra +
-  C(-3, 3, 2.8, '#2b2f3a', 1.6) + C(11, 3, 2.8, '#2b2f3a', 1.6) + R(0, -10, 4, 3, 0.6, '#cfe8ff', 1) + R(6, -10, 4, 3, 0.6, '#cfe8ff', 1)
+/** a little side-view toy car: cabin, two windows, head- and tail-light, hubcaps (extra = side stripe, roof = sign) */
+const toyCar = (body: string, extra: string, roof = '') => () =>
+  roof +
+  P('M -4 -6 L -1 -12 L 9 -12 L 12 -6 Z', body, 'stroke-width="2"') +
+  P('M -9 1 L -9 -4 Q -9 -6 -7 -6 L 15 -6 Q 17 -6 17 -4 L 17 1 Q 17 2 16 2 L -8 2 Q -9 2 -9 1 Z', body, 'stroke-width="2"') +
+  Pn('M -2.4 -7 L -0.2 -10.8 L 3.4 -10.8 L 3.4 -7 Z', '#cfe8ff') + Pn('M 5 -7 L 5 -10.8 L 8.2 -10.8 L 10.4 -7 Z', '#cfe8ff') +
+  extra +
+  R(15.2, -4.6, 2.2, 2, 0.6, '#fff6a8', 0.8) + R(-9.8, -4.6, 1.8, 2, 0.5, '#e8483f', 0.8) +
+  C(-3, 2, 3.3, '#2b2f3a', 1.6) + C(-3, 2, 1.2, '#c9ccd6', 0.8) + C(11, 2, 3.3, '#2b2f3a', 1.6) + C(11, 2, 1.2, '#c9ccd6', 0.8)
+const checkers = (y: number, from: number, to: number) => {
+  let out = ''
+  for (let x = from, i = 0; x < to; x += 2, i++) out += `<rect x="${x}" y="${y}" width="2" height="1.6" fill="${i % 2 ? '#fff' : O}"/><rect x="${x}" y="${y + 1.6}" width="2" height="1.6" fill="${i % 2 ? O : '#fff'}"/>`
+  return out
+}
 
 const SOUVENIRS: ItemDef[] = [
   { id: 'globe-empire', name: 'Empire State Globe', slot: 'hand', price: 8, shop: 'iloveny', draw: globe(P('M 0 3 L 0 -7 L 1 -9 L 1 -13 L 2 -17 L 3 -13 L 3 -9 L 4 -7 L 4 3 Z', '#c9ccd6', 'stroke-width="1"')) },
@@ -403,10 +421,10 @@ const SOUVENIRS: ItemDef[] = [
   { id: 'globe-taxi', name: 'Taxi Snow Globe', slot: 'hand', price: 8, shop: 'iloveny', draw: globe(R(-5, -6, 14, 6, 2, '#ffcf1f', 1) + R(-1, -9, 6, 3, 1, '#ffcf1f', 1) + `<rect x="-4" y="-4" width="12" height="1.5" fill="${O}"/>` + C(-2, 0, 1.6, O, 0) + C(6, 0, 1.6, O, 0)) },
   { id: 'globe-bridge', name: 'Brooklyn Bridge Globe', slot: 'hand', price: 10, shop: 'iloveny', draw: globe(R(-5, -12, 3, 14, 0.5, '#b88c5a', 1) + R(5, -12, 3, 14, 0.5, '#b88c5a', 1) + `<path d="M -8 -3 Q -3.5 -14 -3.5 -12 M 6.5 -12 Q 2 -4 -2 -12 M 6.5 -12 Q 12 -4 12 -3" fill="none" stroke="${O}" stroke-width="1"/>` + L(-8, 0, 12, 0, '#b88c5a', 2)) },
   { id: 'globe-pizza', name: 'Pizza Slice Globe', slot: 'hand', price: 6, shop: 'iloveny', draw: globe(P('M -4 2 L 2 -14 L 8 2 Z', '#ffd36b', 'stroke-width="1"') + P('M -4 2 L 8 2 L 8 4 L -4 4 Z', '#d99a45', 'stroke-width="1"') + C(1, -4, 1.4, '#d6303a', 0.6) + C(4, -1, 1.2, '#d6303a', 0.6)) },
-  { id: 'toy-taxi', name: 'Toy Yellow Cab', slot: 'hand', price: 6, shop: 'iloveny', draw: toyCar('#ffcf1f', `<rect x="-7" y="-4" width="22" height="1.6" fill="${O}"/>` + R(2, -14, 6, 3, 1, '#fff', 1)) },
-  { id: 'toy-checker', name: 'Vintage Checker Cab', slot: 'hand', price: 9, shop: 'iloveny', draw: toyCar('#f2c14e', [-6, -2, 2, 6, 10].map((x, i) => `<rect x="${x}" y="-4" width="2" height="2" fill="${i % 2 ? '#fff' : O}"/><rect x="${x + 2}" y="-4" width="2" height="2" fill="${i % 2 ? O : '#fff'}"/>`).join('')) },
-  { id: 'toy-bus', name: 'Mini City Bus', slot: 'hand', price: 7, shop: 'iloveny', draw: () => R(-9, -13, 26, 14, 3, '#f4f6fb', 2) + `<rect x="-8" y="-5" width="24" height="3" fill="#2a7bd5"/>` + [0, 5, 10].map((x) => R(x - 7, -11, 4, 4, 0.8, '#7fb2ff', 1)).join('') + C(-4, 2, 2.6, '#2b2f3a', 1.4) + C(12, 2, 2.6, '#2b2f3a', 1.4) },
-  { id: 'toy-subway', name: 'Toy Subway Car', slot: 'hand', price: 9, shop: 'iloveny', draw: () => R(-10, -12, 28, 13, 3, '#c9ced8', 2) + [0, 6, 12].map((x) => R(x - 7, -10, 4, 5, 0.8, '#3a4a7a', 1)).join('') + C(12, -5, 2.6, '#ee352e', 1) + `<text x="12" y="-3.6" font-size="4" text-anchor="middle" fill="#fff" font-weight="900">1</text>` + C(-5, 2, 2, '#2b2f3a', 1.2) + C(13, 2, 2, '#2b2f3a', 1.2) },
+  { id: 'toy-taxi', name: 'Toy Yellow Cab', slot: 'hand', price: 6, shop: 'iloveny', draw: toyCar('#ffcf1f', `<rect x="-8" y="-3.2" width="24" height="1.4" fill="${O}" opacity=".85"/>`, R(1.6, -15.4, 7, 3.6, 1.2, '#ffffff', 1.2) + L(3.2, -13.6, 7, -13.6, '#e8a317', 1)) },
+  { id: 'toy-checker', name: 'Vintage Checker Cab', slot: 'hand', price: 9, shop: 'iloveny', draw: toyCar('#f2c14e', checkers(-4.2, -7, 15), R(2.4, -14.6, 5, 2.8, 1, '#f2c14e', 1.1)) },
+  { id: 'toy-bus', name: 'Mini City Bus', slot: 'hand', price: 7, shop: 'iloveny', draw: () => R(-9, -13, 26, 14, 3, '#f4f6fb', 2) + `<rect x="-7.6" y="-4.6" width="23.2" height="3" fill="#2a7bd5"/>` + [-6, -1, 4, 9].map((x) => R(x, -11, 4, 4, 0.8, '#7fb2ff', 1)).join('') + R(14.2, -11, 2, 6, 0.6, '#7fb2ff', 0.8) + C(-4, 1.5, 2.8, '#2b2f3a', 1.4) + C(-4, 1.5, 1, '#c9ccd6', 0.6) + C(12, 1.5, 2.8, '#2b2f3a', 1.4) + C(12, 1.5, 1, '#c9ccd6', 0.6) },
+  { id: 'toy-subway', name: 'Toy Subway Car', slot: 'hand', price: 9, shop: 'iloveny', draw: () => R(-10, -12, 28, 13, 3, '#c9ced8', 2) + [-8, -2, 4].map((x) => R(x, -10, 4, 5, 0.8, '#3a4a7a', 1)).join('') + L(-10, -3.6, 18, -3.6, '#8d95a8', 1) + C(13, -6.5, 2.9, '#ee352e', 1) + `<text x="13" y="-5" font-size="4.4" text-anchor="middle" fill="#fff" font-weight="900">1</text>` + C(-5, 2, 2.2, '#2b2f3a', 1.2) + C(13, 2, 2.2, '#2b2f3a', 1.2) },
   { id: 'toy-ferry', name: 'Toy Ferry', slot: 'hand', price: 7, shop: 'iloveny', draw: () => P('M -10 -2 L 18 -2 L 15 4 L -7 4 Z', '#ff8a1f', 'stroke-width="2"') + R(-5, -9, 16, 7, 1.5, '#ffffff', 1.6) + [0, 4, 8].map((x) => R(x - 3, -7, 2.4, 2.4, 0.4, '#7fb2ff', 0.8)).join('') + R(3, -13, 3, 4, 0.5, '#ff8a1f', 1.2) },
   { id: 'iloveny-mug', name: 'I ♥ NY Mug', slot: 'hand', price: 5, shop: 'iloveny', draw: () => R(-6, -8, 14, 15, 2.5, '#ffffff') + `<path d="M 8 -5 Q 13 -4 12 0 Q 11 3 8 2" fill="none" stroke="${O}" stroke-width="2.4"/>` + heart(1, -1.5, 1, '#e8323a', 1.2) },
   { id: 'postcard', name: 'Postcard Stack', slot: 'hand', price: 3, shop: 'iloveny', draw: () => P('M -8 -6 L 12 -9 L 14 5 L -6 8 Z', '#ffe9a8', 'stroke-width="2"') + P('M -6 -4 L 4 -5.5 L 5 3 L -5 4.5 Z', '#6fb6ff', 'stroke-width="1.2"') + L(7, -5, 11, -5.5, O, 1) + L(7, -2, 11, -2.5, O, 1) },
@@ -424,11 +442,11 @@ const SOUVENIRS: ItemDef[] = [
   },
   {
     id: 'iloveny-cap', name: 'I ♥ NY Cap', slot: 'head', price: 12, shop: 'iloveny',
-    draw: (c) => capDome('#ffffff') + (c.back ? '' : P(`M ${-28 + c.fx} -106 Q ${c.fx} -98 ${28 + c.fx} -106 Q ${33 + c.fx} -101 ${24 + c.fx} -99 Q ${c.fx} -92 ${-24 + c.fx} -99 Q ${-33 + c.fx} -101 ${-28 + c.fx} -106 Z`, '#e8323a') + heart(c.fx, -118, 1.5, '#e8323a', 1.6)),
+    draw: (c) => capDome('#ffffff') + (c.back ? '' : capBrim(c.fx, '#e8323a') + heart(c.fx, -127, 1.6, '#e8323a', 1.6)) + C(0, -147, 2.6, '#e8323a', 1.6),
   },
   {
     id: 'taxi-cap', name: 'Taxi Cap', slot: 'head', price: 12, shop: 'iloveny',
-    draw: (c) => capDome('#ffcf1f') + [-20, -12, -4, 4, 12].map((x, i) => `<rect x="${x}" y="-114" width="8" height="4" fill="${i % 2 ? '#fff' : O}"/>`).join('') + (c.back ? '' : P(`M ${-28 + c.fx} -106 Q ${c.fx} -98 ${28 + c.fx} -106 Q ${33 + c.fx} -101 ${24 + c.fx} -99 Q ${c.fx} -92 ${-24 + c.fx} -99 Q ${-33 + c.fx} -101 ${-28 + c.fx} -106 Z`, '#e0b20f')),
+    draw: (c) => capDome('#ffcf1f') + [-20, -12, -4, 4, 12].map((x, i) => `<rect x="${x}" y="-125" width="8" height="4" fill="${i % 2 ? '#fff' : O}"/><rect x="${x}" y="-121" width="8" height="4" fill="${i % 2 ? O : '#fff'}"/>`).join('') + (c.back ? '' : capBrim(c.fx, '#e0b20f')) + C(0, -147, 2.6, '#ffcf1f', 1.6),
   },
   // Toy Palace
   { id: 'heart-balloon', name: 'Heart Balloon', slot: 'hand', price: 8, shop: 'toys', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + `<path transform="translate(6 -72) scale(3.2)" d="M0 4 C -7 -2 -4 -8 0 -4.5 C 4 -8 7 -2 0 4Z" fill="#ff5a8a" stroke="${O}" stroke-width="0.7" stroke-linejoin="round"/>` },

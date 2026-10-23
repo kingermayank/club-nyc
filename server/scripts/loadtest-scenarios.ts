@@ -104,7 +104,8 @@ class GameServer {
     if (this.alive) throw new Error('server already running')
     if (await healthy()) throw new Error(`something else is already listening on ${PORT}`)
     const t0 = Date.now()
-    const env: Record<string, string | undefined> = { ...process.env, PORT: String(PORT), DB_PATH: DB, LOADTEST_PROBE_OUT: PROBE, ...extra }
+    // LAUNCH_MODE=open: production defaults to the launch waitlist, where only testers can make guests
+    const env: Record<string, string | undefined> = { ...process.env, PORT: String(PORT), DB_PATH: DB, LOADTEST_PROBE_OUT: PROBE, LAUNCH_MODE: 'open', ...extra }
     if (!extra.NODE_ENV) delete env.NODE_ENV
     appendFileSync(LOG, `\n===== start ${new Date().toISOString()} ${JSON.stringify(extra)}\n`)
     const p = spawn(process.execPath, ['--import', 'tsx', '--import', pathToFileURL(join(HERE, 'loadtest-probe.mjs')).href, 'src/index.ts'], { cwd: SERVER_DIR, env, stdio: ['ignore', 'pipe', 'pipe'] })

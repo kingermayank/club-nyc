@@ -11,7 +11,8 @@ export const GAMES: Record<string, { minSeconds: number; maxPerMinute: number; h
   'halal-rush': { minSeconds: 30, maxPerMinute: 12, hardMax: 40, maxCoins: 120 },
   'ferry-captain': { minSeconds: 20, maxPerMinute: 60, hardMax: 120, maxCoins: 160 },
   'bagel-counters': { minSeconds: 25, maxPerMinute: 60, hardMax: 140, maxCoins: 220 },
-  showtime: { minSeconds: 30, maxPerMinute: 60000, hardMax: 90000, maxCoins: 60 },
+  // Hard is 250 notes in an 83-second song: a perfect run with the full ×4 combo is 91,800 (from buildChart)
+  showtime: { minSeconds: 30, maxPerMinute: 70000, hardMax: 92000, maxCoins: 60 },
 }
 
 export const TEAMS = ['downtown', 'midtown', 'uptown', 'harbor']

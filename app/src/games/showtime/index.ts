@@ -5,6 +5,7 @@ import { save } from '../../state'
 import { BAR, SPB, SONG_BARS, Song, Synth, buildChart, sectionOf, type ChartNote, type Difficulty } from './music'
 import { World } from './world'
 import { LANES, bulletSVG, hatPile, hatSVG, keyTile, noteSVG, receptorSVG, sparkSVG } from './art'
+import { showSfx } from './sound'
 import './style.css'
 
 // ---------- assets & layout (logical 1000 × 565, measured on subway-car.jpg) ----------
@@ -412,7 +413,7 @@ class Showtime {
          <button class="showtime-diff is-on" data-d="easy"><span class="showtime-diff-bullet">${bulletSVG('7', '#b933ad')}</span><span><b>Easy</b><small>Local · all stops</small></span></button>
          <button class="showtime-diff" data-d="hard"><span class="showtime-diff-bullet">${bulletSVG('7', '#b933ad', true)}</span><span><b>Hard</b><small>Express · hold on!</small></span></button>
        </div>
-       <button class="btn showtime-go">Start the show</button>`,
+       <button class="btn showtime-go">Start the Show</button>`,
     )
     const diffs = [...card.querySelectorAll<HTMLButtonElement>('.showtime-diff')]
     for (const b of diffs) {
@@ -431,7 +432,7 @@ class Showtime {
       'div',
       'showtime-card showtime-card-sm',
       `<h2 class="showtime-h2">Paused</h2><p>Hold onto the pole!</p>
-       <div class="showtime-row"><button class="btn showtime-resume">Resume</button><button class="btn showtime-btn-red showtime-quit">End show</button></div>`,
+       <div class="showtime-row"><button class="btn showtime-resume">Resume</button><button class="btn showtime-btn-red showtime-quit">End Show</button></div>`,
     )
     card.querySelector('.showtime-resume')!.addEventListener('click', () => this.resume())
     card.querySelector('.showtime-quit')!.addEventListener('click', () => this.finish())
@@ -583,7 +584,7 @@ class Showtime {
          <div><b>${this.counts.perfect}/${this.counts.good}/${this.counts.miss}</b><small>perfect/good/miss</small></div>
        </div>
        <div class="showtime-results-tips"><img src="${COIN}" alt=""><b>${this.tips}</b> tips in the hat <small>· ${d.label} (${d.sub})</small></div>
-       <button class="btn showtime-go showtime-collect">Collect tips<i class="showtime-collect-bar"></i></button>`,
+       <button class="btn showtime-go showtime-collect">Collect Tips<i class="showtime-collect-bar"></i></button>`,
     )
     card.querySelector('.showtime-collect')!.addEventListener('click', () => this.finish())
     this.showCard(card, true)
@@ -805,8 +806,11 @@ class Showtime {
   // =====================================================================
   private onKey(e: KeyboardEvent, isDown: boolean) {
     if (isDown && (e.key === 'Escape' || e.key === 'p' || e.key === 'P')) {
-      if (this.paused) this.resume()
+      const was = this.paused
+      if (was) this.resume()
       else this.pause()
+      // Escape pauses (or resumes) mid-show; on the title and results screens it's the host's, which leaves the game
+      if (was || this.paused) e.preventDefault()
       return
     }
     const lane = KEYS[e.key]
@@ -879,6 +883,7 @@ class Showtime {
       this.stumbleUntil = this.now + 0.4
       this.player.setMood('o')
       this.syn?.muffle()
+      showSfx.squeak()
       this.loseRider()
     } else {
       this.counts[res]++
@@ -929,6 +934,7 @@ class Showtime {
     if (!fans.length) return
     const r = pick(fans)
     this.setRider(r, 'away', 2, 5 + Math.floor(Math.random() * 6))
+    showSfx.snub()
     if (Math.random() < 0.6) this.say(r, pick(BOOS))
   }
 
@@ -1177,7 +1183,7 @@ class Showtime {
 
   private landCoin(now: number) {
     if (now - this.lastCoinSfx > 0.07) {
-      this.ctx.sfx.coin()
+      showSfx.hatCoin()
       this.lastCoinSfx = now
     }
     if (this.tips !== this.hatShown && this.hatPileG) {
@@ -1200,6 +1206,7 @@ class Showtime {
     if (reduceMotion) return
     const pole = POLES[this.trickCount % 2]
     this.trick = { kind, start: this.now, dur: kind === 'spin' ? 0.55 : kind === 'flip' ? 0.8 : 1.7, pole }
+    showSfx[kind]()
     if (kind !== 'pole') this.player.setPose('jump')
   }
 

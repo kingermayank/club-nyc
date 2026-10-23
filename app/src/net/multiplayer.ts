@@ -339,13 +339,13 @@ function onEvent(e: S2C) {
       return
     case 'fa':
       sfx.stamp()
-      toast(`<b>${esc(e.n)}</b> accepted your friend request!`, '🤝')
+      toast(`<b>${esc(e.n)}</b> accepted your friend request!`, '🤝', { keep: true })
       void import('../game').then((m) => m.api.stamp('new-friend'))
       void refreshFriends()
       return
     case 'n':
       if (e.k === 'gb') notify(`<b>${esc(e.n)}</b> signed your guestbook: “${esc(e.m ?? '')}”`, '📬', [], 10000)
-      else if (e.k === 'like') toast(`<b>${esc(e.n)}</b> liked your apartment!`, '❤️')
+      else if (e.k === 'like') toast(`<b>${esc(e.n)}</b> liked your apartment!`, '❤️', { keep: true })
       else if (e.k === 'ref') {
         // someone just made a New Yorker through your invite link
         sfx.stamp()
@@ -361,6 +361,14 @@ function onEvent(e: S2C) {
       // the server changed your wallet (a payout, a purchase on another device, a moderator)
       applyWallet({ coins: e.c, owned: e.owned, homes: e.homes })
       if (e.why) toast(esc(e.why), '🪙')
+      return
+    case 'txt':
+      // a friend texted you from their phone ("Meet me here!"): a notice with a Go button
+      void import('../features/textFriend').then((m) => m.gotText(e.i, e.n, e.k, e.r))
+      return
+    case 'xp':
+      // you earned XP somewhere (the HUD chip shows it; a new level gets a celebration)
+      void import('../social/levels').then((m) => m.setXp(e.x, e.g, e.why, e.b))
       return
     case 'ann':
       announcement(e.m)
@@ -458,7 +466,7 @@ function kicked(m: string, k: 'replaced' | 'banned' | 'deleted' | 'maintenance' 
     return openOverlay(p, { backdrop: false })
   }
   if (k === 'maintenance') {
-    const p = el('div', 'panel', `<div class="panel-art">🚧</div><h2>Back in a bit!</h2><p>${esc(m)}</p><p class="muted">We’ll reconnect you automatically.</p>`)
+    const p = el('div', 'panel', `<div class="panel-art">🚧</div><h2>Back in a Bit!</h2><p>${esc(m)}</p><p class="muted">We’ll reconnect you automatically.</p>`)
     openOverlay(p, { backdrop: false })
     const retry = () =>
       void rest('/me')
@@ -471,8 +479,8 @@ function kicked(m: string, k: 'replaced' | 'banned' | 'deleted' | 'maintenance' 
     setTimeout(retry, 30000)
     return
   }
-  const p = el('div', 'panel', `<div class="panel-art">🪟</div><h2>Playing somewhere else?</h2><p>${esc(m)} Only one window can be in the city at a time.</p>`)
-  const b = el('button', 'btn go', 'Play here instead')
+  const p = el('div', 'panel', `<div class="panel-art">🪟</div><h2>Playing Somewhere Else?</h2><p>${esc(m)} Only one window can be in the city at a time.</p>`)
+  const b = el('button', 'btn go', 'Play Here Instead')
   b.onclick = () => {
     closeOverlay()
     renderPill('connecting')
@@ -552,8 +560,8 @@ function announcement(m: string) {
 
 function modNotice(e: Extract<S2C, { t: 'mod' }>) {
   if (e.k === 'warn') {
-    const p = el('div', 'panel', `<div class="panel-art">🧑‍⚖️</div><h2>A note from the moderators</h2><p>${esc(e.m)}</p><p class="muted">Club NYC works because everyone’s a good neighbor. <a href="/rules.html" target="_blank" rel="noopener">Community rules</a></p>`)
-    const ok = el('button', 'btn go', 'Got it')
+    const p = el('div', 'panel', `<div class="panel-art">🧑‍⚖️</div><h2>A Note from the Moderators</h2><p>${esc(e.m)}</p><p class="muted">Club NYC works because everyone’s a good neighbor. <a href="/rules.html" target="_blank" rel="noopener">Community rules</a></p>`)
+    const ok = el('button', 'btn go', 'Got It')
     ok.onclick = () => closeOverlay()
     p.append(ok)
     return openOverlay(p)

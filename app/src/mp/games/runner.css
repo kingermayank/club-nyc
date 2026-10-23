@@ -1,0 +1,26 @@
+/* Rush Hour Run: the HUD over the platform (the platform itself is drawn on the canvas) */
+.rn { background: #2d4a3d; }
+.rn-canvas { position: absolute; left: 0; top: 0; }
+/* the run at a glance, drawn like a subway line: Times Sq at the left, South Ferry at the right */
+.rn-line { position: absolute; left: 50%; top: 22px; transform: translateX(-50%); width: 400px; height: 8px; border: 2.5px solid var(--ink); border-radius: 999px; background: #e5483b; box-shadow: 0 3px 0 var(--ink); pointer-events: none; }
+.rn-stop { position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border: 2px solid var(--ink); border-radius: 50%; background: #fff; }
+.rn-stop.end { width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; background: var(--sun); }
+.rn-line-from, .rn-line-to { position: absolute; top: 21px; padding: 0 6px; border-radius: 6px; background: rgba(255, 253, 246, 0.92); font: var(--fs-2xs) var(--display); white-space: nowrap; }
+.rn-line-from { left: -6px; }
+.rn-line-to { right: -10px; }
+.rn-bullet { position: absolute; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(#fff, #cfe8ff); overflow: hidden; transition: left 0.12s linear; }
+.rn-bullet svg { width: 100%; height: 100%; display: block; }
+.rn-bullet.you { z-index: 2; box-shadow: 0 0 0 3px var(--sun); }
+.rn-bullet.out { opacity: 0.35; filter: grayscale(1); }
+.rn-cards { position: absolute; left: 12px; top: 84px; display: flex; align-items: center; gap: 6px; padding: 2px 12px 2px 6px; min-height: 32px; border: 3px solid var(--ink); border-radius: 999px; background: var(--paper); font: var(--fs-xl) var(--display); box-shadow: 0 3px 0 var(--ink); pointer-events: none; }
+.rn-cards img { width: 30px; height: 22px; object-fit: contain; }
+.rn-power { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: none; }
+.rn-pw { position: relative; display: flex; align-items: center; gap: 6px; min-width: 96px; padding: 3px 8px; border: 3px solid var(--ink); border-radius: 12px; background: var(--paper); overflow: hidden; }
+.rn-pw img { position: relative; z-index: 1; width: 22px; height: 22px; object-fit: contain; }
+.rn-pw i { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255, 209, 102, 0.75); }
+.rn-pw.text { min-width: 0; font: var(--fs-sm) var(--display); }
+.rn .mp-hint span { display: inline-flex; align-items: center; gap: 2px; }
+.rn-watch { gap: 12px; }
+.rn-drop { display: inline-flex; align-items: center; gap: 6px; padding-left: 12px; border-left: 2px solid rgba(29, 33, 64, 0.2); }
+.rn-drop .btn.tiny { gap: 4px; }
+.rn-drop kbd { margin-left: 2px; font-size: var(--fs-3xs); }

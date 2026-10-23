@@ -8,6 +8,7 @@ import { posePictogram, type Pose } from './avatar/render'
 import { chatBar, emoteBubble } from './features/chat'
 import { isHomeRoom } from './data/homes'
 import { mailButton, startMail } from './features/mail'
+import { levelPlate, xpEvent } from './social/levels'
 
 const icon = (name: string) => `<img src="/art/icons/${name}.png" alt="" draggable="false">`
 
@@ -67,16 +68,19 @@ function popMenu(cls: string, items: { html: string; act: () => void }[], from: 
 }
 
 export function buildHud() {
-  hudRight.append(coinPlate)
+  // your level (a ring that fills with XP) sits next to your coins; clicking it opens your player card
+  hudRight.append(levelPlate(() => void import('./features/playerCard').then((m) => m.openPlayerCard())), coinPlate)
   hudLeft.append(placePlate, helpBtn, mailButton())
   startMail()
   stage.hud.append(hudLeft, hudRight)
   renderCoins()
   const setPlace = () => (placePlate.innerHTML = `<b>${world.plate?.name ?? world.room.name}</b><span>${world.plate?.area ?? world.room.area}</span>`)
   setPlace()
-  onRoomChange(() => {
+  onRoomChange((r) => {
     setPlace()
     homeBtn.classList.toggle('active', isHomeRoom(world.room.id))
+    // a first visit somewhere is worth a little XP (online the server awards it when you arrive)
+    xpEvent('visit', isHomeRoom(r.id) ? 'home' : r.id)
   })
 
   const tb = (name: string, label: string, fn: (b: HTMLButtonElement) => void, key?: string) => {
@@ -99,26 +103,28 @@ export function buildHud() {
       // each move shows a little you doing it (Club Penguin's action menu is all pictures)
       ...MOVES.map((m) => ({ html: `${posePictogram(save.look, m.pose)}<span>${m.label}<kbd>${m.key}</kbd></span>`, act: () => world.player.emote(m.pose, m.pose === 'dance' ? 0 : 3) })),
       { html: `${posePictogram(save.look, 'sit')}<span>Sit<kbd>S</kbd></span>`, act: () => sitHere() },
-      { html: `${posePictogram({ ...save.look, items: { ...save.look.items, hand: undefined } }, 'wave', 0.12)}<span>Snowball<kbd>T</kbd></span>`, act: () => void import('./features/snowball').then((m) => m.armSnowball()) },
+      // (no snowballs: there's no snow in the city right now)
     ], b),
   )
   stage.toolbar.append(chatBar())
   tb('map', 'Map', () => api.openMap(), 'M')
   tb('metrocard', 'Subway', () => api.openSubway(), 'U')
   tb('news', 'Club NYC Times', () => api.newspaper(), 'N')
-  tb('phone', 'Phone: camera & invite friends', (b) =>
+  // the phone: bring friends in, text the ones already here, and help (photo booths live in places now)
+  tb('phone', 'Phone: Invite & Text Friends', (b) =>
     popMenu('phone', [
-      { html: '📸 Group photo<kbd>B</kbd>', act: () => openCamera() },
-      { html: '💌 Invite friends<kbd>I</kbd>', act: () => void import('./features/invite').then((m) => m.openInvite()) },
-      { html: '🗽 How to play<kbd>?</kbd>', act: replayTour },
+      { html: '💌 Invite Friends<kbd>I</kbd>', act: () => void import('./features/invite').then((m) => m.openInvite()) },
+      { html: '💬 Text a Friend<kbd>T</kbd>', act: () => void import('./features/textFriend').then((m) => m.openTextFriend()) },
+      { html: '🗽 How to Play<kbd>?</kbd>', act: replayTour },
+      { html: '📖 Help Center', act: () => void window.open('/help/', '_blank', 'noopener') },
     ], b),
   )
   stage.toolbar.append(el('div', 'tb-gap'))
-  tb('wave', 'Friends & leaderboards', () => import('./social/community').then((m) => m.openCommunity()), 'F')
-  tb('card', 'Player card & wardrobe', () => import('./features/playerCard').then((m) => m.openPlayerCard()), 'P')
-  tb('stamps', 'Stamp book', () => import('./features/stampbook').then((m) => m.openStampBook()))
-  const homeBtn = tb('home', 'My apartment', () => (isHomeRoom(world.room.id) ? api.furniture() : goHome()), 'H')
-  const sound = tb(save.muted ? 'sound' : 'sound', 'Sound on/off', () => {
+  tb('wave', 'Friends & Leaderboards', () => import('./social/community').then((m) => m.openCommunity()), 'F')
+  tb('card', 'Player Card & Wardrobe', () => import('./features/playerCard').then((m) => m.openPlayerCard()), 'P')
+  tb('stamps', 'Stamp Book', () => import('./features/stampbook').then((m) => m.openStampBook()))
+  const homeBtn = tb('home', 'My Apartment', () => (isHomeRoom(world.room.id) ? api.furniture() : goHome()), 'H')
+  const sound = tb(save.muted ? 'sound' : 'sound', 'Sound On/Off', () => {
     save.muted = !save.muted
     setMuted(save.muted)
     sound.classList.toggle('off', save.muted)
@@ -147,12 +153,11 @@ export function buildHud() {
     if (k === 's') sitHere()
     if (k === 'm') api.openMap()
     if (k === 'u') api.openSubway()
-    if (k === 't') void import('./features/snowball').then((m) => m.armSnowball())
+    if (k === 't') void import('./features/textFriend').then((m) => m.openTextFriend())
     if (k === 'n') api.newspaper()
     if (k === 'p') import('./features/playerCard').then((m) => m.openPlayerCard())
     if (k === 'f') import('./social/community').then((m) => m.openCommunity())
     if (k === 'h') goHome()
-    if (k === 'b') openCamera()
     if (k === 'i') void import('./features/invite').then((m) => m.openInvite())
     if (e.key === '?') replayTour()
   })
@@ -169,10 +174,4 @@ function sitHere() {
   if (near && Math.hypot(near.sit[0] - p.pos[0], near.sit[1] - p.pos[1]) < 160) {
     import('./engine/world').then((m) => m.sitPlayer(near))
   } else p.emote('sit' as Pose, 6)
-}
-
-/** The phone camera opens the photo booth, themed for where you are; everyone nearby squeezes in. */
-function openCamera() {
-  const where = ['times-square', 'iloveny'].includes(world.room.id) ? 'I ♥ NY' : 'default'
-  void import('./features/photobooth').then((m) => m.openPhotoBooth(where))
 }

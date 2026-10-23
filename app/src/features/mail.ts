@@ -63,14 +63,16 @@ export function openMail(start = 0) {
   const list = inbox()
   let i = Math.min(start, Math.max(0, list.length - 1))
   const desk = el('div', 'mail-desk')
+  let paged = false
   const draw = () => {
     const p = list[i]
     desk.innerHTML = ''
     if (!p) {
-      desk.append(el('div', 'postcard-mail empty', '<div class="pm-art">📭</div><b>No postcards yet</b><p>The city writes when something’s happening: invites, paychecks, news from your building (mostly about the elevator).</p>'))
+      desk.append(el('div', 'postcard-mail empty', '<div class="pm-art">📭</div><b>No Postcards Yet</b><p>The city writes when something’s happening: invites, paychecks, news from your building (mostly about the elevator).</p>'))
     } else {
       p.read = true
-      const card = el('div', 'postcard-mail', `<div class="pm-front"><div class="pm-art">${p.art}</div><div class="pm-stamp">NYC</div></div>
+      // the flip plays when the inbox opens; paging just swaps the card (a flip every page made the frame bounce)
+      const card = el('div', 'postcard-mail' + (paged ? ' paged' : ''), `<div class="pm-front"><div class="pm-art">${p.art}</div><div class="pm-stamp">NYC</div></div>
         <div class="pm-back"><small>From ${p.from} · ${new Date(p.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</small><b>${p.title}</b><p>${p.text}</p></div>`)
       if (p.go) {
         const go = el('button', 'btn go pm-go', `${p.go.label} →`)
@@ -88,8 +90,8 @@ export function openMail(start = 0) {
     const next = el('button', 'pm-arrow', '▶') as HTMLButtonElement
     prev.disabled = i <= 0
     next.disabled = i >= list.length - 1
-    prev.onclick = () => (sfx.tick(), i--, draw())
-    next.onclick = () => (sfx.tick(), i++, draw())
+    prev.onclick = () => (sfx.tick(), i--, (paged = true), draw())
+    next.onclick = () => (sfx.tick(), i++, (paged = true), draw())
     const count = el('span', 'pm-count', list.length ? `Postcard ${i + 1} of ${list.length}` : '')
     nav.append(prev, count, next)
     if (p) {
@@ -99,6 +101,7 @@ export function openMail(start = 0) {
         list.splice(i, 1)
         i = Math.max(0, Math.min(i, list.length - 1))
         persist()
+        paged = true
         draw()
       }
       nav.append(bin)

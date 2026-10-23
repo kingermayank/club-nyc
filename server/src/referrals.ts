@@ -2,6 +2,7 @@ import { q, tx, type UserRow } from './db.ts'
 import { payout } from './economy.ts'
 import { banOf } from './moderation.ts'
 import { REFERRAL } from '../../app/src/data/economy.ts'
+import { awardXp } from './xp.ts'
 
 /** tests can shorten the 'has really played' wait (REFERRAL_ACTIVATION_MS) */
 const ACTIVATION_MS = Number(process.env.REFERRAL_ACTIVATION_MS) || REFERRAL.activationMs
@@ -62,6 +63,8 @@ export function settleReferrals(): ReferralPayout[] {
       }
     }
     q.run('UPDATE referrals SET paid_at = ? WHERE invitee = ?', Date.now(), r.invitee)
+    // bringing someone into the city who sticks around is worth XP too (once per friend)
+    awardXp(r.inviter, 'invite', { ref: r.invitee })
     out.push({ inviter: r.inviter, invitee: r.invitee, inviteeName: r.name ?? '', coins, balance })
   }
   return out

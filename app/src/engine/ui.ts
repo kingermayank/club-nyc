@@ -27,7 +27,8 @@ export function hold(): () => void {
 
 // ---------- toasts ----------
 // Small confirmations and good news, at most two on screen: a burst (a stamp, coins, a refill) plays as a short calm
-// sequence instead of a pile. The same line twice shows once, and nothing waits behind more than one other.
+// sequence instead of a pile. The same line twice shows once, and at most two wait their turn: the oldest small news
+// gives way, but news about people (a friend accepting) is kept and always gets its turn.
 const MAX_TOASTS = 2
 const toastQueue: { node: HTMLElement; ms: number }[] = []
 const showing = () => [...stage.toasts.children].filter((n) => !n.classList.contains('out'))
@@ -48,17 +49,22 @@ function pumpToasts() {
     }, ms + 300)
   }
 }
-/** Queue a toast-like element (stamp cards use this too). */
-export function showToast(node: HTMLElement, ms = 2600) {
+/** Queue a toast-like element (stamp cards use this too). `keep`: never dropped from a busy queue. */
+export function showToast(node: HTMLElement, ms = 2600, keep = false) {
   node.dataset.key ??= node.textContent ?? ''
   const key = node.dataset.key
   if (showing().some((n) => (n as HTMLElement).dataset.key === key) || toastQueue.some((q) => q.node.dataset.key === key)) return
+  if (keep) node.dataset.keep = '1'
   toastQueue.push({ node, ms })
-  if (toastQueue.length > 2) toastQueue.shift()
+  while (toastQueue.length > 2) {
+    const i = toastQueue.findIndex((q) => !q.node.dataset.keep)
+    if (i < 0) break
+    toastQueue.splice(i, 1)
+  }
   pumpToasts()
 }
-export function toast(text: string, icon = '') {
-  showToast(el('div', 'toast', `${icon ? `<span class="toast-icon">${icon}</span>` : ''}<span>${text}</span>`))
+export function toast(text: string, icon = '', opts: { keep?: boolean } = {}) {
+  showToast(el('div', 'toast', `${icon ? `<span class="toast-icon">${icon}</span>` : ''}<span>${text}</span>`), 2600, opts.keep)
 }
 
 // ---------- overlay panels ----------

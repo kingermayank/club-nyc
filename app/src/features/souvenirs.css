@@ -1,0 +1,20 @@
+/* ================= souvenirs that live at home (features/souvenirs.ts) ================= */
+.ic-gallery.paintings { grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.ic-gallery.paintings .ic-tile-pic { height: 92px; }
+.ic-gallery.paintings .ic-tile-pic img { max-height: 92px; }
+.ic-gallery.paintings .ic-tile b { min-height: 2.4em; display: flex; align-items: center; justify-content: center; }
+.ic-gallery.magnets { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ic-gallery.magnets .ic-tile { padding: 5px 4px 6px; gap: 3px; }
+.ic-gallery.magnets .ic-tile .btn { margin-top: 7px; }
+.ic-gallery.magnets .ic-tile-pic { height: 42px; }
+.ic-gallery.magnets .ic-tile-pic img { max-height: 42px; }
+/* gallery cards hold a lot: a little less padding so they fit without scrolling */
+.panel.ic-card.gallery { padding: 18px 20px 16px; }
+.panel.ic-card.gallery .ic-text { margin-bottom: var(--sp-2); }
+.panel.ic-card.gallery .ic-joke { margin-bottom: var(--sp-2); padding: 6px 12px; }
+.ic-gallery.fridge .ic-tile { padding-bottom: 6px; }
+.ic-tile.missing .ic-tile-pic img { filter: grayscale(1) brightness(0.35) opacity(0.35); }
+.ic-tile.missing b { opacity: 0.6; }
+
+/* magnets stuck on the walk-up's fridge */
+.fridge-magnet { position: absolute; z-index: 6; width: 21px; height: auto; transform: translate(-50%, -50%) rotate(var(--r, 0deg)); filter: drop-shadow(0 1.5px 0 rgba(29, 33, 64, 0.35)); pointer-events: none; }

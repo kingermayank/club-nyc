@@ -3,10 +3,13 @@ import { GAMES, weekId } from './game/rules.ts'
 import { ITEM, STARTER_ITEMS } from '../../app/src/avatar/items.ts'
 import { HOME } from '../../app/src/data/homes.ts'
 import { STAMPS } from '../../app/src/data/stamps.ts'
+import { XP_FOR_CLAIM } from '../../app/src/data/levels.ts'
+import { awardXp } from './xp.ts'
 import { partyOn } from '../../app/src/data/party.ts'
 import { jamState } from '../../app/src/data/jam.ts'
 import { EARN_RULES as EARN, QUEST_REWARDS, STARTING_COINS, MIGRATION_COIN_CAP, CREATOR_OUTFIT, WELCOME_GIFTS, DAILY_CAPS, nycDay, weekStart, visitReward } from '../../app/src/data/economy.ts'
 import type { LookWire } from '../../app/src/net/protocol.ts'
+import { MP_DAILY_COINS } from '../../app/src/mp/shared/games.ts'
 
 /**
  * The server-side wallet. Online, the server owns three things the client used to keep in its save:
@@ -124,6 +127,20 @@ export function payJob(userId: string, coins: number, runId: string): WalletResu
   return credit(userId, pay, 'job', runId)
 }
 
+/**
+ * Multiplayer mini-game prizes (server/src/game/mp): the server decides them from the match it ran, never the
+ * client. Once per match (the ledger's unique ref), within today's ceiling for game prizes (MP_DAILY_COINS).
+ */
+export function payMatch(userId: string, coins: number, matchId: string): WalletResult {
+  const u = row(userId)
+  if (!u) return { ok: false, coins: 0, error: 'no-user' }
+  ensureWallet(u)
+  const today = q.get<{ n: number | null }>(`SELECT SUM(delta) AS n FROM ledger WHERE user_id = ? AND day = ? AND reason = 'mp-game'`, userId, nycDay())!.n ?? 0
+  const pay = Math.max(0, Math.min(Math.floor(coins), MP_DAILY_COINS - today))
+  if (!pay) return { ok: true, coins: walletOf(userId)!.coins, paid: 0, error: 'daily-cap' }
+  return credit(userId, pay, 'mp-game', matchId)
+}
+
 /** A client asks to be paid for something it did. Unknown reasons and anything over a cap are refused. */
 export function claim(userId: string, reason: string, rawRef?: unknown): WalletResult {
   const u = row(userId)
@@ -182,6 +199,9 @@ export function claim(userId: string, reason: string, rawRef?: unknown): WalletR
   const claimed = q.get<{ n: number | null }>(`SELECT SUM(delta) AS n FROM ledger WHERE user_id = ? AND day = ? AND delta > 0 AND reason IN (${CLAIM_REASONS})`, userId, day)!.n ?? 0
   if (claimed + amount > DAILY_CAPS.claims) return fail('daily-cap')
   const r = credit(userId, amount, reason, ref)
+  // most claims are also worth XP (quests, the day's challenges, the daily refill, Dance Jam tips, hosting a party)
+  const xpReason = XP_FOR_CLAIM[reason]
+  if (r.ok && xpReason) awardXp(userId, xpReason, { ref: ref ?? undefined })
   return week && r.ok ? { ...r, week, days: daysVisited(userId) } : r
 }
 

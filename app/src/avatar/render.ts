@@ -454,6 +454,32 @@ const iconCache = new Map<string, string>()
 const MANNEQUIN: Look = { skin: 0, hair: 'buzz', hairColor: 0, items: {} }
 
 /** an item's icon; `color` (a signature-colour index) tints items that wear your colour */
+/**
+ * The box an icon's ink actually covers. getBBox() leaves strokes out, so outlines (and sleeves and straps drawn as
+ * fat round-capped lines) used to get sliced off at the edge of catalog thumbnails. Every shape's own box is grown by
+ * half its stroke, mapped into the root group's space (hats and hand items sit inside transforms), and joined up.
+ */
+function inkBox(root: SVGGraphicsElement): { x: number; y: number; width: number; height: number } | null {
+  const toRoot = root.getCTM()?.inverse()
+  let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity
+  for (const n of root.querySelectorAll<SVGGraphicsElement>('path, circle, ellipse, rect, line, polygon, polyline, text')) {
+    const b = n.getBBox()
+    if (!b.width && !b.height) continue
+    const stroke = n.getAttribute('stroke')
+    const sw = stroke && stroke !== 'none' ? parseFloat(n.getAttribute('stroke-width') ?? '1') || 1 : 0
+    const h = sw / 2
+    const m = toRoot && n.getCTM() ? toRoot.multiply(n.getCTM()!) : null
+    for (const [px, py] of [[b.x - h, b.y - h], [b.x + b.width + h, b.y - h], [b.x - h, b.y + b.height + h], [b.x + b.width + h, b.y + b.height + h]]) {
+      const p = m ? new DOMPoint(px, py).matrixTransform(m) : { x: px, y: py }
+      x1 = Math.min(x1, p.x)
+      y1 = Math.min(y1, p.y)
+      x2 = Math.max(x2, p.x)
+      y2 = Math.max(y2, p.y)
+    }
+  }
+  return x2 > x1 ? { x: x1, y: y1, width: x2 - x1, height: y2 - y1 } : null
+}
+
 export function itemIcon(id: string, color?: number): string {
   const def = ITEM[id]
   if (!def) return ''
@@ -473,13 +499,12 @@ export function itemIcon(id: string, color?: number): string {
   document.body.append(svg)
   let bb = { x: -30, y: -80, width: 60, height: 60 }
   try {
-    const b = (svg.firstElementChild as SVGGElement).getBBox()
-    if (b.width > 0) bb = { x: b.x, y: b.y, width: b.width, height: b.height }
+    bb = inkBox(svg.firstElementChild as SVGGraphicsElement) ?? bb
   } catch {
     /* jsdom etc. */
   }
   svg.remove()
-  const pad = 4
+  const pad = 3
   const size = Math.max(bb.width, bb.height) + pad * 2
   const cx = bb.x + bb.width / 2
   const cy = bb.y + bb.height / 2

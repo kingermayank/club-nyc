@@ -35,8 +35,8 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'new-digs': { name: 'New Digs', icon: '🔑', desc: 'Move into a new home.', tier: 2 },
   'billionaires-row': { name: 'Billionaire (on Paper)', icon: '🏙️', desc: 'Move into the Billionaires’ Row penthouse.', tier: 3 },
   'photo-booth': { name: 'Say Cheese', icon: '📸', desc: 'Take a photo-booth strip.', tier: 1 },
-  'belly-10': { name: 'Belly Full', icon: '🍽️', desc: 'Rank 10 places on Belly.', tier: 2 },
-  'misspelled': { name: 'Who’s Mayonnaise?', icon: '☕', desc: 'Get your name spelled wrong at Starducks.', tier: 1 },
+  'belly-10': { name: 'Belly Full', icon: '🍽️', desc: 'Eat at 10 different food spots around the city.', tier: 2 },
+  'misspelled': { name: 'Who’s Mayonnaise?', icon: '☕', desc: 'Get your name spelled wrong on a latte at Bean There.', tier: 1 },
   'remember': { name: 'Never Forget', icon: '🕊️', desc: 'Visit the 9/11 Memorial.', tier: 1 },
   'candy-hunter': { name: 'Candy Corn Collector', icon: '🍬', desc: 'Find all 8 hidden candy corns during the party.', tier: 3 },
   'flash-mob': { name: 'Flash Mob', icon: '🕺', desc: 'Start a dance with 3+ New Yorkers.', tier: 2 },
@@ -54,7 +54,25 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'invite-10': { name: 'Mayor of the Block', icon: '🏙️', desc: 'Ten friends joined through your invites.', tier: 3 },
   'week-7': { name: 'Regular', icon: '📅', desc: 'Dropped by the city on all seven days of a week.', tier: 2 },
   'days-30': { name: 'True New Yorker', icon: '🏆', desc: 'Dropped by the city on 30 different days.', tier: 3 },
+  // Lower Manhattan, souvenirs and Liberty's crown
+  'bull-luck': { name: 'Bull Market', icon: '🐂', desc: 'Rub The Bull on Wall Street for luck.', tier: 1 },
+  'sky-deck': { name: 'Cloud Nine', icon: '☁️', desc: 'Ride the elevator to Sky Deck 102 at One World Trade.', tier: 1 },
+  'art-collector': { name: 'Art Collector', icon: '🎨', desc: 'Buy a painting from the Brooklyn Bridge artist.', tier: 1 },
+  'fridge-full': { name: 'Magnetic Personality', icon: '🧲', desc: 'Collect all nine fridge magnets from the Brooklyn Bridge stand.', tier: 2 },
+  'crown-climb': { name: 'Crown Jewel', icon: '👑', desc: 'Climb the 354 steps to Lady Liberty’s crown.', tier: 2 },
+  // multiplayer games (app/src/mp): firsts, wins, and one big moment per game
+  'mp-first': { name: 'Game On', icon: '🕹️', desc: 'Play a multiplayer game.', tier: 1 },
+  'mp-win': { name: 'Bragging Rights', icon: '🏆', desc: 'Win a multiplayer game against a real New Yorker.', tier: 2 },
+  'mp-crew': { name: 'Full House', icon: '👯', desc: 'Play a game with 4 or more real New Yorkers.', tier: 2 },
+  'sled-race': { name: 'Pilgrim Hill', icon: '❄️', desc: 'Finish a sled race on Pilgrim Hill.', tier: 1 },
+  'sled-win': { name: 'King of the Hill', icon: '👑', desc: 'Win a sled race against real New Yorkers.', tier: 3 },
+  'runner-first': { name: 'Stand Clear', icon: '🚇', desc: 'Run Rush Hour Run.', tier: 1 },
+  'runner-ferry': { name: 'Last Stop', icon: '⛴️', desc: 'Make it all the way to South Ferry in Rush Hour Run.', tier: 3 },
+  'carbs-first': { name: 'Carb Loading', icon: '🍕', desc: 'Play a game of Carb-Jitsu.', tier: 1 },
+  'carbs-streak': { name: 'Table Boss', icon: '🥨', desc: 'Win 3 games of Carb-Jitsu in a row at one table.', tier: 3 },
 }
 
 // Halloween stamps only exist while the party is on
 if (!partyOn()) for (const id of ['party-animal', 'candy-hunter']) delete STAMPS[id]
+// no snow in October: the snowball is off the toolbar, so its stamp is hidden until snow season comes back
+for (const id of ['snowball-fight']) delete STAMPS[id]

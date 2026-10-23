@@ -10,7 +10,9 @@ import { validLook, TEAMS } from './rules.ts'
 import { ensureWallet, ownedLook, type Wallet } from '../economy.ts'
 import { banOf, muteOf, logChat } from '../moderation.ts'
 import { settleReferrals } from '../referrals.ts'
-import { EMOTES, POSES, PARTY_THEMES, HOME_ROOM_IDS, type C2S, type S2C, type LookWire, type PlayerWire, type PartyWire } from '../../../app/src/net/protocol.ts'
+import { awardXp, setXpPush } from '../xp.ts'
+import { handleMp, mpOnline, mpOffline } from './mp/index.ts'
+import { EMOTES, POSES, PARTY_THEMES, HOME_ROOM_IDS, TEXT_KINDS, type C2S, type S2C, type LookWire, type PlayerWire, type PartyWire } from '../../../app/src/net/protocol.ts'
 
 /**
  * The live world.
@@ -175,6 +177,9 @@ export function friendshipChanged(a: string, b: string, kind: 'request' | 'accep
     cb?.friends.add(a)
     if (ca) direct(ca, { t: 'fa', i: b, n: cb?.name ?? '' })
     if (ca && cb) direct(cb, { t: 'f', i: a, n: ca.name, on: true, r: ca.inst?.room ?? null })
+    // a new friend is worth XP to both (once per pair, even if they unfriend and refriend)
+    awardXp(a, 'friend', { ref: b })
+    awardXp(b, 'friend', { ref: a })
   }
   if (kind === 'removed') {
     ca?.friends.delete(b)
@@ -321,9 +326,13 @@ function join(c: Client, room: string, x: number, y: number, owner?: string) {
   direct(c, { t: 'w', me: c.id, r: room, k: key, inst: inst.n, players: others, online: clients.size, ...(party ? { party } : {}) })
   emit(inst, { t: '+', p: wire(c) })
   tellFriends(c, true)
+  // the first time you set foot somewhere (apartments count once, as 'home') is worth a little XP
+  awardXp(c.id, 'visit', { ref: HOME_ROOMS.has(room) ? 'home' : room })
 }
 
 // ---------- message handling ----------
+/** when each player last texted each friend (Phone → Text a Friend), so a text can't be spammed */
+const lastText = new Map<string, number>()
 const POSE_SET = new Set<string>(POSES)
 const EMOTE_SET = new Set(EMOTES)
 
@@ -337,6 +346,9 @@ function handle(c: Client, msg: C2S) {
       return
     case 'ping':
       return direct(c, { t: 'pong', c: Number(msg.c) || 0 })
+    case 'mp':
+      // multiplayer mini-games: lobbies are joinable from anywhere, so these don't need a room (game/mp)
+      return handleMp(c.id, msg)
   }
   const inst = c.inst
   if (!inst) return
@@ -430,6 +442,19 @@ function handle(c: Client, msg: C2S) {
       const y = Math.max(0, Math.min(565, Number(msg.y) || 0))
       return emit(inst, { t: 'sb', i: c.id, x, y })
     }
+    case 'txt': {
+      // Phone → Text a Friend: a preset message ("Meet me here!") to a friend who's online, at most one every few
+      // seconds per friend; they get it with a Go button to wherever you are
+      if (!(TEXT_KINDS as readonly string[]).includes(msg.k) || !c.friends.has(msg.i)) return
+      const to = clients.get(msg.i)
+      if (!to || to.blocked.has(c.id)) return
+      const key = `${c.id}>${msg.i}`
+      const now = Date.now()
+      if ((lastText.get(key) ?? 0) > now - 8000) return direct(c, { t: 'sys', m: 'Give them a second to read that one!' })
+      lastText.set(key, now)
+      if (lastText.size > 5000) lastText.clear()
+      return direct(to, { t: 'txt', i: c.id, n: c.name, k: msg.k, r: inst.room })
+    }
   }
 }
 
@@ -445,6 +470,7 @@ function originOk(origin: string | undefined, host: string | undefined): boolean
 }
 
 export function attachRealtime(server: Server) {
+  setXpPush((userId, evt) => notifyUser(userId, evt))
   const wss = new WebSocketServer({ noServer: true, maxPayload: 4096, perMessageDeflate: false })
 
   // nothing a client sends may crash the city: socket errors are handled, and the upgrade itself is guarded
@@ -529,6 +555,8 @@ function connect(ws: WebSocket, user: UserRow) {
   }
   clients.set(user.id, c)
   q.run('UPDATE users SET last_seen = ? WHERE id = ?', Date.now(), user.id)
+  // back in a mini-game lobby or match after a reload or a dropped connection
+  mpOnline(user.id)
 
   ws.on('pong', () => (c.alive = true))
   // an oversized message (> maxPayload) or invalid UTF-8: ws closes the connection (1009 / 1007); without this
@@ -555,6 +583,7 @@ function connect(ws: WebSocket, user: UserRow) {
     if (clients.get(user.id) !== c) return // replaced by a newer connection
     leaveInstance(c)
     clients.delete(user.id)
+    mpOffline(user.id)
     const now = Date.now()
     q.run('UPDATE users SET last_seen = ?, play_ms = play_ms + ? WHERE id = ?', now, Math.max(0, now - c.since), user.id)
     c.since = now

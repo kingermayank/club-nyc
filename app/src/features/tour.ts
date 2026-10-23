@@ -35,7 +35,7 @@ interface Step {
   /** a glowing spot on the ground to click (the walking step): lit together with the target, so the spotlight
    * never says "click yourself" */
   spot?: () => Pt | null
-  /** an extra action button (e.g. "Take me there") that closes the card and does something */
+  /** an extra action button (e.g. "Take Me to Times Square") that closes the card and does something */
   action?: { label: string; act: () => void }
 }
 
@@ -94,31 +94,31 @@ function steps(): Step[] {
       title: `Welcome to New York, ${save.name || 'neighbor'}!`,
       text: `I’m ${GUIDE.name}, ${GUIDE.role}. Four quick things, then I’ve got a boiler to fix.`,
       next: 'Show me around',
-      skip: 'I’ll explore on my own',
+      skip: 'I’ll Explore on My Own',
     },
     {
       target: you,
       spot: groundSpot,
-      title: 'Walk around',
+      title: 'Walk Around',
       text: 'Click anywhere on the ground to walk there. Try the glowing spot!',
       // moved by more than a step (works on a replay too, when walks are no longer counted)
       doIt: () => !!world.player && Math.hypot(world.player.pos[0] - from[0], world.player.pos[1] - from[1]) > 40,
     },
     {
       target: () => hotspot(/hot dog|cart|slice|souvenir|pretzel|coffee/i)() ?? hotspot()(),
-      title: 'Things that glow are clickable',
+      title: 'Things That Glow Are Clickable',
       text: 'Carts, shops and doors light up when you hover. Click them for snacks, clothes and jobs that pay coins.',
     },
     {
       target: q('.chat-input'),
-      title: 'Say hi and make friends',
+      title: 'Say Hi and Make Friends',
       text: 'Type here and press Enter to talk to the room. Click any New Yorker to add them as a friend.',
     },
     {
       target: tb('Map'),
-      title: 'Go anywhere',
+      title: 'Go Anywhere',
       text: 'The map and the subway take you all over the city. Your first-day list (top left) shows what to try next.',
-      next: 'Let’s go!',
+      next: 'Let’s Go!',
     },
   ]
   // skip spots that aren't on screen (e.g. a room with nothing to click)
@@ -178,7 +178,7 @@ function showCard(step: Step, index: number, count: number): Promise<'next' | 'b
     const dots = count > 2 ? `<div class="tour-dots">${Array.from({ length: count }, (_, i) => `<i class="${i === index ? 'on' : ''}"></i>`).join('')}</div>` : ''
     card.innerHTML = `<div class="tour-face">${avatarPortrait(GUIDE.look, 'grin')}</div>
       <div class="tour-body"><small>${GUIDE.name} · ${GUIDE.role}</small><b>${step.title}</b><p>${step.text}</p>${dots}
-      <div class="tour-btns">${index > 0 && index < count - 1 ? '<button class="btn tiny ghost tour-back">Back</button>' : ''}<button class="btn tiny ghost tour-skip">${step.skip ?? (index === count - 1 ? '' : 'Skip tour')}</button>${step.action ? `<button class="btn tiny go tour-act">${step.action.label}</button>` : ''}<button class="btn tiny ${step.action ? 'ghost' : 'go'} tour-next">${step.next ?? 'Next'}</button></div></div>`
+      <div class="tour-btns">${index > 0 && index < count - 1 ? '<button class="btn tiny ghost tour-back">Back</button>' : ''}<button class="btn tiny ghost tour-skip">${step.skip ?? (index === count - 1 ? '' : 'Skip Tour')}</button>${step.action ? `<button class="btn tiny go tour-act">${step.action.label}</button>` : ''}<button class="btn tiny ${step.action ? 'ghost' : 'go'} tour-next">${step.next ?? 'Next'}</button></div></div>`
     if (!card.querySelector('.tour-skip')!.textContent) card.querySelector('.tour-skip')!.remove()
     layer.append(...dims, hole, card)
     // the walking step's glowing spot (clicks fall through it to the ground underneath)
@@ -301,7 +301,7 @@ export async function startTour(): Promise<void> {
 /** A one-off spotlight ("Show me" on a checklist item). Falls back to a centred card when the thing isn't on screen. */
 export async function pointAt(target: Target | undefined, title: string, text: string, action?: Step['action'], extra: Partial<Step> = {}): Promise<void> {
   active?.close()
-  await showCard({ target, title, text, next: 'Got it', action, ...extra }, 0, 1)
+  await showCard({ target, title, text, next: 'Got It', action, ...extra }, 0, 1)
 }
 
 /** "Show me" for walking: you and a glowing spot on the ground to click (never "click yourself") */

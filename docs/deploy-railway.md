@@ -145,9 +145,18 @@ COMPANY_NAME=<who runs Club NYC: your name or your company's legal name>
 GOVERNING_STATE=<the US state whose law governs the terms, e.g. New York>
 MAILING_ADDRESS=<a postal address for legal notices>
 DISCORD_INVITE_URL=<a never-expiring https://discord.gg/… invite, once your server is ready>
+LAUNCH_MODE=waitlist
+PREVIEW_CODE=<paste the output of: openssl rand -hex 12>
+RESEND_API_KEY=<from resend.com, see sign-in-setup.md>
+EMAIL_FROM=Club NYC <hello@mail.yourdomain.com>
 RAILWAY_DEPLOYMENT_DRAINING_SECONDS=10
 RAILWAY_HEALTHCHECK_TIMEOUT_SEC=120
 ```
+
+`LAUNCH_MODE=waitlist` is also what the server does when it's left unset: until launch day, the landing page takes
+emails ("Join the Waitlist") and `/play` shows a Coming Soon page. You and your testers get in with
+`https://<your domain>/play?preview=<PREVIEW_CODE>` (once per browser). Save the preview code in your password
+manager too.
 
 To make the `ADMIN_TOKEN`, run this in Terminal and paste the 64-character result:
 
@@ -169,9 +178,16 @@ Save it in your password manager too. It's the password for the moderator dashbo
 | `COMPANY_NAME` | your name or your company's legal name | Fills `[COMPANY NAME]` in the terms, privacy policy and the landing page footer. The legal pages show the placeholder until it's set. |
 | `GOVERNING_STATE`, `MAILING_ADDRESS` | e.g. `New York`; a postal address | Fill `[GOVERNING STATE]` (the terms' governing law and courts) and `[MAILING ADDRESS]` (where legal notices go). Decide these with a lawyer. |
 | `DISCORD_INVITE_URL` | a never-expiring `https://discord.gg/…` invite | Where the landing page's Discord buttons go (through `/discord`, so you can change it here without touching the site). Until it's set, those buttons say the Discord opens soon. In Discord: server menu → Invite People → Edit invite link → Expire after: **Never**. |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | from Google Cloud ([step 9](#9-point-google--x--discord-sign-in-at-the-new-address)) | "Sign in with Google". Optional. |
-| `X_CLIENT_ID`, `X_CLIENT_SECRET` | from the X developer portal | "Sign in with X". Optional. |
-| `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` | from the Discord developer portal | "Sign in with Discord". Optional. |
+| `LAUNCH_MODE` | `waitlist` until launch day, then `open` | **Unset means `waitlist`.** Waitlist: the landing page's buttons become "Join the Waitlist" and `/play` and invite links show a Coming Soon page with the same form. Open: everyone can play. See [Launch day](#launch-day-open-the-city). |
+| `PREVIEW_CODE` | a long random string (`openssl rand -hex 12`) | Testers open `/play?preview=<code>` once per browser to play while the city is in waitlist mode (`/play?preview=off` turns it off again). Change it to lock every tester out. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | from [Resend](https://resend.com), and an address on your verified sending domain, e.g. `Club NYC <hello@mail.clubnyc.com>` | All email: waitlist confirmations, the launch email and "Continue with Email" sign-in links. Without them nothing is emailed: the waitlist still takes addresses (with no confirmation step) and the email sign-in button is hidden. Setup: [sign-in-setup.md](sign-in-setup.md#email-sign-in-links-the-waitlist-the-launch-email). |
+| `EMAIL_REPLY_TO` | an inbox you read | Optional. Where replies to those emails go (default: `CONTACT_EMAIL`). |
+| `WAITLIST_CONFIRM` | `true` (default) or `false` | Optional. `false` skips the confirmation email (single opt-in). |
+| `WAITLIST_PUBLIC_MIN` | `100` (default) | Optional. The landing page shows how many people are in line only from this many. |
+| `EMAIL_LINK_SECRET` | a long random string | Optional. Signs the unsubscribe links in waitlist emails. Unset, the server makes one and keeps it next to the database on the volume. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | from Google Cloud ([sign-in-setup.md](sign-in-setup.md#google)) | "Sign in with Google". Optional. |
+| `X_CLIENT_ID`, `X_CLIENT_SECRET` | from the X developer portal ([sign-in-setup.md](sign-in-setup.md#x)) | "Sign in with X". Optional. X charges per sign-in (pay-per-use credits). |
+| `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` | from the Discord developer portal ([sign-in-setup.md](sign-in-setup.md#discord)) | "Sign in with Discord". Optional. |
 | `RAILWAY_DEPLOYMENT_DRAINING_SECONDS` | `10` | A Railway setting: how long the old server gets to finish after Railway asks it to stop, before it is killed. Railway's default is **0**. The server needs a moment to say goodbye to players and close the database cleanly, which usually takes well under a second. |
 | `RAILWAY_HEALTHCHECK_TIMEOUT_SEC` | `120` | A Railway setting: how long a new version may take to answer `/api/health` before the deploy counts as failed. Railway's default is 300. |
 | `BACKUP_EVERY_HOURS` | `6` (default) | How often the server snapshots the database. `0` turns the schedule off. |
@@ -218,10 +234,14 @@ There's nothing to set under Build: Railway builds the `Dockerfile` automaticall
    ```
 
    `version` is the Git commit that's running (or the package version for CLI deploys).
-4. Open the site. The landing page loads at `/`. Press **Play now**: you go straight to making a New Yorker. Give a birth month and year, tick "I agree", and walk around as a guest.
+4. Open the site. The landing page loads at `/`, in waitlist mode: **Join the Waitlist** instead of Play Now. Join
+   with your own email (the confirmation email should arrive, if email is set up), and check that `/play` shows the
+   Coming Soon page.
+5. Open `/play?preview=<your PREVIEW_CODE>`. Now the game opens: press **Play Now**, give a birth month and year,
+   tick "I agree", and walk around as a guest. (`/play?preview=off` puts that browser back to Coming Soon.)
    Also check: `/robots.txt` and `/sitemap.xml` show your `https://` address, and `/discord` goes to your invite (or back to the landing page with an "opens soon" note).
-5. About a minute after the start, the logs should show the first snapshot: `[ops] backup club-nyc-2026-10-16T12-00-00Z.db (…) in … ms`. Snapshot names use UTC time.
-6. Open `https://<your domain>/admin.html` and log in with your `ADMIN_TOKEN`.
+6. About a minute after the start, the logs should show the first snapshot: `[ops] backup club-nyc-2026-10-16T12-00-00Z.db (…) in … ms`. Snapshot names use UTC time.
+7. Open `https://<your domain>/admin.html` and log in with your `ADMIN_TOKEN`. The **Waitlist** tab shows who's joined.
 
 ---
 
@@ -240,7 +260,7 @@ The Hobby plan allows 2 custom domains per service.
 
 ## 9. Point Google / X / Discord sign-in at the new address
 
-Each provider only sends players back to addresses you've approved. Use your real domain (the one in `PUBLIC_URL`). Keep the `http://localhost:5173/...` entries too, for development.
+Each provider only sends players back to addresses you've approved. Use your real domain (the one in `PUBLIC_URL`). Keep the `http://localhost:5173/...` entries too, for development. Everything each provider needs (and email sign-in, which needs Resend instead) is in [sign-in-setup.md](sign-in-setup.md).
 
 | Provider | Where | Add this redirect / callback URL |
 |---|---|---|
@@ -251,8 +271,28 @@ Each provider only sends players back to addresses you've approved. Use your rea
 Then copy each client ID and secret into the Railway variables and **Deploy**.
 
 - **Google:** while the app's publishing status is "Testing", only the test users you've listed can sign in. Switch it to **In production** (Google Auth Platform → Audience) before launch.
-- **Test each button** on the live site, ideally in a private window.
-- If you change the domain again, update all three.
+- **Test each button** on the live site, ideally in a private window. While the city is in waitlist mode, open
+  `/play?preview=<PREVIEW_CODE>` in that window first.
+- If you change the domain again, update all three. Email sign-in links follow `PUBLIC_URL` by themselves.
+
+---
+
+## Launch day: open the city
+
+Until now the site has been in waitlist mode (`LAUNCH_MODE` unset or `waitlist`). To open it:
+
+1. Service → **Variables** → set `LAUNCH_MODE=open` → **Deploy**.
+2. Check in a private window: the landing page says **Play Now**, `/play` opens the game, and a new guest can walk
+   into Times Square.
+3. `/admin.html` → **Waitlist** → **Email the Waitlist That We're Open**. It shows how many people will get it
+   first, sends in batches of 100 (Resend's batch API), and marks each person as emailed. Unsubscribed people,
+   unconfirmed addresses and anyone already emailed are skipped, so pressing it again later (say, after a quota
+   hiccup or for late signups) only reaches people who haven't had it. Try **Send a Test** to yourself first.
+4. The Resend plan must cover the list: the Free plan stops at 100 emails a day (see
+   [sign-in-setup.md](sign-in-setup.md#email-sign-in-links-the-waitlist-the-launch-email)).
+
+To close the doors again (say, for a soft launch), set `LAUNCH_MODE=waitlist` and deploy: the game's pages go back
+to Coming Soon for everyone except testers, and existing players' accounts are kept.
 
 ---
 
@@ -397,7 +437,10 @@ So a small launch should cost roughly **$5–10 a month** on Hobby. Set a spendi
 - [ ] `DISCORD_INVITE_URL` is a never-expiring invite, and `/discord` lands in your server (or you're fine with "opens soon" for now)
 - [ ] You've read [launch/legal-callouts.md](launch/legal-callouts.md) and decided on each open item
 - [ ] New art since the last deploy? Run `.venv/bin/python tools/webp.py` and commit the `.webp` copies (the server sends them instead of the originals)
-- [ ] Every sign-in button works on the live domain; Google's app is "In production"
+- [ ] Every sign-in button works on the live domain; Google's app is "In production" ([sign-in-setup.md](sign-in-setup.md))
+- [ ] Email: `RESEND_API_KEY` and `EMAIL_FROM` set, the domain verified (DKIM, SPF, DMARC), **Send a Test** arrived and wasn't spam
+- [ ] `LAUNCH_MODE=waitlist` and `PREVIEW_CODE` set; joining the waitlist works and `/play` shows Coming Soon; `/play?preview=<code>` opens the game
+- [ ] Launch day: `LAUNCH_MODE=open`, then **Email the Waitlist That We're Open** ([Launch day](#launch-day-open-the-city))
 - [ ] Railway volume backups: Daily and Weekly schedules on
 - [ ] Off-site backups: at least one `off-site copy … uploaded` log line, or a conscious decision to skip them
 - [ ] You've practised a restore: downloaded a snapshot and opened it ([runbook § 4](runbook.md#4-restore-the-database-from-a-backup))

@@ -13,9 +13,10 @@ import { msToReset, prevWeekId } from './rng'
 import { api } from '../game'
 import { link } from '../net/link'
 import { rest, type PublicUser } from '../net/server'
+import { inviteLink } from '../net/invite'
 import type { Look } from '../avatar/look'
 
-type Tab = 'friends' | 'boards' | 'teams' | 'city'
+type Tab = 'friends' | 'boards' | 'teams' | 'city' | 'games'
 let lastTab: Tab = 'friends'
 let lastGame = BOARD_GAMES[0].id
 let friendsOnly = false
@@ -64,7 +65,7 @@ export function addFriendFlow(r: Resident, onDone?: () => void) {
     if (actor) refreshTag(actor)
   } else if (res === 'later') {
     actor?.say(pick(LATER_LINES))
-    toast(`${r.name} wants to hang out a bit first. Wave, dance or throw a snowball with them!`, '😄')
+    toast(`${r.name} wants to hang out a bit first. Wave or dance with them!`, '😄')
   }
   onDone?.()
 }
@@ -96,6 +97,8 @@ export function openCommunity(tab: Tab = lastTab) {
   if (!link.account && lastTab === 'city') lastTab = 'friends'
   if (link.account) mk('city', '<b class="cm-live-dot"></b> City')
   mk('friends', 'Friends <i class="cm-fcount"></i>')
+  // multiplayer mini-games (app/src/mp/hub.ts): Quick Match, Create Lobby, join with a code
+  mk('games', 'Games')
   mk('boards', 'Leaderboards')
   mk('teams', 'Neighborhoods')
   const bell = el('button', 'cm-bell' + (save.notifyOff ? ' off' : ''), save.notifyOff ? '🔕' : '🔔')
@@ -119,6 +122,10 @@ export function openCommunity(tab: Tab = lastTab) {
     if (lastTab === 'friends') link.account ? void renderFriendsOnline(body, render, live) : renderFriends(body, render)
     if (lastTab === 'boards') link.account ? void renderBoardsOnline(body, render, live) : renderBoards(body, render)
     if (lastTab === 'teams') link.account ? void renderTeamsOnline(body, render, live) : renderTeams(body, render)
+    if (lastTab === 'games')
+      void import('../mp/hub').then((m) => {
+        if (live()) void m.renderGamesTab(body, live)
+      })
   }
   const count = () => {
     const c = tabs.querySelector('.cm-fcount')
@@ -171,7 +178,7 @@ async function renderCity(body: HTMLElement, live: () => boolean) {
   body.append(el('div', 'cm-city-head', `<b>${r.count}</b><span>${r.count === 1 ? 'New Yorker' : 'New Yorkers'} in the city right now</span>`))
   const online = [...mp.friends.values()].filter((f) => f.online)
   if (online.length) {
-    body.append(el('h4', 'cm-sub', 'Friends out and about'))
+    body.append(el('h4', 'cm-sub', 'Friends Out and About'))
     for (const f of online) {
       const row = el('div', 'cm-row', `<span class="cm-face">${faceOf(f.look)}</span><span class="cm-who"><b>${esc(f.name)}</b><small>${teamLine(f.team)}</small></span><span class="cm-where on">📍 ${roomName(f.room) || 'Somewhere'}</span>`)
       const go = el('button', 'btn small', f.room === world.room.id ? 'Find' : 'Go')
@@ -181,16 +188,18 @@ async function renderCity(body: HTMLElement, live: () => boolean) {
     }
   }
   const rooms = Object.entries(r.rooms).sort((a, b) => b[1].n - a[1].n)
-  body.append(el('h4', 'cm-sub', 'Where people are hanging out'))
+  body.append(el('h4', 'cm-sub', 'Where People Are Hanging Out'))
   if (!rooms.length || (rooms.length === 1 && r.count <= 1)) {
     const empty = el('div', 'cm-empty', `<div class="cm-empty-art">🌆</div><b>It’s just you (and the city locals) right now</b><p>Bring a friend! Send them the link and you’ll appear in the same Times Square.</p>`)
-    const copy = el('button', 'btn go', '🔗 Copy invite link')
+    const copy = el('button', 'btn go', '🔗 Copy Invite Link')
     copy.onclick = async () => {
+      // your own /join link, so whoever uses it lands next to you (and counts as your invite)
+      const url = save.name ? inviteLink(save.name) : location.origin
       try {
-        await navigator.clipboard.writeText(location.origin)
+        await navigator.clipboard.writeText(url)
         toast('Invite link copied! Paste it to a friend.', '🔗')
       } catch {
-        toast(location.origin, '🔗')
+        toast(url, '🔗')
       }
     }
     empty.append(copy)
@@ -218,7 +227,7 @@ async function renderFriendsOnline(body: HTMLElement, rerender: () => void, live
   if (!live()) return
   // requests waiting for you
   if (mp.incoming.size) {
-    body.append(el('h4', 'cm-sub', 'Friend requests'))
+    body.append(el('h4', 'cm-sub', 'Friend Requests'))
     for (const u of mp.incoming.values()) {
       const row = el('div', 'cm-row request', `<span class="cm-face">${faceOf(u.look)}</span><span class="cm-who"><b>${esc(u.name)}</b><small>wants to be friends</small></span>`)
       const acts = el('span', 'cm-acts')
@@ -232,11 +241,11 @@ async function renderFriendsOnline(body: HTMLElement, rerender: () => void, live
     }
   }
   const list = [...mp.friends.values()].sort((a, b) => Number(b.online) - Number(a.online) || a.name.localeCompare(b.name))
-  body.append(el('h4', 'cm-sub', `Friends · ${list.filter((f) => f.online).length} online`))
+  body.append(el('h4', 'cm-sub', `Friends · ${list.filter((f) => f.online).length} Online`))
   if (!list.length)
-    body.append(el('div', 'cm-empty', `<div class="cm-empty-art">🤝</div><b>No friends yet</b><p>Click anyone in the city and hit <b>Add Friend</b>. When they accept, you’ll see where they are and can jump straight to them. Or bring someone you already know: they’ll land right next to you.</p>`))
+    body.append(el('div', 'cm-empty', `<div class="cm-empty-art">🤝</div><b>No Friends Yet</b><p>Click anyone in the city and hit <b>Add Friend</b>. When they accept, you’ll see where they are and can jump straight to them. Or bring someone you already know: they’ll land right next to you.</p>`))
   // the friends list is where people think about friends: the invite link lives here too
-  const invite = el('button', 'btn small cm-invite', list.length ? '💌 Invite someone from outside the city' : '💌 Invite a friend')
+  const invite = el('button', 'btn small cm-invite', list.length ? '💌 Invite Someone from Outside the City' : '💌 Invite a Friend')
   invite.onclick = () => void import('../features/invite').then((m) => m.openInvite())
   if (!list.length) body.append(invite)
   for (const f of list) {
@@ -284,7 +293,7 @@ async function renderFriendsOnline(body: HTMLElement, rerender: () => void, live
   // real people in this room you could add
   const here = [...mp.players.values()].filter((a) => a.remote && !mp.friends.has(a.remote.id))
   if (here.length) {
-    body.append(el('h4', 'cm-sub', `People here now · ${world.room.name}`))
+    body.append(el('h4', 'cm-sub', `People Here Now · ${world.room.name}`))
     for (const a of here) {
       const id = a.remote!.id
       const row = el('div', 'cm-row', `<span class="cm-face">${headPortrait(a.look)}</span><span class="cm-who"><b>${esc(a.name)}</b><small>${teamLine(a.remote!.team)}</small></span>`)
@@ -298,7 +307,7 @@ async function renderFriendsOnline(body: HTMLElement, rerender: () => void, live
   // the computer-run locals you've befriended still hang around
   const locals = friends()
   if (locals.length) {
-    body.append(el('h4', 'cm-sub', 'City locals you know'))
+    body.append(el('h4', 'cm-sub', 'City Locals You Know'))
     for (const r of locals.slice(0, 8)) {
       const row = el('div', 'cm-row local', personRow(r))
       const go = el('button', 'btn small ghost', 'Find')
@@ -335,7 +344,7 @@ async function renderBoardsOnline(body: HTMLElement, rerender: () => void, live:
   const g = BOARD[lastGame]
   const meta = el('div', 'cm-meta', `<span>${allTime ? 'All-time bests · real players' : `This week · real players · resets in ${resetIn()}`}</span>`)
   const toggles = el('span', 'cm-toggles')
-  const period = el('button', 'cm-filter', allTime ? '🏛️ All time' : '📅 This week')
+  const period = el('button', 'cm-filter', allTime ? '🏛️ All Time' : '📅 This Week')
   period.title = 'Switch between this week and all time'
   period.onclick = () => {
     allTime = !allTime
@@ -428,7 +437,7 @@ function renderFriends(body: HTMLElement, rerender: () => void) {
   // online first, then by name
   list.sort((a, b) => (locationOf(b) ? 1 : 0) - (locationOf(a) ? 1 : 0) || a.name.localeCompare(b.name))
   if (!list.length) {
-    body.append(el('div', 'cm-empty', `<div class="cm-empty-art">🤝</div><b>No friends yet</b><p>Click any New Yorker in the city and hit <b>Add Friend</b>. Tip: wave, dance or toss a snowball with them first. People warm up to familiar faces.</p>`))
+    body.append(el('div', 'cm-empty', `<div class="cm-empty-art">🤝</div><b>No Friends Yet</b><p>Click any New Yorker in the city and hit <b>Add Friend</b>. Tip: wave or dance with them first. People warm up to familiar faces.</p>`))
   }
   for (const r of list) {
     const row = el('div', 'cm-row', personRow(r))
@@ -454,7 +463,7 @@ function renderFriends(body: HTMLElement, rerender: () => void) {
   // people around you right now
   const nearby = world.npcs.map((a) => a.resident).filter((r): r is Resident => !!r && !isFriend(r.id))
   if (nearby.length) {
-    body.append(el('h4', 'cm-sub', `People here now · ${world.room.name}`))
+    body.append(el('h4', 'cm-sub', `People Here Now · ${world.room.name}`))
     for (const r of nearby) {
       const row = el('div', 'cm-row', personRow(r))
       const add = el('button', 'btn small go', '+ Add Friend')
@@ -624,7 +633,7 @@ function pulseLocal() {
   } else if (roll < 0.75) {
     const g = pick(BOARD_GAMES)
     const top = board(g.id)[0]
-    if (top && !top.you) notify(`<b>${top.name}</b> leads ${g.title} this week with <b>${fmt(g.id, top.score)}</b> ${g.unit}`, g.emoji, [{ label: 'Beat it', act: () => api.playGame(g.id) }], 8000, QUIET)
+    if (top && !top.you) notify(`<b>${top.name}</b> leads ${g.title} this week with <b>${fmt(g.id, top.score)}</b> ${g.unit}`, g.emoji, [{ label: 'Beat It', act: () => api.playGame(g.id) }], 8000, QUIET)
   } else {
     const s = standings()
     const mine = myTeam()

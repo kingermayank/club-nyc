@@ -111,7 +111,7 @@ export function openPartyPanel() {
       <p class="pp-sub">${going ? 'Switch the music or the vibe. Everyone hears it.' : world.room.id === 'penthouse' ? 'Ninety floors up, a terrace, a DJ booth. This is what the penthouse is for.' : 'Clear the floor. Your place, your playlist.'}</p>
       <h4>Music</h4><div class="pp-tracks"></div>
       <h4>Vibe</h4><div class="pp-themes"></div>
-      ${link.account ? `<h4>Who’s invited</h4><div class="pp-who"><button class="pp-opt ${pub ? '' : 'on'}" data-pub="0">👯 Friends</button><button class="pp-opt ${pub ? 'on' : ''}" data-pub="1">🗽 Everyone in the city</button></div>` : ''}
+      ${link.account ? `<h4>Who’s Invited</h4><div class="pp-who"><button class="pp-opt ${pub ? '' : 'on'}" data-pub="0">👯 Friends</button><button class="pp-opt ${pub ? 'on' : ''}" data-pub="1">🗽 Everyone in the City</button></div>` : ''}
       <div class="pp-actions"></div>`
     const list = p.querySelector('.pp-tracks')!
     for (const t of TRACKS) {
@@ -146,19 +146,19 @@ export function openPartyPanel() {
     })
     const actions = p.querySelector('.pp-actions')!
     if (going) {
-      const end = el('button', 'btn ghost', 'End the party')
+      const end = el('button', 'btn ghost', 'End the Party')
       end.onclick = () => {
         closeOverlay()
         endParty()
       }
-      const ok = el('button', 'btn go', 'Keep partying 🎶')
+      const ok = el('button', 'btn go', 'Keep Partying 🎶')
       ok.onclick = () => closeOverlay()
       // anyone who opens your link while the party's on comes straight to it
-      const inv = el('button', 'btn ghost', '💌 Invite with a link')
+      const inv = el('button', 'btn ghost', '💌 Invite with a Link')
       inv.onclick = () => void import('./invite').then((m) => m.openInvite())
       actions.append(end, inv, ok)
     } else {
-      const go = el('button', 'btn go', '🎉 Start the party')
+      const go = el('button', 'btn go', '🎉 Start the Party')
       go.onclick = () => {
         closeOverlay()
         startParty(track, theme, pub)

@@ -1,0 +1,15 @@
+/* Phone → Text a Friend (features/textFriend.ts) */
+.panel.text-friend { width: min(560px, 94%); }
+.text-friend .tf-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; padding: 2px; text-align: left; }
+.text-friend .tf-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 2.5px solid var(--ink); border-radius: 14px; background: #fff; }
+.text-friend .tf-row:not(.on) { background: #f3f1ea; }
+.text-friend .tf-face { flex: none; width: 34px; height: 34px; border: 2px solid var(--ink); border-radius: 50%; overflow: hidden; background: #dde9ff; display: grid; place-items: center; }
+.text-friend .tf-face svg { width: 100%; height: 100%; }
+.text-friend .tf-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.text-friend .tf-who b { font: var(--fs-md) var(--display); font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.text-friend .tf-who small { font-size: var(--fs-xs); opacity: 0.7; }
+.text-friend .tf-row.on .tf-who small { color: #1b7a3d; opacity: 1; }
+.text-friend .tf-acts { display: flex; gap: 4px; flex: none; }
+.text-friend .tf-acts .btn { padding: 0 8px; white-space: nowrap; }
+.text-friend .tf-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 10px; text-align: center; font-size: var(--fs-md); }
+.text-friend .tf-empty span { font-size: var(--fs-sm); opacity: 0.75; }

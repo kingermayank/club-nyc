@@ -27,6 +27,19 @@
   descent-override: 15%;
   line-gap-override: 0%;
 }
+/* What's typed into a field (the waitlist's email) and its placeholder: Chrome cuts field text at the font's descent,
+   and with the 85/15 metrics that's above the bottom of g, y and p. The same font file with room below (98/28) fits
+   the descenders, and since 98 - 28 = 85 - 15 the baseline stays put. Same as the game (style.css). */
+@font-face {
+  font-family: 'Burbank Field';
+  src: url('/fonts/BurbankSmall-Medium.otf') format('opentype');
+  font-weight: 100 599;
+  font-display: swap;
+  ascent-override: 98%;
+  descent-override: 28%;
+  line-gap-override: 0%;
+}
+input, input::placeholder { font-family: var(--field); }
 
 :root {
   --ink: #1d2140;
@@ -46,6 +59,7 @@
   --discord: #5865f2;
   --display: 'Burbank Display', 'Arial Rounded MT Bold', system-ui, sans-serif;
   --body: 'Burbank', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --field: 'Burbank Field', var(--body);
   --r: 22px;
   --sp-1: 4px;
   --sp-2: 8px;
@@ -91,6 +105,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .site-header { position: sticky; top: 0; z-index: 50; color: #fff; transition: background 0.2s, box-shadow 0.2s, color 0.2s; }
 .site-header.scrolled { background: rgba(255, 253, 246, 0.97); color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .header-row { display: flex; align-items: center; gap: 22px; min-height: 72px; }
+/* logo.png (900 wide) has 158px of empty space left of the artwork (99 on the right): pull the link back by that much
+   so the artwork lines up with the page's left edge, like the headline under it (flex: none, or the row squeezes it) */
+.brand { flex: none; margin-left: calc(108px * -158 / 900); }
 .brand img { width: 108px; filter: drop-shadow(0 3px 0 rgba(11, 24, 53, 0.4)); }
 .site-nav { display: flex; gap: 4px; margin-right: auto; }
 .site-nav a { padding: 8px 12px; border-radius: 10px; color: inherit; font: 17px var(--display); text-decoration: none; }
@@ -304,7 +321,7 @@ a.tile:hover { translate: 0 -3px; }
 /* footer */
 .site-footer { padding: 64px 0 36px; background: var(--ink); color: #dfe4f5; }
 .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; }
-.footer-brand img { width: 140px; }
+.footer-brand img { width: 140px; margin-left: calc(140px * -158 / 900); }
 .footer-brand p { margin-top: var(--sp-3); color: #b6bed8; font-size: 16px; }
 .site-footer nav { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .site-footer h2 { margin-bottom: 4px; color: var(--sun); font-size: 18px; }
@@ -355,6 +372,7 @@ a.tile:hover { translate: 0 -3px; }
   :root { --gutter: 16px; }
   body { font-size: 17px; }
   .header-row { gap: 10px; min-height: 64px; }
+  .brand { margin-left: calc(88px * -158 / 900); }
   .brand img { width: 88px; }
   .discord-link span { display: none; }
   .discord-link { padding: 0 8px; }

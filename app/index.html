@@ -7,6 +7,10 @@
     COMPANY_NAME         fills [COMPANY NAME] (the footer copyright and "Who makes Club NYC?")
     DISCORD_INVITE_URL   where /discord sends people: a never-expiring invite to the Club NYC server.
                          Until it's set, the Discord buttons say "opens soon" instead of breaking.
+    LAUNCH_MODE          "waitlist" (the default in production) or "open". The server sets data-launch on this
+                         page's html element, and each call to action below comes in two versions:
+                         .when-open (Play Now) and .when-soon (Join the Waitlist, Coming Soon). Only the one for
+                         the current mode shows (src/landing/waitlist.css). See server/src/waitlist.ts.
 
   Feature images: every <figure class="shot"> is a placeholder describing the picture it's waiting for.
   The full shot list with sizes and alt text is in docs/marketing/landing-page.md. Swap a placeholder for an
@@ -16,7 +20,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Club NYC: free cozy multiplayer NYC game in your browser</title>
+    <title>Club NYC: Free Cozy Multiplayer NYC Game in Your Browser</title>
     <meta name="description" content="A cozy online New York. Make a New Yorker in 30 seconds, explore 20+ places, work silly jobs and hang out with friends. Free, in your browser, ages 13+." />
     <link rel="icon" type="image/png" href="/art/icons/taxi.png" />
     <meta name="theme-color" content="#0b1835" />
@@ -65,14 +69,14 @@
     </script>
   </head>
   <body>
-    <a class="skip" href="#main">Skip to content</a>
+    <a class="skip" href="#main">Skip to Content</a>
 
     <header class="site-header" id="top">
       <div class="wrap header-row">
         <a class="brand" href="/" aria-label="Club NYC home"><img src="/art/ui/logo.png" alt="Club NYC" width="900" height="507" /></a>
         <nav class="site-nav" aria-label="Main">
           <a href="#explore">Explore NYC</a>
-          <a href="#fun-stuff">The fun stuff</a>
+          <a href="#fun-stuff">The Fun Stuff</a>
           <a href="#safety">Safety</a>
           <a href="#faq">FAQ</a>
         </nav>
@@ -81,7 +85,8 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.32 4.37A19.8 19.8 0 0 0 15.4 2.84a.07.07 0 0 0-.08.04c-.21.38-.45.87-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.53.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08 0l.37.3a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z"/></svg>
             <span>Discord</span>
           </a>
-          <a class="btn btn-play btn-sm" href="/play?start=guest" data-play="header">Play now</a>
+          <a class="btn btn-play btn-sm when-open" href="/play?start=guest" data-play="header">Play Now</a>
+          <a class="btn btn-play btn-sm when-soon" href="#join" data-join="header">Join the Waitlist</a>
         </div>
       </div>
     </header>
@@ -104,9 +109,28 @@
             <p class="welcome-back" hidden></p>
             <h1 id="hero-title">Waddle on over to New&nbsp;York.</h1>
             <p class="lede">Remember waddling around, meeting strangers, playing mini&#8209;games, and discovering secret rooms? Imagine all that nostalgia, but in NYC.</p>
-            <div class="hero-cta">
-              <a class="btn btn-play btn-xl" href="/play?start=guest" data-play="hero"><span class="play-label">Play now</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-              <button class="btn-trailer" type="button" data-trailer="hero"><span class="bt-icon" aria-hidden="true"></span>Watch the trailer</button>
+            <div class="hero-cta when-open">
+              <a class="btn btn-play btn-xl" href="/play?start=guest" data-play="hero"><span class="play-label">Play Now</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+              <button class="btn-trailer" type="button" data-trailer="hero"><span class="bt-icon" aria-hidden="true"></span>Watch the Trailer</button>
+            </div>
+            <!-- before launch: the city's coming soon, so the big button takes an email instead -->
+            <div class="hero-join when-soon">
+              <form class="wl-form" data-source="hero" novalidate>
+                <div class="wl-body">
+                  <p class="wl-kicker">Coming Soon</p>
+                  <div class="wl-row">
+                    <input class="wl-input" id="wl-hero" type="email" name="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="you@email.com" aria-label="Your email" />
+                    <button class="btn btn-play btn-xl" type="submit"><span class="wl-label">Join the Waitlist</span></button>
+                  </div>
+                  <p class="wl-msg" aria-live="polite"></p>
+                  <p class="wl-fine">We’ll email you the day the doors open. No spam: we’re not that kind of club. <a href="/privacy.html#waitlist">Privacy</a></p>
+                </div>
+                <div class="wl-hp" aria-hidden="true" style="position:absolute;left:-10000px;top:0;width:1px;height:1px;overflow:hidden"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+              </form>
+              <div class="hero-join-more">
+                <button class="btn-trailer" type="button" data-trailer="hero"><span class="bt-icon" aria-hidden="true"></span>Watch the Trailer</button>
+                <p class="wl-count" hidden><i aria-hidden="true"></i><span></span></p>
+              </div>
             </div>
             <!-- phones only: main.ts explains that the city plays on a computer -->
             <p class="hero-note" hidden></p>
@@ -123,8 +147,9 @@
           <div class="tile t-jam">
             <img src="/art/icons/e/disco-ball.png" alt="" width="64" height="64" />
             <p class="t-kicker">Dance Jam</p>
-            <p class="t-count jam-count">Every 8 min</p>
-            <p class="t-small jam-when">in Times Square</p>
+            <!-- after launch main.ts turns this into a live countdown; before, it says how often the shows are -->
+            <p class="t-count jam-count">8 min</p>
+            <p class="t-small jam-when">between shows in Times Square</p>
           </div>
           <div class="tile t-chat">
             <div class="chat-line"><p>anyone in Times Square?</p><b>Ana_NYC</b></div>
@@ -133,7 +158,7 @@
           </div>
           <a class="tile t-map" href="#explore">
             <img src="/art/landing/map-960.webp" alt="" width="960" height="637" loading="lazy" />
-            <span class="t-label"><b>20+ places</b>on one map</span>
+            <span class="t-label"><b>20+ Places</b>on one map</span>
           </a>
           <div class="tile t-free">
             <b>Free</b>
@@ -145,24 +170,24 @@
       <!-- ============ how it works ============ -->
       <section class="section steps-section" aria-labelledby="steps-title">
         <div class="wrap">
-          <h2 id="steps-title" class="section-title">Your first five minutes</h2>
+          <h2 id="steps-title" class="section-title">Your First Five Minutes</h2>
           <ol class="steps">
             <li class="step">
               <span class="step-num" aria-hidden="true">1</span>
               <img src="/art/icons/e/sparkles.png" alt="" width="56" height="56" loading="lazy" />
-              <h3>Make your New Yorker</h3>
+              <h3>Make Your New Yorker</h3>
               <p>Pick a look, spin a name and you’re in. Change any of it later in your wardrobe.</p>
             </li>
             <li class="step">
               <span class="step-num" aria-hidden="true">2</span>
               <img src="/art/icons/e/subway.png" alt="" width="56" height="56" loading="lazy" />
-              <h3>Explore the city</h3>
+              <h3>Explore the City</h3>
               <p>Walk the streets, ride the subway, catch the ferry to Liberty Island. Anything that glows, you can click.</p>
             </li>
             <li class="step">
               <span class="step-num" aria-hidden="true">3</span>
               <img src="/art/icons/e/friends.png" alt="" width="56" height="56" loading="lazy" />
-              <h3>Hang out</h3>
+              <h3>Hang Out</h3>
               <p>Chat, dance, add friends and work a shift together. Rosa, your building’s super, shows you around.</p>
             </li>
           </ol>
@@ -191,38 +216,42 @@
       <!-- ============ the fun stuff ============ -->
       <section class="section fun" id="fun-stuff" aria-labelledby="fun-title">
         <div class="wrap">
-          <h2 id="fun-title" class="section-title">The fun stuff</h2>
+          <h2 id="fun-title" class="section-title">The Fun Stuff</h2>
           <p class="section-sub">There’s always something to do, on your own or with friends.</p>
           <div class="bento fun-bento">
             <article class="tile f-dress">
-              <div class="f-copy"><p class="t-kicker">Dress your New Yorker</p><h3>Your look, your rules</h3><p>Hats, tees, puffers, sneakers and the occasional foam crown, from 8 shops around the city. Try things on before you buy.</p></div>
+              <div class="f-copy"><p class="t-kicker">Dress Your New Yorker</p><h3>Your Look, Your Rules</h3><p>Hats, tees, puffers, sneakers and the occasional foam crown, from 8 shops around the city. Try things on before you buy.</p></div>
               <div class="f-media"><video data-clip="creator" muted loop playsinline preload="none" aria-hidden="true"></video></div>
             </article>
             <article class="tile f-stamps">
-              <p class="t-kicker">Collect stamps</p>
-              <h3>50 very New York things to do</h3>
+              <p class="t-kicker">Collect Stamps</p>
+              <h3>50 Very New York Things to Do</h3>
               <div class="f-media"><video data-clip="stamps" muted loop playsinline preload="none" aria-hidden="true"></video></div>
               <p>Every stamp comes with a hint, and every 5 you collect pays 25 coins.</p>
             </article>
-            <article class="tile f-over f-jobs"><video data-clip="ferry" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Play games</p><h3>Five silly jobs that pay real coins</h3></article>
-            <article class="tile f-over f-home"><video data-clip="party" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Your apartment</p><h3>Decorate it, then throw a party</h3></article>
-            <article class="tile f-over f-mob"><video data-clip="flashmob" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Start a flash mob anywhere</p></article>
+            <article class="tile f-over f-jobs"><video data-clip="ferry" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Play Games</p><h3>Five Silly Jobs That Pay Real Coins</h3></article>
+            <article class="tile f-over f-home"><video data-clip="party" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Your Apartment</p><h3>Decorate It, Then Throw a Party</h3></article>
+            <article class="tile f-over f-mob"><video data-clip="flashmob" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Start a Flash Mob Anywhere</p></article>
             <article class="tile f-over f-jam"><video data-clip="jam" muted loop playsinline preload="none" aria-hidden="true"></video><p class="t-kicker">Dance Jams in Times Square</p></article>
             <article class="tile f-mini f-wars"><img src="/art/icons/e/flag.png" alt="" width="44" height="44" loading="lazy" /><b>Neighborhood Wars</b><span>Pick Downtown, Midtown, Uptown or the Harbor and help your team win the week.</span></article>
-            <article class="tile f-mini f-photo"><img src="/art/icons/e/camera.png" alt="" width="44" height="44" loading="lazy" /><b>Group photos</b><span>Squeeze everyone nearby into a photo booth strip and save it.</span></article>
+            <article class="tile f-mini f-photo"><img src="/art/icons/e/camera.png" alt="" width="44" height="44" loading="lazy" /><b>Group Photos</b><span>Squeeze everyone nearby into a photo booth strip and save it.</span></article>
             <article class="tile f-mini f-today"><img src="/art/icons/e/calendar.png" alt="" width="44" height="44" loading="lazy" /><b>Today in the City</b><span>Three new challenges every day, the same for everyone.</span></article>
             <article class="tile f-mini f-news"><img src="/art/icons/e/newspaper.png" alt="" width="44" height="44" loading="lazy" /><b>The Club NYC Times</b><span>News, leaderboards and advice from the bodega cat.</span></article>
           </div>
-          <p class="mid-cta"><a class="btn btn-play" href="/play?start=guest" data-play="features"><span class="play-label">Play now</span></a></p>
+          <p class="mid-cta">
+            <a class="btn btn-play when-open" href="/play?start=guest" data-play="features"><span class="play-label">Play Now</span></a>
+            <a class="btn btn-play when-soon" href="#join" data-join="features">Join the Waitlist</a>
+          </p>
         </div>
       </section>
 
       <!-- ============ the city so far: real totals from the server (/api/stats), flipped in like a departures board ============ -->
-      <!-- main.ts fills it in; it stays hidden if the numbers can't be fetched (nothing here is ever made up) -->
+      <!-- main.ts fills it in; it stays hidden if the numbers can't be fetched (nothing here is ever made up). Before launch it shows
+           when the doors open, how many people are in line (only once that's a real crowd) and how many places are waiting. -->
       <section class="section so-far" id="so-far" aria-labelledby="so-far-title" hidden>
         <div class="wrap">
-          <h2 id="so-far-title" class="section-title">The city so far</h2>
-          <p class="section-sub">Real numbers, straight from the city. They change every minute.</p>
+          <h2 id="so-far-title" class="section-title"><span class="when-open">The City So Far</span><span class="when-soon">Next Stop: Club NYC</span></h2>
+          <p class="section-sub"><span class="when-open">Real numbers, straight from the city. They change every minute.</span><span class="when-soon">The doors open soon. Real numbers only, no hype.</span></p>
           <div class="board"></div>
         </div>
       </section>
@@ -230,19 +259,19 @@
       <!-- ============ safety + rules ============ -->
       <section class="section safety" id="safety" aria-labelledby="safety-title">
         <div class="wrap">
-          <h2 id="safety-title" class="section-title">Be a good neighbor</h2>
+          <h2 id="safety-title" class="section-title">Be a Good Neighbor</h2>
           <p class="section-sub">Club NYC is for ages 13 and up. A few simple rules keep the city friendly for everyone.</p>
           <ul class="rules">
-            <li><img src="/art/icons/e/heart.png" alt="" width="44" height="44" loading="lazy" /><b>Be kind</b><span>No bullying, harassment or hate. If someone asks you to leave them alone, do.</span></li>
-            <li><img src="/art/icons/e/ok-hand.png" alt="" width="44" height="44" loading="lazy" /><b>Keep it PG-13</b><span>No dating, sexual content, slurs or strong swearing, in chat, names, outfits or notes.</span></li>
-            <li><img src="/art/icons/e/lock.png" alt="" width="44" height="44" loading="lazy" /><b>Keep it private</b><span>Never share or ask for real names, addresses, schools, socials or passwords, and don’t move chats to other apps.</span></li>
-            <li><img src="/art/icons/e/medal-gold.png" alt="" width="44" height="44" loading="lazy" /><b>Play fair</b><span>No cheating, bots, exploits or extra accounts. Coins can’t be bought or sold.</span></li>
-            <li><img src="/art/icons/e/sunglasses.png" alt="" width="44" height="44" loading="lazy" /><b>Be yourself</b><span>Don’t pretend to be Club NYC staff, a moderator or another player.</span></li>
+            <li><img src="/art/icons/e/heart.png" alt="" width="44" height="44" loading="lazy" /><b>Be Kind</b><span>No bullying, harassment or hate. If someone asks you to leave them alone, do.</span></li>
+            <li><img src="/art/icons/e/ok-hand.png" alt="" width="44" height="44" loading="lazy" /><b>Keep It PG-13</b><span>No dating, sexual content, slurs or strong swearing, in chat, names, outfits or notes.</span></li>
+            <li><img src="/art/icons/e/lock.png" alt="" width="44" height="44" loading="lazy" /><b>Keep It Private</b><span>Never share or ask for real names, addresses, schools, socials or passwords, and don’t move chats to other apps.</span></li>
+            <li><img src="/art/icons/e/medal-gold.png" alt="" width="44" height="44" loading="lazy" /><b>Play Fair</b><span>No cheating, bots, exploits or extra accounts. Coins can’t be bought or sold.</span></li>
+            <li><img src="/art/icons/e/sunglasses.png" alt="" width="44" height="44" loading="lazy" /><b>Be Yourself</b><span>Don’t pretend to be Club NYC staff, a moderator or another player.</span></li>
           </ul>
           <p class="rules-note"><img src="/art/icons/e/megaphone.png" alt="" width="28" height="28" loading="lazy" />Click any player to Report, Block or Mute them. Breaking the rules can mean a warning, a mute, a suspension or a ban, and serious harm means a permanent ban.</p>
           <div class="safety-panel">
             <div>
-              <h3>How we keep the city friendly</h3>
+              <h3>How We Keep the City Friendly</h3>
               <ul class="ticks">
                 <li>Chat is filtered, and links, emails and phone numbers are removed automatically.</li>
                 <li>Moderators review reports along with the recent chat, and a pile of reports pauses someone’s chat right away.</li>
@@ -259,7 +288,7 @@
         <div class="wrap community-grid">
           <div class="discord-card">
             <svg class="discord-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.32 4.37A19.8 19.8 0 0 0 15.4 2.84a.07.07 0 0 0-.08.04c-.21.38-.45.87-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.53.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08 0l.37.3a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z"/></svg>
-            <h2 id="community-title">Come hang out on Discord</h2>
+            <h2 id="community-title">Come Hang Out on Discord</h2>
             <p>Find people to play with, get first looks at new places, vote on what we build next and tell us about bugs.</p>
             <a class="btn btn-discord" href="/discord" data-discord="community" rel="noopener">Join the Discord</a>
             <small>Discord is for ages 13+ (older in some countries), and our server has its own rules.</small>
@@ -267,11 +296,11 @@
           <div class="side-cards">
             <div class="side-card">
               <img src="/art/icons/e/love-letter.png" alt="" width="44" height="44" loading="lazy" />
-              <div><h3>Bring your friends</h3><p>Every New Yorker has an invite link. Friends who use it land right next to you, and you’re friends from the start.</p></div>
+              <div><h3>Bring Your Friends</h3><p>Every New Yorker has an invite link. Friends who use it land right next to you, and you’re friends from the start.</p></div>
             </div>
             <div class="side-card">
               <img src="/art/icons/e/idea.png" alt="" width="44" height="44" loading="lazy" />
-              <div><h3>Found a bug or have an idea?</h3><p>Tell us in the Discord or email <a href="mailto:[CONTACT EMAIL]">[CONTACT EMAIL]</a>. We read everything.</p></div>
+              <div><h3>Found a Bug or Have an Idea?</h3><p>Tell us in the Discord or email <a href="mailto:[CONTACT EMAIL]">[CONTACT EMAIL]</a>. We read everything.</p></div>
             </div>
           </div>
         </div>
@@ -280,7 +309,15 @@
       <!-- ============ FAQ ============ -->
       <section class="section faq" id="faq" aria-labelledby="faq-title">
         <div class="wrap faq-wrap">
-          <h2 id="faq-title" class="section-title">Questions? We’ve got answers</h2>
+          <h2 id="faq-title" class="section-title">Questions? We’ve Got Answers</h2>
+          <details class="when-soon">
+            <summary>When does Club NYC open?</summary>
+            <p>Soon! We’re putting the finishing touches on the city (and teaching the pigeons some manners). Join the waitlist and we’ll email you the day the doors open.</p>
+          </details>
+          <details class="when-soon">
+            <summary>What happens when I join the waitlist?</summary>
+            <p>We save your email address and may ask you to confirm it with one click. When the city opens, we email you to say so. Every email has a one-click unsubscribe link, and we never sell your address. The <a href="/privacy.html#waitlist">privacy policy</a> has the details.</p>
+          </details>
           <details>
             <summary>What is Club NYC?</summary>
             <p>A cozy online New York you play in your web browser. You make a New Yorker, explore 20+ places from Times Square to Liberty Island, work silly jobs for coins, decorate your apartment and hang out with real people.</p>
@@ -295,11 +332,13 @@
           </details>
           <details>
             <summary>Can I play on my phone or tablet?</summary>
-            <p>Not yet. The city needs a keyboard and a bigger screen, so it’s made for laptops and desktops. On your phone right now? Tap Play now and send yourself the link for later.</p>
+            <p class="when-open">Not yet. The city needs a keyboard and a bigger screen, so it’s made for laptops and desktops. On your phone right now? Tap Send to My Computer and send yourself the link for later.</p>
+            <p class="when-soon">Not yet. The city needs a keyboard and a bigger screen, so it’s made for laptops and desktops. You can join the waitlist from your phone, though, and play on your computer when we open.</p>
           </details>
           <details>
             <summary>Do I need an account?</summary>
-            <p>No. Press Play now and you’re in as a guest. To keep your New Yorker on every device, link Google, X or Discord from your player card any time.</p>
+            <p class="when-open">No. Press Play Now and you’re in as a guest. To keep your New Yorker on every device, link Google, X, Discord or your email from your player card any time.</p>
+            <p class="when-soon">No. When the city opens, press Play Now and you’re in as a guest. To keep your New Yorker on every device, link Google, X, Discord or your email from your player card any time.</p>
           </details>
           <details>
             <summary>How do I play with my friends?</summary>
@@ -327,11 +366,12 @@
           </details>
           <details>
             <summary>What information do you collect?</summary>
-            <p>As little as we can. Guests don’t give us an email address. If you link Google, X or Discord, we get what we need to sign you in. The <a href="/privacy.html">privacy policy</a> has the details, including how to delete your account.</p>
+            <p>As little as we can. Guests don’t give us an email address. If you join the waitlist or sign in with email, we keep your email address to send you those emails. If you link Google, X or Discord, we get what we need to sign you in. The <a href="/privacy.html">privacy policy</a> has the details, including how to delete your account or leave the waitlist.</p>
           </details>
           <details>
             <summary>Is the game finished?</summary>
-            <p>Club NYC is in early access: you can play right now, and new places and features land all the time. The <a href="/discord" data-discord="faq" rel="noopener">Discord</a> gets first looks at what’s coming.</p>
+            <p class="when-open">Club NYC is in early access: you can play right now, and new places and features land all the time. The <a href="/discord" data-discord="faq" rel="noopener">Discord</a> gets first looks at what’s coming.</p>
+            <p class="when-soon">Almost! Club NYC opens soon, and new places and features will keep landing after that. The <a href="/discord" data-discord="faq" rel="noopener">Discord</a> gets first looks at what’s coming.</p>
           </details>
           <details>
             <summary>I found a bug. Where do I tell you?</summary>
@@ -349,11 +389,22 @@
       </section>
 
       <!-- ============ last call ============ -->
-      <section class="final" aria-labelledby="final-title">
+      <section class="final" id="join" aria-labelledby="final-title">
         <div class="wrap final-inner">
-          <h2 id="final-title">The Big Apple is waiting.</h2>
-          <p>Make your New Yorker in 30 seconds and say hi in Times Square.</p>
-          <a class="btn btn-play btn-xl" href="/play?start=guest" data-play="final"><span class="play-label">Play now</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <h2 id="final-title">The Big Apple Is Waiting.</h2>
+          <p class="when-open">Make your New Yorker in 30 seconds and say hi in Times Square.</p>
+          <p class="when-soon">The doors open soon. Get on the list and be one of the first New Yorkers in.</p>
+          <a class="btn btn-play btn-xl when-open" href="/play?start=guest" data-play="final"><span class="play-label">Play Now</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <form class="wl-form when-soon" data-source="final" novalidate>
+            <div class="wl-body">
+              <div class="wl-row">
+                <input class="wl-input" id="wl-final" type="email" name="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="you@email.com" aria-label="Your email" />
+                <button class="btn btn-play btn-xl" type="submit"><span class="wl-label">Join the Waitlist</span></button>
+              </div>
+              <p class="wl-msg" aria-live="polite"></p>
+            </div>
+            <div class="wl-hp" aria-hidden="true" style="position:absolute;left:-10000px;top:0;width:1px;height:1px;overflow:hidden"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+          </form>
           <p class="final-note">Free <i aria-hidden="true">·</i> No download <i aria-hidden="true">·</i> Ages 13+</p>
         </div>
       </section>
@@ -367,22 +418,24 @@
         </div>
         <nav aria-label="Play">
           <h2>Play</h2>
-          <a href="/play?start=guest" data-play="footer">Play now</a>
-          <a href="/play">Sign in</a>
+          <a class="when-open" href="/play?start=guest" data-play="footer">Play Now</a>
+          <a class="when-open" href="/play">Sign In</a>
+          <a class="when-soon" href="#join" data-join="footer">Join the Waitlist</a>
           <a href="#faq">FAQ</a>
         </nav>
         <nav aria-label="Community">
           <h2>Community</h2>
           <a href="/discord" data-discord="footer" rel="noopener">Discord</a>
-          <a href="/rules.html">Community rules</a>
+          <a href="/rules.html">Community Rules</a>
           <a href="#safety">Safety</a>
         </nav>
         <nav aria-label="Help and legal">
-          <h2>Help &amp; legal</h2>
-          <a href="mailto:[CONTACT EMAIL]">Contact us</a>
-          <a href="/rules.html#report">Report a problem</a>
-          <a href="/privacy.html">Privacy policy</a>
-          <a href="/terms.html">Terms of service</a>
+          <h2>Help &amp; Legal</h2>
+          <a href="/help/">Help Center</a>
+          <a href="mailto:[CONTACT EMAIL]">Contact Us</a>
+          <a href="/rules.html#report">Report a Problem</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/terms.html">Terms of Service</a>
         </nav>
       </div>
       <div class="wrap footer-fine">
@@ -391,26 +444,45 @@
       </div>
     </footer>
 
-    <dialog class="trailer" aria-label="Club NYC trailer">
-      <button class="trailer-x" type="button" aria-label="Close the trailer">
+    <dialog class="trailer" aria-label="Club NYC Trailer">
+      <button class="trailer-x" type="button" aria-label="Close the Trailer">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
       </button>
       <video controls playsinline preload="none" poster="/video/club-nyc-trailer.jpg" src="/video/club-nyc-trailer.mp4" width="1920" height="1080"></video>
     </dialog>
 
-    <!-- phones: Club NYC plays on a computer, so Play now offers to send the link there -->
+    <!-- phones: Club NYC plays on a computer, so Play Now offers to send the link there -->
     <dialog class="phone-sheet" id="phone-sheet" aria-labelledby="phone-sheet-title">
       <img src="/art/icons/e/taxi.png" alt="" width="64" height="64" />
-      <h2 id="phone-sheet-title">Club NYC plays on a computer</h2>
+      <h2 id="phone-sheet-title">Club NYC Plays on a Computer</h2>
       <p>The city needs a keyboard and a bigger screen. Send yourself the link and jump in on your laptop or desktop.</p>
       <div class="sheet-actions">
-        <button class="btn btn-play" id="sheet-share" type="button" data-send="share" hidden>Send to my computer</button>
-        <button class="btn btn-ghost" id="sheet-copy" type="button" data-send="copy">Copy the link</button>
-        <a class="btn btn-ghost" id="sheet-email" href="mailto:?subject=Club%20NYC" data-send="email">Email it to myself</a>
+        <button class="btn btn-play" id="sheet-share" type="button" data-send="share" hidden>Send to My Computer</button>
+        <button class="btn btn-ghost" id="sheet-copy" type="button" data-send="copy">Copy the Link</button>
+        <a class="btn btn-ghost" id="sheet-email" href="mailto:?subject=Club%20NYC" data-send="email">Email It to Myself</a>
       </div>
-      <a class="sheet-discord" href="/discord" data-discord="phone" rel="noopener">Join the Discord in the meantime</a>
-      <a class="sheet-anyway" href="/play?desktop">Try it on this device anyway</a>
-      <form method="dialog"><button class="sheet-close" type="submit">Not now</button></form>
+      <a class="sheet-discord" href="/discord" data-discord="phone" rel="noopener">Join the Discord in the Meantime</a>
+      <a class="sheet-anyway" href="/play?desktop">Try It on This Device Anyway</a>
+      <form method="dialog"><button class="sheet-close" type="submit">Not Now</button></form>
+    </dialog>
+
+    <!-- before launch: the header, mid-page and footer "Join the Waitlist" buttons open this (main.ts) -->
+    <dialog class="phone-sheet join-sheet" id="join-sheet" aria-labelledby="join-sheet-title">
+      <img src="/art/icons/e/love-letter.png" alt="" width="64" height="64" />
+      <h2 id="join-sheet-title">Join the Waitlist</h2>
+      <p>Club NYC opens soon. Leave your email and we’ll let you know the day the doors open.</p>
+      <form class="wl-form wl-light" data-source="sheet" novalidate>
+        <div class="wl-body">
+          <div class="wl-row">
+            <input class="wl-input" id="wl-sheet" type="email" name="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="you@email.com" aria-label="Your email" />
+            <button class="btn btn-play btn-xl" type="submit"><span class="wl-label">Join the Waitlist</span></button>
+          </div>
+          <p class="wl-msg" aria-live="polite"></p>
+          <p class="wl-fine">No spam, just the day we open. <a href="/privacy.html#waitlist">Privacy</a></p>
+        </div>
+        <div class="wl-hp" aria-hidden="true" style="position:absolute;left:-10000px;top:0;width:1px;height:1px;overflow:hidden"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+      </form>
+      <form method="dialog"><button class="sheet-close" type="submit">Close</button></form>
     </dialog>
 
     <script type="module" src="/src/landing/main.ts"></script>

@@ -27,7 +27,7 @@ export function onAir(g: Game) {
 export async function carriageRide(g: Game) {
   const v = await g.choose('🐴 Carriage Ride', 'A lap around the park. 4 coins. The horse is named Biscuit.', [
     { label: 'Giddy-up (4)', value: 'go' },
-    { label: 'I’ll walk', value: 'no' },
+    { label: 'I’ll Walk', value: 'no' },
   ])
   if (v !== 'go' || !g.spend(4, 'carriage-ride')) return
   const release = hold()
@@ -77,8 +77,8 @@ export function seagull(g: Game) {
 /** Battery Park ferry: ride as a passenger, or captain it yourself. */
 export async function ferry(g: Game) {
   const v = await g.choose('⛴️ Liberty Island Ferry', 'The ferry to the Statue of Liberty is boarding.', [
-    { label: 'Ride as a passenger (2)', value: 'ride', note: 'sit back, wave at Lady Liberty' },
-    { label: 'Captain the ferry', value: 'captain', note: 'mini-game · earn coins' },
+    { label: 'Ride as a Passenger (2)', value: 'ride', note: 'sit back, wave at Lady Liberty' },
+    { label: 'Captain the Ferry', value: 'captain', note: 'mini-game · earn coins' },
   ])
   if (v === 'captain') return g.playGame('ferry-captain')
   if (v !== 'ride' || !g.spend(2, 'ferry-ticket')) return

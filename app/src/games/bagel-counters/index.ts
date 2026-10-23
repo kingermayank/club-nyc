@@ -2,6 +2,7 @@ import type { MiniGame, MiniGameContext } from '../types'
 import type { Look } from '../../avatar/look'
 import type { AvatarView, Pose } from '../../avatar/render'
 import './style.css'
+import { bagelSfx } from './sound'
 
 /*
   Bagel Counters — Club NYC's homage to Club Penguin's Bean Counters.
@@ -798,6 +799,8 @@ function run(ctx: MiniGameContext) {
     P.thV += dx * 0.012
     loadRun = 0
     snd.catch(stack.length - 1)
+    if (kind === 'sack') bagelSfx.catchSack()
+    else bagelSfx.catchBox()
     ring(P.x + dx * 0.4, FEET_Y + stackTop)
   }
   function scatterStack() {
@@ -982,6 +985,7 @@ function run(ctx: MiniGameContext) {
       }
       case 'sack': {
         snd.thud()
+        bagelSfx.beans()
         beans(x, GROUND_Y, 7)
         dust(x, GROUND_Y, 4)
         const look = carriedLook('sack')
@@ -1150,6 +1154,7 @@ function run(ctx: MiniGameContext) {
     addPart(div('warn', undefined, '!'), 972, clamp(y0 + 12, 90, 200), { life: 0.9, pop: true })
     ctx.sfx.coo()
     snd.flap()
+    bagelSfx.wings()
     T.oops = 0.8
   }
   function pigeonY(p: Pigeon, x: number) {
@@ -1255,6 +1260,7 @@ function run(ctx: MiniGameContext) {
     dust(pos.x, pos.y, 2, 0.5)
     floatText(pos.x, pos.y - 30, '+1', 'gold')
     snd.deliver(inLevel)
+    bagelSfx.unload()
     renderScore()
     renderLevel()
     if (fullLoad) {
@@ -1276,6 +1282,7 @@ function run(ctx: MiniGameContext) {
       arcs.push({ el: p.el, x0: p.x, y0: p.y, x1: DOOR.x + rand(-10, 10), y1: DOOR.y + rand(-12, 12), r0: p.r, r1: rand(-30, 30), s0: PALLET.scale, s1: 0.35, h: 50, t: -0.25 - i * 0.035, dur: 0.42, fade: true, done: () => p.el.remove() })
     })
     pile.length = 0
+    bagelSfx.cart()
     later(0.3 + PER_LEVEL * 0.035, () => {
       dust(DOOR.x + 10, DOOR.y + 40, 6, 1.1)
       ring(DOOR.x, DOOR.y)

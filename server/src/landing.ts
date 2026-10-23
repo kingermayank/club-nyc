@@ -41,3 +41,33 @@ export function discordInvite(url: string): string | null {
 
 /** Where /discord sends people: the server invite, or back to the landing page with an "opens soon" note. */
 export const discordTarget = (url: string) => discordInvite(url) ?? '/?discord=soon#community'
+
+/**
+ * Launch modes (LAUNCH_MODE, see server/src/waitlist.ts): "waitlist" before launch, "open" once the city is open.
+ * The landing page carries both versions of its calls to action; `data-launch` on <html> picks one (landing.css), and the
+ * title and link-preview text say Coming Soon. The production server applies this once at start-up; the dev server
+ * (app/vite.config.ts) asks the game server for the mode on every page load.
+ */
+export type LaunchMode = 'waitlist' | 'open'
+
+/** the game's pages: in waitlist mode the Coming Soon page (app/soon.html) stands in for them */
+export const GAME_PAGE = /^\/(?:play\/?|play\.html|join\/[^/]+\/?)$/
+
+const SOON_META = {
+  title: 'Club NYC (Coming Soon): Cozy Multiplayer NYC Game in Your Browser',
+  description: 'A cozy online New York is coming soon. Make a New Yorker, explore 20+ places, work silly jobs and hang out with friends. Join the waitlist and we’ll email you the day it opens.',
+  social: 'Club NYC (Coming Soon)',
+  socialDescription: 'Waddle on over to New York. A cozy online New York opens soon: join the waitlist and we’ll email you the day the doors open.',
+}
+
+export function landingForMode(html: string, mode: LaunchMode): string {
+  const out = html.replace(/<html lang="en"[^>]*>/, `<html lang="en" data-launch="${mode}">`)
+  if (mode !== 'waitlist') return out
+  return out
+    .replace(/<title>[^<]*<\/title>/, `<title>${SOON_META.title}</title>`)
+    .replace(/(<meta name="description" content=")[^"]*/, `$1${SOON_META.description}`)
+    .replace(/(property="og:title" content=")[^"]*/, `$1${SOON_META.social}`)
+    .replace(/(name="twitter:title" content=")[^"]*/, `$1${SOON_META.social}`)
+    .replace(/(property="og:description" content=")[^"]*/, `$1${SOON_META.socialDescription}`)
+    .replace(/(name="twitter:description" content=")[^"]*/, `$1${SOON_META.socialDescription}`)
+}

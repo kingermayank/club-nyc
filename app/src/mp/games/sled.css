@@ -1,0 +1,15 @@
+/* Pilgrim Hill Sled Race: the HUD over the canvas (the hill itself is drawn on the canvas) */
+.sl { background: #dfe9f7; }
+.sl-canvas { position: absolute; left: 0; top: 0; }
+/* the race at a glance: everyone's face along a line from the top of the hill to the finish */
+.sl-prog { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: 384px; height: 40px; padding: 0 26px 0 12px; border: 3px solid var(--ink); border-radius: 999px; background: rgba(255, 253, 246, 0.94); box-shadow: 0 3px 0 var(--ink); pointer-events: none; }
+.sl-prog-line { position: absolute; left: 26px; right: 38px; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: repeating-linear-gradient(90deg, #9fb8de 0 10px, transparent 10px 16px); }
+.sl-prog-flag { position: absolute; right: 12px; top: 8px; width: 18px; height: 18px; border: 2px solid var(--ink); border-radius: 3px; background: conic-gradient(var(--ink) 0 25%, #fff 0 50%, var(--ink) 0 75%, #fff 0); }
+.sl-dot { position: absolute; left: 8px; top: 4px; width: 28px; height: 28px; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(#fff, #cfe8ff); overflow: hidden; transition: transform 0.12s linear; }
+.sl-dot svg { width: 100%; height: 100%; display: block; }
+.sl-dot.you { z-index: 2; box-shadow: 0 0 0 3px var(--sun); }
+.sl-dot.out { opacity: 0.35; }
+.sl .mp-hint span { display: inline-flex; align-items: center; gap: 2px; }
+.sl-hint-sub { padding-left: 8px; border-left: 2px solid rgba(29, 33, 64, 0.2); }
+.mp-hint-k { display: inline-flex; gap: 2px; margin-left: 6px; font: var(--fs-sm) var(--body); }
+.mp-hint-k kbd, .mp-watch kbd { opacity: 1; margin: 0 1px; padding: 2px 5px 0; border: 2px solid var(--ink); border-radius: 6px; background: #fff; font: var(--fs-2xs) var(--display); line-height: calc(1.5em - 2px); }

@@ -1299,16 +1299,16 @@ async def job_hud(A, P):
                     A.record(P, area, f'{lab} › {item} › click to throw', obs3, kind='menu-item', where=base)
                 if e2['result'] in PROBLEMS:
                     e2['shot'] = await P.screenshot(f'{e2["id"]}-menu-{item}')
-        if lab == 'Sound on/off':  # turn it back on
+        if lab == 'Sound On/Off':  # turn it back on
             await P.reset()
             await toolbar_click(P, lab)
-        if lab == 'My apartment':
+        if lab == 'My Apartment':
             # at home the same button means "decorate"
             await P.reset()
             st = await P.state()
             if st['room'] in ('apartment', 'loft', 'penthouse'):
                 obs = await P.observe(lambda: toolbar_click(P, lab), timeout=2.0)
-                A.record(P, area, 'toolbar: My apartment (while at home)', obs, kind='toolbar', where=st['room'], repro='go home → toolbar “My apartment” again', source=A.src.find('My apartment', prefer=('hud.ts',)))
+                A.record(P, area, 'toolbar: My Apartment (while at home)', obs, kind='toolbar', where=st['room'], repro='go home → toolbar “My Apartment” again', source=A.src.find('My Apartment', prefer=('hud.ts',)))
     # chat bar
     await P.reset(room=base)
     obs = await P.observe(lambda: P.page.locator('.chat-log-btn').click(), timeout=1.2)
@@ -1368,18 +1368,18 @@ def skip_destructive(it):
 
 
 async def job_player_card(A, P):
-    await explore(A, P, 'player-card', lambda: toolbar_click(P, 'Player card & wardrobe'), skip=skip_destructive,
+    await explore(A, P, 'player-card', lambda: toolbar_click(P, 'Player Card & Wardrobe'), skip=skip_destructive,
                   recurse=lambda it, e: (it['text'] or '').strip() in ('Look', 'Account'), where='your player card')
 
 
 async def job_books(A, P):
-    await explore(A, P, 'stamp-book', lambda: toolbar_click(P, 'Stamp book'), where='stamp book')
+    await explore(A, P, 'stamp-book', lambda: toolbar_click(P, 'Stamp Book'), where='stamp book')
     await explore(A, P, 'newspaper', lambda: toolbar_click(P, 'Club NYC Times'), where='newspaper',
                   recurse=lambda it, e: 'Next' in (it['text'] or ''), max_depth=5)
 
 
 async def open_community(P, tab=None):
-    await toolbar_click(P, 'Friends & leaderboards')
+    await toolbar_click(P, 'Friends & Leaderboards')
     await P.wait("() => !!document.querySelector('.overlay.open .community')", 2.0)
     if tab:
         await P.page.locator('.overlay.open .cm-tab', has_text=tab).first.click(timeout=2000)
@@ -1405,7 +1405,7 @@ async def job_community(A, P):
     seen = set()
     for t in tabs:
         name = re.sub(r'^\W+', '', t).strip()
-        await explore(A, P, 'community', lambda name=name: open_community(P, name), where=f'Friends & leaderboards › {name}', prefix=f'{name} › ', skip=skip_social, timeout=3.0, seen=seen)
+        await explore(A, P, 'community', lambda name=name: open_community(P, name), where=f'Friends & Leaderboards › {name}', prefix=f'{name} › ', skip=skip_social, timeout=3.0, seen=seen)
 
 
 async def job_phone(A, P):
@@ -1454,7 +1454,7 @@ async def job_lobbies(A, P):
         if not await play.count():
             break
         obs = await P.observe(lambda: play.first.click(timeout=2000), timeout=3.0)
-        e = A.record(P, 'community', f'Leaderboards › {todo[1]} › Play', obs, where='Friends & leaderboards', source=A.src.find('`Play ${g.title}`'))
+        e = A.record(P, 'community', f'Leaderboards › {todo[1]} › Play', obs, where='Friends & Leaderboards', source=A.src.find('`Play ${g.title}`'))
         if e['_sig'].get('game'):
             await handle_lobby(A, P, 'community', f'Leaderboards › Play {todo[1]}')
     for _ in range(4):
@@ -1594,8 +1594,8 @@ async def apt_btn(P, text):
 async def job_home(A, P):
     area = 'home'
     await P.reset()
-    obs = await P.observe(lambda: toolbar_click(P, 'My apartment'), timeout=3.0, settle=0.6)
-    e = A.record(P, area, 'toolbar: My apartment (go home)', obs, kind='toolbar', where='times-square', expect=('room', 'apartment'), source=A.src.find('My apartment', prefer=('hud.ts',)))
+    obs = await P.observe(lambda: toolbar_click(P, 'My Apartment'), timeout=3.0, settle=0.6)
+    e = A.record(P, area, 'toolbar: My Apartment (go home)', obs, kind='toolbar', where='times-square', expect=('room', 'apartment'), source=A.src.find('My Apartment', prefer=('hud.ts',)))
     home = (await P.state())['room']
     if home not in ('apartment', 'loft', 'penthouse'):
         return
@@ -1758,9 +1758,9 @@ async def streetcheesy(A, P):
 async def check_home_button(A, P, how):
     await P.reset()
     await P.goto('soho')
-    obs = await P.observe(lambda: toolbar_click(P, 'My apartment'), timeout=3.0, settle=0.6)
-    A.record(P, 'streetcheesy', f'after {how}: toolbar “My apartment”', obs, kind='toolbar', where='soho', expect=('room', None),
-             repro=f'StreetCheesy → {how} → go anywhere → toolbar “My apartment”', source=A.src.find('export function goHome', prefer=('apartment.ts',)))
+    obs = await P.observe(lambda: toolbar_click(P, 'My Apartment'), timeout=3.0, settle=0.6)
+    A.record(P, 'streetcheesy', f'after {how}: toolbar “My Apartment”', obs, kind='toolbar', where='soho', expect=('room', None),
+             repro=f'StreetCheesy → {how} → go anywhere → toolbar “My Apartment”', source=A.src.find('export function goHome', prefer=('apartment.ts',)))
     await P.reset(room='chinatown')
     await toolbar_click(P, 'Map')
     await P.wait("() => !!document.querySelector('.overlay.open .postcard')", 2.0)
@@ -1928,9 +1928,9 @@ def social_case(A, case, outcome, detail):
 
 
 async def community_friend_button(P, friend, which):
-    """Open Friends & leaderboards → Friends and return the friend's row button locator (Go / 🏠)."""
+    """Open Friends & Leaderboards → Friends and return the friend's row button locator (Go / 🏠)."""
     await P.reset()
-    await toolbar_click(P, 'Friends & leaderboards')
+    await toolbar_click(P, 'Friends & Leaderboards')
     await P.wait("() => !!document.querySelector('.overlay.open .community')", 2.0)
     await P.page.locator('.overlay.open .cm-tab', has_text='Friends').first.click(timeout=2000)
     await P.wait('n => [...document.querySelectorAll(".overlay.open .cm-row b")].some(b => b.textContent === n)', 4.0, friend)
@@ -2023,7 +2023,7 @@ async def job_social(A, PA, PB):
         social_case(A, '“Find” a friend in the same room', e['result'], '; '.join(e['evidence'][:2]))
     # visit a friend's apartment while they're home
     await PB.reset()
-    await PB.page.locator('.toolbar [aria-label="My apartment"]').click()
+    await PB.page.locator('.toolbar [aria-label="My Apartment"]').click()
     await PB.wait("() => clubNyc.world.room.id === 'apartment'", 4.0)
     await PA.reset(room='soho')
     await asyncio.sleep(1.0)

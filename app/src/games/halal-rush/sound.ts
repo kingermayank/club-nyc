@@ -113,6 +113,55 @@ export const snd = {
     noise(a, t + 0.05, 0.26, f)
     tone(a, t + 0.05, 'triangle', 300, 120, 0.2, 0.12)
   },
+  /** chicken or lamb off the hot griddle: a short, fat sizzle */
+  sizzle() {
+    const a = audio()
+    if (!a) return
+    const t = a.currentTime
+    const f = a.createBiquadFilter()
+    f.type = 'highpass'
+    f.frequency.value = 2400
+    f.connect(gain(a, t, 0.1, 0.02, 0.5))
+    noise(a, t, 0.5, f)
+    // a few spits of fat
+    for (let i = 0; i < 5; i++) {
+      const s = a.createBiquadFilter()
+      s.type = 'bandpass'
+      s.frequency.value = 3000 + Math.random() * 3000
+      const at = t + 0.05 + Math.random() * 0.35
+      s.connect(gain(a, at, 0.07, 0.003, 0.03))
+      noise(a, at, 0.03, s)
+    }
+  },
+  /** lettuce or a falafel ball landing: a crisp little crunch */
+  crunch() {
+    const a = audio()
+    if (!a) return
+    const t = a.currentTime
+    for (let i = 0; i < 4; i++) {
+      const f = a.createBiquadFilter()
+      f.type = 'bandpass'
+      f.frequency.value = 1800 + i * 600
+      f.Q.value = 1.2
+      const at = t + i * 0.025
+      f.connect(gain(a, at, 0.12, 0.003, 0.04))
+      noise(a, at, 0.045, f)
+    }
+  },
+  /** handing over the order: the foil lid snaps shut and the container slides across the counter */
+  serve() {
+    const a = audio()
+    if (!a) return
+    const t = a.currentTime
+    tone(a, t, 'square', 1900, 1500, 0.035, 0.03)
+    tone(a, t + 0.01, 'triangle', 700, 560, 0.06, 0.07)
+    const f = a.createBiquadFilter()
+    f.type = 'bandpass'
+    f.frequency.setValueAtTime(900, t + 0.06)
+    f.frequency.exponentialRampToValueAtTime(1800, t + 0.3)
+    f.connect(gain(a, t + 0.06, 0.12, 0.04, 0.26))
+    noise(a, t + 0.06, 0.28, f)
+  },
   /** the "closing time" bell */
   bell() {
     const a = audio()

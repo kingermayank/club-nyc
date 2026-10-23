@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { Server } from 'node:http'
-import { Hono } from 'hono'
+import { Hono, type Context } from 'hono'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { bodyLimit } from 'hono/body-limit'
@@ -10,6 +10,10 @@ import { compress } from 'hono/compress'
 import { config } from './config.ts'
 import { auth, sameOrigin } from './auth.ts'
 import { api } from './api.ts'
+import { xpApi } from './xp.ts'
+import { mpApi } from './game/mp/api.ts'
+import { lobbyPreview } from './game/mp/index.ts'
+import { MP_GAMES } from '../../app/src/mp/shared/games.ts'
 import { admin } from './admin.ts'
 import { attachRealtime, shutdownAll } from './game/realtime.ts'
 import { q, db } from './db.ts'
@@ -17,7 +21,8 @@ import { installGracefulShutdown, startBackups, healthReport } from './ops.ts'
 import { rateLimit, byPlayer } from './limits.ts'
 import { purgeOld } from './moderation.ts'
 import { siteHeaders, staticMtime } from './headers.ts'
-import { fillPlaceholders, discordTarget, discordInvite } from './landing.ts'
+import { fillPlaceholders, discordTarget, discordInvite, landingForMode } from './landing.ts'
+import { waitlist, launch, launchGate, launchMode, playGate } from './waitlist.ts'
 
 const app = new Hono()
 // no request body the game sends comes near this (a cloud save is ~20 KB); bigger ones are refused before
@@ -32,10 +37,20 @@ app.use('/api/admin/login', rateLimit('admin-login', 5, 5))
 app.use('/api/client-errors', rateLimit('errors', 20, 10))
 app.use('/api/events', rateLimit('events', 30, 20))
 app.use('/api/invite/*', rateLimit('invite', 60, 30))
+// the launch waitlist and email sign-in links (each address also has its own limit), and preview-code guesses
+app.use('/api/waitlist', rateLimit('waitlist', 10, 5))
+app.use('/api/auth/email', rateLimit('email-login', 6, 3))
+app.use('/api/launch/preview', rateLimit('preview', 10, 5))
+// waitlist mode (LAUNCH_MODE): only testers with the preview code can start a new guest or sign-in
+app.use('/api/auth/*', launchGate)
 app.use('/api/*', async (c, next) => (c.req.method === 'GET' ? next() : writes(c, next)))
 // writes are counted per signed-in player, so everyone behind one shared IP gets their own budget
 const writes = rateLimit('writes', 240, 120, byPlayer)
 app.route('/api/auth', auth)
+app.route('/api/xp', xpApi)
+app.route('/api/mp', mpApi)
+app.route('/api/waitlist', waitlist)
+app.route('/api/launch', launch)
 app.route('/api/admin', admin)
 app.route('/api', api)
 // Railway's health check (and any uptime monitor): 503 while the database is unreachable or we're shutting down
@@ -66,7 +81,8 @@ if (existsSync(config.staticDir)) {
       .replace('<meta property="og:type"', `<meta property="og:url" content="${url}" />\n    <meta property="og:type"`)
   const fill = (html: string, legal = false) =>
     fillPlaceholders(html, { contactEmail: config.contactEmail, companyName: config.companyName, governingState: config.governingState, mailingAddress: config.mailingAddress, legal })
-  const landing = fill(absolute(readFileSync(join(root, 'index.html'), 'utf8'), abs('/')))
+  // waitlist mode (LAUNCH_MODE): the landing page's calls to action become "Join the Waitlist" (landing.ts)
+  const landing = fill(absolute(landingForMode(readFileSync(join(root, 'index.html'), 'utf8'), launchMode), abs('/')))
   // the policy pages: same fill-in (the company name only once it's really set: they need the legal name)
   for (const name of ['rules', 'privacy', 'terms']) {
     const file = join(root, `${name}.html`)
@@ -76,8 +92,8 @@ if (existsSync(config.staticDir)) {
   }
   // "Join the Discord": one address to change (DISCORD_INVITE_URL); until it's set, the page says it opens soon
   app.get('/discord', (c) => c.redirect(discordTarget(config.discordInvite)))
-  const withMeta = (title: string, description: string, image: string, url: string) =>
-    page
+  const withMeta = (title: string, description: string, image: string, url: string, base = page) =>
+    base
       .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
       .replace(/(property="og:title" content=")[^"]*/, `$1${title}`)
       .replace(/(name="twitter:title" content=")[^"]*/, `$1${title}`)
@@ -87,25 +103,56 @@ if (existsSync(config.staticDir)) {
       .replace(/(name="twitter:image" content=")[^"]*/, `$1${abs(image)}`)
       .replace('<meta property="og:type"', `<meta property="og:url" content="${url}" />\n    <meta property="og:type"`)
   const game = withMeta('Club NYC: waddle on over to New York', 'A cozy online New York. Make a New Yorker in 30 seconds, work silly jobs, decorate your apartment and meet your friends in Times Square.', '/og/club-nyc.jpg', abs('/play'))
+  // Waitlist mode: the Coming Soon page (soon.html: the teaser and the waitlist form) stands in for the game, except
+  // for testers who've entered the preview code (PREVIEW_CODE, see waitlist.ts)
+  const soonFile = join(root, 'soon.html')
+  const soonBase = existsSync(soonFile) ? fill(readFileSync(soonFile, 'utf8')) : null
+  const soon = soonBase ? withMeta('Club NYC (Coming Soon)', 'A cozy online New York opens soon. Join the waitlist and we’ll email you the day the doors open.', '/og/club-nyc.jpg', abs('/play'), soonBase) : landing
+  const gamePage = (c: Context, html: string, soonHtml: string) => {
+    const g = playGate(c)
+    if (g.redirect) return c.redirect(g.redirect)
+    return c.html(g.soon ? soonHtml : html)
+  }
   app.get('/join/:name', (c) => {
     const name = c.req.param('name').replace(/[^A-Za-z0-9_]/g, '').slice(0, 14)
-    if (!name) return c.html(game)
-    return c.html(withMeta(`${name} invited you to Club NYC`, `${name} is hanging out in a cozy online New York. Make a New Yorker in 30 seconds and you’ll land right next to them.`, '/og/invite.jpg', abs(`/join/${name}`)))
+    if (!name) return gamePage(c, game, soon)
+    return gamePage(
+      c,
+      withMeta(`${name} invited you to Club NYC`, `${name} is hanging out in a cozy online New York. Make a New Yorker in 30 seconds and you’ll land right next to them.`, '/og/invite.jpg', abs(`/join/${name}`)),
+      soonBase ? withMeta(`${name} invited you to Club NYC`, `${name} saved you a spot in a cozy online New York. It opens soon: join the waitlist and we’ll email you the day the doors open.`, '/og/invite.jpg', abs(`/join/${name}`), soonBase) : soon,
+    )
   })
   // search engines: the landing page and the policy pages (the game at /play says noindex, so it stays crawlable)
   app.get('/robots.txt', (c) => c.text(`User-agent: *\nDisallow: /api/\nDisallow: /admin.html\n\nSitemap: ${abs('/sitemap.xml')}\n`))
+  // the Help Center's pages come from its built search index (one entry per page)
+  const helpUrls = (() => {
+    try {
+      const index = JSON.parse(readFileSync(join(root, 'help/search-index.json'), 'utf8')) as { pages: { u: string }[] }
+      return index.pages.map((p) => p.u)
+    } catch {
+      return []
+    }
+  })()
   app.get('/sitemap.xml', (c) => {
-    const urls = ['/', '/rules.html', '/privacy.html', '/terms.html']
+    const urls = ['/', '/rules.html', '/privacy.html', '/terms.html', ...helpUrls]
       .map((p) => {
-        const mtime = staticMtime(root, p === '/' ? '/index.html' : p)
+        const mtime = staticMtime(root, p === '/' ? '/index.html' : p.startsWith('/help') ? `${p}/index.html` : p)
         return `  <url><loc>${abs(p)}</loc>${mtime ? `<lastmod>${new Date(mtime).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`
       })
       .join('\n')
     return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
   })
   app.get('/', (c) => c.html(landing))
-  app.get('/play', (c) => c.html(game))
-  app.get('/play/', (c) => c.html(game))
+  // a game's link pasted in Discord (/play?lobby=K7QX) unfurls as that game: who's hosting, how many seats are taken
+  app.get('/play', (c) => {
+    const p = lobbyPreview(String(c.req.query('lobby') ?? '').slice(0, 8))
+    if (!p) return gamePage(c, game, soon)
+    const def = MP_GAMES[p.g]
+    const host = p.host.replace(/[^A-Za-z0-9_]/g, '')
+    return gamePage(c, withMeta(`${host || 'A friend'} invited you to ${def.title}`, `${p.players} of ${p.max} seats taken at ${def.place}. Make a New Yorker in 30 seconds and you’re in the game.`, def.art, abs(`/play?lobby=${p.code}`)), soon)
+  })
+  app.get('/play/', (c) => gamePage(c, game, soon))
+  app.get('/play.html', (c) => gamePage(c, game, soon))
   // Art goes out as WebP to browsers that take it (every current one), about a third of the bytes. tools/webp.py
   // writes "<file>.webp" next to each picture, and the game keeps asking for the .jpg / .png, so nothing else
   // changes. The copies (~30 MB in all) are kept in memory after the first request.
@@ -140,6 +187,9 @@ if (existsSync(config.staticDir)) {
     await next()
   })
   app.use('/*', serveStatic({ root, precompressed: true }))
+  // an unknown Help Center address gets the Help Center's own "page not found" (with its search box)
+  const help404 = existsSync(join(root, 'help/404.html')) ? readFileSync(join(root, 'help/404.html'), 'utf8') : null
+  if (help404) app.get('/help/*', (c) => c.html(help404, 404))
   // anything else: the landing page (a 404, so search engines don't index stray addresses)
   app.get('*', (c) => c.html(landing, 404))
 }

@@ -12,6 +12,7 @@ import { api } from '../game'
 import { link } from '../net/link'
 import { rest, HttpError, type PublicUser } from '../net/server'
 import { HOME, HOME_ROOMS, isHomeRoom, homeOfRoom } from '../data/homes'
+import { ART_FURNITURE } from '../data/souvenirs'
 
 interface FurnitureDef {
   id: string
@@ -56,6 +57,8 @@ export const FURNITURE: FurnitureDef[] = [
   { id: 'plant', name: 'Monstera', price: 20, w: 78, src: '/art/furniture/plant.png', cat: 'Decor', shop: true },
   { id: 'water-tower', name: 'Water Tower Planter', price: 75, w: 104, src: '/art/furniture/water-tower.png', cat: 'Decor', shop: true },
   { id: 'painting', name: 'Skyline Painting', price: 0, w: 100, src: '/art/cutouts/brooklyn-bridge/easel.png', cat: 'Decor' },
+  // the Brooklyn Bridge painter's gallery (data/souvenirs.ts): sold on the bridge, not in the catalog
+  ...ART_FURNITURE,
 ]
 const FDEF = Object.fromEntries(FURNITURE.map((f) => [f.id, f]))
 
@@ -521,7 +524,7 @@ function openGuestbook() {
     ...save.guestbook.map((g) => ({ name: RESIDENT[g.from]?.name ?? 'A visitor', text: g.text, at: g.at, read: !!g.read, real: false })),
     ...(cloudBook?.entries ?? []).map((g) => ({ name: g.from.name, text: esc(g.text), at: g.at, read: g.read, real: true })),
   ].sort((a, b) => b.at - a.at)
-  if (!entries.length) p.insertAdjacentHTML('beforeend', '<p class="muted">No notes yet. Turn on <b>Open house</b> and friends will drop by!</p>')
+  if (!entries.length) p.insertAdjacentHTML('beforeend', '<p class="muted">No notes yet. Turn on <b>Open House</b> and friends will drop by!</p>')
   const list = el('div', 'gb-list')
   for (const g of entries.slice(0, 40)) list.append(el('div', 'gb-entry' + (g.read ? '' : ' new') + (g.real ? ' real' : ''), `<b>${g.name}</b><span>${g.text}</span><small>${timeAgo(g.at)}</small>`))
   save.guestbook.forEach((g) => (g.read = true))

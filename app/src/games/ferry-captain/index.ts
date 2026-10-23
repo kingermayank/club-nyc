@@ -1,5 +1,6 @@
 import type { MiniGame, MiniGameContext } from '../types'
 import type { AvatarView } from '../../avatar/render'
+import { ferrySfx } from './sound'
 import {
   W,
   H,
@@ -210,7 +211,7 @@ const game: MiniGame = {
         console.error('[ferry-captain]', err)
         root.innerHTML = `<div class="${C}veil"><div class="${C}card"><div class="${C}title ${C}title-sm">Fog on the harbor!</div>
           <p class="${C}lead">The ferry couldn't leave the dock. Try again in a moment.</p>
-          <button class="btn ${C}go">Back to shore</button></div></div>`
+          <button class="btn ${C}go">Back to Shore</button></div></div>`
         root.querySelector('button')!.onclick = () => ctx.end({ coins: 0, lines: ['The harbor was fogged in'] })
       })
   },
@@ -347,7 +348,7 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
       // a captain's gotta toot
       if ((mode === 'play' || mode === 'dock') && clock - hornAt > 0.9) {
         hornAt = clock
-        sfx.toot()
+        ferrySfx.horn()
         pop('TOOT!', FERRY_X + ferryDX, ferryY - 128 * depth(ferryY), '#ffffff', 24)
       }
       return
@@ -408,7 +409,7 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
         <li>Dodge boats, logs &amp; buoys. Scoop up coins and life rings!</li>
         <li>Three bumps and you're turned back to port.</li>
       </ul>
-      <button class="btn ${C}go">Cast off!</button>
+      <button class="btn ${C}go">Cast Off!</button>
     </div>`,
   )
   intro.querySelector(`.${C}feet`)!.append(introAv.el)
@@ -418,7 +419,7 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
   function startPlay() {
     if (mode !== 'intro') return
     sfx.click()
-    sfx.toot()
+    ferrySfx.horn()
     mode = 'play'
     modeT = 0
     intro.classList.add(C + 'out')
@@ -737,8 +738,7 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
     knockVy = (fromY < ferryY ? 1 : -1) * 230
     streak = 0
     splash(x, y, depth(y), 26)
-    sfx.clapper()
-    sfx.whoosh()
+    ferrySfx.bump()
     sfx.piano(36)
     pop(text, FERRY_X, ferryY - 118 * depth(ferryY), '#ff7b6b', 34)
     const icon = lifeEls[lives]
@@ -777,6 +777,7 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
       coinEl.textContent = String(coins)
       bounce(coinPill)
     } else {
+      ferrySfx.lifeRing()
       if (lives < LIVES) {
         const icon = lifeEls[lives]
         icon.classList.remove(C + 'lost')
@@ -800,8 +801,8 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
     modeT = 0
     arrived = true
     ferryVy = 0
-    sfx.toot()
-    after(0.75, () => sfx.toot())
+    ferrySfx.horn()
+    after(0.6, () => ferrySfx.dock())
     after(1.5, () => sfx.stamp())
     confetti()
     showBanner('Welcome to Liberty Island!', C + 'banner-big', 3.3)
@@ -847,7 +848,7 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
             <div class="${C}stat">${ICON('lifering')}<span>Bumps</span><b>${bumps}</b></div>
           </div>
         </div>
-        <button class="btn ${C}go">Collect ${total} coin${total === 1 ? '' : 's'}</button>
+        <button class="btn ${C}go">Collect ${total} Coin${total === 1 ? '' : 's'}</button>
       </div>`,
     )
     if (arrived) card.querySelector(`.${C}stat-goal`)!.prepend(libertyIcon(art, 60))

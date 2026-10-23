@@ -166,7 +166,7 @@ export function chatBar(): HTMLElement {
   )
   onRoomChange(() => setLog(false))
   // the log opens out of the chat bar, edge to edge with it (like the quick phrases)
-  if (!log.childElementCount) log.append(el('div', 'chat-log-head', '<b>Chat</b><small>Only people in this room can see what you say</small>'), logList)
+  if (!log.childElementCount) log.append(el('div', 'chat-log-head', '<b>Chat</b>'), logList)
   bar.append(log)
   // Enter anywhere opens the chat; Escape closes the log
   window.addEventListener('keydown', (e) => {

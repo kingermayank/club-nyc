@@ -31,7 +31,7 @@ function tab(name) {
   current = name
   $$('nav button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name))
   $$('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== name))
-  ;({ overview, reports, players: () => searchPlayers(''), chat: searchChat, errors, city })[name]?.()
+  ;({ overview, waitlist: waitlistPanel, reports, players: () => searchPlayers(''), chat: searchChat, errors, city })[name]?.()
 }
 $$('nav button').forEach((b) => (b.onclick = () => tab(b.dataset.tab)))
 
@@ -140,6 +140,79 @@ async function city() {
   const snap = $('#snap')
   if (snap) snap.onclick = async () => { snap.disabled = true; const r = await api('/backups', { body: {} }); toast(r.ok ? 'Backup saved ✓' : 'Backup failed'); city() }
 }
+// ---------- the launch waitlist ----------
+let wlPoll = 0
+async function waitlistPanel() {
+  clearTimeout(wlPoll)
+  const w = await api('/waitlist')
+  const c = w.counts
+  const s = (n, label) => `<div class="stat"><b>${Number(n ?? 0).toLocaleString()}</b><small>${label}</small></div>`
+  // signups made on the landing page ÷ its visits (the Coming Soon page and invite links aren't landing-page visits)
+  const conv = c.visits7d ? `${Math.min(100, Math.round((c.landing7d / c.visits7d) * 1000) / 10)}%` : 'n/a'
+  const email = w.email.configured ? 'Resend' : w.email.canSend ? 'printed to the server log (development)' : 'off: set RESEND_API_KEY and EMAIL_FROM'
+  const max = Math.max(1, ...w.days.map((d) => d.n))
+  const short = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  $('#wl-summary').innerHTML = `
+    <div class="card"><h2>Launch Waitlist</h2>
+      <p class="muted">The city is <b>${w.mode === 'waitlist' ? 'Coming Soon (LAUNCH_MODE=waitlist)' : 'open (LAUNCH_MODE=open)'}</b>${w.mode === 'waitlist' ? (w.preview ? ' · testers get in with /play?preview=…' : ' · no PREVIEW_CODE set') : ''} · email: ${esc(email)} · ${w.email.confirmFirst ? 'new signups confirm by email first' : 'no confirmation email'} · the landing page shows the count from ${w.publicMin.toLocaleString()}</p>
+      <div class="grid">${s(c.waiting, 'on the list')}${s(c.confirmed, 'confirmed their email')}${s(c.pending, 'waiting to confirm')}${s(c.new24h, 'joined in 24h')}${s(c.new7d, 'joined in 7 days')}<div class="stat"><b>${conv}</b><small>of landing-page visits joined<br><i>last 7 days</i></small></div>${s(c.unsubscribed, 'unsubscribed')}${s(c.notified, 'got the launch email')}</div>
+    </div>
+    <div class="card"><h2>Signups by Day · last 30 days, New York time</h2>
+      <div class="bars">${w.days.map((d) => `<i class="${d.n ? '' : 'zero'}" style="height:${Math.max(2, Math.round((d.n / max) * 100))}%" title="${esc(short(d.day))}: ${d.n}"></i>`).join('')}</div>
+      <div class="bars-axis"><span>${esc(short(w.days[0].day))}</span><span>busiest day: ${max === 1 && !w.days.some((d) => d.n) ? 0 : max}</span><span>${esc(short(w.days[w.days.length - 1].day))}</span></div>
+    </div>
+    <div class="card"><h2>Where They Signed Up</h2>
+      <table><tr><th>Spot on the site</th><th>People</th></tr>${w.sources.map((r) => `<tr><td>${esc(r.source ?? '(unknown)')}</td><td>${r.n}</td></tr>`).join('') || '<tr><td colspan=2 class="muted">Nobody yet.</td></tr>'}</table>
+      ${w.referrers.length ? `<h3>Invited by</h3><table><tr><th>New Yorker</th><th>People</th></tr>${w.referrers.map((r) => `<tr><td>${esc(r.referrer)}</td><td>${r.n}</td></tr>`).join('')}</table>` : ''}
+    </div>`
+  const send = $('#wl-send')
+  const job = w.job
+  send.disabled = !!job?.running || !w.email.canSend || !c.eligible
+  $('#wl-send-note').innerHTML = !w.email.canSend
+    ? 'Email is off on this server. Set <code>RESEND_API_KEY</code> and <code>EMAIL_FROM</code> (docs/sign-in-setup.md).'
+    : `<b>${c.eligible.toLocaleString()}</b> ${c.eligible === 1 ? 'person is' : 'people are'} waiting for this email. Each person gets it once: unsubscribed people, unconfirmed addresses and anyone who already got it are skipped, so it's safe to press again later for new signups.${w.mode === 'waitlist' ? ' <b>The city is still in waitlist mode:</b> set <code>LAUNCH_MODE=open</code> and redeploy first, or the email sends people to the Coming Soon page.' : ''}`
+  $('#wl-job').innerHTML = job
+    ? `<div class="progress"><i style="width:${job.total ? Math.round(((job.sent + job.failed) / job.total) * 100) : 100}%"></i></div>
+       <p class="muted">${job.running ? 'Sending…' : 'Finished'} · ${job.sent.toLocaleString()} sent${job.failed ? ` · ${job.failed.toLocaleString()} failed` : ''} of ${job.total.toLocaleString()} · started ${ago(job.startedAt)}${job.stopped ? ` · <b>${esc(job.stopped)}</b>` : ''}${job.lastError && !job.stopped ? ` · last error: ${esc(job.lastError)}` : ''}</p>`
+    : ''
+  if (job?.running) wlPoll = setTimeout(() => current === 'waitlist' && waitlistPanel(), 2000)
+  wlRows($('#wl-q').value)
+}
+async function wlRows(q) {
+  const { rows } = await api(`/waitlist/rows?q=${encodeURIComponent(q ?? '')}`)
+  const pill = (st) => `<span class="pill ${st === 'confirmed' || st === 'emailed' ? 'green' : st === 'unsubscribed' ? 'red' : st === 'waiting to confirm' ? 'amber' : ''}">${esc(st)}</span>`
+  $('#wl-rows').innerHTML = `<table><tr><th>Email</th><th>Status</th><th>Where</th><th>Invited by</th><th>Joined</th><th></th></tr>${rows.map((r) => `<tr><td>${esc(r.email)}</td><td>${pill(r.status)}</td><td>${esc(r.source ?? '')}</td><td>${esc(r.referrer ?? '')}</td><td title="${esc(when(r.createdAt))}">${ago(r.createdAt)}</td><td><button class="b" data-wl-delete="${r.id}" data-wl-email="${esc(r.email)}">Delete</button></td></tr>`).join('') || '<tr><td colspan=6 class="muted">Nobody here yet.</td></tr>'}</table>`
+}
+let wlTimer = 0
+$('#wl-q').oninput = (e) => { clearTimeout(wlTimer); wlTimer = setTimeout(() => wlRows(e.target.value), 250) }
+document.addEventListener('click', async (e) => {
+  const id = e.target.dataset?.wlDelete
+  if (!id) return
+  if (!confirm(`Delete ${e.target.dataset.wlEmail} from the waitlist for good?`)) return
+  const r = await api(`/waitlist/${id}/delete`, { body: {} })
+  toast(r.ok ? 'Deleted' : 'Already gone')
+  waitlistPanel()
+})
+$('#wl-send').onclick = async () => {
+  const w = await api('/waitlist')
+  const n = w.counts.eligible
+  if (!confirm(`Email ${n.toLocaleString()} ${n === 1 ? 'person' : 'people'} that Club NYC is open?`)) return
+  let force = false
+  if (w.mode === 'waitlist') {
+    if (!confirm('The city is still in waitlist mode, so the email will send people to the Coming Soon page. Send it anyway?')) return
+    force = true
+  }
+  const r = await api('/waitlist/launch-email', { body: { force } })
+  toast(r.ok ? `Sending to ${r.total.toLocaleString()}…` : `Didn’t start: ${r.error}`)
+  waitlistPanel()
+}
+$('#wl-test').onclick = async () => {
+  const to = $('#wl-test-to').value.trim()
+  if (!to) return $('#wl-test-to').focus()
+  const r = await api('/waitlist/launch-email/test', { body: { to } })
+  toast(r.ok ? (r.logged ? 'Printed to the server log (development)' : `Test sent to ${to}`) : `Not sent: ${r.error}`)
+}
+
 $('#ann-go').onclick = async () => { const text = $('#ann').value.trim(); if (!text) return; const r = await api('/announce', { body: { text } }); toast(r.ok ? 'Sent to everyone online 📣' : 'Failed'); $('#ann').value = '' }
 $('#maint-on').onclick = async () => { if (!confirm('Close the city for maintenance? Everyone online will be disconnected.')) return; await api('/maintenance', { body: { on: true, message: $('#maint-msg').value || undefined } }); city() }
 $('#maint-off').onclick = async () => { await api('/maintenance', { body: { on: false } }); city() }

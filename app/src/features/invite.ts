@@ -27,7 +27,7 @@ export function openInvite() {
   const p = el('div', 'panel wide invite-panel')
   p.append(closeButton())
   if (!link.account || !save.owner) {
-    p.insertAdjacentHTML('afterbegin', `<div class="panel-art">💌</div><h2>Invite friends</h2><p>Invites work when you’re playing online. Sign in from the front door and come back here for your link.</p>`)
+    p.insertAdjacentHTML('afterbegin', `<div class="panel-art">💌</div><h2>Invite Friends</h2><p>Invites work when you’re playing online. Sign in from the front door and come back here for your link.</p>`)
     return openOverlay(p)
   }
   const url = inviteLink(save.name)
@@ -35,9 +35,9 @@ export function openInvite() {
   const pitch = `Come hang out with me in Club NYC, a cozy online New York. No rent, no subway delays. Make a New Yorker in 30 seconds and you’ll land right next to me 🗽`
   p.insertAdjacentHTML(
     'afterbegin',
-    `<div class="inv-head"><div class="panel-art">💌</div><div><h2>Bring your friends to the city</h2>
+    `<div class="inv-head"><div class="panel-art">💌</div><div><h2>Bring Your Friends to the City</h2>
       <p class="inv-sub">Anyone who opens your link lands right next to you, and you’re friends instantly.</p></div></div>
-    <div class="inv-link"><input readonly value="${esc(url)}" aria-label="Your invite link"><button class="btn go inv-copy">Copy link</button></div>
+    <div class="inv-link"><input readonly value="${esc(url)}" aria-label="Your invite link"><button class="btn go inv-copy">Copy Link</button></div>
     <div class="inv-share"></div>
     <div class="inv-perks">
       <div><b>+${REFERRAL.welcome}</b><small>coins for your friend when they arrive</small></div>

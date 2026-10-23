@@ -11,6 +11,7 @@ import { referralStats } from './referrals.ts'
 import { kickUser, setLiveMute, warnUser, announce, setMaintenance, maintenanceState, liveSnapshot, profileChanged, walletChanged, presenceOf } from './game/realtime.ts'
 import { listBackups, snapshotNow, backupFile } from './ops.ts'
 import { growth } from './growth.ts'
+import { waitlistOverview, waitlistRows, waitlistCsv, deleteSignup, startLaunchEmail, sendLaunchTest, launchEmailPreview, launchMode } from './waitlist.ts'
 import { createReadStream, statSync } from 'node:fs'
 import { basename } from 'node:path'
 import { Readable } from 'node:stream'
@@ -300,3 +301,29 @@ admin.get('/backups/:name', (c) => {
     },
   })
 })
+
+// ---------- the launch waitlist (waitlist.ts) ----------
+admin.get('/waitlist', (c) => c.json(waitlistOverview()))
+admin.get('/waitlist/rows', (c) => c.json({ rows: waitlistRows(c.req.query('q') ?? '') }))
+// a deletion request ("please forget my email"): gone for good
+admin.post('/waitlist/:id/delete', (c) => c.json({ ok: deleteSignup(Number(c.req.param('id'))) }))
+admin.get('/waitlist.csv', (c) =>
+  c.body(waitlistCsv(), 200, {
+    'content-type': 'text/csv; charset=utf-8',
+    'content-disposition': `attachment; filename="club-nyc-waitlist-${new Date().toISOString().slice(0, 10)}.csv"`,
+    // a list of email addresses: never cached anywhere
+    'cache-control': 'no-store',
+  }),
+)
+// "Email the Waitlist That We're Open": runs in the background; the dashboard polls GET /waitlist for progress.
+// While the city is still in waitlist mode the email would send people to the Coming Soon page, so that needs `force`.
+admin.post('/waitlist/launch-email', async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as { force?: unknown }
+  if (launchMode === 'waitlist' && body.force !== true) return c.json({ ok: false, error: 'still-waitlist' })
+  return c.json(startLaunchEmail())
+})
+admin.post('/waitlist/launch-email/test', async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as { to?: unknown }
+  return c.json(await sendLaunchTest(body.to))
+})
+admin.get('/waitlist/launch-email/preview', (c) => c.html(launchEmailPreview()))

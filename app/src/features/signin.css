@@ -1,0 +1,36 @@
+/* The front door's email sign-in (features/signin.ts): "Continue with Email" under the Google / X / Discord row, then a
+   one-line form in their place, then "Check your inbox!". The rest of the front door lives in style.css. */
+.si-providers[hidden], .si-email[hidden] { display: none; }
+.si-btn.email { flex-basis: 100%; background: #fff; }
+.si-env { width: 22px; height: 22px; object-fit: contain; flex: none; }
+
+.si-email { text-align: left; }
+.si-email-row { display: flex; gap: var(--sp-2); }
+.si-email-input { flex: 1; min-width: 0; height: 40px; margin: 0; padding: 0 12px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; color: var(--ink); font: var(--fs-base)/1.3 var(--field); outline: none; user-select: text; box-shadow: inset 0 2px 0 rgba(29, 33, 64, 0.08); }
+.si-email-input:focus-visible { box-shadow: 0 0 0 3px rgba(42, 123, 213, 0.35); }
+.si-email-input[aria-invalid='true'] { border-color: var(--red); }
+.si-btn.si-send { flex: none; padding: 0 14px; background: linear-gradient(#8be28b, #2fa54a); color: #fff; text-shadow: 0 2px 0 #1b6b2e; }
+.si-btn.si-send:disabled { opacity: 0.7; cursor: progress; }
+.si-email-msg { margin: 6px 2px 0; font-size: var(--fs-xs); line-height: 1.35; opacity: 0.75; }
+.si-email-msg.bad { color: #b3261e; opacity: 1; }
+.si-email-back { display: block; margin: 2px auto 0; min-height: 28px; padding: 0 10px; border: 0; background: none; color: var(--blue-dark); font: var(--fs-sm)/1.3 var(--display); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+
+/* the link is on its way */
+.si-sent { display: flex; align-items: center; gap: var(--sp-3); padding: 10px 14px; border: 3px solid var(--ink); border-radius: 16px; background: linear-gradient(#efffef, #c9f2cf); box-shadow: 0 3px 0 var(--ink); animation: pop-in 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.si-sent .si-env { width: 34px; height: 34px; }
+.si-sent b { display: block; font: var(--fs-lg)/1.25 var(--display); font-weight: 400; }
+.si-sent span { display: block; margin-top: 1px; font-size: var(--fs-sm); line-height: 1.35; }
+.si-sent-actions { display: flex; justify-content: center; gap: var(--sp-2); margin-top: var(--sp-3); }
+
+/* "That Google account already has a New Yorker": switch to them, or stay (switchScreen in features/signin.ts) */
+.si-sw-faces { display: flex; align-items: flex-start; justify-content: center; gap: var(--sp-3); margin: var(--sp-2) 0 var(--sp-3); }
+.si-sw-face { display: grid; justify-items: center; gap: 2px; width: 130px; }
+.si-sw-face .si-inv-face { width: 72px; height: 72px; margin-bottom: 4px; }
+.si-sw-face b { font: var(--fs-lg)/1.2 var(--display); font-weight: 400; overflow-wrap: anywhere; }
+.si-sw-face small { font-size: var(--fs-xs); opacity: 0.7; }
+.si-sw-arrow { align-self: center; margin-top: -24px; font: var(--fs-3xl) var(--display); opacity: 0.6; }
+.si-switch .si-sub, .si-switch .cr-err { text-wrap: balance; }
+.si-switch .cr-err { margin: 0 0 var(--sp-3); }
+.si-switch .signin-card .btn { display: block; width: 100%; }
+.si-sw-go { padding: 10px; font-size: var(--fs-2xl); }
+.si-sw-stay { margin-top: var(--sp-2); }

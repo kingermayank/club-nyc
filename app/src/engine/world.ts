@@ -98,10 +98,67 @@ export function sitPlayer(seat: Seat) {
     world.player.sitOn(seat)
     link.send({ t: 'st', s: seat.id })
     sfx.pop()
+    // "Meet me on the steps": the Met's are the most famous seats in town
+    if (world.room.id === 'the-met' && seat.id.startsWith('step')) world.api.stamp('met-steps')
   })
 }
 
 // ---------- room building ----------
+/**
+ * An object's hit mask: its silhouette, with small holes inside it filled (a window's panes, the gap under an arch)
+ * and one pixel of slack around the edge. Without that, sweeping the mouse across a window flipped the cursor between
+ * the pointer and the arrow on every pane. Big enclosed areas (the ice inside a rink's railing) stay open, so you can
+ * still walk there.
+ */
+function hitMask(data: Uint8ClampedArray, w: number, h: number): Uint8ClampedArray {
+  const solid = (i: number) => data[i * 4 + 3] > 60
+  const n = w * h
+  // 1 = transparent and reachable from the border (outside), 2 = a big hole kept open, 3 = a small hole filled in
+  const open = new Uint8Array(n)
+  const flood = (seeds: number[], mark: number) => {
+    const out: number[] = []
+    const stack = seeds.filter((i) => !open[i] && !solid(i))
+    stack.forEach((i) => (open[i] = mark))
+    while (stack.length) {
+      const i = stack.pop()!
+      out.push(i)
+      const x = i % w
+      for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i >= w ? i - w : -1, i + w < n ? i + w : -1])
+        if (j >= 0 && !open[j] && !solid(j)) {
+          open[j] = mark
+          stack.push(j)
+        }
+    }
+    return out
+  }
+  const border: number[] = []
+  for (let x = 0; x < w; x++) border.push(x, (h - 1) * w + x)
+  for (let y = 0; y < h; y++) border.push(y * w, y * w + w - 1)
+  flood(border, 1)
+  // enclosed holes: small ones become part of the object, large ones stay walkable
+  const limit = n * 0.12
+  for (let i = 0; i < n; i++) {
+    if (open[i] || solid(i)) continue
+    const hole = flood([i], 2)
+    if (hole.length < limit) hole.forEach((j) => (open[j] = 3))
+  }
+  // the silhouette, then two pixels of slack (about 4px on screen) so jagged edges and hairline gaps between
+  // neighbouring objects don't flip the cursor back to an arrow
+  let inside = new Uint8Array(n)
+  for (let i = 0; i < n; i++) inside[i] = open[i] === 1 || open[i] === 2 ? 0 : 1
+  for (let pass = 0; pass < 2; pass++) {
+    const grown = new Uint8Array(n)
+    for (let i = 0; i < n; i++) {
+      const x = i % w
+      grown[i] = inside[i] || (x > 0 && inside[i - 1]) || (x < w - 1 && inside[i + 1]) || (i >= w && inside[i - w]) || (i + w < n && inside[i + w]) ? 1 : 0
+    }
+    inside = grown
+  }
+  const out = new Uint8ClampedArray(n * 4)
+  for (let i = 0; i < n; i++) if (inside[i]) out[i * 4 + 3] = 255
+  return out
+}
+
 function loadAlpha(hit: Hit) {
   const img = hit.img!
   const run = () => {
@@ -112,7 +169,7 @@ function loadAlpha(hit: Hit) {
     c.height = h
     const g = c.getContext('2d', { willReadFrequently: true })!
     g.drawImage(img, 0, 0, w, h)
-    hit.alpha = { data: g.getImageData(0, 0, w, h).data, w, h }
+    hit.alpha = { data: hitMask(g.getImageData(0, 0, w, h).data, w, h), w, h }
   }
   if (img.complete && img.naturalWidth) run()
   else img.addEventListener('load', run, { once: true })
@@ -484,7 +541,7 @@ function setHover(h: Hit | null, p: Pt) {
   if (h.img) h.img.classList.toggle('door', !!h.def?.go)
   if (h.img) h.img.classList.add('hover')
   if (h.npc) h.npc.wrap.classList.add('hover')
-  const label = h.kind === 'npc' ? personLabel(h.npc!) : h.def ? (h.def.go ? '🚪 ' : '') + h.def.label + (h.def.soon ? ' · coming soon' : '') : ''
+  const label = h.kind === 'npc' ? personLabel(h.npc!) : h.def ? (h.def.go ? '🚪 ' : '') + h.def.label + (h.def.soon ? ' (Coming Soon)' : '') : ''
   const top = h.kind === 'npc' ? h.npc!.pos[1] - 120 * depthScale(h.npc!.pos[1]) : h.rect[1]
   if (label) showLabel(label, h.kind === 'npc' ? h.npc!.pos[0] : h.kind === 'seat' ? p[0] : (h.rect[0] + h.rect[2]) / 2, top)
 }
@@ -534,6 +591,8 @@ export async function goto(id: string, from?: string) {
   world.room = next
   save.room = id
   if (!save.visited.includes(id)) save.visited.push(id)
+  // "Seen It All": every place in the city (homes and the seasonal parade don't count)
+  if (!save.stamps.includes('tourist') && Object.keys(ROOMS).every((r) => isHomeRoom(r) || r === PARTY.room || save.visited.includes(r))) world.api.stamp('tourist')
   persist()
   buildRoom(from)
   let finished = false
@@ -723,6 +782,10 @@ export function startWorld(player: Actor, api: Game) {
 
   stage.root.addEventListener('pointermove', (e) => {
     if (ui.busy) return setHover(null, [0, 0])
+    // only the city itself hovers: over anything sitting on top of it (the HUD, a card, the toolbar, a panel, a notice)
+    // the stairs or window underneath let go, the same way clicks never reach them
+    const t = e.target as Node
+    if (t !== stage.root && !stage.scene.contains(t) && !stage.bg.contains(t) && !stage.overhead.contains(t)) return setHover(null, [0, 0])
     const p = toStage(e)
     const h = hitAt(p)
     if (h !== world.hovered) setHover(h, p)

@@ -1,0 +1,6 @@
+{
+  // type-checks the Help Center's browser code: npx tsc -p help
+  // (lib/site.ts and vite-plugin.ts run in Node at build time; they're type-checked with Node's types, see the report)
+  "extends": "../tsconfig.json",
+  "include": ["main.ts", "search.ts", "lib/markdown.ts"]
+}

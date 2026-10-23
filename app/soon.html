@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+  CLUB NYC: COMING SOON (served at /play and /join/<name> while LAUNCH_MODE=waitlist, instead of the game)
+
+  The server (server/src/index.ts in production, app/vite.config.ts in development) sends this page to everyone who
+  isn't a tester. Testers open /play?preview=<PREVIEW_CODE> once and that browser gets the game. It keeps the teaser:
+  the gameplay loop behind it, the trailer, and the same waitlist form as the landing page (src/landing/waitlist.ts).
+-->
+<html lang="en" data-launch="waitlist">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Club NYC (Coming Soon)</title>
+    <!-- the landing page (/) is the one to index -->
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="A cozy online New York opens soon. Join the waitlist and we’ll email you the day the doors open." />
+    <link rel="icon" type="image/png" href="/art/icons/taxi.png" />
+    <meta name="theme-color" content="#0b1835" />
+    <link rel="preload" href="/fonts/BurbankSmall-Bold.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/BurbankSmall-Medium.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" as="image" href="/video/hero-loop.webp" type="image/webp" fetchpriority="high" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Club NYC" />
+    <meta property="og:title" content="Club NYC (Coming Soon)" />
+    <meta property="og:description" content="A cozy online New York opens soon. Join the waitlist and we’ll email you the day the doors open." />
+    <meta property="og:image" content="/og/club-nyc.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Club NYC (Coming Soon)" />
+    <meta name="twitter:description" content="A cozy online New York opens soon. Join the waitlist and we’ll email you the day the doors open." />
+    <meta name="twitter:image" content="/og/club-nyc.jpg" />
+  </head>
+  <body class="soon-page">
+    <!-- the city, playing behind the door (the poster for anyone who prefers less motion) -->
+    <video class="soon-video" data-hero-video muted loop playsinline preload="none" poster="/video/hero-loop.webp" width="1280" height="720" aria-hidden="true">
+      <source src="/video/hero-loop.webm" type="video/webm" />
+      <source src="/video/hero-loop.mp4" type="video/mp4" />
+    </video>
+    <div class="soon-shade" aria-hidden="true"></div>
+
+    <main class="soon-wrap" id="main">
+      <a class="soon-logo" href="/"><img src="/art/ui/logo.png" alt="Club NYC home" width="900" height="507" /></a>
+      <section class="soon-card" aria-labelledby="soon-title">
+        <div class="soon-invite" hidden></div>
+        <h1 id="soon-title">Coming Soon to a Browser Near You</h1>
+        <p class="soon-lede">Club NYC isn’t open yet. We’re still painting the crosswalks and teaching the pigeons their lines. Join the waitlist and we’ll email you the day the doors open.</p>
+        <p class="soon-code" hidden>That preview code didn’t work. Check it and try again.</p>
+        <form class="wl-form wl-light" data-source="soon" novalidate>
+          <div class="wl-body">
+            <div class="wl-row">
+              <input class="wl-input" id="wl-soon" type="email" name="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="you@email.com" aria-label="Your email" />
+              <button class="btn btn-play btn-xl" type="submit"><span class="wl-label">Join the Waitlist</span></button>
+            </div>
+            <p class="wl-msg" aria-live="polite"></p>
+            <p class="wl-fine">No spam, just the day we open. <a href="/privacy.html#waitlist">Privacy</a></p>
+          </div>
+          <div class="wl-hp" aria-hidden="true" style="position:absolute;left:-10000px;top:0;width:1px;height:1px;overflow:hidden"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+        </form>
+        <p class="wl-count soon-count" hidden><i aria-hidden="true"></i><span></span></p>
+        <div class="soon-more">
+          <button class="btn-trailer" type="button" data-trailer="soon"><span class="bt-icon" aria-hidden="true"></span>Watch the Trailer</button>
+          <a class="soon-back" href="/">See What’s Coming</a>
+        </div>
+      </section>
+      <p class="soon-foot">Free <i aria-hidden="true">·</i> Ages 13+ <i aria-hidden="true">·</i> Plays on a computer<br /><a href="/privacy.html">Privacy Policy</a> <i aria-hidden="true">·</i> <a href="/terms.html">Terms of Service</a> <i aria-hidden="true">·</i> <a href="/rules.html">Community Rules</a></p>
+    </main>
+
+    <!-- the video runs longer than 5 seconds, so it can be paused (WCAG 2.2.2) -->
+    <button class="hero-pause soon-pause" type="button" data-video-toggle aria-label="Pause the gameplay video" hidden><span aria-hidden="true"></span></button>
+
+    <dialog class="trailer" aria-label="Club NYC Trailer">
+      <button class="trailer-x" type="button" aria-label="Close the Trailer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+      <video controls playsinline preload="none" poster="/video/club-nyc-trailer.jpg" src="/video/club-nyc-trailer.mp4" width="1920" height="1080"></video>
+    </dialog>
+
+    <script type="module" src="/src/landing/soon.ts"></script>
+  </body>
+</html>

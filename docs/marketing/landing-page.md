@@ -1,7 +1,12 @@
 # The Club NYC landing page
 
 The page at `/` (source: `app/index.html`, `app/src/landing/`). The game is at `/play`. Its one job is to get people
-to press **Play now**; everything else (what it is, safety, Discord, FAQ) supports that.
+to press **Play Now** (before launch: **Join the Waitlist**, see below); everything else (what it is, safety, Discord,
+FAQ) supports that.
+
+**Words on the page:** every title and action word is in Title Case ("Play Now", "Watch the Trailer", "The Fun
+Stuff", "Be a Good Neighbor"); sentences stay sentence case. The hero headline keeps the user's own "Waddle on over
+to New York."
 
 ## How it works
 
@@ -10,7 +15,7 @@ to press **Play now**; everything else (what it is, safety, Discord, FAQ) suppor
   - The words: **"Waddle on over to New York."** and "Remember waddling around, meeting strangers, playing
     mini-games, and discovering secret rooms? Imagine all that nostalgia, but in NYC." They hint at Club Penguin
     without naming it (see [../launch/legal-callouts.md](../launch/legal-callouts.md)). No chip above the headline.
-  - The headline, the description and **Play now** all start on the same pixel (the headline and description are
+  - The headline, the description and **Play Now** all start on the same pixel (the headline and description are
     nudged by their first letters' side bearings, W 0.027em and R 0.077em, so the ink lines up). Both buttons have
     the same 22px corners.
   - Only landmarks anyone recognizes (Liberty Island, Times Square, Brooklyn Bridge, Central Park, Grand Central,
@@ -26,13 +31,13 @@ to press **Play now**; everything else (what it is, safety, Discord, FAQ) suppor
   and plays only while you can see it (`video[data-clip]`, clips from `npm --prefix video run clips`).
 - **The trailer** opens in a dialog, sound on, with nothing under it: 43 seconds of real gameplay, a day in the city
   told by a group chat, to an acoustic version of the game's own song. How it's made: [launch-video.md](launch-video.md).
-- **Play now** (`/play?start=guest`) skips the old front door and opens the New Yorker creator straight away. It
+- **Play Now** (`/play?start=guest`) skips the old front door and opens the New Yorker creator straight away. It
   appears in the hero, the sticky header, after the features, at the end and in the footer. The header has no
-  separate Sign in; the footer keeps a small **Sign in** link (`/play`, the front door with Google, X and Discord),
-  because Play now always starts a new guest and a returning player on a new computer needs a way back.
-- **Returning players** (a New Yorker saved in this browser) see "Welcome back, {name}!" and a **Continue playing**
+  separate Sign In; the footer keeps a small **Sign In** link (`/play`, the front door with Google, X, Discord and
+  email), because Play Now always starts a new guest and a returning player on a new computer needs a way back.
+- **Returning players** (a New Yorker saved in this browser) see "Welcome back, {name}!" and a **Continue Playing**
   button.
-- **Phones get the full page**, but every Play button becomes **Send to my computer** (the phone's share sheet,
+- **Phones get the full page**, but every Play button becomes **Send to My Computer** (the phone's share sheet,
   copy link, or email). A small "try it on this device anyway" link is there too. Club NYC plays on computers, and a
   dead end would lose the visitor.
 - **Invite links** (`/join/<name>`) skip the landing page and open the game next to the friend.
@@ -45,7 +50,7 @@ to press **Play now**; everything else (what it is, safety, Discord, FAQ) suppor
   `DISCORD_INVITE_URL` (see [../deploy-railway.md](../deploy-railway.md#5-set-the-variables)).
 - **Safety** is the five rules, how to report, and how the city stays friendly. The game is for 13 and up and the page
   speaks to players, not parents (the policies are linked from the footer, and from the sign-up's age check).
-- **The city so far** (after The fun stuff): real totals on a departures board whose digits flip into place when
+- **The City So Far** (after The Fun Stuff): real totals on a departures board whose digits flip into place when
   you scroll to it (`app/src/landing/stats.ts`, from `GET /api/stats`, re-counted once a minute): New Yorkers who've
   moved in ("You'd be #1,285"), pizzas made at Slice Factory with this week's top slicer, and who's out right now
   (only at 10+ online). Small numbers get honest copy ("NEW", "HIRING", "Could be you") and the section stays hidden
@@ -57,6 +62,38 @@ to press **Play now**; everything else (what it is, safety, Discord, FAQ) suppor
   - Title, description, Open Graph and X tags, plus VideoGame and WebSite structured data.
   - A canonical URL, `robots.txt` and `sitemap.xml`.
   - The game page says `noindex`, so search engines index the landing page instead.
+
+## Before launch: the waitlist (`LAUNCH_MODE=waitlist`)
+
+Until launch day the city isn't open to the public, so the page builds anticipation instead (the server marks
+`<html data-launch="waitlist">`; every call to action has a `.when-open` and a `.when-soon` version, and
+`src/landing/waitlist.css` shows one):
+
+- **The hero** keeps the headline, the description and the gameplay loop. Under them: **Coming Soon**, an email field
+  and **Join the Waitlist**, the line "We’ll email you the day the doors open. No spam: we’re not that kind of club.",
+  then **Watch the Trailer** and, once 100+ confirmed people are in line, "1,240 New Yorkers are already in line"
+  (`GET /api/waitlist/count`, never a made-up or tiny number).
+- **The header, mid-page and footer buttons** say **Join the Waitlist**: they put the cursor in the hero's field when
+  it's on screen, and otherwise open a small sheet with the same form. The last call ("The Big Apple Is Waiting.")
+  has the form too, at `#join` (so the buttons work without JavaScript).
+- **Joined:** every form on the page turns into "You’re on the list!" (or "Already on the list"), and the browser
+  remembers it (a yes, never the address), with **Use a Different Email**. With email set up, new signups confirm by
+  email first ("One more step: check your inbox").
+- **The departures board** becomes "Next Stop: Club NYC": SOON (the doors open), the count of people in line (only
+  above the threshold) and 20+ places to explore. The Dance Jam tile says "8 min between shows" instead of a live
+  countdown. The FAQ adds "When does Club NYC open?" and "What happens when I join the waitlist?".
+- **Phones** can join right there ("Join the list here, then play on your laptop when we open").
+- **The links in our emails** come back here: `/?waitlist=confirmed`, `unsubscribed` or `bad-link` show a note.
+- **`/play` and invite links** show the Coming Soon page (`app/soon.html`): the loop behind a front-door card, "Coming
+  Soon to a Browser Near You", the same form (an invite link says who invited you and remembers them), the trailer
+  and **See What’s Coming** (back to `/`). Testers skip it with `/play?preview=<PREVIEW_CODE>`.
+- **Search and sharing:** the title, description and link previews say Coming Soon; the Coming Soon page is
+  `noindex`.
+- **Preview it locally:** add `?launch=waitlist` (or `?launch=open`) to the landing page's address on the dev
+  server, or run the stack with `LAUNCH_MODE=waitlist PREVIEW_CODE=… bash tools/qa_stack.sh`.
+- **The numbers:** `/admin.html` → **Waitlist**: signups by day, where on the page people joined, who invited them,
+  the share of landing-page visits that joined, the latest signups, CSV export, and **Email the Waitlist That We're
+  Open** for launch day.
 
 ## Speed (measured 18 October 2026, production build)
 

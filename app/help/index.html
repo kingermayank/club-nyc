@@ -1,0 +1,31 @@
+<!doctype html>
+<!--
+  CLUB NYC HELP CENTER (served at /help)
+  This file is the frame every help page shares. The pages themselves are written in Markdown in app/help/content
+  (the sidebar is content/sidebar.md); app/help/vite-plugin.ts fills this frame in for each one, in development and
+  when the site builds (one dist/help/<page>/index.html per page, plus the search index).
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}" />
+    <link rel="icon" type="image/png" href="/art/icons/taxi.png" />
+    <meta name="theme-color" content="#78bdf2" />
+    <link rel="preload" href="/fonts/BurbankSmall-Bold.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/BurbankSmall-Medium.otf" as="font" type="font/otf" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Club NYC" />
+    <meta property="og:title" content="{{title}}" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="/og/club-nyc.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="help-index" content="{{index}}" />
+    <link rel="stylesheet" href="/help/help.css" />
+    <script type="module" src="/help/main.ts"></script>
+  </head>
+  <body>
+    {{body}}
+  </body>
+</html>

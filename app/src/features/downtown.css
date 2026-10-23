@@ -1,0 +1,69 @@
+/* ================= Lower Manhattan: Wall Street, One World Trade, Sky Deck 102 (features/downtown.ts) ================= */
+
+/* the live LED ticker, fitted onto the board in the Wall Street art (a matrix3d from downtown.ts) */
+.ws-ticker { position: absolute; left: 0; top: 0; z-index: 6; contain: paint; transform-origin: 0 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-evenly; padding: 4px 0; background: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1.6px) 0 0 / 6px 6px, #0f1317; }
+/* a marquee: the runs are wider than the board on purpose; the board's paint containment trims them to its face
+   (and keeps them out of the stage's scroll area) */
+.ws-row { white-space: nowrap; }
+.ws-run { display: inline-flex; gap: 34px; padding-left: 20px; animation: ws-scroll 26s linear infinite; }
+.ws-row.bottom .ws-run { animation-duration: 34s; animation-direction: reverse; }
+.ws-run span { font: 34px/1.15 var(--display); letter-spacing: 0.04em; color: #7cff6b; text-shadow: 0 0 6px rgba(124, 255, 107, 0.6); }
+.ws-run span b { font-weight: 400; color: #fff7c2; margin-right: 6px; text-shadow: 0 0 6px rgba(255, 247, 194, 0.5); }
+.ws-run span.down { color: #ff6a5c; text-shadow: 0 0 6px rgba(255, 106, 92, 0.6); }
+.ws-row.bottom span.note { font-size: 26px; color: #ffd166; text-shadow: 0 0 6px rgba(255, 209, 102, 0.55); }
+.ws-row.bottom span.note.dim { color: #9fd2ef; text-shadow: 0 0 6px rgba(159, 210, 239, 0.5); }
+@keyframes ws-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .ws-run { animation-duration: 90s; } }
+
+/* the Pizza Index table inside its card */
+.ws-index { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; margin: 0 0 var(--sp-3); padding: 8px 10px; background: #0f1317; border: 3px solid var(--ink); border-radius: 12px; }
+.ws-index div { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 6px; min-width: 0; color: #7cff6b; font: var(--fs-sm) var(--display); }
+.ws-index div.down { color: #ff6a5c; }
+.ws-index b { font-weight: 400; color: #fff7c2; }
+.ws-index span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--fs-2xs)/1.45 var(--body); color: #c9cfe0; }
+.ws-index em { font-style: normal; }
+
+/* rubbing The Bull: his nose shines */
+.cutout.ws-shine { animation: ws-shine 1.3s ease-out; }
+@keyframes ws-shine { 0% { filter: none; } 30% { filter: brightness(1.45) saturate(1.3) drop-shadow(0 0 10px #ffe27a); } 100% { filter: none; } }
+
+/* the elevator up One World Trade: the skyline grows outside the window */
+.elevator-ride { position: absolute; inset: 0; z-index: 9650; display: grid; place-items: center; background: linear-gradient(90deg, #6d7489 0 6%, #9aa2b8 6% 8%, #565c70 8% 92%, #9aa2b8 92% 94%, #6d7489 94%); animation: fade-in 0.35s; }
+.elevator-ride.out { opacity: 0; transition: opacity 0.6s; }
+.er-window { position: relative; width: 620px; height: 330px; overflow: hidden; border: 6px solid var(--ink); border-radius: 18px; box-shadow: 0 6px 0 var(--ink), inset 0 0 0 6px #c9ccd6; background: #12204a; }
+.er-sky { position: absolute; inset: 0; background: linear-gradient(180deg, #7cc4ff, #e3f4ff); }
+.er-skyline { position: absolute; inset: 0; width: 100%; height: 100%; }
+.er-era { opacity: 0; transform: translateY(40px); transform-box: fill-box; transition: opacity 0.45s, transform 0.55s cubic-bezier(0.2, 1.3, 0.4, 1); }
+.er-era.on { opacity: 1; transform: none; }
+.er-beams.on { animation: er-beams 1.8s ease-in-out infinite alternate; }
+@keyframes er-beams { to { opacity: 0.6; } }
+.er-panel { position: absolute; top: 26px; right: 40px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 16px 10px; background: #111522; border: 4px solid var(--ink); border-radius: 14px; box-shadow: 0 4px 0 var(--ink); color: #ffd166; font-family: var(--display); }
+.er-panel small { font-size: var(--fs-2xs); letter-spacing: 0.1em; color: #9fd2ef; }
+.er-floor { font-size: var(--fs-7xl); line-height: 1; font-weight: 400; min-width: 2.2ch; text-align: center; text-shadow: 0 0 8px rgba(255, 209, 102, 0.6); }
+.er-year { font-size: var(--fs-base); color: #fff; }
+.er-caption { position: absolute; left: 50%; bottom: 78px; width: min(640px, 90%); transform: translateX(-50%); padding: 10px 18px; background: var(--paper); border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); text-align: center; font: var(--fs-lg) var(--body); opacity: 0; }
+.er-caption b { font-family: var(--display); font-weight: 400; color: var(--blue-dark); margin-right: 6px; }
+/* a new year pops in by scale only: the caption stays fully readable the whole time */
+.er-caption.show { opacity: 1; animation: er-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+@keyframes er-pop { from { transform: translateX(-50%) scale(0.92); } to { transform: translateX(-50%) scale(1); } }
+/* top left: clear of the floor counter (top right) and the toolbar along the bottom */
+.er-skip { position: absolute; left: 24px; top: 24px; }
+/* going down: closed steel doors and the floor counting backwards */
+.elevator-ride.down .er-doors { display: flex; gap: 4px; width: 300px; height: 330px; padding: 6px; background: var(--ink); border-radius: 12px; }
+.er-doors i { flex: 1; background: linear-gradient(90deg, #b9bfcf, #e6e9f1 40%, #a9b0c3); border-radius: 6px; }
+
+/* a white rose on the memorial's parapet */
+.wtc-rose { position: absolute; z-index: 6; width: 16px; height: 23px; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(29, 33, 64, 0.25)); }
+.wtc-rose svg { display: block; width: 100%; height: 100%; }
+.wtc-rose.new { animation: pop-in 0.6s ease-out; }
+.wtc-exhibit .ic-pic.is-src.cover { aspect-ratio: 4 / 3; }
+
+/* the Sky Portal: the glass "gives" a little when you jump on it */
+.cutout.sd-wobble { animation: sd-wobble 0.8s ease-out; }
+@keyframes sd-wobble { 0%, 100% { transform: none; filter: none; } 20% { transform: scale(1.02, 0.97); filter: brightness(1.2); } 45% { transform: scale(0.99, 1.02); } 70% { transform: scale(1.01, 0.99); } }
+@media (prefers-reduced-motion: reduce) { .cutout.sd-wobble, .cutout.ws-shine { animation: none; } }
+
+/* the Brooklyn Bridge's sign back down to Wall Street (its click zone is "to-wall-street" in the room's geo) */
+.ws-sign { position: absolute; left: 96px; top: 378px; z-index: 4400; width: 52px; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+.ws-sign svg { display: block; width: 52px; height: 72px; filter: drop-shadow(0 3px 0 rgba(29, 33, 64, 0.25)); }
+.ws-sign span { margin-top: -24px; padding: 1px 6px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 8px; font: var(--fs-3xs) var(--display); line-height: 1.3; white-space: nowrap; }

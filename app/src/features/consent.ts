@@ -91,10 +91,10 @@ export function confirmBirthday(b: Birth): Promise<boolean> {
       settled = true
       resolve(sure)
     }
-    const p = el('div', 'panel birthday-check', `<div class="panel-art">📅</div><h2>Is that your birthday?</h2><p>You picked <b>${MONTHS[b.m - 1]} ${b.y}</b>.</p>`)
+    const p = el('div', 'panel birthday-check', `<div class="panel-art">📅</div><h2>Is That Your Birthday?</h2><p>You picked <b>${MONTHS[b.m - 1]} ${b.y}</b>.</p>`)
     const row = el('div', 'choices two')
-    const fix = el('button', 'btn ghost', 'Let me fix it')
-    const yes = el('button', 'btn go', 'Yes, that’s right')
+    const fix = el('button', 'btn ghost', 'Let Me Fix It')
+    const yes = el('button', 'btn go', 'Yes, That’s Right')
     fix.onclick = () => {
       sfx.click()
       done(false)
@@ -120,7 +120,7 @@ export function tooYoungScreen() {
     'div',
     'creator signin too-young',
     `<div class="creator-bg"></div><img class="creator-logo" src="/art/ui/logo.png" alt="Club NYC">
-    <div class="signin-card"><div class="panel-art">🗽</div><h2>Sorry, not yet!</h2>
+    <div class="signin-card"><div class="panel-art">🗽</div><h2>Sorry, Not Yet!</h2>
     <p class="si-sub">Club NYC is for New Yorkers ${MIN_AGE} and older. We hope to see you when you’re ${MIN_AGE}!</p>
     <a class="btn ghost" href="/">Back to the home page</a></div>`,
   )
@@ -140,12 +140,18 @@ export function consentPanel(kind: 'new' | 'update'): Promise<{ birth: Birth | n
       'div',
       'panel consent-panel',
       kind === 'new'
-        ? '<div class="panel-art">🗽</div><h2>One quick thing</h2><p>Your New Yorker is coming online. Tell us your birthday and agree to the rules of the city.</p>'
-        : '<div class="panel-art">📜</div><h2>Before you head back in</h2><p>Club NYC’s Terms, Privacy Policy and Community Rules have been updated. Please take a look and agree to keep playing.</p>',
+        ? '<div class="panel-art">🗽</div><h2>One Quick Thing</h2><p>Your New Yorker is coming online. Tell us your birthday and agree to the rules of the city.</p>'
+        : '<div class="panel-art">📜</div><h2>Before You Head Back In</h2><p>Club NYC’s Terms, Privacy Policy and Community Rules have been updated. Please take a look and agree to keep playing.</p>',
     )
     const f = consentFields({ birthday: kind === 'new' })
     const err = el('div', 'cr-err')
-    const ok = el('button', 'btn go', kind === 'new' ? 'Agree and continue' : 'Agree and play')
+    const ok = el('button', 'btn go', kind === 'new' ? 'Agree and Continue' : 'Agree and Play')
+    // never a dead end: not agreeing is fine, it just means not playing right now (back to the home page)
+    const later = el('button', 'btn ghost', 'Not Now')
+    later.onclick = () => {
+      sfx.click()
+      location.href = '/'
+    }
     let settled = false
     // the birthday check is open on top: closing this panel for it isn't "closed without an answer"
     let checking = false
@@ -182,7 +188,9 @@ export function consentPanel(kind: 'new' | 'update'): Promise<{ birth: Birth | n
       closeOverlay()
       resolve({ birth })
     }
-    p.append(f.box, err, ok)
+    const btns = el('div', 'consent-btns')
+    btns.append(later, ok)
+    p.append(f.box, err, btns)
     // there's no way around it: closed without an answer (Escape), the panel comes straight back
     const show = () => openOverlay(p, { backdrop: false, onClose: () => void (settled || checking || setTimeout(show, 0)) })
     show()

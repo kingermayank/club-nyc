@@ -47,6 +47,8 @@ const HUBS = ['times-square', 'soho', 'central-park', 'rockefeller', 'brooklyn-b
 /** people between places pass through the transit hubs */
 const TRANSIT = ['subway', 'grand-central', 'times-square', 'subway', 'grand-central']
 export const OUTDOOR = ['times-square', 'fifth-ave', 'rockefeller', 'central-park', 'the-met', 'soho', 'chinatown', 'brooklyn-bridge', 'battery-park', 'high-line']
+/** homes near Wall Street and One World Trade (their locals hang out there too) */
+const DOWNTOWN = ['battery-park', 'brooklyn-bridge', 'chinatown', 'liberty-island']
 
 const BIOS = [
   'Has ridden every subway line. Twice.', 'Will not eat pizza with a fork. Ever.', 'Knows every bodega cat by name.',
@@ -64,7 +66,7 @@ const LINES = [
   'Have you tried the halal cart on 57th?', 'The ferry at sunset is unreal.', 'Who’s up for a flash mob? 🕺',
   'I’m saving up for a jukebox for my place.', 'My apartment is open. Come visit!', 'Did you read the Club NYC Times today?',
   'I almost beat the Slice Factory record!', 'The subway smells like… adventure.', 'Coffee number three. Don’t judge.',
-  'Snowball fight later? ❄️', 'This city never sleeps and neither do I.', 'Rainbow Kicks or High-Tops?',
+  'Race you to the pizza place? 🍕', 'This city never sleeps and neither do I.', 'Rainbow Kicks or High-Tops?',
 ]
 
 function build(): Resident[] {
@@ -81,6 +83,9 @@ function build(): Resident[] {
     }
     const team = teamOfRoom(home)
     const haunts = [pickWith(r, HUBS), pickWith(r, HOME_WEIGHTS.map((h) => h[0])), pickWith(r, OUTDOOR)].filter((h, k, a) => h !== home && a.indexOf(h) === k)
+    // downtown locals also drop by the newer downtown places (added after the seeded picks, so nobody else's
+    // home, team or haunts change)
+    if (DOWNTOWN.includes(home)) haunts.push(hash(name) % 2 ? 'wall-street' : 'one-world-trade')
     const look = randomLook(0.75, r)
     // some residents wear their team scarf
     if (r() < 0.25 && !look.items.neck) look.items.neck = TEAMS[team].scarf
