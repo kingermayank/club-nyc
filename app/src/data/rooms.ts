@@ -31,7 +31,7 @@ function tasted(g: Game, item: string) {
   if (!save.stats[k]) bump(k)
   if (Object.keys(save.stats).filter((s) => s.startsWith('ate:')).length >= 10) g.stamp('belly-10')
 }
-/** what the Bean There barista writes on your cup: your name, nearly. ("Mayonnaise" is a classic.) */
+/** what the Ralph’s Coffee barista writes on your cup: your name, nearly. ("Mayonnaise" is a classic.) */
 function baristaName(name: string): string {
   const word = name.match(/[A-Z]?[a-z]+|[A-Z]+(?![a-z])/)?.[0] ?? ''
   const n = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -173,7 +173,7 @@ const rinkCard = card({
   ],
 })
 const halal = async (g: Game) => {
-  const v = await g.choose('🥙 HALAL BROS', '“Chicken over rice, my friend? Or… you want to work the lunch rush?”', [
+  const v = await g.choose('🥙 Adel’s Famous Halal Food', '“Chicken over rice, my friend? Or… you want to work the lunch rush?”', [
     { label: 'Chicken Over Rice (6)', value: 'buy', note: 'extra white sauce' },
     { label: 'Work the Lunch Rush', value: 'work', note: 'mini-game · earn coins' },
   ])
@@ -292,11 +292,11 @@ export const ROOMS: Record<string, RoomDef> = {
 
   'fifth-ave': {
     id: 'fifth-ave', name: 'Fifth Avenue', area: '5 Av & W 57 St', bg: 'fifth-ave-v2', npcs: 4, mapSpot: 'fifth-ave', steamFrom: 'manhole',
-    chatter: ['Window shopping is free!', 'That trunk building is a whole mood.', 'Halal Bros has the best white sauce.'],
+    chatter: ['Window shopping is free!', 'That trunk building is a whole mood.', 'Adel’s has the best white sauce. Fight me.'],
     objects: {
-      'maison-malle': exit('Maison Malle', 'maison-malle'),
-      'toy-palace': exit('Toy Palace', 'toy-palace'),
-      'halal-cart': { label: 'Halal Bros Cart', act: halal },
+      'maison-malle': exit('Louis Vuitton', 'maison-malle'),
+      'toy-palace': exit('Saks Fifth Avenue', 'toy-palace'),
+      'halal-cart': { label: 'Adel’s Famous Halal Food', act: halal },
       cathedral: look('St. Patrick’s Cathedral', card({
         title: 'St. Patrick’s Cathedral', kicker: 'Fifth Avenue · 1879', pic: pic('fifth-ave', 'cathedral'),
         text: 'Building started in 1858, paused for the Civil War, and the cathedral opened in 1879. Its twin neo-Gothic spires, about 330 feet tall, were finished in 1888.',
@@ -327,32 +327,38 @@ export const ROOMS: Record<string, RoomDef> = {
   },
 
   'toy-palace': {
-    id: 'toy-palace', name: 'Toy Palace', area: 'Fifth Avenue', bg: 'toy-palace', indoor: true, npcs: 2, mapSpot: 'fifth-ave',
+    // (the room id stays 'toy-palace' so saves still land here; it's Saks Fifth Avenue now)
+    id: 'toy-palace', name: 'Saks Fifth Avenue', area: 'Fifth Avenue', bg: 'saks', indoor: true, npcs: 2, mapSpot: 'fifth-ave',
+    chatter: ['Just looking. For four hours.', 'Is the shoe floor really its own zip code?', 'I came for the windows and stayed for the escalators.'],
     objects: {
-      'piano-obj': look('Giant Floor Piano', card({
-        title: 'Giant Floor Piano', kicker: 'Toy Palace', pic: pic('toy-palace', 'piano-obj'),
-        text: 'Walk-on pianos became famous after a 1988 movie where two grown-ups played a duet with their feet in a Fifth Avenue toy store. Every key here plays a note: walk across to play.',
-        joke: 'Lessons not included. Neither is talent.',
-        actions: (g) => [{ label: 'Play a Tune', primary: true, act: () => fun((m) => m.playPiano(g)) }],
+      shoes: look('10022-SHOE', card({
+        title: 'The Shoe Floor', kicker: 'Zip Code 10022-SHOE', pic: pic('toy-palace', 'shoes'),
+        text: 'Saks’s shoe floor is so big that when it opened in 2007 it got its own zip code from the Postal Service: 10022-SHOE.',
+        joke: 'Mail a letter here and it comes back in a better pair of shoes.',
+        actions: (g) => [{ label: 'Browse Shoes', primary: true, act: () => shop('toys', 'shoes')(g) }],
       })),
-      teddy: look('Giant Teddy', card({
-        title: 'Giant Teddy', kicker: 'Not for Sale', pic: pic('toy-palace', 'teddy'),
-        text: 'The teddy bear is named after President Theodore “Teddy” Roosevelt, a New Yorker, who refused to shoot a captured bear on a 1902 hunting trip. A Brooklyn shop owner sewed a “Teddy’s bear” soon after.',
-        joke: 'He’s 15 feet tall and not for sale. I asked twice.',
-        actions: (g) => [{ label: 'Give Him a Hug', primary: true, act: () => (g.emote('cheer', 2), g.say('He hugs back. Emotionally. 🧸')) }],
+      bench: { label: 'Velvet Bench', sit: true },
+      'escalator-left': look('Escalator', say(['The upper floors are for advanced shoppers. I’m still on level one.', 'Going up! The view from floor 2 is mostly other escalators.'])),
+      'escalator-right': look('Escalator', say(['Riding an escalator just to look around. Very New York.', 'Stand right, walk left. Even in Saks.'])),
+      chandelier: look('Chandelier', say('That chandelier costs more than my apartment. Probably the whole building.')),
+      counter: look('Perfume Counter', card({
+        title: 'Perfume Counter', kicker: 'Saks Fifth Avenue', pic: pic('toy-palace', 'counter'),
+        text: 'Saks opened on Fifth Avenue in 1924. Every holiday season its whole facade lights up in a light show, and the crowd on the sidewalk outside is part of the tradition.',
+        joke: 'One spritz and you smell like a department store. Congratulations.',
+        actions: (g) => [
+          { label: 'Shop', primary: true, act: () => shop('toys')(g) },
+          { label: 'Try a Sample', act: () => g.say('*spritz* Notes of bergamot, cedar and a 45-minute wait.') },
+        ],
       })),
-      slide: { label: 'Candy Cane Slide', act: (g) => { g.emote('jump'); g.sfx.whoosh(); g.say('WHEEEE! 🍭') } },
-      gumball: { label: 'Gumball Machine', act: (g) => { if (!g.spend(1, 'gumball')) return; g.sfx.coin(); const c = ['red', 'blue', 'yellow', 'green', 'golden ✨'][Math.floor(Math.random() * 5)]; g.say(`A ${c} gumball!`); if (c.startsWith('golden')) g.earn(10, 'Golden gumball!', 'golden-gumball') } },
-      train: look('Toy Train', (g) => { g.sfx.toot(); g.say('All aboard the Toy Palace Express! 🚂') }),
-      robots: { label: 'Robots & Rockets', act: shop('toys', 'toys') },
-      counter: { label: 'Toy Counter', act: shop('toys') },
-      balloons: { label: 'Balloons', act: shop('toys', 'balloons') },
+      bags: { label: 'Jewelry & Shades', act: shop('toys', 'jewelry') },
+      'display-left': { label: 'Shoe Display', decor: true },
+      'display-right': { label: 'Handbag Display', decor: true },
       arch: exit('Exit to Fifth Avenue', 'fifth-ave'),
     },
   },
 
   'maison-malle': {
-    id: 'maison-malle', name: 'Maison Malle', area: 'Fifth Avenue', bg: 'maison-malle', indoor: true, npcs: 2, mapSpot: 'fifth-ave',
+    id: 'maison-malle', name: 'Louis Vuitton', area: 'Fifth Avenue', bg: 'maison-malle', indoor: true, npcs: 2, mapSpot: 'fifth-ave',
     chatter: ['Is this… real gold?', 'I’m just looking. Expensively.'],
     objects: {
       handbags: { label: 'Handbags', act: shop('maison', 'bags') },
@@ -361,7 +367,7 @@ export const ROOMS: Record<string, RoomDef> = {
       'cash-desk': { label: 'Boutique Desk', act: shop('maison') },
       sofa: { label: 'Velvet Sofa', sit: true },
       staircase: look('VIP Staircase', card({
-        title: 'VIP Staircase', kicker: 'Maison Malle', pic: pic('maison-malle', 'staircase'),
+        title: 'VIP Staircase', kicker: 'Louis Vuitton', pic: pic('maison-malle', 'staircase'),
         text: 'Fifth Avenue flagships are built to impress: marble, brass and a staircase you’re not allowed to climb. The salon upstairs is by appointment only.',
         joke: 'The next free appointment is in 2029. Bring a snack.',
         actions: (g) => [{ label: 'Ask for an Appointment', act: () => g.say('“We’ll call you.” They will not call me.') }],
@@ -373,7 +379,7 @@ export const ROOMS: Record<string, RoomDef> = {
         actions: (g) => [{ label: 'Step Over It', act: () => g.say('A security guard clears his throat. I step right back over.') }],
       })),
       chandelier: look('Chandelier', card({
-        title: 'Chandelier', kicker: 'Maison Malle', pic: pic('maison-malle', 'chandelier'),
+        title: 'Chandelier', kicker: 'Louis Vuitton', pic: pic('maison-malle', 'chandelier'),
         text: 'Store rents on Fifth Avenue in the 50s are some of the highest in the world, so every square foot has to sparkle. This one sparkles on purpose.',
         joke: 'This chandelier costs more than my rent. Probably. Possibly. Definitely.',
       })),
@@ -563,11 +569,11 @@ export const ROOMS: Record<string, RoomDef> = {
 
   soho: {
     id: 'soho', name: 'SoHo', area: 'Greene St · Cast-Iron District', bg: 'soho', npcs: 5, mapSpot: 'soho', steamFrom: 'manhole',
-    chatter: ['Have you seen the new drop at Sneaker Vault?', 'Cobblestones + heels = bad idea.', 'I come here for the cast iron. And the coffee.'],
+    chatter: ['Did you see the new drop at Supreme?', 'Cobblestones + heels = bad idea.', 'I come here for the cast iron. And the coffee.'],
     objects: {
-      thread: exit('THREAD · Fashion', 'thread'),
-      'sneaker-vault': exit('Sneaker Vault', 'sneaker-vault'),
-      'bean-there': exit('Bean There Coffee', 'coffee'),
+      thread: exit('Supreme', 'thread'),
+      'sneaker-vault': exit('Nike', 'sneaker-vault'),
+      'bean-there': exit('Ralph’s Coffee', 'coffee'),
       mural: look('Street Art', card({
         title: 'Street Art', kicker: 'SoHo', pic: pic('soho', 'mural'),
         text: 'Artists moved into SoHo’s empty cast-iron lofts in the 1960s and 70s, and the walls have been covered in murals ever since. This one changes every few months.',
@@ -605,19 +611,19 @@ export const ROOMS: Record<string, RoomDef> = {
   },
 
   thread: {
-    id: 'thread', name: 'THREAD', area: 'SoHo', bg: 'thread', indoor: true, npcs: 2, mapSpot: 'soho',
+    id: 'thread', name: 'Supreme', area: 'SoHo', bg: 'thread', indoor: true, npcs: 2, mapSpot: 'soho',
     objects: {
       'rack-left': { label: 'Tops & Dresses', act: shop('thread', 'tops') },
       'rack-right': { label: 'Jackets & Coats', act: shop('thread', 'jackets') },
       table: { label: 'Denim & Bottoms', act: shop('thread', 'bottoms') },
       mannequins: { label: 'Accessories', act: shop('thread', 'accessories') },
-      catalog: { label: 'SoHo Style Catalog', act: shop('thread') },
+      catalog: { label: 'Supreme Catalog', act: shop('thread') },
       counter: { label: 'Checkout', act: shop('thread') },
       mirror: { label: 'Mirror · Try Things On', act: () => import('../features/playerCard').then((m) => m.openWardrobe()) },
       fitting: { label: 'Fitting Room', act: () => import('../features/playerCard').then((m) => m.openWardrobe()) },
-      neon: look('THREAD', card({
-        title: 'THREAD', kicker: 'SoHo · Cast-Iron District', pic: pic('thread', 'neon', 'linear-gradient(170deg, #1d2140, #3d4a7a)'),
-        text: 'SoHo has the biggest collection of cast-iron buildings in the world. Their fronts were made in foundries, in pieces, then bolted together like a giant kit. Today they hold some of the city’s best shops.',
+      neon: look('Supreme', card({
+        title: 'Supreme', kicker: 'SoHo · Since 1994', pic: pic('thread', 'neon', 'linear-gradient(170deg, #1d2140, #3d4a7a)'),
+        text: 'Supreme opened on Lafayette Street in 1994 as a skate shop, and its Thursday drops still pull lines down the block. SoHo around it has the biggest collection of cast-iron buildings in the world. Their fronts were made in foundries, in pieces, then bolted together like a giant kit. Today they hold some of the city’s best shops.',
         joke: 'Minimalism, but make it neon.',
       })),
       // tucked under the toolbar: scenery (press S near it to sit)
@@ -628,20 +634,20 @@ export const ROOMS: Record<string, RoomDef> = {
   },
 
   'sneaker-vault': {
-    id: 'sneaker-vault', name: 'Sneaker Vault', area: 'SoHo', bg: 'sneaker-vault', indoor: true, npcs: 3, mapSpot: 'soho',
+    id: 'sneaker-vault', name: 'Nike', area: 'SoHo', bg: 'sneaker-vault', indoor: true, npcs: 3, mapSpot: 'soho',
     chatter: ['I camped out for these.', 'Deadstock or nothing.', 'Size 10? Anyone?'],
     objects: {
       wall: { label: 'The Wall · Sneakers', act: shop('sneakers', 'kicks') },
       boxes: { label: 'Extras', act: shop('sneakers', 'extras') },
       counter: { label: 'Checkout', act: shop('sneakers') },
       vault: look('The Vault', card({
-        title: 'The Vault', kicker: 'Sneaker Vault', pic: pic('sneaker-vault', 'vault'),
+        title: 'The Vault', kicker: 'Nike', pic: pic('sneaker-vault', 'vault'),
         text: 'Limited sneaker “drops” took off in the 1980s and 90s, and New York shops still get lines around the block for the rare ones. Some people camp out overnight.',
         joke: 'The grails. Not for sale. Not even for you.',
       })),
       bench: { label: 'Try-On Bench', sit: true },
       turntable: { label: 'Turntable', act: (g) => { g.sfx.ding(); g.emote('dance', 4); g.say('This beat goes hard 🎧') } },
-      neon: look('Sneaker Vault', say('The neon hums in sneaker.')),
+      neon: look('Nike', say('The neon hums in sneaker.')),
       measurer: look('Foot Measurer', (g) => {
         const size = 6 + Math.floor(Math.random() * 7)
         g.say(`Size ${size}${Math.random() < 0.5 ? '½' : ''}. ${['Wide.', 'Narrow.', 'Perfectly average.', 'Sneakerhead certified.'][Math.floor(Math.random() * 4)]} Cool.`)
@@ -651,13 +657,13 @@ export const ROOMS: Record<string, RoomDef> = {
   },
 
   coffee: {
-    id: 'coffee', name: 'Bean There', area: 'SoHo · Coffee', bg: 'coffee', indoor: true, npcs: 3, mapSpot: 'soho',
+    id: 'coffee', name: 'Ralph’s Coffee', area: 'SoHo · Coffee', bg: 'coffee', indoor: true, npcs: 3, mapSpot: 'soho',
     chatter: ['Oat milk, obviously.', 'This is my office now.', 'Best bagels below 14th Street.'],
     objects: {
       counter: {
         label: 'Order Counter',
         act: async (g) => {
-          const v = await g.choose('☕ Bean There', '“Morning! What’ll it be?”', [
+          const v = await g.choose('☕ Ralph’s Coffee', '“Morning! What’ll it be?”', [
             { label: 'Deli Coffee (3)', value: 'coffee', note: 'the blue cup' },
             { label: 'Oat Latte (4)', value: 'latte', note: 'they write your name on the cup' },
             { label: 'Everything Bagel (2)', value: 'bagel' },
@@ -674,8 +680,8 @@ export const ROOMS: Record<string, RoomDef> = {
       },
       espresso: look('Espresso Machine', (g) => { g.sfx.espresso(); g.say('*hissssss* That’s the sound of productivity.') }),
       menu: look('Menu', card({
-        title: 'The Menu', kicker: 'Bean There', pic: pic('coffee', 'menu'),
-        text: 'New York’s classic paper coffee cup, blue and white with Greek columns and “We Are Happy To Serve You”, was designed in 1963 by Leslie Buck. Hundreds of millions were sold.',
+        title: 'The Menu', kicker: 'Ralph’s Coffee', pic: pic('coffee', 'menu'),
+        text: 'Ralph’s Coffee is Ralph Lauren’s café, famous for its forest-green cups. The blue cup on the menu is a nod to New York’s classic paper deli cup, with its Greek columns and “We Are Happy To Serve You”, designed in 1963 by Leslie Buck. Hundreds of millions were sold.',
         joke: '“Cold brew, pour over, the usual.” I’ll have the usual.',
       })),
       sacks: look('Coffee Sacks', card({
@@ -695,9 +701,9 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'chinatown', name: 'Chinatown & Little Italy', area: 'Mott St · Mulberry St', bg: 'chinatown', npcs: 5, mapSpot: 'chinatown',
     chatter: ['Soup dumplings or regular? Both.', 'Boba run?', 'Mulberry Street for cannoli after!'],
     objects: {
-      dumpling: { label: 'Golden Dumpling', act: vend('dumplings', 3, 'Pork & chive, pan-fried. Perfect. 🥟') },
-      boba: { label: 'Boba Bay', act: vend('boba', 4, 'Brown sugar boba. Extra pearls. 🧋') },
-      pizza: exit('99¢ Slice', 'pizza'),
+      dumpling: { label: 'Joe’s Shanghai', act: vend('dumplings', 3, 'Soup dumplings. Nibble, sip, then eat. Perfect. 🥟') },
+      boba: { label: 'Ten Ren Tea', act: vend('boba', 4, 'Brown sugar boba. Extra pearls. 🧋') },
+      pizza: exit('Joe’s Pizza', 'pizza'),
       arch: look('Little Italy', card({
         title: 'Little Italy', kicker: 'Mulberry Street', pic: pic('chinatown', 'arch'),
         text: 'Mulberry Street was once the heart of a huge Italian neighborhood. Today it’s a few blocks of red-sauce restaurants, and every September the Feast of San Gennaro fills them with music, lights and zeppole.',
@@ -715,13 +721,13 @@ export const ROOMS: Record<string, RoomDef> = {
   },
 
   pizza: {
-    id: 'pizza', name: '99¢ Slice', area: 'Little Italy', bg: 'pizza', indoor: true, npcs: 2, mapSpot: 'chinatown',
+    id: 'pizza', name: 'Joe’s Pizza', area: 'Little Italy', bg: 'pizza', indoor: true, npcs: 2, mapSpot: 'chinatown',
     chatter: ['Fold it. Always fold it.', 'Best slice in the city, no contest.'],
     objects: {
       counter: {
         label: 'Order a Slice',
         act: async (g) => {
-          const v = await g.choose('🍕 99¢ SLICE', 'Everything is 1 coin. Or grab an apron: we’re short-staffed.', [
+          const v = await g.choose('🍕 Joe’s Pizza', 'Everything is 1 coin. Or grab an apron: we’re short-staffed.', [
             { label: 'Plain Slice (1)', value: 'slice', note: 'fold it like a local' },
             { label: 'Work a Shift', value: 'work', note: 'Slice Factory · earn coins' },
             { label: 'With a Fork and Knife', value: 'fork' },
@@ -732,7 +738,7 @@ export const ROOMS: Record<string, RoomDef> = {
         },
       },
       oven: look('Pizza Oven', card({
-        title: 'Pizza Oven', kicker: '99¢ Slice', pic: view('pizza', [495, 0, 230, 180]),
+        title: 'Pizza Oven', kicker: 'Joe’s Pizza', pic: view('pizza', [495, 0, 230, 180]),
         text: 'New York’s first licensed pizzeria opened on Spring Street in 1905. The classic slice still comes out of deck ovens like this one, at around 550 degrees.',
         joke: 'The hottest spot in the city that isn’t the subway in August.',
       })),
@@ -742,8 +748,8 @@ export const ROOMS: Record<string, RoomDef> = {
         joke: 'That’s the whole menu. Perfection doesn’t need a second page.',
       })),
       'photos-left': look('Wall of Fame', card({
-        title: 'Wall of Fame', kicker: '99¢ Slice', pic: pic('pizza', 'photos-left'),
-        text: 'Pizzerias all over the city hang signed photos of famous customers. Some of the signatures are even real.',
+        title: 'Wall of Fame', kicker: 'Joe’s Pizza', pic: pic('pizza', 'photos-left'),
+        text: 'Joe Pozzuoli opened the first Joe’s Pizza on Carmine Street in 1975, and its walls filled up with signed photos of famous customers. There are a few more Joe’s around town now, this one included.',
         joke: 'I don’t recognize any of them. Someday my headshot goes up there.',
         actions: (g) => [{ label: 'Pose for the Wall', act: () => snap('Signed, framed, hung. In my dreams.')(g) }],
       })),

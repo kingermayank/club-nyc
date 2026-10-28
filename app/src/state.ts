@@ -53,6 +53,8 @@ export interface SaveState {
   notifyOff: boolean
   /** New-in-Town quests claimed (id -> time) */
   quests: Record<string, number>
+  /** the New in Town / Today in the City card is tucked away to just its title bar */
+  questsHidden?: boolean
   memberSince: string
   /** the account this local copy belongs to (online play) */
   owner?: string

@@ -2,7 +2,7 @@
 title: Central Park
 description: The Lake, Bow Bridge, a horse carriage named Biscuit, warm cocoa at the boathouse and squirrels with no fear.
 icon: tree
-updated: 2026-10-20
+updated: 2026-10-24
 ---
 
 ![Central Park in Club NYC: Bow Bridge over the Lake, the boathouse, a horse carriage and park benches.](/help/img/place-central-park.webp "The Lake and Bow Bridge.")
@@ -26,7 +26,6 @@ updated: 2026-10-20
 | Pop the question to a bridge | **Bow Bridge**, then **Pop the Question** | Free |
 | Sit and people-watch | **Park Benches** (or **Take It to a Bench** from a snack card) | Free |
 | Chat with the wildlife | Ducks and squirrels | Free |
-| Race down Pilgrim Hill | The **Pilgrim Hill** signpost on the lawn ([Sled Race](multiplayer-games/sled-race.md)) | Free, and it pays |
 
 ### The Carriage Ride {#carriage-ride}
 

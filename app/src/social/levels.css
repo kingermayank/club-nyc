@@ -11,7 +11,7 @@
 .level-plate .lp-tip::before { content: ''; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: var(--ink); }
 .level-plate .lp-tip small { font: var(--fs-2xs)/1.25 var(--display); opacity: 0.75; }
 .level-plate:hover .lp-tip, .level-plate:focus-visible .lp-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: 0.2s; }
-.level-plate .lp-gain { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); padding: 1px 8px; border-radius: 999px; background: #1f7a3e; border: 2px solid var(--ink); color: #fff; font: var(--fs-xs)/1.3 var(--display); white-space: nowrap; pointer-events: none; animation: lp-gain 1.6s ease-out forwards; }
+.level-plate .lp-gain { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); padding: 2px 8px 0; border-radius: 999px; background: #1f7a3e; border: 2px solid var(--ink); color: #fff; font: var(--fs-xs)/1.3 var(--display); white-space: nowrap; pointer-events: none; animation: lp-gain 1.6s ease-out forwards; }
 @keyframes lp-gain { 0% { opacity: 0; transform: translate(-50%, -6px); } 15% { opacity: 1; transform: translate(-50%, 0); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, 10px); } }
 
 /* a new level: a bigger toast with the level in a badge */

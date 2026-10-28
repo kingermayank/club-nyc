@@ -1,7 +1,7 @@
 /**
  * Multiplayer mini-games: lobbies, matches and everything around them, on the city's one WebSocket.
  *
- * - A LOBBY is a table for one game, opened from a place in the city (the sled hill, a subway platform, the pizza
+ * - A LOBBY is a table for one game, opened from a place in the city (the High Line, a subway platform, the pizza
  *   place) and joinable from anywhere by its 4-letter code or link. Quick Match drops you into an open public lobby
  *   (friends' first), or opens one. Lobbies have seats (2-9 depending on the game), spectators, a host (it passes on
  *   when the host leaves), ready-up, and settings (Free-for-All or Uptown vs Downtown, city locals on/off, public or

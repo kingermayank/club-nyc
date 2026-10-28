@@ -10,18 +10,18 @@ Jobs are Club NYC's solo mini-games. Each one is a short shift (one to three min
 ## The Five Jobs {#the-five-jobs}
 
 :::cards
-- [Slice Factory](jobs/slice-factory.md) {img:/help/img/job-slice-factory.webp} Make pizzas to order before they hit the oven. 99¢ Slice, Little Italy.
-- [Halal Rush](jobs/halal-rush.md) {img:/help/img/job-halal-rush.webp} Serve the lunch line at the Halal Bros cart. Fifth Avenue.
-- [Bagel Counters](jobs/bagel-counters.md) {img:/help/img/job-bagel-counters.webp} Catch the coffee delivery. Dodge the pigeons. Bean There, SoHo.
+- [Slice Factory](jobs/slice-factory.md) {img:/help/img/job-slice-factory.webp} Make pizzas to order before they hit the oven. Joe's Pizza, Little Italy.
+- [Halal Rush](jobs/halal-rush.md) {img:/help/img/job-halal-rush.webp} Serve the lunch line at the Adel's Famous Halal Food cart. Fifth Avenue.
+- [Bagel Counters](jobs/bagel-counters.md) {img:/help/img/job-bagel-counters.webp} Catch the coffee delivery. Dodge the pigeons. Ralph's Coffee, SoHo.
 - [Showtime!](jobs/showtime.md) {img:/help/img/job-showtime.webp} Dance for tips on the subway. Times Sq–42 St Station.
 - [Ferry Captain](jobs/ferry-captain.md) {img:/help/img/job-ferry-captain.webp} Steer the ferry to Liberty Island. Mind the kayaks. Battery Park.
 :::
 
 | Job | Where to Start | Type | Length | Stamp |
 | --- | --- | --- | --- | --- |
-| [Slice Factory](jobs/slice-factory.md) | 99¢ Slice counter: **Work a Shift** | Make orders | Up to 30 pizzas | Pizza Pro |
-| [Halal Rush](jobs/halal-rush.md) | Halal Bros Cart: **Work the Lunch Rush** | Serve customers | 2:30 | Halal Hero |
-| [Bagel Counters](jobs/bagel-counters.md) | Bean There counter: **Help With the Delivery** | Catch and carry | Up to 5 levels | Bagel Boss |
+| [Slice Factory](jobs/slice-factory.md) | Joe's Pizza counter: **Work a Shift** | Make orders | Up to 30 pizzas | Pizza Pro |
+| [Halal Rush](jobs/halal-rush.md) | Adel's Famous Halal Food: **Work the Lunch Rush** | Serve customers | 2:30 | Halal Hero |
+| [Bagel Counters](jobs/bagel-counters.md) | Ralph's Coffee counter: **Help With the Delivery** | Catch and carry | Up to 5 levels | Bagel Boss |
 | [Showtime!](jobs/showtime.md) | Station train: **Showtime!** | Rhythm | About 1:30 | What Time Is It? |
 | [Ferry Captain](jobs/ferry-captain.md) | Battery Park ferry: **Captain the Ferry** | Steering | About 1:40 | Captain! |
 
@@ -60,7 +60,7 @@ Your first collected shift at these jobs unlocks a free outfit in your wardrobe:
 | Job | Outfit |
 | --- | --- |
 | Slice Factory | Chef Hat and Chef Whites |
-| Halal Rush | Halal Bros Apron |
+| Halal Rush | Adel's Apron |
 | Bagel Counters | Barista Apron |
 | Ferry Captain | Ferry Captain Hat |
 

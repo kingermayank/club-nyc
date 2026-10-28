@@ -15,7 +15,7 @@ Club NYC is in early access, and the city is still growing. These places are bei
 | **Brooklyn** | Across the Brooklyn Bridge | Brooklyn (Coming Soon). Club NYC is Manhattan only for now. Brooklyn says it was cool first anyway. |
 | **Harlem** | Past The Met | The exit to the right of The Met. |
 | **The Met Galleries** | Inside The Met | The steps are open. The art is being hung. |
-| **The Book Nook** | Upstairs at Bean There | A cozy corner for reading. |
+| **The Book Nook** | Upstairs at Ralph's Coffee | A cozy corner for reading. |
 | **Metro-North** | Grand Central's ticket windows | Trains to the suburbs. Also still being built in real life. |
 | **Park Slope Brownstone** | StreetCheesy listings | A home in Brooklyn, once Brooklyn opens. |
 

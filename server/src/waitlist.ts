@@ -151,7 +151,7 @@ function launchContent(id: number): EmailContent {
     title: 'The City Is Open!',
     paragraphs: [
       'You joined the Club NYC waitlist, and the wait is over. Make your New Yorker in 30 seconds, then come say hi in Times Square.',
-      'Rent is free, slices are 99¢ and the pigeons are friendly. Mostly.',
+      'Rent is free, slices are one coin and the pigeons are friendly. Mostly.',
     ],
     button: { label: 'Play Now', url: siteUrl('/play?start=guest') },
     after: ['Club NYC plays in your web browser on a computer. Reading this on your phone? Open it on your laptop later.'],

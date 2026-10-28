@@ -1,18 +1,18 @@
 ---
 title: Carb-Jitsu
-description: Pizza beats Pretzel. Pretzel beats Bagel. Bagel beats Pizza. A card game for two at the back table of the 99¢ Slice, with the bodega cat presiding.
+description: Pizza beats Pretzel. Pretzel beats Bagel. Bagel beats Pizza. A card game for two at the back table of Joe's Pizza, with the bodega cat presiding.
 icon: pizza
 updated: 2026-10-21
 ---
 
-![A Carb-Jitsu match at the 99¢ Slice: the bodega cat at the table, two cards facing off, and a hand of five food cards at the bottom.](/help/img/mp-carbs.webp "Pick a card: click it or press 1 to 5.")
+![A Carb-Jitsu match at Joe's Pizza: the bodega cat at the table, two cards facing off, and a hand of five food cards at the bottom.](/help/img/mp-carbs.webp "Pick a card: click it or press 1 to 5.")
 
-Every pizzeria in the city has one table where the big arguments get settled. At the [99¢ Slice](places/chinatown-and-little-italy.md#99c-slice), it's Carb-Jitsu: two players, a hand of five cards each, one very serious food fight.
+Every pizzeria in the city has one table where the big arguments get settled. At [Joe's Pizza](places/chinatown-and-little-italy.md#joes-pizza), it's Carb-Jitsu: two players, a hand of five cards each, one very serious food fight.
 
 ## Where to Play {#where-to-play}
 
 - **Quick Match** or **Create Lobby** on the **Games** tab ([[F]]), or a friend's code or link. [Finding a Game](multiplayer-games/README.md#finding-a-game)
-- The chalkboard by the window table at the 99¢ Slice.
+- The chalkboard by the window table at Joe's Pizza.
 - Nobody around? **Play a Local**, and a city local sits down across from you.
 
 ## The Rules {#the-rules}

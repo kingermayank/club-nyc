@@ -3,7 +3,7 @@ title: How Can We Help?
 description: Guides for everything in Club NYC, from your first walk through Times Square to throwing a penthouse party. Search above, or pick a topic below.
 icon: liberty
 layout: home
-updated: 2026-10-20
+updated: 2026-10-24
 ---
 
 ## Start Here {#start-here}
@@ -22,7 +22,7 @@ New to the city? These four pages get you from "who am I?" to "I know a guy" in 
 :::cards
 - [Places](places/README.md) {icon:skyline} 20+ spots across Manhattan, and the secrets hiding in them.
 - [Jobs](jobs/README.md) {icon:chef-hat} Five silly jobs that pay real coins.
-- [Multiplayer Games](multiplayer-games/README.md) {icon:swords} Sled races, rush-hour runs and Carb-Jitsu with friends.
+- [Multiplayer Games](multiplayer-games/README.md) {icon:swords} Citi Bike races, rush-hour runs and Carb-Jitsu with friends.
 - [Coins & Shopping](coins-and-shopping.md) {icon:coin} How to earn coins and where to spend them.
 - [Levels & XP](levels-and-xp.md) {icon:trophy} From Tourist to Club NYC Legend.
 - [Stamps](stamps.md) {icon:medal-gold} Very New York things to do, collected in a book.

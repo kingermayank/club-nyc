@@ -181,6 +181,36 @@ export function timeAtBase(d: number): number {
   return (-RUN.v0 + Math.sqrt(RUN.v0 * RUN.v0 + 2 * RUN.accel * d)) / RUN.accel
 }
 
+// ---------- the start line ----------
+/**
+ * Where everyone lines up. Real players all start level (d = 0), spread over the lanes (middle first); the city
+ * locals fill the other lanes of the front row, then a staggered row or two a few metres up the platform (where you
+ * can see them, and a couple of metres is nothing over 1.3 km), so nobody stands inside anybody.
+ * `bots[i]` says whether racer i is a local. Shared so the server and every browser agree.
+ */
+export function runStartGrid(bots: boolean[]): { lane: number; d: number }[] {
+  const order = [1, 0, 2]
+  const out: { lane: number; d: number }[] = new Array(bots.length)
+  let h = 0
+  const front = new Set<number>()
+  bots.forEach((b, i) => {
+    if (b) return
+    const lane = order[h++ % 3]
+    front.add(lane)
+    out[i] = { lane, d: 0 }
+  })
+  // the locals: free front-row lanes first (the side lanes before the middle), then staggered rows ahead
+  const slots: { lane: number; d: number }[] = []
+  for (let row = 0; slots.length < bots.length; row++) {
+    for (const lane of [0, 2, 1]) if (row > 0 || !front.has(lane)) slots.push({ lane, d: row * 3 + (row && lane === 1 ? 1.5 : 0) })
+  }
+  let s = 0
+  bots.forEach((b, i) => {
+    if (b) out[i] = slots[s++]
+  })
+  return out
+}
+
 // ---------- the city locals who race too (run by the server) ----------
 export interface RunBot {
   skill: number
@@ -198,32 +228,114 @@ export interface RunBot {
   row: number
   cards: number
   roll: () => number
+  /** personality: the lane they like, how early they react (s at speed), how much they mind jumping or sliding,
+   *  and a slow surge in their pace (amplitude, period in s, phase) that averages out over the run */
+  home: number
+  react: number
+  hop: number
+  surgeA: number
+  surgeP: number
+  surgeF: number
+  /** the row they've already picked a lane for, and when they last changed lanes on a clear stretch */
+  planned: number
+  driftAt: number
 }
 
-export function makeRunBot(seed: number, slot: number, skill: number): RunBot {
-  return { skill, d: 0, x: 1, lane: 1, out: false, done: false, doneMs: 0, stumbleAt: -99, slowUntil: 0, airUntil: 0, slideUntil: 0, row: 0, cards: 0, roll: seeded(seed * 31 + slot * 7919 + 17) }
+export function makeRunBot(seed: number, slot: number, skill: number, lane = 1, d = 0): RunBot {
+  const roll = seeded(seed * 31 + slot * 7919 + 17)
+  return {
+    skill,
+    d,
+    x: lane,
+    lane,
+    out: false,
+    done: false,
+    doneMs: 0,
+    stumbleAt: -99,
+    slowUntil: 0,
+    airUntil: 0,
+    slideUntil: 0,
+    row: 0,
+    cards: 0,
+    roll,
+    home: lane,
+    react: 0.62 + skill * 0.35 + roll() * 0.25,
+    hop: 0.15 + roll() * 0.9,
+    surgeA: 0.03 + roll() * 0.035,
+    surgeP: 14 + roll() * 16,
+    surgeF: roll() * Math.PI * 2,
+    planned: -1,
+    driftAt: 0,
+  }
 }
 
-/** advance a local by dt seconds at race time t (seconds) */
-export function stepRunBot(b: RunBot, course: RunCourse, t: number, dt: number) {
+/** someone else on the platform, for a local deciding where to run */
+export interface RunNear {
+  d: number
+  x: number
+}
+
+/**
+ * Advance a local by dt seconds at race time t (seconds). Each local reads the platform its own way: they pick a lane
+ * a beat before each row (some early, some late), prefer their own side, mind company in a lane, and wander between
+ * lanes on clear stretches, so a pack spreads out over the platform instead of running single file.
+ */
+export function stepRunBot(b: RunBot, course: RunCourse, t: number, dt: number, others: RunNear[] = []) {
   if (b.out || b.done) return
   let mult = 1
   if (t < b.slowUntil) mult *= RUN.stumbleMult
-  // a little personality: better locals hold their speed a hair better
-  const v = runSpeed(t) * mult * (0.97 + b.skill * 0.03)
+  // a little personality: better locals hold their speed a hair better, and everyone's pace breathes a little
+  // (a slow sine that averages out over the run, so nobody gains from it overall)
+  const surge = 1 + b.surgeA * Math.sin((t / b.surgeP) * Math.PI * 2 + b.surgeF) * Math.min(1, t / 4)
+  const v = runSpeed(t) * mult * (0.97 + b.skill * 0.03) * surge
   b.d += v * dt
-  // steer for the next row
+  // company in a lane: someone close ahead (or right alongside) makes a lane less appealing
+  const crowd = (l: number) => {
+    let c = 0
+    for (const o of others) {
+      const ahead = o.d - b.d
+      if (Math.abs(o.x - l) < 0.6 && ahead > -1.2 && ahead < 9) c += ahead < 3 ? 0.9 : 0.45
+    }
+    return c
+  }
   const next = course.rows[b.row]
   if (next) {
-    const opts = next.lanes.map((x, l) => ({ l, x, cost: Math.abs(l - b.lane) + (x === 'run' ? 0 : x === 'block' ? 99 : 0.6) }))
-    opts.sort((p, q) => p.cost - q.cost)
-    const want = opts[0].l
-    if (next.d - b.d < v * 0.9) b.lane = want
+    const dist = next.d - b.d
+    if (b.planned !== b.row && dist < v * b.react) {
+      // pick a lane for this row: the way through, weighed against moving, jumping, company and their own side
+      let best = b.lane
+      let bestCost = Infinity
+      next.lanes.forEach((x, l) => {
+        const move = Math.abs(l - b.lane)
+        let cost = move * 0.7 + (x === 'run' ? 0 : x === 'block' ? 99 : b.hop) + Math.abs(l - b.home) * 0.25 + crowd(l) + b.roll() * 0.45
+        // two lanes over with the row almost here is a scramble
+        if (move === 2 && dist < v * 0.35) cost += 1.5
+        if (cost < bestCost) {
+          bestCost = cost
+          best = l
+        }
+      })
+      b.lane = best
+      b.planned = b.row
+    } else if (b.planned !== b.row && dist > v * (b.react + 0.5) && t - b.driftAt > 1.6 && b.roll() < dt * 0.7) {
+      // a clear stretch: drift back to their side, or out from behind someone
+      const here = crowd(b.lane)
+      const opts = [b.lane - 1, b.lane + 1].filter((l) => l >= 0 && l <= 2)
+      const pick = opts.sort((p, q) => crowd(p) + Math.abs(p - b.home) * 0.4 - (crowd(q) + Math.abs(q - b.home) * 0.4))[0]
+      if (pick !== undefined && (here > 0.3 || (b.lane !== b.home && b.roll() < 0.5) || b.roll() < 0.12) && crowd(pick) < here + 0.2) {
+        b.lane = pick
+        b.driftAt = t
+      }
+    }
+    // jump or slide a beat early, like a person would, so they're up (or down) as they reach it
+    const need = next.lanes[b.lane]
+    if (need === 'jump' && dist < v * RUN.jumpS * 0.5 && dist > 0 && t >= b.airUntil) b.airUntil = t + RUN.jumpS
+    if (need === 'slide' && dist < v * RUN.slideS * 0.35 && dist > 0 && t >= b.slideUntil) b.slideUntil = t + RUN.slideS
     if (b.d >= next.d) {
       const need = next.lanes[b.lane]
       const fail = b.roll() < 0.012 + (1 - b.skill) * 0.07
-      if (need === 'jump') b.airUntil = t + 0.3
-      if (need === 'slide') b.slideUntil = t + 0.3
+      if (need === 'jump' && t >= b.airUntil) b.airUntil = t + 0.3
+      if (need === 'slide' && t >= b.slideUntil) b.slideUntil = t + 0.3
       if (need === 'block' || fail) {
         if (t - b.stumbleAt < RUN.stumbleWindowS) b.out = true
         else {

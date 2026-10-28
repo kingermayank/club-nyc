@@ -31,7 +31,7 @@ interface Theme {
   sticker: string[]
 }
 const THEMES: Record<string, Theme> = {
-  Starducks: { bg: '#0e6b4a', frame: '#f4efe3', ink: '#0b3d2c', title: 'STARDUCKS · SOHO', sticker: ['☕', '🦆', '🥐', '💚'] },
+  'Ralph’s Coffee': { bg: '#1f4a35', frame: '#f4efe3', ink: '#12301f', title: 'RALPH’S COFFEE · SOHO', sticker: ['☕', '🥐', '💚', '🥯'] },
   'I ♥ NY': { bg: '#e1262b', frame: '#ffffff', ink: '#1d2140', title: 'I ♥ NY · TIMES SQUARE', sticker: ['❤️', '🗽', '🚕', '🍕'] },
   // the booth up on Sky Deck 102 at One World Trade, and the Halloween Parade's spooky one
   'Sky Deck': { bg: '#1d3b6e', frame: '#fff4d6', ink: '#1d2140', title: 'SKY DECK 102 · ONE WORLD TRADE', sticker: ['🏙️', '✨', '🗽', '🌉'] },

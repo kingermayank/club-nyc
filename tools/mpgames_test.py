@@ -8,7 +8,8 @@ What it checks (everything through the real UI where a person would click):
   - the signs in the rooms open the game cards; the Community panel's Games tab lists the games
   - Create Lobby, join by code (typed into the Games tab), a shared /play?lobby=CODE link (a friend who opens it is
     dropped into the lobby), an invite to an online friend (a notice with Join), Add Friend from a lobby seat
-  - a Pilgrim Hill Sled Race with city locals filling the seats: countdown, racing, results for everyone
+  - a High Line Citi Bike Dash (the game id is still 'sled') with city locals filling the seats: countdown, racing,
+    results for everyone; its sign stands on the High Line now, and Central Park has none
   - Rush Hour Run in Uptown vs Downtown teams, someone out sends a Showtime dancer, team results
   - Carb-Jitsu: Quick Match pairs two players at one table, cards are picked until someone wins, the table remembers
     its champion
@@ -189,22 +190,26 @@ async def run():
         check('three players signed up through the UI and are in the city', True)
         a_id, b_id, c_id = [await pg.evaluate('clubNyc.save.owner') for pg in (A, B, C)]
 
-        # ---------- the sign in Central Park opens the Sled Race card ----------
+        # ---------- the sign on the High Line opens the Citi Bike Dash card (Central Park's sled sign is gone) ----------
         await A.evaluate("clubNyc.api.goto('central-park')")
         await A.wait_for_timeout(2500)
-        check('Central Park has the Pilgrim Hill sign', await A.locator('.mp-spot[aria-label="Pilgrim Hill Sled Race"]').count() == 1)
-        await shot(A, '01-central-park-sign')
+        check('Central Park has no game sign (the sled race moved to the High Line)', await A.locator('.mp-spot').count() == 0)
+        await A.evaluate("clubNyc.api.goto('high-line')")
+        await A.wait_for_timeout(2500)
+        check('the High Line has the Citi Bike Dash sign', await A.locator('.mp-spot[aria-label="High Line Citi Bike Dash"]').count() == 1)
+        await shot(A, '01-high-line-sign')
         await A.evaluate("document.querySelector('.mp-spot').click()")
         ok = await wait_for(A, "!!document.querySelector('.mp-gamecard')", 12000)
         check('clicking the sign walks over and opens the game card', ok)
         await A.wait_for_timeout(600)
-        await shot(A, '02-sled-card')
+        await shot(A, '02-bike-card')
         await A.click('.mp-gamecard .btn:has-text("Create Lobby")')
         await A.wait_for_selector('.mp-lobby .mp-seat', timeout=15000)
         await A.wait_for_timeout(500)
         code = (await A.inner_text('.mp-code b')).strip()
         check('Create Lobby opens a lobby with a 4-letter code', re.fullmatch(r'[A-Z0-9]{4}', code) is not None, code)
-        await shot(A, '03-sled-lobby')
+        check('a lobby opened on the High Line says so', (await lobby(A) or {}).get('room') == 'high-line', str((await lobby(A) or {}).get('room')))
+        await shot(A, '03-bike-lobby')
 
         # ---------- B joins with the code from the Games tab ----------
         await B.click('[aria-label="Friends & Leaderboards"]')
@@ -234,12 +239,12 @@ async def run():
         # ---------- the race: B readies up, everyone ready starts it ----------
         await B.click('.mp-go .btn.big:has-text("Ready")')
         ok = await asyncio.gather(wait_for(A, "!!document.querySelector('.mp-game canvas')", 10000), wait_for(B, "!!document.querySelector('.mp-game canvas')", 10000))
-        check('everyone ready starts the sled race for both', all(ok))
+        check('everyone ready starts the Citi Bike Dash for both', all(ok))
         lob = await lobby(A)
         match = await A.evaluate("window.clubNycMp.match")
-        check('city locals fill the empty sleds (4 racers)', match and len(match['players']) == 4, str(match and [x['n'] for x in match['players']]))
+        check('city locals fill the empty bikes (4 racers)', match and len(match['players']) == 4, str(match and [x['n'] for x in match['players']]))
         await A.wait_for_timeout(2000)
-        await shot(A, '06-sled-countdown')
+        await shot(A, '06-bike-countdown')
         # a cautious newcomer (A mostly holds a line and hops now and then) and a wobbly one (B)
         for k in range(16):
             if k % 3 == 0:
@@ -250,12 +255,12 @@ async def run():
             await B.keyboard.up(key)
             await A.wait_for_timeout(600)
             if k == 8:
-                await shot(A, '07-sled-racing')
-                await shot(B, '07b-sled-racing-ben')
+                await shot(A, '07-bike-racing')
+                await shot(B, '07b-bike-racing-ben')
         ok = await asyncio.gather(wait_for(A, "!!document.querySelector('.mp-results')", 120000), wait_for(B, "!!document.querySelector('.mp-results')", 120000))
         check('the race ends with results for both racers', all(ok))
         await A.wait_for_timeout(1500)
-        await shot(A, '08-sled-results')
+        await shot(A, '08-bike-results')
         res_a = await A.evaluate("window.clubNycMp.results")
         you = (res_a or {}).get('you') or {}
         check('results list all 4 racers with places', res_a and sorted(r['place'] for r in res_a['rows']) == [1, 2, 3, 4], str(res_a and [(r['n'], r['place'], r['score']) for r in res_a['rows']]))
@@ -265,7 +270,7 @@ async def run():
         check('A has XP on the server', xp.get('xp', 0) > 0, str(xp.get('xp')))
         board = await api(B, '/mp/board/sled?period=week&by=wins&scope=friends')
         names = [r['name'] for r in board.get('rows', [])]
-        check('the weekly sled board (friends) has both racers', na in names and nb in names, str(names))
+        check('the weekly Citi Bike Dash board (friends) has both racers', na in names and nb in names, str(names))
         best = await api(B, '/mp/board/sled?period=all&by=best')
         finished = {r['n'] for r in res_a['rows'] if not r.get('bot') and r['score'] > 0} if res_a else set()
         on_board = {r['name'] for r in best.get('rows', [])}
@@ -275,7 +280,7 @@ async def run():
         await A.click('.mp-board .mp-seg button:has-text("Friends")')
         await A.wait_for_timeout(900)
         check('the leaderboard opens inside the game, with a friends filter', await A.locator('.mp-board .mp-brow:not(.headrow)').count() >= 1)
-        await shot(A, '09-sled-leaderboard')
+        await shot(A, '09-bike-leaderboard')
         await A.keyboard.press('Escape')
         await A.wait_for_timeout(300)
         stamps = await A.evaluate("clubNyc.save.stamps")
@@ -381,7 +386,7 @@ async def run():
             await pg.wait_for_timeout(300)
         await A.evaluate("clubNyc.api.goto('pizza')")
         await A.wait_for_timeout(2500)
-        check('the 99¢ Slice has the Carb-Jitsu board', await A.locator('.mp-spot[aria-label="Carb-Jitsu"]').count() == 1)
+        check('Joe’s Pizza has the Carb-Jitsu board', await A.locator('.mp-spot[aria-label="Carb-Jitsu"]').count() == 1)
         await shot(A, '18-pizza-sign')
         await A.evaluate("document.querySelector('.mp-spot').click()")
         await A.wait_for_selector('.mp-gamecard', timeout=12000)

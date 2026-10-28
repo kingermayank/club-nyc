@@ -1,17 +1,17 @@
 ---
 title: Halal Rush
-description: Work the lunch rush at the Halal Bros cart. Build each order exactly, serve it fast, and politely decline the ketchup.
+description: Work the lunch rush at the Adel's Famous Halal Food cart. Build each order exactly, serve it fast, and politely decline the ketchup.
 icon: gyro
 updated: 2026-10-20
 ---
 
-![Halal Rush: the Halal Bros cart with trays of rice, chicken and lamb, sauce bottles, and a line of hungry customers with order bubbles.](/help/img/job-halal-rush.webp "Chicken over rice, extra white sauce.")
+![Halal Rush: the Adel's Famous Halal Food cart with trays of rice, chicken and lamb, sauce bottles, and a line of hungry customers with order bubbles.](/help/img/job-halal-rush.webp "Chicken over rice, extra white sauce.")
 
-The line at the Halal Bros cart wraps around the block. Build what's in each customer's order bubble, then hand it over before they lose patience.
+The line at the Adel's Famous Halal Food cart wraps around the block. (The real Adel's cart, at Sixth Avenue and 49th Street, is famous for a line that runs past midnight.) Build what's in each customer's order bubble, then hand it over before they lose patience.
 
 ## Where to Play {#where-to-play}
 
-Go to [Fifth Avenue](places/fifth-avenue.md), click the **Halal Bros Cart**, then **Work the Lunch Rush**.
+Go to [Fifth Avenue](places/fifth-avenue.md), click **Adel's Famous Halal Food**, then **Work the Lunch Rush**.
 
 ## How to Play {#how-to-play}
 
@@ -54,7 +54,7 @@ Point at any station to see its key. You can also just click the stations.
 
 - **Extra extra white sauce.** Some customers want three squirts. They'll tell you.
 - **The construction crew.** A worker in a hard hat orders two platters for the crew. Serve both.
-- **The ketchup tourist.** Wearing an I ♥ NY tee and holding a snow globe, asking for ketchup. Halal Bros does not do ketchup. You'll figure out the polite way to handle it.
+- **The ketchup tourist.** Wearing an I ♥ NY tee and holding a snow globe, asking for ketchup. Adel's does not do ketchup. You'll figure out the polite way to handle it.
 
 ## How a Shift Goes {#how-a-shift-goes}
 
@@ -76,7 +76,7 @@ Your score is **orders served**.
 | Reward | How |
 | --- | --- |
 | **Halal Hero** stamp | Serve 10 customers in one Halal Rush. |
-| **Halal Bros Apron** | Your first collected shift. |
+| **Adel's Apron** | Your first collected shift. |
 | XP | 15, plus half your coins (up to 60). |
 
 > [!NYC] The Most New York Rule

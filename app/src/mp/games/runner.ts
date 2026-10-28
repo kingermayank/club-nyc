@@ -10,7 +10,7 @@ import { el } from '../../engine/stage'
 import { headPortrait } from '../../avatar/render'
 import { randomLook } from '../../avatar/random'
 import type { Look } from '../../avatar/look'
-import { RUN, STATIONS, stationAt, runnerCourse, runSpeed, RUN_KIND, type RunObstacle, type RunPickup } from '../shared/runner'
+import { RUN, STATIONS, stationAt, runnerCourse, runSpeed, runDistance, runStartGrid, RUN_KIND, type RunObstacle, type RunPickup } from '../shared/runner'
 import { GF, type GhostWire, type MpS2C, type RaceEvent, type ResultsWire } from '../shared/protocol'
 import { MP_TEAMS, ordinal } from '../shared/games'
 import { seeded } from '../shared/rng'
@@ -56,6 +56,8 @@ type ImgKey = keyof typeof IMG
 interface Snap {
   tm: number
   d: number
+  /** how far ahead of (or behind) the base pace they were at tm: everyone runs the same pace, so this is what moves */
+  g: number
   x: number
   v: number
   f: number
@@ -73,6 +75,11 @@ interface Runner {
   snaps: Snap[]
   d: number
   x: number
+  /** the gap to the base pace as drawn (smoothed), where the jump we're showing started, and the lean of a lane change */
+  gs: number
+  airAt: number
+  wasAir: boolean
+  lean: number
   flags: number
   done: boolean
   out: boolean
@@ -92,6 +99,8 @@ export function start(ctx: GameCtx): RunningGame {
   const m = ctx.match
   const course = runnerCourse(m.seed)
   const meIdx = m.you
+  // the start line: everyone across the three lanes (the server lines them up the same way)
+  const grid = runStartGrid(m.players.map((p) => !!p.bot))
   const runners: Runner[] = m.players.map((p, i) => ({
     i,
     id: p.i,
@@ -101,8 +110,12 @@ export function start(ctx: GameCtx): RunningGame {
     color: m.mode === 'teams' && p.tm ? MP_TEAMS[p.tm].color : SLOT_COLORS[i % SLOT_COLORS.length],
     run: [],
     snaps: [],
-    d: 0,
-    x: 1,
+    d: grid[i].d,
+    x: grid[i].lane,
+    gs: grid[i].d,
+    airAt: -9,
+    wasAir: false,
+    lean: 0,
     flags: 0,
     done: false,
     out: false,
@@ -146,13 +159,16 @@ export function start(ctx: GameCtx): RunningGame {
     strip.append(b)
     return b
   })
+  // who's where, at a glance (the tags only name the nearest few)
+  const rank = el('ol', 'rn-rank')
+  rank.setAttribute('aria-label', 'Standings')
   const power = el('div', 'rn-power')
   const cardsEl = el('div', 'rn-cards', `<img src="${IMG.card}" alt=""><b>0</b>`)
   const hint = el('div', 'mp-hint', '<span><kbd>←</kbd><kbd>→</kbd> lanes</span><span><kbd>↑</kbd> jump</span><span><kbd>↓</kbd> slide</span>')
   const big = el('div', 'mp-big')
   const watchBar = el('div', 'mp-watch rn-watch')
   watchBar.hidden = true
-  hud.append(place, strip, cardsEl, power, hint, big, watchBar)
+  hud.append(place, strip, rank, cardsEl, power, hint, big, watchBar)
   root.append(canvas, hud)
   if (meIdx < 0) {
     hint.hidden = true
@@ -186,8 +202,8 @@ export function start(ctx: GameCtx): RunningGame {
   const me = meIdx >= 0 ? runners[meIdx] : null
   const S = {
     d: 0,
-    x: 1,
-    lane: 1,
+    x: me ? grid[meIdx].lane : 1,
+    lane: me ? grid[meIdx].lane : 1,
     jumpAt: -9,
     slideAt: -9,
     stumbleAt: -99,
@@ -204,6 +220,7 @@ export function start(ctx: GameCtx): RunningGame {
     station: 0,
     sendAcc: 0,
     draft: false,
+    draftK: 0,
     smashed: new Set<number>(),
     drops: RUN.drops,
     dropAt: -99,
@@ -342,8 +359,13 @@ export function start(ctx: GameCtx): RunningGame {
     let mult = 1
     if (t < S.slowUntil) mult *= RUN.stumbleMult
     if (t < S.expressUntil) mult *= RUN.expressMult
-    S.draft = othersAhead().some((r) => Math.abs(r.x - S.x) < 0.45 && r.d - S.d > 3 && r.d - S.d < 14)
-    if (S.draft) mult *= RUN.draftMult
+    // the slipstream: in at 3-14 m behind someone in your lane, out once you're under 2 m or past 15 m, and it
+    // eases in and out (at the edge it used to flip on and off every frame, and the whole platform shook)
+    const lo = S.draft ? 2 : 3
+    const hi = S.draft ? 15 : 14
+    S.draft = othersAhead().some((r) => Math.abs(r.x - S.x) < 0.45 && r.d - S.d > lo && r.d - S.d < hi)
+    S.draftK = Math.max(0, Math.min(1, S.draftK + (S.draft ? dt : -dt) / 0.35))
+    mult *= 1 + (RUN.draftMult - 1) * S.draftK
     const v = runSpeed(t) * mult
     const d0 = S.d
     S.d += v * dt
@@ -426,39 +448,78 @@ export function start(ctx: GameCtx): RunningGame {
   }
 
   // ---------- the others ----------
-  function ghosts(t: number) {
-    const rt = t * 1000 + offset - 140
+  /**
+   * Everyone runs the same pace, so what really changes between two runners is the gap to that pace (a stumble, a
+   * diamond, a slower local). We keep each runner's gap from the server's updates, play it back a little behind
+   * (INTERP_MS, so there's always an update on each side to blend between) and add it to the base pace at *our* race
+   * clock. Someone level with you stays level, nobody steps back and forth when an update lands, and a late update
+   * only bends the gap a little instead of moving the runner.
+   */
+  const INTERP_MS = 130
+  function ghosts(t: number, dt: number) {
+    const rt = t * 1000 + offset - INTERP_MS
+    const base = runDistance(t)
+    const kD = 1 - Math.exp(-dt * 10)
+    const kX = 1 - Math.exp(-dt * 16)
     for (const r of runners) {
       if (r === me) continue
       const sn = r.snaps
       if (!sn.length) continue
-      let a = sn[0]
-      let b = sn[sn.length - 1]
-      for (let k = sn.length - 1; k > 0; k--) {
-        if (sn[k - 1].tm <= rt) {
-          a = sn[k - 1]
-          b = sn[k]
-          break
-        }
-      }
-      let x: number
-      if (rt <= a.tm) x = a.x
-      else if (rt >= b.tm || b.tm === a.tm) x = b.x
-      else x = a.x + (b.x - a.x) * ((rt - a.tm) / (b.tm - a.tm))
-      // how far along: everyone runs at the same pace, so carry the latest report forward to now (plus the ~0.1 s it
-      // took to reach us). Drawn a beat late, someone level with you would look a few metres behind, right on top of you.
       const last = sn[sn.length - 1]
-      const lead = Math.min(0.45, Math.max(0, t * 1000 + offset - last.tm) / 1000 + 0.1)
-      const d = last.d + (last.f & (GF.out | GF.done) ? 0 : last.v * lead)
-      r.d += (d - r.d) * 0.35
-      r.x += (x - r.x) * 0.35
-      r.flags = last.f
+      let gap: number
+      let x: number
+      let f: number
+      if (rt >= last.tm || sn.length === 1) {
+        // nothing newer yet: carry the gap along its last slope for a moment
+        const prev = sn.length > 1 ? sn[sn.length - 2] : last
+        const slope = last.tm > prev.tm ? (last.g - prev.g) / (last.tm - prev.tm) : 0
+        gap = last.g + slope * Math.min(250, Math.max(0, rt - last.tm))
+        x = last.x
+        f = last.f
+      } else if (rt <= sn[0].tm) {
+        gap = sn[0].g
+        x = sn[0].x
+        f = sn[0].f
+      } else {
+        let k = sn.length - 1
+        while (k > 1 && sn[k - 1].tm > rt) k--
+        const a = sn[k - 1]
+        const b = sn[k]
+        const u = b.tm > a.tm ? (rt - a.tm) / (b.tm - a.tm) : 1
+        gap = a.g + (b.g - a.g) * u
+        x = a.x + (b.x - a.x) * u
+        f = a.f
+      }
+      // out or at South Ferry: that's where they stay (the newest word on that wins over the playback)
+      const ended = last.f & (GF.out | GF.done)
+      if (ended) {
+        f = last.f
+        gap = last.d - base
+        r.gs = gap
+      } else if (Math.abs(gap - r.gs) > 6) r.gs = gap
+      else r.gs += (gap - r.gs) * kD
+      r.d = Math.min(RUN.length, base + r.gs)
+      if (ended && last.f & GF.out) r.d = last.d
+      const x0 = r.x
+      r.x += (x - r.x) * kX
+      r.lean += ((dt > 0 ? (r.x - x0) / dt : 0) * 0.05 - r.lean) * kX
+      // a jump plays as a whole arc from the moment it shows up, whatever the update rate
+      const air = !!(f & GF.air)
+      if (air && !r.wasAir && t - r.airAt > RUN.jumpS * 0.8) r.airAt = t
+      r.wasAir = air
+      r.flags = f
       if (last.f & GF.done) r.done = true
       if (last.f & GF.out && !r.out) {
         r.out = true
         r.outD = last.d
       }
     }
+  }
+  /** a runner's height off the floor right now (m) */
+  const heightOf = (r: Runner, t: number) => {
+    if (r === me) return airY(t)
+    const p = (t - r.airAt) / RUN.jumpS
+    return p >= 0 && p <= 1 ? Math.sin(p * Math.PI) * RUN.jumpH : 0
   }
 
   // ---------- drawing ----------
@@ -640,28 +701,35 @@ export function start(ctx: GameCtx): RunningGame {
   }
 
   type Item = { z: number; draw: () => void }
-  function runnerDraw(r: Runner, z: number, t: number, ghost: boolean): Item {
+  /** dev only: tools that measure smoothness set window.rnTrace = [] and read back [ms, runner, screen x, screen y, depth] */
+  let camFocusX = 1
+  const devTrace = () => (import.meta.env.DEV ? (window as unknown as { rnTrace?: number[][] }).rnTrace : undefined)
+  function runnerDraw(r: Runner, z: number, t: number, fade = 1): Item {
     return {
       z,
       draw: () => {
         const isMe = r === me
         const X = laneX(isMe ? S.x : r.x)
-        const air = isMe ? airY(t) : r.flags & GF.air ? 0.9 : 0
+        const air = heightOf(r, t)
         const slide = isMe ? sliding(t) : !!(r.flags & GF.slide)
         const out = isMe ? S.out : r.out
         const k = (F / z) * AV_M
         const x = SX(X, z)
         const yG = SY(0, z)
         const y = SY(air, z)
-        // someone right behind whoever the camera follows would fill the screen: they fade out as they near the lens
-        const near = Math.max(0, Math.min(1, (z - 2) / 1.8))
+        // someone right behind whoever the camera follows would hide them: in the same lane they fade out early, in
+        // a side lane (beside you, in plain view) only as they reach the lens
+        const side = Math.abs((isMe ? S.x : r.x) - camFocusX) > 0.6
+        const near = side ? Math.max(0, Math.min(1, (z - 2.5) / 0.8)) : Math.max(0, Math.min(1, (z - 3.1) / 1.5))
+        devTrace()?.push([performance.now(), r.i, x, yG, z])
         if (near <= 0.02) return
-        // shadow
-        g.fillStyle = `rgba(29, 33, 64, ${0.25 * near})`
+        // a soft shadow on the floor (smaller and lighter while they're in the air)
+        const lift = 1 - Math.min(0.45, air * 0.3)
+        g.fillStyle = `rgba(29, 33, 64, ${0.28 * near * lift})`
         g.beginPath()
-        g.ellipse(x, yG, 26 * k * 1.1, 8 * k * 1.1, 0, 0, Math.PI * 2)
+        g.ellipse(x, yG, 29 * k * lift, 9 * k * lift, 0, 0, Math.PI * 2)
         g.fill()
-        const alpha = (ghost ? 0.55 : 1) * near
+        const alpha = fade * near
         const d = isMe ? S.d : r.d
         let pic: AvatarPic | undefined
         let rot = 0
@@ -673,9 +741,11 @@ export function start(ctx: GameCtx): RunningGame {
         else if (r.run.length) pic = r.run[Math.floor(((d * 1.6) % 1) * r.run.length) % r.run.length]
         const stumble = isMe ? t < S.slowUntil : !!(r.flags & GF.crash)
         if (stumble && !out) rot = Math.sin(t * 30) * 0.12
+        // leaning into a lane change
+        else if (!out) rot = Math.max(-0.16, Math.min(0.16, isMe ? (S.lane - S.x) * 0.2 : r.lean))
         if (pic) drawAvatar(g, pic, x, y + (slide ? 4 * k : 0), k, { alpha, rot })
-        if (!ghost && (isMe ? t < S.expressUntil : r.flags & GF.boost)) {
-          g.strokeStyle = 'rgba(229, 72, 59, 0.75)'
+        if (isMe ? t < S.expressUntil : r.flags & GF.boost) {
+          g.strokeStyle = `rgba(229, 72, 59, ${0.75 * alpha})`
           g.lineWidth = 3
           for (let s = 0; s < 4; s++) {
             const ox = (s - 1.5) * 18 * k
@@ -849,91 +919,178 @@ export function start(ctx: GameCtx): RunningGame {
         },
       })
     }
-    // the runner the camera follows (you, or whoever you're watching) is drawn solid, and a ghost right on its heels
-    // goes behind it, so the one you care about never disappears in a crowd
+    // the runner the camera follows (you, or whoever you're watching) always reads clearly: someone on its heels is
+    // drawn behind it, and someone overlapping it in the same lane goes see-through
     const followed = me && !S.out && !S.finished ? me : runners[watch]
     const focusZ = followed === me ? (me && !S.out ? Z(S.d) : null) : followed && !followed.out ? Z(followed.d) : null
+    const focusX = followed === me ? S.x : followed?.x ?? 1
+    camFocusX = focusX
     for (const r of runners) {
-      if (r === me) continue
-      if (r.out && !(r.flags & GF.out)) continue
-      const z = Z(r.out ? r.outD : r.d)
+      if (r === me || r.out) continue
+      const z = Z(r.d)
       if (z < 1.2 || z > 95) continue
-      if (r.out) continue
-      const it = runnerDraw(r, z, t, r !== followed)
+      const overlap = r !== followed && focusZ !== null && Math.abs(r.x - focusX) < 0.6 && z > focusZ - 3 && z < focusZ + 2.2
+      const it = runnerDraw(r, z, t, overlap ? 0.5 : 1)
       if (r !== followed && focusZ !== null && z < focusZ && z > focusZ - 3) it.z = focusZ + 0.05
       items.push(it)
     }
     if (me) {
       const z = Z(S.d)
-      if (z > 1.2) items.push(runnerDraw(me, z, t, false))
+      if (z > 1.2) items.push(runnerDraw(me, z, t))
     }
     items.sort((a, b) => b.z - a.z)
     for (const it of items) it.draw()
   }
 
+  // ---------- name tags ----------
+  type Box = { x0: number; y0: number; x1: number; y1: number }
+  const overlaps = (a: Box, b: Box) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1
+  /** name tags for others at once (besides you, or whoever you're watching); the strip on the right lists everyone */
+  const MAX_TAGS = 3
+  const TAG_FAR = 38
+  const tagFont = (fs: number) => `${fs}px 'Burbank Display', 'Lilita One', sans-serif`
+  /**
+   * Tags sit over heads and get smaller and fainter with distance. Yours (or the one you're watching) goes first and
+   * never moves; a tag that would cover it, your runner, or another tag slides sideways or up one step, and if there's
+   * still no room it isn't drawn (the nearest few win). Nothing ever stacks into a tower.
+   */
   function tags(t: number) {
-    g.font = "12px 'Burbank Display', 'Lilita One', sans-serif"
-    g.textAlign = 'center'
-    const list: { r: Runner; isMe: boolean; x: number; y: number; tw: number; label: string }[] = []
-    for (const r of runners) {
-      if (r.out && r !== me) continue
-      const isMe = r === me
-      const d = isMe ? S.d : r.d
-      const z = Z(d)
-      if (z < 3.2 || z > 70) continue
-      const X = laneX(isMe ? S.x : r.x)
-      const air = isMe ? airY(t) : r.flags & GF.air ? 0.9 : 0
-      const label = isMe ? 'You' : r.name
-      list.push({ r, isMe, x: SX(X, z), y: SY(air + 1.85, z) - 6, tw: g.measureText(label).width + 26, label })
-    }
-    // a pack running together: a tag that would cover another one moves up above it (yours, or the one you're
-    // watching, stays put)
     const watching = !me || S.out || S.finished
-    const first = (x: (typeof list)[number]) => (x.isMe && !watching) || (watching && x.r.i === watch)
-    list.sort((a, b) => (first(a) ? -1 : first(b) ? 1 : Math.round(b.y / 14) - Math.round(a.y / 14) || a.r.i - b.r.i))
-    const placed: typeof list = []
-    for (const tg of list) {
-      for (let k = 0; k < 8; k++) {
-        const hit = placed.find((p) => Math.abs(p.x - tg.x) < (p.tw + tg.tw) / 2 + 3 && Math.abs(p.y - tg.y) < 21)
-        if (!hit) break
-        tg.y = hit.y - 22
+    const followed = !watching ? me : runners[watch]
+    const now = performance.now()
+    const blocks: Box[] = []
+    type Tag = { r: Runner; x: number; y: number; w: number; h: number; fs: number; alpha: number; label: string; hx: number; hy: number; moved: boolean; main: boolean }
+    const out: Tag[] = []
+    const place = (r: Runner, main: boolean) => {
+      const isMe = r === me
+      const z = Z(isMe ? S.d : r.d)
+      if (z < 3 || z > TAG_FAR) return false
+      const X = laneX(isMe ? S.x : r.x)
+      const air = heightOf(r, t)
+      const k = F / z
+      const hx = SX(X, z)
+      const low = isMe ? sliding(t) : !!(r.flags & GF.slide)
+      const hy = SY(air + (low ? 1.05 : 1.62), z)
+      const fs = main ? 13 : Math.round(Math.max(10, Math.min(12.5, 12.5 - (z - 8) * 0.12)))
+      const alpha = main ? 1 : Math.max(0, Math.min(1, (TAG_FAR - z) / 14))
+      if (alpha < 0.12) return false
+      const label = isMe ? 'You' : r.name
+      g.font = tagFont(fs)
+      const w = Math.ceil(g.measureText(label).width) + fs + 18
+      const h = fs + 8
+      const cy = hy - 7 - h / 2
+      const tries: [number, number][] = main ? [[0, 0]] : [[0, 0], [-w * 0.6, 0], [w * 0.6, 0], [0, -(h + 3)], [-w * 0.6, -(h + 3)], [w * 0.6, -(h + 3)]]
+      for (const [ox, oy] of tries) {
+        const x = hx + ox
+        const y = cy + oy
+        const box = { x0: x - w / 2 - 2, y0: y - h / 2 - 2, x1: x + w / 2 + 2, y1: y + h / 2 + 2 }
+        if (box.x0 < 4 || box.x1 > 996 || box.y0 < 50) continue
+        if (blocks.some((b) => overlaps(b, box))) continue
+        blocks.push(box)
+        out.push({ r, x, y, w, h, fs, alpha, label, hx, hy, moved: ox !== 0 || oy !== 0, main })
+        if (main) {
+          // the runner under the main tag stays clear too
+          blocks.push({ x0: hx - 0.4 * k, y0: hy, x1: hx + 0.4 * k, y1: SY(0, z) })
+        }
+        return true
       }
-      placed.push(tg)
+      return false
     }
-    for (const { r, isMe, x, y, tw, label } of placed) {
-      g.globalAlpha = isMe ? 1 : 0.92
-      g.fillStyle = isMe ? '#ffd166' : '#ffffff'
+    if (followed && !followed.out) place(followed, true)
+    const others = runners
+      .filter((r) => r !== followed && r !== me && !r.out)
+      .map((r) => ({ r, z: Z(r.d), react: !!(r.react && r.react.until > now) }))
+      .filter((o) => o.z >= 3 && o.z <= TAG_FAR)
+      .sort((a, b) => Number(b.react) - Number(a.react) || a.z - b.z)
+    let n = 0
+    for (const o of others) {
+      if (n >= MAX_TAGS) break
+      if (place(o.r, false)) n++
+    }
+    // draw far to near, so the nearest tag is on top if two still touch at the edges
+    g.textAlign = 'center'
+    g.textBaseline = 'middle'
+    for (const tg of out.reverse()) {
+      const { r, x, y, w, h, fs, alpha, label } = tg
+      const isMe = r === me
+      g.globalAlpha = alpha
       g.strokeStyle = '#1d2140'
-      g.lineWidth = isMe ? 2.5 : 1.5
+      if (tg.moved) {
+        // a tag that had to step aside keeps a thin line to its runner
+        g.lineWidth = 1.5
+        g.beginPath()
+        g.moveTo(x, y + h / 2)
+        g.lineTo(tg.hx, tg.hy - 3)
+        g.stroke()
+      }
+      g.fillStyle = isMe ? '#ffd166' : '#ffffff'
+      g.lineWidth = tg.main ? 2.5 : 1.5
       g.beginPath()
-      g.roundRect(x - tw / 2, y - 10, tw, 19, 8)
+      g.roundRect(x - w / 2, y - h / 2, w, h, h / 2)
       g.fill()
       g.stroke()
+      if (!tg.moved) {
+        // a little pointer down to the head
+        g.beginPath()
+        g.moveTo(x - 4, y + h / 2 - 0.5)
+        g.lineTo(x, y + h / 2 + 4)
+        g.lineTo(x + 4, y + h / 2 - 0.5)
+        g.fill()
+        g.lineWidth = 1.5
+        g.stroke()
+        g.fillRect(x - 3.5, y + h / 2 - 2.5, 7, 2.5)
+      }
+      const dotR = fs * 0.42
       g.fillStyle = r.color
+      g.lineWidth = 1.5
       g.beginPath()
-      g.arc(x - tw / 2 + 10, y - 0.5, 6, 0, Math.PI * 2)
+      g.arc(x - w / 2 + 5 + dotR, y, dotR, 0, Math.PI * 2)
       g.fill()
       g.stroke()
       g.fillStyle = '#1d2140'
-      g.fillText(label, x + 6, y + 4)
-      if (r.react && r.react.until > performance.now()) {
-        g.font = "15px 'Burbank Display', 'Lilita One', sans-serif"
+      g.font = tagFont(fs)
+      g.fillText(label, x + dotR + 1, y + 1)
+      if (r.react && r.react.until > now) {
+        g.font = tagFont(15)
         const rw = g.measureText(r.react.text).width + 18
+        const ry = y - h / 2 - 16
         g.fillStyle = '#ffffff'
+        g.lineWidth = isMe ? 2.5 : 1.5
         g.beginPath()
-        g.roundRect(x - rw / 2, y - 38, rw, 24, 10)
+        g.roundRect(x - rw / 2, ry - 12, rw, 24, 10)
         g.fill()
         g.stroke()
         g.fillStyle = '#1d2140'
-        g.fillText(r.react.text, x, y - 21)
-        g.font = "12px 'Burbank Display', 'Lilita One', sans-serif"
+        g.fillText(r.react.text, x, ry + 1)
       }
       g.globalAlpha = 1
     }
+    g.textBaseline = 'alphabetic'
   }
 
   // ---------- HUD ----------
   let lastPlaceTxt = ''
+  let rankAt = 0
+  const distOf = (r: Runner) => (r === me ? S.d : r.out ? r.outD : r.d)
+  /** the standings list: up to six rows, always including you (or whoever you're watching), gaps in metres */
+  function standings(order: Runner[], f: Runner) {
+    let rows = order.slice(0, 6)
+    if (!rows.includes(f)) rows = [...order.slice(0, 5), f]
+    const fd = distOf(f)
+    const html = rows
+      .map((r) => {
+        const out = r === me ? S.out : r.out
+        const gap = Math.round(distOf(r) - fd)
+        const right = r.done ? 'Finished' : out ? 'Out' : r === f ? `${Math.round(fd)} m` : `${gap > 0 ? '+' : gap < 0 ? '−' : ''}${Math.abs(gap)} m`
+        const cls = [r === me ? 'you' : '', r === f ? 'focus' : '', out ? 'out' : ''].filter(Boolean).join(' ')
+        return `<li class="${cls}"><b>${order.indexOf(r) + 1}</b><i style="background:${r.color}"></i><span>${r === me ? 'You' : esc(r.name)}</span><small>${right}</small></li>`
+      })
+      .join('')
+    if (rank.dataset.html !== html) {
+      rank.dataset.html = html
+      rank.innerHTML = html
+    }
+  }
   function hudTick(t: number) {
     const order = [...runners].sort((a, b) => Number(b.done) - Number(a.done) || (b.out ? b.outD : b.d) - (a.out ? a.outD : a.d))
     const focus = me && !S.out && !S.finished ? me : runners[watch]
@@ -948,6 +1105,10 @@ export function start(ctx: GameCtx): RunningGame {
         place.querySelector('span')!.textContent = b
         place.querySelector('small')!.textContent = c
       }
+    }
+    if (f && performance.now() - rankAt > 200) {
+      rankAt = performance.now()
+      standings(order, f)
     }
     runners.forEach((r, k) => {
       const d = r === me ? S.d : r.out ? r.outD : r.d
@@ -1008,12 +1169,14 @@ export function start(ctx: GameCtx): RunningGame {
   let leaderCheck = 0
   function frame(now: number) {
     raf = requestAnimationFrame(frame)
-    const dt = Math.min(0.05, (now - last) / 1000)
+    // one clock per frame: the frame's own timestamp drives your run, the others' playback and the camera alike
+    // (mixing it with a fresh performance.now() made everyone else wobble by a centimetre or two every frame)
+    const dt = Math.min(0.1, Math.max(0, (now - last) / 1000))
     last = now
-    const t = raceT()
+    const t = (now - t0) / 1000
     countdown(t)
     step(dt, t)
-    ghosts(t)
+    ghosts(t, dt)
     // the camera: you while you run; afterwards whoever's leading (or whoever you picked)
     const watching = !me || S.out || S.finished
     if (watching && now - leaderCheck > 900) {
@@ -1051,11 +1214,15 @@ export function start(ctx: GameCtx): RunningGame {
     for (const [i, d, x, v, f] of e.p as GhostWire[]) {
       const r = runners[i]
       if (!r) continue
-      r.snaps.push({ tm: e.tm, d, x, v, f })
-      if (r.snaps.length > 8) r.snaps.shift()
+      // (an update that arrives out of order, or twice, is dropped: the playback needs times that only go up)
+      const prev = r.snaps[r.snaps.length - 1]
+      if (prev && e.tm <= prev.tm) continue
+      r.snaps.push({ tm: e.tm, d, g: d - runDistance(Math.max(0, e.tm) / 1000), x, v, f })
+      if (r.snaps.length > 16) r.snaps.shift()
       if (r !== me && r.snaps.length === 1) {
         r.d = d
         r.x = x
+        r.gs = r.snaps[0].g
       }
     }
   }

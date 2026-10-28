@@ -2,7 +2,7 @@
 title: FAQ
 description: Quick answers to the questions New Yorkers ask most. Click a question to open it.
 icon: idea
-updated: 2026-10-20
+updated: 2026-10-24
 ---
 
 Click a question to see the answer. Every answer has its own link, so you can share it.
@@ -108,7 +108,7 @@ Open the **Phone** on your toolbar (or press [[I]]) to get your invite link. Fri
 :::
 
 :::details Can I play games with my friends?
-Yes. Press [[F]] and open **Games** for the Pilgrim Hill Sled Race, Rush Hour Run and Carb-Jitsu. **Create Lobby** gives you a 4 letter code and a link to share; friends type the code on their Games tab or open the link. [Multiplayer Games](multiplayer-games/README.md)
+Yes. Press [[F]] and open **Games** for the High Line Citi Bike Dash, Rush Hour Run and Carb-Jitsu. **Create Lobby** gives you a 4 letter code and a link to share; friends type the code on their Games tab or open the link. [Multiplayer Games](multiplayer-games/README.md)
 :::
 
 :::details How do I find a friend in the city?

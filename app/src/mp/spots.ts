@@ -1,6 +1,7 @@
 /**
- * The games live somewhere in the city: a signpost to Pilgrim Hill at the east edge of Central Park, a chalkboard
- * for Rush Hour Run on the Times Square platform, and the Carb-Jitsu board by the window table at the 99¢ Slice.
+ * The games live somewhere in the city: a High Line signpost with a Citi Bike parked against it for the Citi Bike
+ * Dash (the game was a Central Park sled race until there was no snow), a chalkboard for Rush Hour Run on the Times
+ * Square platform, and the Carb-Jitsu board by the window table at Joe’s Pizza.
  * Each is drawn by this module when its room is built (world.onRoom, so rooms.ts stays untouched): click it to walk
  * over and open the game's card. While you're in the room it shows who's waiting.
  */
@@ -27,22 +28,16 @@ const INK = '#1d2140'
 const T = (x: number, y: number, size: number, text: string, fill: string, extra = '') =>
   `<text x="${x}" y="${y}" font-family="'Burbank Display', 'Lilita One', sans-serif" font-size="${size}" fill="${fill}" text-anchor="middle" ${extra}>${text}</text>`
 
-/** a wooden signpost with an arrow plank, a snowy sled leaning on it */
-const SLED_SIGN = `<svg width="104" height="132" viewBox="0 0 104 132">
-  <ellipse cx="52" cy="128" rx="40" ry="5" fill="rgba(29,33,64,.22)"/>
-  <rect x="46" y="30" width="12" height="98" rx="3" fill="#9a6435" stroke="${INK}" stroke-width="3.5"/>
-  <path d="M3 18 H88 L101 32 L88 46 H3 Z" fill="#c98a4b" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M7 21 H86" stroke="#e0a868" stroke-width="3" stroke-linecap="round"/>
-  ${T(47, 37.5, 12.5, 'PILGRIM HILL', '#3b2210', 'textLength="78" lengthAdjust="spacingAndGlyphs"')}
-  <path d="M2 18 Q 28 9 58 15 Q 80 11 90 18" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
-  <rect x="14" y="54" width="76" height="26" rx="6" fill="#e5483b" stroke="${INK}" stroke-width="3.5"/>
-  ${T(52, 72.5, 13, 'SLED RACE', '#fff', 'textLength="62" lengthAdjust="spacingAndGlyphs"')}
-  <g transform="translate(8 92) rotate(-24)">
-    <rect x="0" y="10" width="44" height="11" rx="5" fill="#e5483b" stroke="${INK}" stroke-width="3"/>
-    <path d="M2 24 H40 Q 48 24 47 16" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
-    <path d="M-3 12 Q -9 8 -4 2" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <path d="M60 124 q 10 -9 22 0 q 9 -6 16 2 z" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
+/** a High Line signpost (dark steel, like the park's own signs) with a Citi Bike parked against it */
+const BIKE_SIGN = `<svg width="118" height="136" viewBox="0 0 118 136">
+  <ellipse cx="58" cy="132" rx="48" ry="5" fill="rgba(29,33,64,.22)"/>
+  <rect x="26" y="26" width="10" height="106" rx="2.5" fill="#4a505c" stroke="${INK}" stroke-width="3.5"/>
+  <rect x="4" y="7" width="94" height="25" rx="4" fill="#2f3440" stroke="${INK}" stroke-width="3.5"/>
+  ${T(51, 24.5, 11.5, 'THE HIGH LINE', '#fff', 'textLength="76" lengthAdjust="spacingAndGlyphs"')}
+  <rect x="2" y="38" width="98" height="30" rx="6" fill="#1f6fd1" stroke="${INK}" stroke-width="3.5"/>
+  <path d="M7 42 H95" stroke="#5aa0f0" stroke-width="3" stroke-linecap="round"/>
+  ${T(51, 59, 13.5, 'CITI BIKE DASH', '#fff', 'textLength="82" lengthAdjust="spacingAndGlyphs"')}
+  <image href="/art/mp/bike-citibike.png" x="54" y="68" width="60" height="68"/>
 </svg>`
 
 /** a chalkboard A-frame on the platform */
@@ -78,7 +73,7 @@ const CARBS_SIGN = `<svg width="86" height="114" viewBox="0 0 86 114">
 </svg>`
 
 const SPOTS: Spot[] = [
-  { room: 'central-park', game: 'sled', at: [352, 478], walk: [392, 486], svg: SLED_SIGN, w: 104, h: 132 },
+  { room: 'high-line', game: 'sled', at: [292, 352], walk: [336, 382], svg: BIKE_SIGN, w: 118, h: 136 },
   { room: 'subway', game: 'runner', at: [612, 410], walk: [590, 430], svg: RUN_SIGN, w: 86, h: 112 },
   { room: 'pizza', game: 'carbs', at: [306, 348], walk: [300, 372], svg: CARBS_SIGN, w: 86, h: 114 },
 ]

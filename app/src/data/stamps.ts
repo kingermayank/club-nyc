@@ -4,7 +4,7 @@ import { partyOn } from './party'
 export const STAMPS: Record<string, { name: string; icon: string; desc: string; tier: 1 | 2 | 3 }> = {
   welcome: { name: 'New in Town', icon: '🗽', desc: 'Create your New Yorker.', tier: 1 },
   regular: { name: 'The Usual', icon: '☕', desc: 'Buy a deli coffee.', tier: 1 },
-  'slice-of-life': { name: 'Slice of Life', icon: '🍕', desc: 'Buy a dollar slice.', tier: 1 },
+  'slice-of-life': { name: 'Slice of Life', icon: '🍕', desc: 'Buy a plain slice at Joe’s Pizza.', tier: 1 },
   flock: { name: 'Flock Together', icon: '🐦', desc: 'Coo at three Times Square pigeons.', tier: 1 },
   straphanger: { name: 'Straphanger', icon: '🚇', desc: 'Ride the subway.', tier: 1 },
   'top-of-world': { name: 'Top of the World', icon: '🏙️', desc: 'Reach the Empire State observation deck.', tier: 1 },
@@ -22,7 +22,7 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   liberty: { name: 'Lady Liberty', icon: '🗽', desc: 'Visit Liberty Island.', tier: 2 },
   homebody: { name: 'Home Sweet Home', icon: '🛋️', desc: 'Place 5 pieces of furniture in your apartment.', tier: 2 },
   fashionista: { name: 'Fashionista', icon: '🛍️', desc: 'Own 20 clothing items.', tier: 2 },
-  'big-spender': { name: 'Big Spender', icon: '💎', desc: 'Buy something at Maison Malle.', tier: 2 },
+  'big-spender': { name: 'Big Spender', icon: '💎', desc: 'Buy something at Louis Vuitton.', tier: 2 },
   'slice-pro': { name: 'Pizza Pro', icon: '👨‍🍳', desc: 'Make 15 pizzas in one Slice Factory shift.', tier: 3 },
   'halal-hero': { name: 'Halal Hero', icon: '🥙', desc: 'Serve 10 happy customers in one Halal Rush.', tier: 3 },
   captain: { name: 'Captain!', icon: '⛴️', desc: 'Steer the ferry all the way to Liberty Island.', tier: 3 },
@@ -36,7 +36,7 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'billionaires-row': { name: 'Billionaire (on Paper)', icon: '🏙️', desc: 'Move into the Billionaires’ Row penthouse.', tier: 3 },
   'photo-booth': { name: 'Say Cheese', icon: '📸', desc: 'Take a photo-booth strip.', tier: 1 },
   'belly-10': { name: 'Belly Full', icon: '🍽️', desc: 'Eat at 10 different food spots around the city.', tier: 2 },
-  'misspelled': { name: 'Who’s Mayonnaise?', icon: '☕', desc: 'Get your name spelled wrong on a latte at Bean There.', tier: 1 },
+  'misspelled': { name: 'Who’s Mayonnaise?', icon: '☕', desc: 'Get your name spelled wrong on a latte at Ralph’s Coffee.', tier: 1 },
   'remember': { name: 'Never Forget', icon: '🕊️', desc: 'Visit the 9/11 Memorial.', tier: 1 },
   'candy-hunter': { name: 'Candy Corn Collector', icon: '🍬', desc: 'Find all 8 hidden candy corns during the party.', tier: 3 },
   'flash-mob': { name: 'Flash Mob', icon: '🕺', desc: 'Start a dance with 3+ New Yorkers.', tier: 2 },
@@ -64,8 +64,9 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'mp-first': { name: 'Game On', icon: '🕹️', desc: 'Play a multiplayer game.', tier: 1 },
   'mp-win': { name: 'Bragging Rights', icon: '🏆', desc: 'Win a multiplayer game against a real New Yorker.', tier: 2 },
   'mp-crew': { name: 'Full House', icon: '👯', desc: 'Play a game with 4 or more real New Yorkers.', tier: 2 },
-  'sled-race': { name: 'Pilgrim Hill', icon: '❄️', desc: 'Finish a sled race on Pilgrim Hill.', tier: 1 },
-  'sled-win': { name: 'King of the Hill', icon: '👑', desc: 'Win a sled race against real New Yorkers.', tier: 3 },
+  // the High Line Citi Bike Dash (the ids are from its sled-race days, so stamps already earned stay put)
+  'sled-race': { name: 'Gansevoort to 34th', icon: '🚲', desc: 'Finish a Citi Bike Dash on the High Line.', tier: 1 },
+  'sled-win': { name: 'Top of the Line', icon: '👑', desc: 'Win a Citi Bike Dash against real New Yorkers.', tier: 3 },
   'runner-first': { name: 'Stand Clear', icon: '🚇', desc: 'Run Rush Hour Run.', tier: 1 },
   'runner-ferry': { name: 'Last Stop', icon: '⛴️', desc: 'Make it all the way to South Ferry in Rush Hour Run.', tier: 3 },
   'carbs-first': { name: 'Carb Loading', icon: '🍕', desc: 'Play a game of Carb-Jitsu.', tier: 1 },
@@ -76,3 +77,6 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
 if (!partyOn()) for (const id of ['party-animal', 'candy-hunter']) delete STAMPS[id]
 // no snow in October: the snowball is off the toolbar, so its stamp is hidden until snow season comes back
 for (const id of ['snowball-fight']) delete STAMPS[id]
+// the giant floor piano left with the toy store (Fifth Avenue's store is Saks Fifth Avenue now): its stamp is hidden,
+// and anyone who already earned it keeps it in their save
+for (const id of ['piano-man']) delete STAMPS[id]

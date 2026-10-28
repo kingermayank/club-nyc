@@ -43,7 +43,7 @@ Click **Watch Tonight's Show**, then **Buy a Ticket (5)**. You watch from the or
 
 ## I ♥ NY Souvenirs {#i-love-ny-souvenirs}
 
-The souvenir shop has tees and hoodies, caps and beanies, foam crowns and torches, snow globes, postcards and gifts, and toy taxis. Click a shelf to open the catalog for that section, and point at an item to try it on before you buy. The **Mirror** and the **Changing Room** open your wardrobe. [How shopping works](shops-and-wardrobe.md)
+The souvenir shop has tees and hoodies, caps and beanies, foam crowns and torches, snow globes, postcards and gifts, toy taxis, robots and rockets, a teddy, balloons and a little dress-up (the toys moved here from Fifth Avenue). Click a shelf to open the catalog for that section, and point at an item to try it on before you buy. The **Mirror** and the **Changing Room** open your wardrobe. [How shopping works](shops-and-wardrobe.md)
 
 Click the big neon sign (**I ♥ NY · Photo Booth**) to learn how the logo was born (in a taxi, in red crayon), then **Pose Under the Neon** for a [photo-booth](events/photo-booths.md) strip with everyone nearby.
 

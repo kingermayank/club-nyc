@@ -156,7 +156,7 @@ const TOPS: ItemDef[] = [
     top: { color: '#4f7cc4', sleeves: 'long', front: () => vneck('#fff') + lapels('#4f7cc4') + R(-15, -56, 8, 6, 1.5, shade('#4f7cc4', 0.1), 1.6) + R(7, -56, 8, 6, 1.5, shade('#4f7cc4', 0.1), 1.6) + buttons(0, [-52, -45, -38], '#d9dde8') },
   },
   {
-    id: 'leather-jacket', name: 'Leather Jacket', slot: 'body', price: 60, shop: 'thread',
+    id: 'leather-jacket', name: 'Leather Jacket', slot: 'body', price: 60, shop: 'thread', alsoAt: ['toys'],
     top: { color: '#24262d', sleeves: 'long', front: () => vneck('#e8e8e8') + lapels('#24262d') + L(4, -60, -6, -36, '#c9ccd6', 1.6) },
   },
   {
@@ -172,15 +172,15 @@ const TOPS: ItemDef[] = [
     top: { color: '#23232b', sleeves: 'long', collar: () => R(-9, -80, 18, 10, 4, '#2c2c36') },
   },
   {
-    id: 'trench', name: 'Trench Coat', slot: 'body', price: 70, shop: 'thread',
+    id: 'trench', name: 'Trench Coat', slot: 'body', price: 70, shop: 'thread', alsoAt: ['toys'],
     top: { color: '#c8a46a', sleeves: 'long', length: 'long', front: () => vneck('#f2f2f2') + lapels('#c8a46a') + R(-21, -42, 42, 5, 2, shade('#c8a46a', 0.22), 1.6) + buttons(-6, [-56, -32, -26], '#6b4e2a') + buttons(6, [-56, -32, -26], '#6b4e2a') },
   },
   {
-    id: 'camel-coat', name: 'Camel Coat', slot: 'body', price: 260, shop: 'maison',
+    id: 'camel-coat', name: 'Camel Coat', slot: 'body', price: 260, shop: 'maison', alsoAt: ['toys'],
     top: { color: '#b98c5a', sleeves: 'long', length: 'long', front: () => vneck('#1f1f26') + lapels('#b98c5a') + buttons(0, [-50, -40, -30], '#2a1d10') },
   },
   {
-    id: 'suit', name: 'Sharp Suit', slot: 'body', price: 120, shop: 'maison',
+    id: 'suit', name: 'Sharp Suit', slot: 'body', price: 120, shop: 'maison', alsoAt: ['toys'],
     top: { color: '#273152', sleeves: 'long', front: () => vneck('#ffffff') + P('M -2 -66 L 2 -66 L 3 -50 L 0 -46 L -3 -50 Z', '#d6303a') + lapels('#273152') + buttons(0, [-42, -37], '#c9cbd6') },
   },
   {
@@ -196,8 +196,8 @@ const TOPS: ItemDef[] = [
     top: { color: '#fbfbfd', sleeves: 'long', front: () => P('M -10 -72 L 10 -72 L 12 -66 L -12 -66 Z', '#eef0f6') + buttons(-5, [-60, -52, -44], '#3a3f5a') + buttons(5, [-60, -52, -44], '#3a3f5a') },
   },
   {
-    id: 'halal-apron', name: 'Halal Bros Apron', slot: 'body', price: 0, reward: 'halal-rush',
-    top: { color: '#e64b3c', sleeves: 'short', front: (c) => P('M -12 -64 L 12 -64 L 14 -36 L -14 -36 Z', '#fffdf5') + L(-12, -64, -8, -73, O, 1.6) + L(12, -64, 8, -73, O, 1.6) + (c.back ? '' : T(0, -48, 6.5, 'HALAL', '#e64b3c', 'font-weight="900"') + T(0, -41, 6.5, 'BROS', '#e64b3c', 'font-weight="900"')) },
+    id: 'halal-apron', name: 'Adel’s Apron', slot: 'body', price: 0, reward: 'halal-rush',
+    top: { color: '#e64b3c', sleeves: 'short', front: (c) => P('M -12 -64 L 12 -64 L 14 -36 L -14 -36 Z', '#fffdf5') + L(-12, -64, -8, -73, O, 1.6) + L(12, -64, 8, -73, O, 1.6) + (c.back ? '' : T(0, -48, 6.5, 'ADEL’S', '#e64b3c', 'font-weight="900"') + T(0, -41, 6.5, 'HALAL', '#e64b3c', 'font-weight="900"')) },
   },
   {
     id: 'barista-apron', name: 'Barista Apron', slot: 'body', price: 0, reward: 'bagel-counters',
@@ -221,7 +221,7 @@ const BOTTOMS: ItemDef[] = [
   { id: 'shorts', name: 'Khaki Shorts', slot: 'legs', price: 14, shop: 'thread', bottom: { color: '#d3b47e', kind: 'shorts' } },
   { id: 'denim-shorts', name: 'Denim Shorts', slot: 'legs', price: 16, shop: 'thread', bottom: { color: '#6c95d6', kind: 'shorts' } },
   { id: 'plaid-skirt', name: 'Plaid Skirt', slot: 'legs', price: 25, shop: 'thread', bottom: { color: '#2b2f3a', kind: 'skirt', skirt: '#c8323c' } },
-  { id: 'tutu', name: 'Pink Tutu', slot: 'legs', price: 18, shop: 'toys', bottom: { color: '#f2f2f6', kind: 'skirt', skirt: '#ffb3d6' } },
+  { id: 'tutu', name: 'Pink Tutu', slot: 'legs', price: 18, shop: 'iloveny', bottom: { color: '#f2f2f6', kind: 'skirt', skirt: '#ffb3d6' } },
 ]
 
 // ---------- shoes ----------
@@ -232,11 +232,11 @@ const sneaker = (upper: string, solecol: string, accent?: string) => (x: number,
   sole(x, solecol)
 const SHOES: ItemDef[] = [
   { id: 'sneakers', name: 'White Sneakers', slot: 'feet', price: 0, shoe: sneaker('#f7f7fb', '#d8dbe6', '#9aa3c0') },
-  { id: 'hightops', name: 'Red High-Tops', slot: 'feet', price: 35, shop: 'sneakers', shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -18 Q ${x - 9} -21 ${x - 6} -21 L ${x + 2} -21 Q ${x + 4} -21 ${x + 4} -18 L ${x + 4} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#e8333a') + C(x - 3, -15, 2.3, '#fff', 1.2) + sole(x, '#f4f4f8') },
+  { id: 'hightops', name: 'Red High-Tops', slot: 'feet', price: 35, shop: 'sneakers', alsoAt: ['toys'], shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -18 Q ${x - 9} -21 ${x - 6} -21 L ${x + 2} -21 Q ${x + 4} -21 ${x + 4} -18 L ${x + 4} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#e8333a') + C(x - 3, -15, 2.3, '#fff', 1.2) + sole(x, '#f4f4f8') },
   { id: 'runners', name: 'Retro Runners', slot: 'feet', price: 30, shop: 'sneakers', shoe: sneaker('#5aa7ff', '#ff9f43', '#ffffff') },
-  { id: 'rainbow-kicks', name: 'Rainbow Kicks', slot: 'feet', price: 55, shop: 'sneakers', shoe: (x, s) => sneaker('#ffffff', '#b06bff')(x, s) + `<path d="M ${x - 6} -9 L ${x + 6} -9" stroke="#ff5a5f" stroke-width="2"/><path d="M ${x - 6} -6.5 L ${x + 7} -6.5" stroke="#3fd0ff" stroke-width="2"/>` },
-  { id: 'boots', name: 'Work Boots', slot: 'feet', price: 40, shop: 'sneakers', shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -17 Q ${x - 9} -20 ${x - 6} -20 L ${x + 3} -20 Q ${x + 5} -20 ${x + 5} -17 L ${x + 5} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#a8692f') + L(x - 4, -16, x + 1, -16, '#f3d9a4', 1.4) + sole(x, '#5a3a1e') },
-  { id: 'loafers', name: 'Penny Loafers', slot: 'feet', price: 150, shop: 'maison', shoe: (x) => P(`M ${x - 10} -2 Q ${x - 10} -9 ${x - 3} -9 L ${x + 3} -9 Q ${x + 10} -9 ${x + 11} -3 L ${x + 11} -2 Z`, '#4a2a1e') + L(x - 3, -7, x + 4, -7, '#e2b04a', 1.6) + sole(x, '#2a1810') },
+  { id: 'rainbow-kicks', name: 'Rainbow Kicks', slot: 'feet', price: 55, shop: 'sneakers', alsoAt: ['toys'], shoe: (x, s) => sneaker('#ffffff', '#b06bff')(x, s) + `<path d="M ${x - 6} -9 L ${x + 6} -9" stroke="#ff5a5f" stroke-width="2"/><path d="M ${x - 6} -6.5 L ${x + 7} -6.5" stroke="#3fd0ff" stroke-width="2"/>` },
+  { id: 'boots', name: 'Work Boots', slot: 'feet', price: 40, shop: 'sneakers', alsoAt: ['toys'], shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -17 Q ${x - 9} -20 ${x - 6} -20 L ${x + 3} -20 Q ${x + 5} -20 ${x + 5} -17 L ${x + 5} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#a8692f') + L(x - 4, -16, x + 1, -16, '#f3d9a4', 1.4) + sole(x, '#5a3a1e') },
+  { id: 'loafers', name: 'Penny Loafers', slot: 'feet', price: 150, shop: 'maison', alsoAt: ['toys'], shoe: (x) => P(`M ${x - 10} -2 Q ${x - 10} -9 ${x - 3} -9 L ${x + 3} -9 Q ${x + 10} -9 ${x + 11} -3 L ${x + 11} -2 Z`, '#4a2a1e') + L(x - 3, -7, x + 4, -7, '#e2b04a', 1.6) + sole(x, '#2a1810') },
   { id: 'slides', name: 'Slides & Socks', slot: 'feet', price: 12, shop: 'sneakers', shoe: (x) => R(x - 7, -14, 14, 11, 4, '#ffffff', 2) + P(`M ${x - 10} -6 L ${x + 10} -6 L ${x + 10} -3 L ${x - 10} -3 Z`, '#2b2f3a') + sole(x, '#2b2f3a') },
   { id: 'skates', name: 'Ice Skates', slot: 'feet', price: 15, shop: 'rink', shoe: (x) => P(`M ${x - 9} -6 L ${x - 9} -18 Q ${x - 9} -20 ${x - 6} -20 L ${x + 3} -20 Q ${x + 5} -20 ${x + 5} -17 L ${x + 5} -12 Q ${x + 11} -11 ${x + 11} -6 Z`, '#ffffff') + L(x - 10, -1, x + 11, -1, '#bfc6d6', 2.4) + L(x - 6, -5, x - 6, -1, O, 1.6) + L(x + 6, -5, x + 6, -1, O, 1.6) },
 ]
@@ -290,11 +290,11 @@ const HATS: ItemDef[] = [
     draw: () => lift(5, P('M -38 -108 Q -36 -116 -26 -118 L -22 -136 Q 0 -144 22 -136 L 26 -118 Q 36 -116 38 -108 Q 0 -100 -38 -108 Z', '#f0d58c') + Pn('M -23 -122 Q 0 -126 23 -122 L 24 -118 Q 0 -122 -24 -118 Z', '#c9a24a')),
   },
   {
-    id: 'propeller', name: 'Propeller Beanie', slot: 'head', price: 15, shop: 'toys',
+    id: 'propeller', name: 'Propeller Beanie', slot: 'head', price: 15, shop: 'iloveny',
     draw: () => P('M -31 -106 C -32 -132 -16 -140 0 -140 C 16 -140 32 -132 31 -106 Q 0 -112 -31 -106 Z', '#ffcf1f') + Pn('M 0 -140 C -8 -136 -12 -120 -12 -108 L 0 -110 Z', '#e8483f') + Pn('M 0 -140 C 8 -136 12 -120 12 -108 L 0 -110 Z', '#3f7fe8') + L(0, -140, 0, -148) + `<g class="av-prop"><ellipse cx="0" cy="-149" rx="16" ry="3.6" fill="#ff5a8a" stroke="${O}" stroke-width="2"/></g>`,
   },
   {
-    id: 'cat-ears', name: 'Bodega Cat Ears', slot: 'head', price: 12, shop: 'toys',
+    id: 'cat-ears', name: 'Bodega Cat Ears', slot: 'head', price: 12, shop: 'iloveny',
     draw: () => `<path d="M -26 -118 Q 0 -138 26 -118" fill="none" stroke="${O}" stroke-width="6" stroke-linecap="round"/><path d="M -26 -118 Q 0 -138 26 -118" fill="none" stroke="#ff9f43" stroke-width="3" stroke-linecap="round"/>` + P('M -24 -122 L -30 -144 L -12 -130 Z', '#ff9f43') + P('M 24 -122 L 30 -144 L 12 -130 Z', '#ff9f43') + Pn('M -23 -127 L -26 -138 L -17 -131 Z', '#ffd0dc') + Pn('M 23 -127 L 26 -138 L 17 -131 Z', '#ffd0dc'),
   },
   {
@@ -327,7 +327,7 @@ const FACE: ItemDef[] = [
     draw: (c) => (c.back ? '' : R(-20 + c.fx, -107, 16, 12, 5, '#3a2618', 2.4) + R(4 + c.fx, -107, 16, 12, 5, '#3a2618', 2.4) + L(-4 + c.fx, -102, 4 + c.fx, -102, '#e2b04a', 2.4) + C(-17 + c.fx, -104, 1.3, '#e2b04a', 0) + C(17 + c.fx, -104, 1.3, '#e2b04a', 0)),
   },
   {
-    id: 'round-glasses', name: 'Round Specs', slot: 'face', price: 15, shop: 'thread',
+    id: 'round-glasses', name: 'Round Specs', slot: 'face', price: 15, shop: 'thread', alsoAt: ['toys'],
     draw: (c) => (c.back ? '' : `<circle cx="${-11 + c.fx}" cy="-99" r="8" fill="rgba(255,255,255,.18)" stroke="${O}" stroke-width="2.2"/><circle cx="${11 + c.fx}" cy="-99" r="8" fill="rgba(255,255,255,.18)" stroke="${O}" stroke-width="2.2"/>` + L(-3 + c.fx, -100, 3 + c.fx, -100, O, 2.2)),
   },
   {
@@ -335,7 +335,7 @@ const FACE: ItemDef[] = [
     draw: (c) => (c.back ? '' : heart(-11 + c.fx, -101, 2, '#ff4f8b', 2.2) + heart(11 + c.fx, -101, 2, '#ff4f8b', 2.2) + L(-3 + c.fx, -101, 3 + c.fx, -101, O, 2.2)),
   },
   {
-    id: 'gold-shades', name: 'Gold Shades', slot: 'face', price: 90, shop: 'maison',
+    id: 'gold-shades', name: 'Gold Shades', slot: 'face', price: 90, shop: 'maison', alsoAt: ['toys'],
     draw: (c) => (c.back ? '' : P(`M ${-22 + c.fx} -106 L ${22 + c.fx} -106 L ${20 + c.fx} -97 Q ${12 + c.fx} -92 ${4 + c.fx} -98 L ${0 + c.fx} -101 L ${-4 + c.fx} -98 Q ${-12 + c.fx} -92 ${-20 + c.fx} -97 Z`, '#2a2016') + L(-21 + c.fx, -106, 21 + c.fx, -106, '#e2b04a', 2.6)),
   },
   {
@@ -351,9 +351,9 @@ const NECK: ItemDef[] = [
     draw: () => R(-16, -77, 32, 10, 5, '#e8483f') + P('M 6 -70 L 14 -70 L 13 -50 L 5 -50 Z', '#e8483f') + L(6, -55, 13, -55, '#fff', 1.6) + L(6, -60, 13, -60, '#fff', 1.6),
   },
   { id: 'bowtie', name: 'Bow Tie', slot: 'neck', price: 10, shop: 'broadway', draw: () => P('M 0 -72 L -9 -77 L -9 -67 Z', '#d6303a') + P('M 0 -72 L 9 -77 L 9 -67 Z', '#d6303a') + C(0, -72, 2.6, '#a82029', 1.4) },
-  { id: 'gold-chain', name: 'Gold Chain', slot: 'neck', price: 120, shop: 'maison', draw: () => `<path d="M -11 -73 Q 0 -54 11 -73" fill="none" stroke="${O}" stroke-width="5"/><path d="M -11 -73 Q 0 -54 11 -73" fill="none" stroke="#f2c14e" stroke-width="2.6"/>` + C(0, -61, 3.4, '#f2c14e', 1.6) },
-  { id: 'pearls', name: 'Pearl Necklace', slot: 'neck', price: 100, shop: 'maison', draw: () => [-10, -7, -3.5, 0, 3.5, 7, 10].map((x) => C(x, -72 + (10 - Math.abs(x)) * 0.7, 2.1, '#fbf8ef', 1)).join('') },
-  { id: 'silk-scarf', name: 'Silk Scarf', slot: 'neck', price: 80, shop: 'maison', draw: () => P('M -12 -75 Q 0 -68 12 -75 L 4 -64 L 0 -58 L -4 -64 Z', '#2f7d6b') + C(0, -66, 2.2, '#f2c14e', 1.2) },
+  { id: 'gold-chain', name: 'Gold Chain', slot: 'neck', price: 120, shop: 'maison', alsoAt: ['toys'], draw: () => `<path d="M -11 -73 Q 0 -54 11 -73" fill="none" stroke="${O}" stroke-width="5"/><path d="M -11 -73 Q 0 -54 11 -73" fill="none" stroke="#f2c14e" stroke-width="2.6"/>` + C(0, -61, 3.4, '#f2c14e', 1.6) },
+  { id: 'pearls', name: 'Pearl Necklace', slot: 'neck', price: 100, shop: 'maison', alsoAt: ['toys'], draw: () => [-10, -7, -3.5, 0, 3.5, 7, 10].map((x) => C(x, -72 + (10 - Math.abs(x)) * 0.7, 2.1, '#fbf8ef', 1)).join('') },
+  { id: 'silk-scarf', name: 'Silk Scarf', slot: 'neck', price: 80, shop: 'maison', alsoAt: ['toys'], draw: () => P('M -12 -75 Q 0 -68 12 -75 L 4 -64 L 0 -58 L -4 -64 Z', '#2f7d6b') + C(0, -66, 2.2, '#f2c14e', 1.2) },
   {
     id: 'camera', name: 'Tourist Camera', slot: 'neck', price: 18, shop: 'iloveny',
     draw: (c) => L(-12, -72, -8, -56, O, 1.8) + L(12, -72, 8, -56, O, 1.8) + (c.back ? '' : R(-11, -60, 22, 14, 3, '#2b2f3a') + C(0, -53, 4.6, '#7fb2ff', 2) + R(-8, -63, 6, 3, 1, '#c9ccd6', 1)),
@@ -371,19 +371,19 @@ const NECK: ItemDef[] = [
 // ---------- in hand (drawn around the right hand at 0,0) ----------
 const HAND: ItemDef[] = [
   { id: 'coffee', name: 'Deli Coffee', slot: 'hand', price: 3, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#2d6fd1') + Pn('M -5.6 1 L 5.6 1 L 5.4 4 L -5.4 4 Z', '#fff') + R(-7, -7, 14, 4, 2, '#f4f4f8', 1.6) },
-  // Bean There's latte: a white cup, a cardboard sleeve, and a name scribbled on it (never quite yours)
+  // Ralph's Coffee latte: a white cup, a cardboard sleeve, and a name scribbled on it (never quite yours)
   { id: 'latte', name: 'Oat Latte', slot: 'hand', price: 4, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#ffffff') + Pn('M -5.7 2 L 5.7 2 L 5.4 7 L -5.4 7 Z', '#b9875a') + R(-7, -7, 14, 4, 2, '#3a3f4b', 1.6) + `<path d="M -3.5 -1 q 1.2 -1.6 2.4 0 t 2.4 0 t 2.4 0" fill="none" stroke="${O}" stroke-width="1"/>` },
-  { id: 'pizza-slice', name: 'Dollar Slice', slot: 'hand', price: 1, shop: 'pizza', draw: () => P('M -3 2 L 18 -10 Q 20 -2 16 6 Z', '#ffd36b') + P('M 16 6 Q 20 -2 18 -10 L 21 -11 Q 24 -1 19 8 Z', '#d99a45') + C(10, -2, 1.8, '#d6303a', 1) + C(14, 2, 1.6, '#d6303a', 1) },
+  { id: 'pizza-slice', name: 'Plain Slice', slot: 'hand', price: 1, shop: 'pizza', draw: () => P('M -3 2 L 18 -10 Q 20 -2 16 6 Z', '#ffd36b') + P('M 16 6 Q 20 -2 18 -10 L 21 -11 Q 24 -1 19 8 Z', '#d99a45') + C(10, -2, 1.8, '#d6303a', 1) + C(14, 2, 1.6, '#d6303a', 1) },
   { id: 'bagel', name: 'Everything Bagel', slot: 'hand', price: 2, shop: 'coffee', draw: () => E(6, 0, 10, 8, '#d69a52') + E(6, 0, 3, 2.2, '#fffaf0', 1.6) + [[1, -4], [10, -4], [12, 2], [2, 3]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="${O}"/>`).join('') },
   { id: 'hotdog', name: 'Hot Dog', slot: 'hand', price: 2, shop: 'street', draw: () => R(-4, -4, 24, 9, 4.5, '#f0c27b') + R(-6, -2, 28, 5, 2.5, '#c8553d', 2) + `<path d="M -3 -0.5 Q 0 -3 3 -0.5 T 9 -0.5 T 15 -0.5 T 20 -0.5" fill="none" stroke="#ffd23f" stroke-width="1.6"/>` },
   { id: 'pretzel', name: 'Soft Pretzel', slot: 'hand', price: 2, shop: 'street', draw: () => `<path d="M 0 6 C -10 -6 2 -14 8 -4 C 14 -14 26 -6 16 6 C 12 10 4 10 0 6 Z M 8 -4 L 4 6 M 8 -4 L 12 6" fill="none" stroke="${O}" stroke-width="7" stroke-linejoin="round"/><path d="M 0 6 C -10 -6 2 -14 8 -4 C 14 -14 26 -6 16 6 C 12 10 4 10 0 6 Z M 8 -4 L 4 6 M 8 -4 L 12 6" fill="none" stroke="#b9732f" stroke-width="3.5" stroke-linejoin="round"/>` },
   { id: 'boba', name: 'Boba Tea', slot: 'hand', price: 4, shop: 'chinatown', draw: () => L(2, -18, 0, -6, O, 4) + L(2, -18, 0, -6, '#ff5a8a', 2) + P('M -6 -6 L 6 -6 L 5 12 L -5 12 Z', '#f5d7b5') + [[-2, 8], [2, 9], [0, 5], [3, 5]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#3a2418"/>`).join('') + R(-7, -8, 14, 3, 1.5, '#ffffff', 1.4) },
-  { id: 'shopping-bag', name: 'Shopping Bag', slot: 'hand', price: 5, shop: 'thread', draw: () => `<path d="M -3 2 Q 3 -10 9 2" fill="none" stroke="${O}" stroke-width="2"/>` + P('M -8 2 L 14 2 L 16 26 L -10 26 Z', '#ffffff') + T(3, 17, 6.5, 'THREAD', O, 'font-weight="900"') },
+  { id: 'shopping-bag', name: 'Shopping Bag', slot: 'hand', price: 5, shop: 'thread', draw: () => `<path d="M -3 2 Q 3 -10 9 2" fill="none" stroke="${O}" stroke-width="2"/>` + P('M -8 2 L 14 2 L 16 26 L -10 26 Z', '#ffffff') + R(-7, 12, 20, 8, 0, '#e2231a', 0) + T(3, 17.8, 4.3, 'Supreme', '#ffffff', 'font-weight="900" font-style="italic"') },
   { id: 'trunk-bag', name: 'Monogram Bag', slot: 'hand', price: 220, shop: 'maison', draw: () => `<path d="M -2 2 Q 5 -10 12 2" fill="none" stroke="${O}" stroke-width="2.4"/>` + R(-8, 2, 26, 18, 4, '#7a4b2a') + [[-3, 7], [5, 7], [13, 7], [1, 14], [9, 14]].map(([x, y]) => `<path transform="translate(${x} ${y})" d="M0 -2 L.6 -.6 L2 0 L.6 .6 L0 2 L-.6 .6 L-2 0 L-.6 -.6Z" fill="#e2b04a"/>`).join('') + R(2, 8, 6, 4, 1, '#e2b04a', 1) },
   { id: 'foam-finger', name: 'Foam Finger', slot: 'hand', price: 8, shop: 'iloveny', draw: () => P('M -7 -2 L 9 -2 L 9 10 L -7 10 Z', '#3f7fe8') + P('M -2 -2 L -2 -24 Q 1 -28 4 -24 L 4 -2 Z', '#3f7fe8') + T(1, 8, 7, '#1', '#fff', 'font-weight="900"') },
   { id: 'snow-globe', name: 'Skyline Snow Globe', slot: 'hand', price: 6, shop: 'iloveny', draw: () => R(-8, 4, 20, 7, 2.5, '#8a5a35') + C(2, -6, 11, 'rgba(205,236,255,.92)') + R(-5, -6, 4, 9, 0.5, '#8fa0c9', 1) + R(-1, -12, 4, 15, 0.5, '#c9ccd6', 1) + R(3, -8, 4, 11, 0.5, '#7d8db8', 1) + R(7, -4, 3, 7, 0.5, '#a9b6d6', 1) + `<circle cx="-4" cy="-11" r="1" fill="#fff"/><circle cx="8" cy="-10" r="1" fill="#fff"/><circle cx="2" cy="-15" r=".9" fill="#fff"/>` },
-  { id: 'balloon', name: 'Big Apple Balloon', slot: 'hand', price: 8, shop: 'toys', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + P('M 6 -58 C -10 -58 -12 -84 2 -86 C 4 -84 8 -84 10 -86 C 24 -84 22 -58 6 -58 Z', '#e8323a') + P('M 6 -86 Q 5 -92 9 -95', 'none') + P('M 7 -90 Q 13 -95 17 -90 Q 12 -86 7 -90 Z', '#4fc27e', 'stroke-width="1.6"') },
-  { id: 'teddy', name: 'Toy Palace Teddy', slot: 'hand', price: 20, shop: 'toys', draw: () => C(-1, -10, 4, '#b07a4a', 2) + C(13, -10, 4, '#b07a4a', 2) + E(6, 6, 9, 10, '#c48a55') + C(6, -6, 8, '#c48a55') + E(6, -3, 3.5, 2.6, '#f0d2a8', 1.2) + `<circle cx="3" cy="-8" r="1.2" fill="${O}"/><circle cx="9" cy="-8" r="1.2" fill="${O}"/>` },
+  { id: 'balloon', name: 'Big Apple Balloon', slot: 'hand', price: 8, shop: 'iloveny', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + P('M 6 -58 C -10 -58 -12 -84 2 -86 C 4 -84 8 -84 10 -86 C 24 -84 22 -58 6 -58 Z', '#e8323a') + P('M 6 -86 Q 5 -92 9 -95', 'none') + P('M 7 -90 Q 13 -95 17 -90 Q 12 -86 7 -90 Z', '#4fc27e', 'stroke-width="1.6"') },
+  { id: 'teddy', name: 'Times Square Teddy', slot: 'hand', price: 20, shop: 'iloveny', draw: () => C(-1, -10, 4, '#b07a4a', 2) + C(13, -10, 4, '#b07a4a', 2) + E(6, 6, 9, 10, '#c48a55') + C(6, -6, 8, '#c48a55') + E(6, -3, 3.5, 2.6, '#f0d2a8', 1.2) + `<circle cx="3" cy="-8" r="1.2" fill="${O}"/><circle cx="9" cy="-8" r="1.2" fill="${O}"/>` },
   { id: 'torch', name: 'Liberty Torch', slot: 'hand', price: 10, shop: 'liberty', alsoAt: ['iloveny'], draw: () => P('M -1 -8 L 5 -8 L 4 14 L 0 14 Z', '#6cc596') + P('M -4 -14 L 8 -14 L 6 -8 L -2 -8 Z', '#7fd3a6') + P('M 2 -32 C -6 -24 -4 -16 2 -15 C 8 -16 10 -24 2 -32 Z', '#ffb11f') + Pn('M 2 -25 C -1 -21 0 -17 2 -17 C 4 -17 5 -21 2 -25 Z', '#ffe27a') },
   { id: 'playbill', name: 'Playbill', slot: 'hand', price: 0, reward: 'broadway-show', draw: () => R(-4, -12, 16, 22, 1.5, '#ffd23f') + R(-4, -12, 16, 6, 1.5, '#1d1d24', 1.4) + T(4, -7.5, 4, 'PLAYBILL', '#ffd23f', 'font-weight="900"') },
   { id: 'flowers', name: 'Bodega Flowers', slot: 'hand', price: 5, shop: 'chelsea', draw: () => L(0, 10, 4, -8, '#3f9b55', 2) + L(4, 10, 6, -8, '#3f9b55', 2) + C(1, -12, 5, '#ff5a8a', 1.8) + C(9, -10, 4.5, '#ffd23f', 1.8) + C(5, -18, 4.5, '#b06bff', 1.8) + P('M -4 2 L 10 2 L 7 12 L -1 12 Z', '#f4efe2', 'stroke-width="1.8"') },
@@ -448,11 +448,11 @@ const SOUVENIRS: ItemDef[] = [
     id: 'taxi-cap', name: 'Taxi Cap', slot: 'head', price: 12, shop: 'iloveny',
     draw: (c) => capDome('#ffcf1f') + [-20, -12, -4, 4, 12].map((x, i) => `<rect x="${x}" y="-125" width="8" height="4" fill="${i % 2 ? '#fff' : O}"/><rect x="${x}" y="-121" width="8" height="4" fill="${i % 2 ? O : '#fff'}"/>`).join('') + (c.back ? '' : capBrim(c.fx, '#e0b20f')) + C(0, -147, 2.6, '#ffcf1f', 1.6),
   },
-  // Toy Palace
-  { id: 'heart-balloon', name: 'Heart Balloon', slot: 'hand', price: 8, shop: 'toys', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + `<path transform="translate(6 -72) scale(3.2)" d="M0 4 C -7 -2 -4 -8 0 -4.5 C 4 -8 7 -2 0 4Z" fill="#ff5a8a" stroke="${O}" stroke-width="0.7" stroke-linejoin="round"/>` },
-  { id: 'star-balloon', name: 'Star Balloon', slot: 'hand', price: 8, shop: 'toys', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + `<path transform="translate(6 -72)" d="M0 -14 L4 -5 L14 -4 L6.5 2.5 L9 12 L0 7 L-9 12 L-6.5 2.5 L-14 -4 L-4 -5Z" fill="#ffd23f" stroke="${O}" stroke-width="2.4" stroke-linejoin="round"/>` },
-  { id: 'toy-robot', name: 'Wind-up Robot', slot: 'hand', price: 12, shop: 'toys', draw: () => R(-4, -6, 14, 14, 2, '#9aa6c4') + R(-2, -16, 10, 9, 2, '#b7c2dd') + C(1, -12, 1.4, '#ffd23f', 0.8) + C(5, -12, 1.4, '#ffd23f', 0.8) + L(3, -16, 3, -20) + C(3, -21, 1.6, '#ff5a5f', 1) + R(-2, -2, 10, 4, 1, '#3fd0ff', 1.2) },
-  { id: 'toy-rocket', name: 'Toy Rocket', slot: 'hand', price: 12, shop: 'toys', draw: () => P('M 2 -22 Q 9 -12 8 2 L -4 2 Q -5 -12 2 -22 Z', '#f4f6fb') + C(2, -10, 2.6, '#6fb6ff', 1.4) + P('M -4 -2 L -8 4 L -4 3 Z', '#e8483f', 'stroke-width="1.6"') + P('M 8 -2 L 12 4 L 8 3 Z', '#e8483f', 'stroke-width="1.6"') + P('M -1 3 L 2 9 L 5 3 Z', '#ffb11f', 'stroke-width="1.4"') },
+  // toys and balloons (sold at I ♥ NY Souvenirs since the Fifth Avenue toy store became Saks Fifth Avenue)
+  { id: 'heart-balloon', name: 'Heart Balloon', slot: 'hand', price: 8, shop: 'iloveny', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + `<path transform="translate(6 -72) scale(3.2)" d="M0 4 C -7 -2 -4 -8 0 -4.5 C 4 -8 7 -2 0 4Z" fill="#ff5a8a" stroke="${O}" stroke-width="0.7" stroke-linejoin="round"/>` },
+  { id: 'star-balloon', name: 'Star Balloon', slot: 'hand', price: 8, shop: 'iloveny', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + `<path transform="translate(6 -72)" d="M0 -14 L4 -5 L14 -4 L6.5 2.5 L9 12 L0 7 L-9 12 L-6.5 2.5 L-14 -4 L-4 -5Z" fill="#ffd23f" stroke="${O}" stroke-width="2.4" stroke-linejoin="round"/>` },
+  { id: 'toy-robot', name: 'Wind-up Robot', slot: 'hand', price: 12, shop: 'iloveny', draw: () => R(-4, -6, 14, 14, 2, '#9aa6c4') + R(-2, -16, 10, 9, 2, '#b7c2dd') + C(1, -12, 1.4, '#ffd23f', 0.8) + C(5, -12, 1.4, '#ffd23f', 0.8) + L(3, -16, 3, -20) + C(3, -21, 1.6, '#ff5a5f', 1) + R(-2, -2, 10, 4, 1, '#3fd0ff', 1.2) },
+  { id: 'toy-rocket', name: 'Toy Rocket', slot: 'hand', price: 12, shop: 'iloveny', draw: () => P('M 2 -22 Q 9 -12 8 2 L -4 2 Q -5 -12 2 -22 Z', '#f4f6fb') + C(2, -10, 2.6, '#6fb6ff', 1.4) + P('M -4 -2 L -8 4 L -4 3 Z', '#e8483f', 'stroke-width="1.6"') + P('M 8 -2 L 12 4 L 8 3 Z', '#e8483f', 'stroke-width="1.6"') + P('M -1 3 L 2 9 L 5 3 Z', '#ffb11f', 'stroke-width="1.4"') },
 ]
 
 // ---------- Halloween party (free during the party, CP-style) ----------
@@ -487,10 +487,10 @@ export const STARTER_ITEMS = ITEMS.filter((i) => i.price === 0 && !i.reward).map
 
 export const SHOPS: Record<string, { name: string; tagline: string }> = {
   iloveny: { name: 'I ♥ NY Souvenirs', tagline: 'Every tourist essential, priced to move' },
-  thread: { name: 'THREAD', tagline: 'SoHo Style · Fall Collection' },
-  sneakers: { name: 'Sneaker Vault', tagline: 'This week’s drops. Camping out optional.' },
-  maison: { name: 'Maison Malle', tagline: 'Fifth Avenue · Since 1854 (allegedly)' },
-  toys: { name: 'Toy Palace', tagline: 'Fun for kids of all ages (you)' },
+  thread: { name: 'Supreme', tagline: 'SoHo · New Drops Every Thursday' },
+  sneakers: { name: 'Nike', tagline: 'This week’s drops. Camping out optional.' },
+  maison: { name: 'Louis Vuitton', tagline: 'Fifth Avenue · Trunk-makers since 1854' },
+  toys: { name: 'Saks Fifth Avenue', tagline: 'The shoe floor has its own zip code: 10022-SHOE' },
   broadway: { name: 'Broadway Merch', tagline: 'Take the show home' },
   liberty: { name: 'Liberty Island Kiosk', tagline: 'Foam crowns & torches' },
   rink: { name: 'Rink Rentals', tagline: 'Skates for the season. Falling is free.' },

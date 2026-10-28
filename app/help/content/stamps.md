@@ -2,10 +2,10 @@
 title: Stamps
 description: Very New York things to do, collected in your Stamp Book. Every stamp is worth XP, and every 5 stamps pay 25 coins.
 icon: medal-gold
-updated: 2026-10-21
+updated: 2026-10-24
 ---
 
-Stamps are Club NYC's achievements: little proof-you-did-it badges for very New York things, from buying a dollar slice to captaining the ferry. They live in your **Stamp Book**.
+Stamps are Club NYC's achievements: little proof-you-did-it badges for very New York things, from folding a slice at Joe's Pizza to captaining the ferry. They live in your **Stamp Book**.
 
 ## Your Stamp Book {#stamp-book}
 
@@ -28,10 +28,10 @@ Click **Stamp Book** on the toolbar.
 | Stamp | How to earn it | Where |
 | --- | --- | --- |
 | New in Town | Create your New Yorker. | Your first minute |
-| The Usual | Buy a deli coffee. | [Bean There](places/soho.md#bean-there), SoHo |
-| Who's Mayonnaise? | Get your name spelled wrong on a latte. Order the **Oat Latte**. | [Bean There](places/soho.md#bean-there), SoHo |
+| The Usual | Buy a deli coffee. | [Ralph's Coffee](places/soho.md#ralphs-coffee), SoHo |
+| Who's Mayonnaise? | Get your name spelled wrong on a latte. Order the **Oat Latte**. | [Ralph's Coffee](places/soho.md#ralphs-coffee), SoHo |
 | Meet Me on the Steps | Sit on the steps of the Met. | [The Met](places/the-met.md) |
-| Slice of Life | Buy a dollar slice. | [99¢ Slice](places/chinatown-and-little-italy.md#99c-slice) |
+| Slice of Life | Buy a plain slice. | [Joe's Pizza](places/chinatown-and-little-italy.md#joes-pizza) |
 | Flock Together | Coo at three Times Square pigeons. | [Times Square](places/times-square.md) |
 | Straphanger | Ride the subway. | [The subway](getting-started/map-and-subway.md#subway) |
 | Top of the World | Reach the Empire State observation deck. | [Empire State Building](places/empire-state-building.md) |
@@ -39,7 +39,6 @@ Click **Stamp Book** on the toolbar.
 | Make a Wish | Toss a coin into a fountain. | [The Met](places/the-met.md) or [Chelsea Market](places/high-line-and-chelsea-market.md#chelsea-market) |
 | Legend Spotted | See Pizza Rat with your own eyes. | [Times Sq–42 St Station](places/subway-station.md) |
 | Newshound | Read the Club NYC Times. | Press [[N]] |
-| Heart and Soul | Play 8 notes on the giant floor piano. | [Toy Palace](places/fifth-avenue.md#toy-palace) |
 | Plus One | Go to a house party. | [House Parties](apartment/house-parties.md) |
 | Dance Jam | Dance in Times Square during a Dance Jam. | [Dance Jam](events/dance-jam.md) |
 | New Friend | Make your first friend. | [Friends](community/friends.md) |
@@ -52,7 +51,7 @@ Click **Stamp Book** on the toolbar.
 | Cloud Nine | Ride the elevator to Sky Deck 102 at One World Trade. | [Sky Deck 102](places/one-world-trade.md#sky-deck-102) |
 | Art Collector | Buy a painting from the Brooklyn Bridge artist. | [Brooklyn Bridge](places/brooklyn-bridge.md#gallery) |
 | Game On | Play a multiplayer game. | [Multiplayer Games](multiplayer-games/README.md) |
-| Pilgrim Hill | Finish a sled race on Pilgrim Hill. | [Sled Race](multiplayer-games/sled-race.md) |
+| Gansevoort to 34th | Finish a Citi Bike Dash on the High Line. | [Citi Bike Dash](multiplayer-games/citi-bike-dash.md) |
 | Stand Clear | Run Rush Hour Run. | [Rush Hour Run](multiplayer-games/rush-hour-run.md) |
 | Carb Loading | Play a game of Carb-Jitsu. | [Carb-Jitsu](multiplayer-games/carb-jitsu.md) |
 
@@ -70,7 +69,7 @@ Click **Stamp Book** on the toolbar.
 | Fashionista | Own 20 clothing items. | [The shops](shops-and-wardrobe.md) |
 | Belly Full | Eat at 10 different food spots around the city. Each cart or counter counts once for each treat it sells. | Carts, cafés and markets all over town |
 | Team Player | Earn 100 points for your neighborhood team (every coin from a job is a point). | [Neighborhood Wars](community/neighborhood-wars.md) |
-| Big Spender | Buy something at Maison Malle. | [Fifth Avenue](places/fifth-avenue.md#maison-malle) |
+| Big Spender | Buy something at Louis Vuitton. | [Fifth Avenue](places/fifth-avenue.md#louis-vuitton) |
 | What Time Is It? | Finish a Showtime performance. | [Showtime!](jobs/showtime.md) |
 | Host with the Most | Throw a party with 3+ guests. | [House Parties](apartment/house-parties.md) |
 | New Digs | Move into a new home. | [Moving Homes](apartment/moving-homes.md) |
@@ -97,7 +96,7 @@ Click **Stamp Book** on the toolbar.
 | Seen It All | Visit every place in the city (homes don't count). | [The map](getting-started/map-and-subway.md) |
 | Mayor of the Block | Ten friends joined through your invites. | [Inviting Friends](community/inviting-friends.md) |
 | True New Yorker | Drop by the city on 30 different days. | [Daily refill](coins-and-shopping.md#daily-refill) |
-| King of the Hill | Win a sled race against real New Yorkers. | [Sled Race](multiplayer-games/sled-race.md) |
+| Top of the Line | Win a Citi Bike Dash against real New Yorkers. | [Citi Bike Dash](multiplayer-games/citi-bike-dash.md) |
 | Last Stop | Make it all the way to South Ferry in Rush Hour Run. | [Rush Hour Run](multiplayer-games/rush-hour-run.md) |
 | Table Boss | Win 3 games of Carb-Jitsu in a row at one table. | [Carb-Jitsu](multiplayer-games/carb-jitsu.md) |
 

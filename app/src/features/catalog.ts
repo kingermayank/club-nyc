@@ -17,8 +17,9 @@ const SECTIONS: Record<string, { id: string; label: string; has: (i: ItemDef) =>
     { id: 'tees', label: 'Tees & Hoodies', has: (i) => i.slot === 'body' },
     { id: 'hats', label: 'Hats & Crowns', has: (i) => i.slot === 'head' },
     { id: 'globes', label: 'Snow Globes', has: (i) => i.id.includes('globe') },
-    { id: 'toys', label: 'Toy Taxis & Minis', has: (i) => i.id.startsWith('toy-') },
-    { id: 'gifts', label: 'Gifts & Gear', has: (i) => !['body', 'head'].includes(i.slot) && !i.id.includes('globe') && !i.id.startsWith('toy-') },
+    { id: 'toys', label: 'Toy Taxis & Minis', has: (i) => i.id.startsWith('toy-') || i.id === 'teddy' },
+    { id: 'balloons', label: 'Balloons', has: (i) => i.id.includes('balloon') },
+    { id: 'gifts', label: 'Gifts & Gear', has: (i) => !['body', 'head'].includes(i.slot) && !i.id.includes('globe') && !i.id.startsWith('toy-') && i.id !== 'teddy' && !i.id.includes('balloon') },
   ],
   thread: [
     { id: 'tops', label: 'Tops & Dresses', has: (i) => i.slot === 'body' && !['puffer', 'sig-puffer', 'denim-jacket', 'leather-jacket', 'varsity', 'trench'].includes(i.id) },
@@ -35,10 +36,11 @@ const SECTIONS: Record<string, { id: string; label: string; has: (i: ItemDef) =>
     { id: 'wear', label: 'Ready-to-Wear', has: (i) => i.slot === 'body' || i.slot === 'feet' },
     { id: 'jewelry', label: 'Jewelry & Shades', has: (i) => i.slot === 'neck' || i.slot === 'face' },
   ],
+  // Saks Fifth Avenue (shop id 'toys' from its toy-store days): a department store stocked from the other shops' racks
   toys: [
-    { id: 'toys', label: 'Toys', has: (i) => i.slot === 'hand' && !i.id.includes('balloon') },
-    { id: 'balloons', label: 'Balloons', has: (i) => i.id.includes('balloon') },
-    { id: 'dressup', label: 'Dress-Up', has: (i) => i.slot !== 'hand' },
+    { id: 'shoes', label: 'The 10022-SHOE Floor', has: (i) => i.slot === 'feet' },
+    { id: 'coats', label: 'Coats & Jackets', has: (i) => i.slot === 'body' },
+    { id: 'jewelry', label: 'Jewelry & Shades', has: (i) => i.slot === 'neck' || i.slot === 'face' },
   ],
 }
 

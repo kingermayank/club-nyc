@@ -2,7 +2,7 @@
 title: The High Line & Chelsea Market
 description: A park on an old elevated railway, gelato with a Hudson River view, and lunch in the old Nabisco factory below.
 icon: gelato
-updated: 2026-10-20
+updated: 2026-10-24
 ---
 
 ![The High Line in Club NYC: rolling loungers, a gelato cart, water towers and a view of the Hudson River.](/help/img/place-high-line.webp "The High Line, Chelsea.")
@@ -25,6 +25,7 @@ The High Line is a park built on an old freight railroad, high above the West Si
 | Lounge in the sun | **Rolling Loungers** or the bench | Free |
 | Look out over the Hudson | **Hudson River View** | Free |
 | Learn about the water towers | **Water Tower** | Free |
+| Race up the High Line on a Citi Bike | The **Citi Bike Dash** signpost by the planting beds ([Citi Bike Dash](multiplayer-games/citi-bike-dash.md)) | Free, and it pays |
 
 ## Chelsea Market {#chelsea-market}
 
@@ -51,6 +52,8 @@ The High Line is a park built on an old freight railroad, high above the West Si
 | Stamp | How |
 | --- | --- |
 | Make a Wish | Toss a coin into a fountain (the waterfall counts). |
+| Gansevoort to 34th | Finish a [Citi Bike Dash](multiplayer-games/citi-bike-dash.md). |
+| Top of the Line | Win a Citi Bike Dash against real New Yorkers. |
 
 > [!NYC] Fun Fact
 > Most New York buildings over six stories need a water tank on the roof. Many are still made of wood, built by the same few family companies for over a century.

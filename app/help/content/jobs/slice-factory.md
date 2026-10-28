@@ -7,11 +7,11 @@ updated: 2026-10-20
 
 ![Slice Factory: a pizza riding the conveyor belt toward the oven, with sauce bottles, a cheese tub and topping bins.](/help/img/job-slice-factory.webp "Match the ticket before each pie rides into the oven.")
 
-The 99¢ Slice is short-staffed, so grab an apron. Pies ride a conveyor belt toward the oven. Your job: make each one exactly the way the ticket says before it gets there.
+Joe's Pizza is short-staffed, so grab an apron. Pies ride a conveyor belt toward the oven. Your job: make each one exactly the way the ticket says before it gets there.
 
 ## Where to Play {#where-to-play}
 
-Go to [Chinatown & Little Italy](places/chinatown-and-little-italy.md), step into the **99¢ Slice**, click **Order a Slice**, then **Work a Shift**.
+Go to [Chinatown & Little Italy](places/chinatown-and-little-italy.md), step into **Joe's Pizza**, click **Order a Slice**, then **Work a Shift**.
 
 ## How to Play {#how-to-play}
 

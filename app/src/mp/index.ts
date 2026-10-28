@@ -2,7 +2,7 @@
  * Multiplayer mini-games: boot (imported once by game.ts, alongside the other room features).
  *
  * - the conductor (controller.ts) listens for lobby / match / results messages from the moment the city loads
- * - the signs in Central Park, the subway and the 99¢ Slice (spots.ts) register with the world
+ * - the signs in Central Park, the subway and Joe’s Pizza (spots.ts) register with the world
  * - a shared link (/play?lobby=K7QX, pasted in a Discord or a group chat) drops you into that lobby as soon as
  *   you're in the city (it survives signing in and making a New Yorker)
  * - stamps for firsts and big moments, from the server's results

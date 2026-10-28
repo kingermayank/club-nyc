@@ -21,7 +21,7 @@ Welcome to New York! Club NYC is a pocket-sized Manhattan you can hang out in wi
 2. **Meet Rosa.** Your building's super gives you a four-step tour: walking, clicking things that glow, chatting and getting around. [Your first day](getting-started/first-day.md)
 3. **Grab your welcome gift.** Sal's hot dog cart in Times Square has a free gift for every new New Yorker.
 4. **Explore.** Walk through the exits, open the **Map** ([[M]]) or ride the **Subway** ([[U]]). Anything that glows when you point at it can be clicked.
-5. **Earn some coins.** Work a shift at one of the [jobs](jobs/README.md), like Slice Factory at the 99¢ Slice in Little Italy.
+5. **Earn some coins.** Work a shift at one of the [jobs](jobs/README.md), like Slice Factory at Joe's Pizza in Little Italy.
 :::
 
 > [!TIP] Lost? Press ?

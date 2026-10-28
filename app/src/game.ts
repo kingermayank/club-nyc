@@ -223,7 +223,7 @@ export async function startGame(host: HTMLElement) {
             if (online) accountStamps()
             // the MetroCard is earned in the city now: it flips in at the corner once the tour is done
             setTimeout(() => void import('./features/creator').then((m) => m.flipMetroCard(account.me?.memberNo ?? 0)), 900)
-            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. THREAD in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take Me to SoHo', room: 'soho' } })), 6000)
+            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. Supreme in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take Me to SoHo', room: 'soho' } })), 6000)
             setTimeout(dailyBonus, 3200)
           }, 500)
         },

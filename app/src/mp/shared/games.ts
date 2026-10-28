@@ -2,7 +2,7 @@
  * Multiplayer mini-games: the catalog and the prize rules, shared by the game and the server.
  *
  * Three games, each a few minutes at most, all playable with whoever is around (or with the city locals when
- * nobody is): the Pilgrim Hill Sled Race (2-4), Rush Hour Run (2-9) and Carb-Jitsu (1v1, Winner Stays On for a
+ * nobody is): the High Line Citi Bike Dash (2-4, internally 'sled'), Rush Hour Run (2-9) and Carb-Jitsu (1v1, Winner Stays On for a
  * table of up to 6). The server runs every match (server/src/game/mp), decides places and pays XP and coins from
  * the tables below; the game only ever shows what the server decided. See docs/multiplayer-games.md.
  */
@@ -47,25 +47,27 @@ export interface MpGameDef {
 
 export const MP_GAMES: Record<MpGameId, MpGameDef> = {
   sled: {
+    // internally still "sled": the game started as a sled race on Pilgrim Hill, and saved results, leaderboards and
+    // stamps keep the id. It moved to the High Line (no snow in the city), on Citi Bikes.
     id: 'sled',
-    title: 'Pilgrim Hill Sled Race',
-    short: 'Sled Race',
-    blurb: 'Race your friends down Central Park’s favorite sledding hill. Dodge rocks, trees and one very lost hot dog cart.',
-    how: ['<kbd>←</kbd> <kbd>→</kbd> steer', '<kbd>Space</kbd> hop over small stuff', 'Cocoa cups give you a boost'],
+    title: 'High Line Citi Bike Dash',
+    short: 'Citi Bike Dash',
+    blurb: 'Race your friends up the High Line on Citi Bikes, from Gansevoort St to 34th St. Dodge tour groups, planters and one runaway gelato cart.',
+    how: ['<kbd>←</kbd> <kbd>→</kbd> steer', '<kbd>Space</kbd> hop over small stuff', 'Iced coffee gives you a boost'],
     min: 1,
     max: 4,
     seats: 4,
     players: '2 to 4 players',
-    room: 'central-park',
-    place: 'Pilgrim Hill, Central Park',
+    room: 'high-line',
+    place: 'The High Line, Chelsea',
     best: { label: 'Best Time', lower: true, unit: 's' },
     minSeconds: 25,
-    art: '/art/mp/sled-title.jpg',
-    icon: '❄️',
+    art: '/art/mp/bike-title.jpg',
+    icon: '🚲',
     teams: true,
     story: {
-      title: 'Pilgrim Hill',
-      text: 'The slope by the East 72nd Street entrance is where New Yorkers have sledded for generations. The Pilgrim statue at the top has been there since 1885 and has seen every wipeout since. Lunch trays work as sleds. Nobody knows why.',
+      title: 'The High Line',
+      text: 'Built in 1934 to lift freight trains off Tenth Avenue (New Yorkers called it Death Avenue), the High Line carried its last train in 1980: three cars of frozen turkeys. It reopened as a park in 2009, with the old rails left in the planting beds. Bikes are not allowed up here. Nobody told these racers.',
     },
   },
   runner: {
@@ -101,7 +103,7 @@ export const MP_GAMES: Record<MpGameId, MpGameDef> = {
     seats: 6,
     players: '1v1 · up to 6 at a table',
     room: 'pizza',
-    place: '99¢ Slice, Little Italy',
+    place: 'Joe’s Pizza, Little Italy',
     best: { label: 'Best Win Streak', unit: 'wins' },
     minSeconds: 12,
     art: '/art/mp/carbs-title.jpg',

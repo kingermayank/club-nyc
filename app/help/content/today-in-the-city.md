@@ -29,7 +29,7 @@ Each day's three are picked from this list:
 | Say Hi in Chat 3 Times | Press [[Enter]], type, [[Enter]]. Be a good neighbor! |
 | Dance at the Dance Jam | [Times Square](events/dance-jam.md), every 8 minutes. Get on the floor and press [[D]]. |
 | Grab 2 NYC Snacks | Hot dogs, pretzels, slices, boba. A balanced diet. |
-| Buy Something New to Wear | THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you're feeling fancy. |
+| Buy Something New to Wear | Supreme in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you're feeling fancy. |
 | Sign a Guestbook | Visit someone's apartment and leave a note. Compliment the square footage. |
 | Share Your Invite Link | Phone, then Invite Friends ([[I]]). |
 | Ride the Subway Twice | Click the MetroCard on your toolbar ([[U]]). |

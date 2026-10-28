@@ -24,3 +24,13 @@
 .rn-drop { display: inline-flex; align-items: center; gap: 6px; padding-left: 12px; border-left: 2px solid rgba(29, 33, 64, 0.2); }
 .rn-drop .btn.tiny { gap: 4px; }
 .rn-drop kbd { margin-left: 2px; font-size: var(--fs-3xs); }
+/* the standings on the right: the tags over heads only name the nearest few */
+.rn-rank { position: absolute; right: 12px; top: 70px; width: 184px; margin: 0; padding: 5px; list-style: none; display: flex; flex-direction: column; gap: 2px; border: 3px solid var(--ink); border-radius: 14px; background: rgba(255, 253, 246, 0.94); box-shadow: 0 3px 0 var(--ink); pointer-events: none; }
+.rn-rank li { display: grid; grid-template-columns: 16px 10px minmax(0, 1fr) auto; align-items: center; gap: 6px; min-height: 22px; padding: 1px 7px; border-radius: 8px; font: var(--fs-xs) var(--display); }
+.rn-rank li b { text-align: center; color: var(--blue-dark); }
+.rn-rank li i { width: 10px; height: 10px; border: 2px solid var(--ink); border-radius: 50%; }
+.rn-rank li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; padding-bottom: 1px; }
+.rn-rank li small { font: var(--fs-2xs) var(--body); opacity: 0.85; }
+.rn-rank li.focus { background: #dcebff; }
+.rn-rank li.you { background: var(--sun); }
+.rn-rank li.out { opacity: 0.45; }

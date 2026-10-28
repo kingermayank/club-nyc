@@ -2,7 +2,7 @@
  * REST for the multiplayer mini-games, mounted at /api/mp (server/src/index.ts):
  *   GET /hub                      what's on right now (people waiting, matches running, friends' tables) + your record
  *   GET /board/:game              ?period=week|all &by=wins|best &scope=friends   (the leaderboard inside each game)
- *   GET /lobby/:code              who's hosting a lobby (invite links say "Ana's Sled Race")
+ *   GET /lobby/:code              who's hosting a lobby (invite links say "Ana's Citi Bike Dash")
  *   GET /recent                   your last few matches
  * Everything live (joining, playing) happens on the WebSocket; these are reads.
  */

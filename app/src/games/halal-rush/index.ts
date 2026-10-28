@@ -1247,7 +1247,7 @@ function run(ctx: MiniGameContext) {
     <div class="${P}card">
       <div class="${P}awning"></div>
       <h1 class="${P}title">Halal Rush</h1>
-      <p class="${P}sub">Lunch rush at the Halal Bros cart · W 57th St &amp; 5th Ave</p>
+      <p class="${P}sub">Lunch rush at the Adel’s Famous Halal Food cart · W 57th St &amp; 5th Ave</p>
       <div class="${P}steps">
         <div class="${P}step"><div class="${P}step-art"><img src="${ART}container.png" alt=""></div><span>Grab</span></div>
         <i class="${P}arr"></i>

@@ -52,7 +52,7 @@
   * [Showtime!](jobs/showtime.md)
   * [Ferry Captain](jobs/ferry-captain.md)
 * [Multiplayer Games](multiplayer-games/README.md)
-  * [Pilgrim Hill Sled Race](multiplayer-games/sled-race.md)
+  * [High Line Citi Bike Dash](multiplayer-games/citi-bike-dash.md)
   * [Rush Hour Run](multiplayer-games/rush-hour-run.md)
   * [Carb-Jitsu](multiplayer-games/carb-jitsu.md)
 

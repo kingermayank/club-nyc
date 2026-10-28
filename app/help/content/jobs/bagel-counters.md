@@ -7,11 +7,11 @@ updated: 2026-10-20
 
 ![Bagel Counters: a New Yorker under a stack of coffee sacks and bagel boxes, next to a delivery truck and a drop zone.](/help/img/job-bagel-counters.webp "Catch the coffee delivery. Dodge the pigeons.")
 
-The delivery guy at Bean There has a truck full of coffee sacks and bagel boxes, and a very relaxed attitude about how he unloads it. Catch everything he throws, carry it to the pallet, and don't drop the lot. A loving tribute to a certain famous coffee-bag game.
+The delivery guy at Ralph's Coffee has a truck full of coffee sacks and bagel boxes, and a very relaxed attitude about how he unloads it. Catch everything he throws, carry it to the pallet, and don't drop the lot. A loving tribute to a certain famous coffee-bag game.
 
 ## Where to Play {#where-to-play}
 
-Go to [SoHo](places/soho.md), step into **Bean There**, click the **Order Counter**, then **Help With the Delivery**.
+Go to [SoHo](places/soho.md), step into **Ralph's Coffee**, click the **Order Counter**, then **Help With the Delivery**.
 
 ## How to Play {#how-to-play}
 

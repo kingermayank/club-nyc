@@ -3,7 +3,7 @@
  * `{ t: 'mp', k: … }` (app/src/net/protocol.ts adds them to C2S / S2C; server/src/game/realtime.ts hands them to
  * server/src/game/mp).
  *
- * Races (sled, runner) are latency tolerant: everyone gets the same seeded course, each browser simulates its own
+ * Races (sled = the High Line Citi Bike Dash, runner) are latency tolerant: everyone gets the same seeded course, each browser simulates its own
  * racer and sends compact progress ~10 times a second; the server checks it against what's physically possible,
  * rebroadcasts everyone as "ghosts" and decides the finish order. Carb-Jitsu is turn based and fully run by the server.
  */
@@ -26,7 +26,7 @@ export interface SeatWire {
 export interface LobbyWire {
   code: string
   g: MpGameId
-  /** the room it was opened from ("Pilgrim Hill, Central Park"), for invites */
+  /** the room it was opened from (a room id like "high-line"), for invites */
   room: string
   host: string
   st: 'open' | 'playing'

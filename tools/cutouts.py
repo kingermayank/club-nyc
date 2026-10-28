@@ -80,6 +80,21 @@ def segment(img_np, k, spec):
     return m
 
 
+def smooth(m):
+    """SAM's edges are pixel-ragged, and the hover glow traces them, so it looked hand-scribbled. Fill small notches,
+    round the stair-steps off (blur, then re-cut at half), and return a soft 0..1 edge for anti-aliasing. Gentle enough
+    that lamp posts and railings (a few px wide) survive."""
+    m = ndimage.binary_closing(m, structure=ndimage.generate_binary_structure(2, 1), iterations=4)
+    m = ndimage.binary_fill_holes(m) if m.sum() < 4e6 else m
+    # the broad shape: a wide blur re-cut at half irons out the wobble into clean lines and round corners
+    hard = ndimage.gaussian_filter(m.astype(np.float32), 6.0) > 0.5
+    # thin parts (posts, legs, railings) would melt away in that, so they're kept with a light touch
+    thick = ndimage.binary_opening(m, structure=ndimage.generate_binary_structure(2, 1), iterations=7)
+    thin = m & ~ndimage.binary_dilation(thick, iterations=2)
+    hard |= ndimage.gaussian_filter(thin.astype(np.float32), 1.6) > 0.5
+    return np.clip(ndimage.gaussian_filter(hard.astype(np.float32), 0.9) * 1.15 - 0.075, 0, 1), hard
+
+
 def run(room):
     spec = json.load(open(os.path.join(HERE, 'rooms', room + '.json')))
     src = Image.open(os.path.join(RAW, spec['image'] + '.png')).convert('RGB')
@@ -94,16 +109,18 @@ def run(room):
     labels = []
     for i, (oid, ospec) in enumerate(spec.get('objects', {}).items()):
         m = segment(img_np, k, ospec)
-        ys, xs = np.nonzero(m)
+        alpha, m = smooth(m)
+        ys, xs = np.nonzero(alpha > 0.02)
         if len(xs) == 0:
             print(f'  ! {oid}: empty mask')
             continue
         bx1, by1, bx2, by2 = xs.min(), ys.min(), xs.max() + 1, ys.max() + 1
-        rgba = np.dstack([img_np, (m * 255).astype(np.uint8)])[by1:by2, bx1:bx2]
+        rgba = np.dstack([img_np, (alpha * 255).round().astype(np.uint8)])[by1:by2, bx1:bx2]
         sprite = Image.fromarray(rgba, 'RGBA')
         sprite = sprite.resize((max(1, round(sprite.width * export_k)), max(1, round(sprite.height * export_k))), Image.LANCZOS)
         sprite.save(os.path.join(OUT_ART, room, oid + '.png'), optimize=True)
-        entries[oid] = {'rect': [round(float(bx1) / k, 1), round(float(by1) / k, 1), round(float(bx2 - bx1) / k, 1), round(float(by2 - by1) / k, 1)]}
+        # the rect matches the sprite's rounded pixel size exactly, so small sprites are never drawn a few % out of shape
+        entries[oid] = {'rect': [round(float(bx1) / k, 1), round(float(by1) / k, 1), round(sprite.width / export_k / k, 2), round(sprite.height / export_k / k, 2)]}
         entries[oid].update({kk: vv for kk, vv in ospec.items() if kk in ('at', 'fg', 'base')})
         c = colors[i % len(colors)]
         t = np.zeros((src.height, src.width, 4), np.uint8)

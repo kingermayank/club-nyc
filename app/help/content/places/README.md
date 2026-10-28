@@ -13,7 +13,7 @@ Club NYC's Manhattan has more than 25 places to explore, from the bright lights 
 - [Times Square](places/times-square.md) {img:/help/img/place-times-square.webp} The Crossroads of the World, with Broadway and the Dance Jam.
 - [Times Sq–42 St Station](places/subway-station.md) {img:/help/img/place-subway-station.webp} The subway, a busker and a local legend.
 - [Rockefeller Center](places/rockefeller-center.md) {img:/help/img/place-rockefeller.webp} Skate the rink and wave on live TV.
-- [Fifth Avenue](places/fifth-avenue.md) {img:/help/img/place-fifth-avenue.webp} The Halal Bros cart, Toy Palace and Maison Malle.
+- [Fifth Avenue](places/fifth-avenue.md) {img:/help/img/place-fifth-avenue.webp} The Adel's Famous Halal Food cart, Saks Fifth Avenue and Louis Vuitton.
 - [Empire State Building](places/empire-state-building.md) {img:/help/img/place-empire-state.webp} 86 floors up, with tower viewers.
 - [Central Park](places/central-park.md) {img:/help/img/place-central-park.webp} Bow Bridge, the Lake and a carriage ride.
 - [The Met](places/the-met.md) {img:/help/img/place-the-met.webp} The famous steps and a wishing fountain.
@@ -23,8 +23,8 @@ Club NYC's Manhattan has more than 25 places to explore, from the bright lights 
 ## Downtown {#downtown}
 
 :::cards
-- [SoHo](places/soho.md) {img:/help/img/place-soho.webp} Cobblestones, THREAD, Sneaker Vault and Bean There.
-- [Chinatown & Little Italy](places/chinatown-and-little-italy.md) {img:/help/img/place-chinatown.webp} Dumplings, boba and the 99¢ Slice.
+- [SoHo](places/soho.md) {img:/help/img/place-soho.webp} Cobblestones, Supreme, Nike and Ralph's Coffee.
+- [Chinatown & Little Italy](places/chinatown-and-little-italy.md) {img:/help/img/place-chinatown.webp} Joe's Shanghai, Ten Ren Tea and Joe's Pizza.
 - [Brooklyn Bridge](places/brooklyn-bridge.md) {img:/help/img/place-brooklyn-bridge.webp} The promenade and a street painter.
 - [The High Line & Chelsea Market](places/high-line-and-chelsea-market.md) {img:/help/img/place-high-line.webp} A park on old train tracks, and lunch below.
 :::
@@ -42,11 +42,11 @@ Club NYC's Manhattan has more than 25 places to explore, from the bright lights 
 
 | Looking for | Go to |
 | --- | --- |
-| **Jobs** | [Slice Factory](jobs/slice-factory.md) at the 99¢ Slice (Little Italy), [Halal Rush](jobs/halal-rush.md) at the Halal Bros cart (Fifth Avenue), [Bagel Counters](jobs/bagel-counters.md) at Bean There (SoHo), [Showtime!](jobs/showtime.md) on the train (Times Sq–42 St Station), [Ferry Captain](jobs/ferry-captain.md) at the ferry (Battery Park) |
-| **Clothes** | I ♥ NY Souvenirs (Times Square), THREAD and Sneaker Vault (SoHo), Maison Malle (Fifth Avenue), the Souvenir Kiosk (Liberty Island). [All shops](shops-and-wardrobe.md#the-shops) |
-| **Toys and balloons** | Toy Palace (Fifth Avenue) |
+| **Jobs** | [Slice Factory](jobs/slice-factory.md) at Joe's Pizza (Little Italy), [Halal Rush](jobs/halal-rush.md) at the Adel's Famous Halal Food cart (Fifth Avenue), [Bagel Counters](jobs/bagel-counters.md) at Ralph's Coffee (SoHo), [Showtime!](jobs/showtime.md) on the train (Times Sq–42 St Station), [Ferry Captain](jobs/ferry-captain.md) at the ferry (Battery Park) |
+| **Clothes** | I ♥ NY Souvenirs (Times Square), Supreme and Nike (SoHo), Louis Vuitton and Saks Fifth Avenue (Fifth Avenue), the Souvenir Kiosk (Liberty Island). [All shops](shops-and-wardrobe.md#the-shops) |
+| **Toys and balloons** | I ♥ NY Souvenirs (Times Square) |
 | **Ice skates** | Skate Rentals (Rockefeller Center) |
-| **Snacks** | Hot dogs (Times Square, The Met, Wall Street), pretzels (Central Park, The Met, One World Trade), cocoa (Central Park, Sky Deck 102), coffee (Bean There, One World Trade, Sky Deck 102), slices (99¢ Slice), dumplings and boba (Chinatown), gelato (High Line), donuts, tacos and bagels (Chelsea Market) |
+| **Snacks** | Hot dogs (Times Square, The Met, Wall Street), pretzels (Central Park, The Met, One World Trade), cocoa (Central Park, Sky Deck 102), coffee (Ralph's Coffee, One World Trade, Sky Deck 102), slices (Joe's Pizza), dumplings and boba (Joe's Shanghai and Ten Ren Tea, Chinatown), gelato (High Line), donuts, tacos and bagels (Chelsea Market) |
 | **Furniture** | The Flatbush Flea catalog in your [apartment](apartment/decorating.md), and original paintings on the [Brooklyn Bridge](places/brooklyn-bridge.md#gallery) |
 | **Fridge magnets** | The souvenir stand on the [Brooklyn Bridge](places/brooklyn-bridge.md#magnets) |
 | **Photo booths** | The I ♥ NY neon (Times Square) and Sky Deck 102 (One World Trade). [Photo Booths](events/photo-booths.md) |

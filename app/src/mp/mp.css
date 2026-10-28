@@ -7,6 +7,8 @@
 /* notices (a friend request, an invite) still show over a game, but up in the top-right corner under the bar, never
    on top of the lobby's Start button or the results' Play Again */
 .stage:has(> .mp-shell:not(.hidden)) > .notices { top: 62px; bottom: auto; }
+/* good news (a stamp, a level-up) the same: top right under the bar, clear of the results' "1st Place!" on the left */
+.stage:has(> .mp-shell:not(.hidden, .out)) > .toasts { top: 66px; left: auto; right: 14px; transform: none; align-items: flex-end; }
 /* the city under a full-screen game: covered anyway, so nothing there to hover, tab to or measure */
 .stage:has(> .mp-shell:not(.hidden, .out)) > :is(.scene, .overhead-layer, .fx-layer, .hud, .toolbar) { visibility: hidden; transition: visibility 0s linear 0.3s; }
 /* our boxes set display themselves; hidden still means hidden */

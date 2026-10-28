@@ -84,7 +84,7 @@ export function skateLap(g: Game) {
   next()
 }
 
-/** Toy Palace: walk the giant piano from end to end. */
+/** the giant floor piano (from the Fifth Avenue toy-store days): walk it from end to end. */
 export function playPiano(g: Game) {
   const pf = world.geo?.piano
   if (!pf) return

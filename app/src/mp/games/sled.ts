@@ -1,17 +1,18 @@
 /**
- * The Pilgrim Hill Sled Race, in the browser.
+ * The High Line Citi Bike Dash, in the browser (internally still the "sled" game: it was the Pilgrim Hill Sled Race
+ * until there was no snow in the city).
  *
- * A Club Penguin Sled Racing homage seen from above: the hill runs diagonally down to the bottom right, 2-4 New
- * Yorkers on inner tubes, ↑ / ↓ (or → / ←) to steer across the slope, Space to hop over the small stuff. Your own
- * sled is simulated here with the shared rules (shared/sled.ts) and reported ~10 times a second; everyone else is
- * drawn from the server's ghosts, smoothed. Crashes cost time, never the race.
+ * Seen from above, the High Line runs diagonally down to the bottom right, from Gansevoort St to 34th St. 2-4 New
+ * Yorkers on Citi Bikes, ↑ / ↓ (or → / ←) to steer across the path, Space to hop over the small stuff. Your own bike
+ * is simulated here with the shared rules (shared/sled.ts) and reported ~10 times a second; everyone else is drawn
+ * from the server's ghosts, smoothed. Crashes cost time, never the race. Bikes aren't allowed on the High Line.
+ * Nobody told these racers.
  */
 import { el } from '../../engine/stage'
 import { headPortrait } from '../../avatar/render'
 import { randomLook } from '../../avatar/random'
 import type { Look } from '../../avatar/look'
-import { sfx } from '../../audio'
-import { SLED, sledCourse, sledHits, cartV, inDeepSnow, SEGMENT_NAMES, type SledCourse, type SledObj, type SledDecor } from '../shared/sled'
+import { SLED, sledCourse, sledHits, cartV, inDeepSnow, inWater, streetW, SEGMENT_NAMES, STREET0, STREET1, type SledCourse, type SledObj, type SledDecor } from '../shared/sled'
 import { GF, type GhostWire, type MpS2C, type ResultsWire, type RaceEvent } from '../shared/protocol'
 import { MP_TEAMS, ordinal, fmtTime } from '../shared/games'
 import { seeded } from '../shared/rng'
@@ -24,36 +25,62 @@ import './sled.css'
 const TH = (28 * Math.PI) / 180
 const CA = Math.cos(TH)
 const SA = Math.sin(TH)
-/** where the camera's point on the hill sits on screen */
+/** where the camera's point on the path sits on screen */
 const AX = 320
 const AY = 290
 export const SLOT_COLORS = ['#e5483b', '#2a7bd5', '#3cb371', '#f2c12e', '#8a5bd6', '#f08a24', '#ff6fb5', '#18b5b5', '#7a4a22']
+/** the deck: planting beds out to the railing, the avenue below beyond it */
+const RAIL = SLED.halfW + 125
+const AVE = 165
+/** where the High Line ends at Gansevoort St, and how far past 34th St the deck runs */
+const DECK0 = -460
+const DECK1 = SLED.length + 1300
+const INK = '#1d2140'
+const FONT = "'Burbank Display', 'Lilita One', sans-serif"
 
 const ART = '/art/mp/'
 const IMG = {
-  pine: ART + 'sled-pine.png',
-  pine2: ART + 'sled-pine2.png',
-  rock: ART + 'sled-rock.png',
-  boulder: ART + 'sled-boulder.png',
-  snowman: ART + 'sled-snowman.png',
-  cart: ART + 'sled-cart.png',
-  cocoa: ART + 'sled-cocoa-cup.png',
-  lamp: ART + 'sled-lamp.png',
-  bench: ART + 'sled-bench.png',
+  bike: ART + 'bike-citibike.png',
+  ranger: ART + 'bike-ranger.png',
+  cart: ART + 'bike-gelato-cart.png',
+  coffee: ART + 'bike-coffee.png',
+  lounger: ART + 'bike-lounger.png',
+  bench: ART + 'bike-bench.png',
+  dock: ART + 'bike-dock.png',
+  nobikes: ART + 'bike-no-bikes.png',
+  birch: ART + 'bike-birch.png',
+  birch2: ART + 'bike-birch2.png',
+  flowers: ART + 'bike-flowers.png',
+  grass: ART + 'bike-grass.png',
+  shrub: ART + 'bike-shrub.png',
+  vessel: ART + 'bike-vessel.png',
+  rails: ART + 'bike-rails.png',
+  cone: ART + 'bike-cone.png',
+  pigeon: '/art/sprites/pigeon.png',
 }
 type ImgKey = keyof typeof IMG
 
+/** the part of the bike that's in front of the rider (handlebars, basket, front wheel), in the sprite's 0-1 space */
+const BIKE_FRONT: [number, number][] = [
+  [0.35, -0.02], [1.02, -0.02], [1.02, 1.02], [0.5, 1.02], [0.5, 0.79], [0.54, 0.6], [0.58, 0.43], [0.57, 0.25], [0.35, 0.15],
+]
+/** the bike on screen: its height, where its wheels meet the ground (0-1), where the saddle is (0-1) */
+const BIKE_H = 60
+const BIKE_GROUND: [number, number] = [0.52, 0.9]
+const BIKE_SADDLE: [number, number] = [0.3, 0.17]
+const RIDER_SCALE = 0.36
+
 const SEG_TIPS: Record<string, string> = {
-  scatter: 'Hop the small rocks, steer round the big ones',
-  logs: 'Aim for the gap in the log',
-  slalom: 'Weave left and right',
-  moguls: 'Hop the bumps or weave between them',
-  ice: 'Ice is free speed',
-  cart: 'Sal’s cart got loose. Time it.',
+  scatter: 'Hop the pigeons, steer round the tourists',
+  logs: 'Aim for the gap in the planters',
+  slalom: 'Weave between the loungers',
+  moguls: 'Hop the old rails or weave between them',
+  ice: 'Fresh pavement is free speed',
+  cart: 'The gelato cart got loose. Time it.',
   ramp: 'Ramp ahead: enjoy the air',
-  pines: 'Go around the pines',
-  snowmen: 'Find the gap (or meet a snowman)',
-  narrows: 'Deep snow on both sides: stay in the middle',
+  pines: 'Go around the birch trees',
+  snowmen: 'Find the gap in the selfie line',
+  narrows: 'Café tables on both sides: stay in the middle',
 }
 
 interface Snap {
@@ -81,9 +108,10 @@ interface Racer {
   done: boolean
   out: boolean
   place: number
-  trail: { w: number; v: number }[]
-  lastTrailW: number
   spin: number
+  /** lean into a turn (smoothed lateral speed) */
+  lean: number
+  lastV: number
   react: { html: string; until: number } | null
 }
 interface Particle {
@@ -120,9 +148,9 @@ export function start(ctx: GameCtx): RunningGame {
     done: false,
     out: false,
     place: 0,
-    trail: [],
-    lastTrailW: -999,
     spin: 0,
+    lean: 0,
+    lastV: startV(i, m.players.length),
     react: null,
   }))
   for (const r of racers) {
@@ -133,10 +161,22 @@ export function start(ctx: GameCtx): RunningGame {
   }
   const imgs: Partial<Record<ImgKey, HTMLImageElement>> = {}
   void loadAll(Object.values(IMG)).then((list) => (Object.keys(IMG) as ImgKey[]).forEach((k, i) => (imgs[k] = list[i])))
-  // the crowd at the bottom of the hill
-  const crowd: AvatarPic[] = []
+  // the people on the High Line: the crowd at 34th St, the tour group, the selfie line (city looks, seeded by the race)
   const cr = seeded(m.seed ^ 0xc40d)
+  const crowd: AvatarPic[] = []
   for (let k = 0; k < 6; k++) void avatarPic(randomLook(0.7, cr), { pose: k % 2 ? 'cheer' : 'wave', t: 0.2 + k * 0.13, k: 1.5 }).then((p) => (crowd[k] = p))
+  const tourists: AvatarPic[] = []
+  const selfies: AvatarPic[] = []
+  for (let k = 0; k < 4; k++) {
+    const t = randomLook(0.4, cr)
+    t.items = { ...t.items, neck: 'camera', head: ['bucket-hat', 'nyc-cap', 'foam-crown', 'bucket-hat'][k] }
+    delete t.items.hand
+    if (k % 2) t.items.legs = 'shorts'
+    void avatarPic(t, { pose: 'idle', mood: k % 2 ? 'o' : 'smile', k: 1.5 }).then((p) => (tourists[k] = p))
+    const s = randomLook(0.6, cr)
+    delete s.items.hand
+    void avatarPic(s, { pose: 'wave', mood: 'grin', t: 0.001, k: 1.5 }).then((p) => (selfies[k] = p))
+  }
 
   // ---------- DOM ----------
   const root = ctx.root
@@ -152,7 +192,7 @@ export function start(ctx: GameCtx): RunningGame {
     prog.append(d)
     return d
   })
-  const hint = el('div', 'mp-hint', `<span><kbd>↑</kbd><kbd>↓</kbd> steer</span><span><kbd>Space</kbd> hop</span><span class="sl-hint-sub">Cocoa = speed</span>`)
+  const hint = el('div', 'mp-hint', `<span><kbd>↑</kbd><kbd>↓</kbd> steer</span><span><kbd>Space</kbd> hop</span><span class="sl-hint-sub"><img class="ji" src="${IMG.coffee}" alt=""> Iced coffee = speed</span>`)
   const big = el('div', 'mp-big')
   const watchBar = el('div', 'mp-watch')
   watchBar.hidden = true
@@ -209,7 +249,8 @@ export function start(ctx: GameCtx): RunningGame {
     finishT: 0,
     seg: '',
     sendAcc: 0,
-    honked: new Set<number>(),
+    rang: new Set<number>(),
+    wet: false,
     tailwind: false,
     draft: false,
   }
@@ -220,6 +261,10 @@ export function start(ctx: GameCtx): RunningGame {
   let resumed = false
   // a race already under way when we got here (a reload, a late arrival): racers resume from the ghosts
   if (m.startIn < -1500 && me) resumed = true
+  /** the ranger at Gansevoort St has opinions about bikes (shown for a few seconds after GO) */
+  let rangerUntil = 0
+  /** obstacles that reacted to a crash (a pigeon flapping off, a tourist dropping the pose) */
+  const shook = new Map<number, number>()
 
   // ---------- input ----------
   const down = (e: KeyboardEvent) => {
@@ -254,7 +299,7 @@ export function start(ctx: GameCtx): RunningGame {
 
   // ---------- particles ----------
   const parts: Particle[] = []
-  const puff = (w: number, v: number, n: number, spread = 60, c = '#ffffff') => {
+  const puff = (w: number, v: number, n: number, spread = 60, c = '#ece6d8') => {
     for (let k = 0; k < n; k++)
       parts.push({ w, v, h: 2, vw: (Math.random() - 0.5) * spread, vv: (Math.random() - 0.5) * spread, vh: 30 + Math.random() * 60, life: 0, max: 0.4 + Math.random() * 0.4, r: 2 + Math.random() * 3, c })
   }
@@ -276,6 +321,11 @@ export function start(ctx: GameCtx): RunningGame {
       lastCount = 0
       bigText('GO!')
       msfx.go()
+      // the ranger at the start notices
+      if (t < 2) {
+        rangerUntil = performance.now() + 3600
+        setTimeout(() => msfx.whistle(), 450)
+      }
     }
   }
 
@@ -293,12 +343,13 @@ export function start(ctx: GameCtx): RunningGame {
       }
       resumed = false
     }
+    if (import.meta.env.DEV && (window as unknown as { clubNycMp?: { autopilot?: boolean } }).clubNycMp?.autopilot) autopilot(t)
     const crashed = t < S.crashUntil
-    // speed: the hill pulls you to cruising speed; cocoa, ice, slipstream and a tailwind push past it
+    // speed: the pedals keep you at cruising speed; coffee, fresh pavement, slipstream and a tailwind push past it
     let target = SLED.vCruise
     if (t < S.boostUntil) target *= SLED.cocoaMult
-    const onIce = course.objs.some((o) => o.k === 'ice' && Math.abs(o.w - S.w) < o.r && Math.abs(o.v - S.v) < 46)
-    if (onIce && S.air < 1) target *= SLED.iceMult
+    const onFresh = course.objs.some((o) => o.k === 'fresh' && Math.abs(o.w - S.w) < o.r && Math.abs(o.v - S.v) < 46)
+    if (onFresh && S.air < 1) target *= SLED.iceMult
     // slipstream: right behind someone
     S.draft = ghostsNear().some((r) => r.w - S.w > 30 && r.w - S.w < 150 && Math.abs(r.v - S.v) < 34)
     if (S.draft) target *= SLED.draftMult
@@ -352,7 +403,7 @@ export function start(ctx: GameCtx): RunningGame {
           S.boostUntil = t + SLED.cocoaS
           S.cocoa++
           msfx.boost()
-          line(`<img class="ji" src="/art/mp/cocoa.png" alt=""> Cocoa boost!`)
+          line(`<img class="ji" src="${IMG.coffee}" alt=""> Iced coffee boost!`)
           break
         case 'bump':
           S.speed *= SLED.bumpMult
@@ -363,8 +414,9 @@ export function start(ctx: GameCtx): RunningGame {
         case 'snowman':
           S.speed *= SLED.snowmanMult
           msfx.poof()
-          puff(h.o.w, h.o.v, 22, 160)
-          line('Sorry, snowman!')
+          shook.set(h.o.id, performance.now())
+          puff(h.o.w, h.o.v, 10, 120, '#fff6c9')
+          line('Sorry! You’re in their photo now.')
           break
         case 'crash':
           if (t < S.crashUntil) break
@@ -374,25 +426,34 @@ export function start(ctx: GameCtx): RunningGame {
           msfx.crash()
           puff(S.w, S.v, 18, 140)
           shake = 0.3
-          line(h.o.k === 'cart' ? 'Hot dog cart! Wipeout!' : h.o.k === 'log' ? 'Log! Wipeout!' : 'Wipeout!')
+          shook.set(h.o.id, performance.now())
+          if (h.o.k === 'ranger') setTimeout(() => msfx.whistle(), 250)
+          if (h.o.k === 'birch') puff(h.o.w, h.o.v, 12, 120, '#8ccf4f')
+          if (h.o.k === 'pigeon') puff(h.o.w, h.o.v, 10, 150, '#aab3c6')
+          line(CRASH_LINE[h.o.k] ?? 'Wipeout!')
           break
       }
     }
-    // the cart honks when it's close
+    // the gelato cart rings its bell when it's close
     for (const o of course.objs) {
-      if (o.k !== 'cart' || S.honked.has(o.id)) continue
+      if (o.k !== 'cart' || S.rang.has(o.id)) continue
       if (o.w - S.w < 420 && o.w > S.w) {
-        S.honked.add(o.id)
-        sfx.honk()
+        S.rang.add(o.id)
+        msfx.bell()
       }
     }
-    // a new stretch of hill: say what it is
+    // the Sundeck's water feature: a splash on the way through
+    const wet = S.air < 1 && inWater(course, S.w, S.v)
+    if (wet && !S.wet) msfx.splash()
+    if (wet && Math.random() < 0.6) puff(S.w, S.v, 2, 70, '#9fd8ff')
+    S.wet = wet
+    // a new stretch of the High Line: say what it is
     const seg = course.segs.find((s) => S.w >= s.w0 - 220 && S.w < s.w1 - 220)
     if (seg && seg.k !== S.seg) {
       S.seg = seg.k
       if (SEG_TIPS[seg.k]) line(`<b>${SEGMENT_NAMES[seg.k]}</b> · ${SEG_TIPS[seg.k]}`)
     }
-    // snow spray when carving
+    // grit off the tires when you carve
     if (S.air < 1 && S.speed > 120 && Math.random() < Math.abs(S.vLat) / 300) puff(S.w, S.v - Math.sign(S.vLat) * 18, 1, 40)
     me.w = S.w
     me.v = S.v
@@ -416,7 +477,7 @@ export function start(ctx: GameCtx): RunningGame {
       }, 10)
     }
   }
-  /** after the line you coast to a stop at the bottom */
+  /** after the line you coast to a stop at 34th St */
   function coast(dt: number) {
     if (!me || !S.finished) return
     S.speed = Math.max(0, S.speed - 260 * dt)
@@ -427,6 +488,29 @@ export function start(ctx: GameCtx): RunningGame {
     me.v = S.v
     me.air = 0
     me.flags = 0
+  }
+  // dev only: tools/mpgames_test.py sets window.clubNycMp.autopilot so its players can ride like the city locals do
+  function autopilot(t: number) {
+    let best = S.v
+    let bestCost = Infinity
+    for (let cand = -SLED.halfW + 30; cand <= SLED.halfW - 30; cand += 30) {
+      let cost = Math.abs(cand - S.v) * 0.02
+      for (const o of course.objs) {
+        if (o.w < S.w) continue
+        if (o.w > S.w + 420) break
+        if (o.k === 'planter' && !(cand > (o.g0 ?? 0) + 14 && cand < (o.g1 ?? 0) - 14)) cost += 50
+        else if ((o.k === 'tourist' || o.k === 'ranger' || o.k === 'lounger' || o.k === 'birch' || o.k === 'selfie' || o.k === 'pigeon' || o.k === 'rails') && Math.abs(o.v - cand) < o.r + 26) cost += o.k === 'rails' ? 6 : 30
+        else if (o.k === 'cart' && Math.abs(cartV(o, t + (o.w - S.w) / Math.max(120, S.speed)) - cand) < o.r + 30) cost += 30
+        else if (o.k === 'coffee' && o.var !== 9 && Math.abs(o.v - cand) < 30) cost -= 4
+        else if (o.k === 'bank' && Math.sign(cand) === o.side && Math.abs(cand) > o.v) cost += 8
+      }
+      if (cost < bestCost) {
+        bestCost = cost
+        best = cand
+      }
+    }
+    keys.up = best - S.v > 12
+    keys.down = best - S.v < -12
   }
 
   // ---------- the others (ghosts, a moment in the past, smoothed) ----------
@@ -482,13 +566,14 @@ export function start(ctx: GameCtx): RunningGame {
     return ((h ^ (h >>> 16)) >>> 0) / 4294967296
   }
 
-  function drawImg(key: ImgKey, x: number, y: number, h: number, o: { flip?: boolean; alpha?: number } = {}) {
+  function drawImg(key: ImgKey, x: number, y: number, h: number, o: { flip?: boolean; alpha?: number; rot?: number } = {}) {
     const img = imgs[key]
     if (!img?.naturalWidth) return
     const w = (img.naturalWidth / img.naturalHeight) * h
     g.save()
     if (o.alpha !== undefined) g.globalAlpha = o.alpha
     g.translate(x, y)
+    if (o.rot) g.rotate(o.rot)
     if (o.flip) g.scale(-1, 1)
     g.drawImage(img, -w / 2, -h, w, h)
     g.restore()
@@ -506,64 +591,280 @@ export function start(ctx: GameCtx): RunningGame {
       g.stroke()
     }
   }
+  const band = (wa: number, wb: number, va: number, vb: number, fill: string, stroke?: string, lw = 3) => poly([P(wa, va), P(wb, va), P(wb, vb), P(wa, vb)], fill, stroke, lw)
+  const segLine = (wa: number, va: number, wb: number, vb: number) => {
+    const [ax, ay] = P(wa, va)
+    const [bx, by] = P(wb, vb)
+    g.moveTo(ax, ay)
+    g.lineTo(bx, by)
+  }
+
+  /** a yellow cab (or now and then another car) on the avenue below, pointing along the High Line */
+  function cab(x: number, y: number, dir: number, color: string) {
+    g.save()
+    g.translate(x, y)
+    g.rotate(TH)
+    if (dir < 0) g.scale(-1, 1)
+    g.fillStyle = 'rgba(0,0,0,0.25)'
+    g.beginPath()
+    g.roundRect(-17, -6, 36, 16, 5)
+    g.fill()
+    g.fillStyle = color
+    g.strokeStyle = INK
+    g.lineWidth = 2
+    g.beginPath()
+    g.roundRect(-18, -9, 36, 16, 5)
+    g.fill()
+    g.stroke()
+    g.fillStyle = '#9fc8e8'
+    g.fillRect(2, -6, 7, 10)
+    g.fillRect(-12, -6, 5, 10)
+    g.fillStyle = '#fff6cf'
+    g.fillRect(16, -7, 2, 4)
+    g.fillRect(16, 1, 2, 4)
+    g.restore()
+  }
 
   function ground(t: number) {
-    // deep snow everywhere, groomed snow on the course
-    g.fillStyle = '#dfe9f7'
-    g.fillRect(0, 0, 1000, 565)
-    const w0 = cam.w - 700
-    const w1 = cam.w + 1400
     const W = SLED.halfW
-    poly([P(w0, -W - 8), P(w1, -W - 8), P(w1, W + 8), P(w0, W + 8)], '#f8fbff')
-    // the course's soft blue edges
-    g.strokeStyle = 'rgba(120, 160, 215, 0.55)'
-    g.lineWidth = 6
+    const w0 = Math.max(cam.w - 700, DECK0 - 400)
+    const w1 = cam.w + 1400
+    // the street level far below: the avenues on both sides, the cross streets, the rooftops on the Hudson side
+    g.fillStyle = '#4a4e5b'
+    g.fillRect(0, 0, 1000, 565)
     for (const s of [-1, 1]) {
-      const [ax, ay] = P(w0, s * (W + 8))
-      const [bx, by] = P(w1, s * (W + 8))
+      const a = s * (RAIL + 14)
+      const b = s * (RAIL + 14 + AVE)
+      g.strokeStyle = 'rgba(255, 238, 170, 0.55)'
+      g.lineWidth = 2
+      g.setLineDash([16, 18])
       g.beginPath()
-      g.moveTo(ax, ay)
-      g.lineTo(bx, by)
+      segLine(w0, (a + b) / 2, w1, (a + b) / 2)
+      g.stroke()
+      g.setLineDash([])
+      // sidewalks either side of the avenue
+      band(w0, w1, b, b + s * 22, '#8d8f99')
+      band(w0, w1, a - s * 2, a, '#8d8f99')
+    }
+    // rooftops beyond 11th Ave (the up-right side), block by block between the cross streets
+    for (let st = STREET0 - 2; st <= STREET1 + 2; st++) {
+      const wa = streetW(st) + 34
+      const wb = streetW(st + 1) - 34
+      if (wb < w0 || wa > w1) continue
+      const va = RAIL + 14 + AVE + 22
+      const roof = hash(st, 7) < 0.5 ? '#b0654a' : hash(st, 8) < 0.5 ? '#8c6a5a' : '#a7a29a'
+      band(wa, wb, va, va + 420, roof, INK, 3)
+      band(wa + 20, wb - 20, va + 20, va + 400, 'rgba(0,0,0,0.08)')
+      if (hash(st, 9) < 0.6) {
+        // a wooden water tower on the roof
+        const [x, y] = P((wa + wb) / 2 + (hash(st, 3) - 0.5) * 200, va + 120 + hash(st, 4) * 150)
+        g.fillStyle = '#7a4f30'
+        g.strokeStyle = INK
+        g.lineWidth = 2.5
+        g.fillRect(x - 3, y - 14, 3, 14)
+        g.fillRect(x + 10, y - 14, 3, 14)
+        g.beginPath()
+        g.roundRect(x - 8, y - 42, 26, 28, 4)
+        g.fill()
+        g.stroke()
+        poly([[x - 10, y - 42], [x + 20, y - 42], [x + 5, y - 54]], '#5d3a22', INK, 2.5)
+      }
+    }
+    // crosswalks where the cross streets meet the avenues
+    for (let st = STREET0; st <= STREET1; st++) {
+      const cw = streetW(st)
+      if (cw < w0 || cw > w1) continue
+      for (const s of [-1, 1]) {
+        for (let k = 0; k < 6; k++) {
+          const v = s * (RAIL + 22 + k * ((AVE - 16) / 6))
+          band(cw - 16, cw + 16, v, v + s * 12, 'rgba(255,255,255,0.7)')
+        }
+      }
+    }
+    // traffic: 10th Ave runs north (the near side), 11th Ave south (the far side)
+    for (const s of [-1, 1]) {
+      const dir = s < 0 ? 1 : -1
+      const speed = s < 0 ? 170 : 210
+      const spacing = 230
+      const shift = dir * speed * Math.max(0, t + 5)
+      for (let n = Math.floor((w0 - shift) / spacing) - 1; n <= Math.ceil((w1 - shift) / spacing); n++) {
+        const h = hash(n, s)
+        if (h < 0.3) continue
+        const cw = n * spacing + shift + h * 90
+        const lane = s * (RAIL + 14 + (h < 0.65 ? AVE * 0.3 : AVE * 0.72))
+        const [x, y] = P(cw, lane)
+        if (!onScreen(x, y, 40)) continue
+        cab(x, y, dir, h > 0.92 ? '#e8ecf2' : h > 0.86 ? '#d9483b' : '#f6c431')
+      }
+    }
+    // the deck itself: the planting beds out to the railings, with the path down the middle
+    const d0 = Math.max(w0, DECK0)
+    const d1 = Math.min(w1, DECK1)
+    if (d1 > d0) {
+      // the deck's shadow on the street (it's up in the air)
+      band(d0 + 26, d1 + 26, -RAIL - 30, RAIL - 8, 'rgba(20, 22, 36, 0.35)')
+      band(d0, d1, -RAIL, RAIL, '#5f8a3a', INK, 3)
+      // the beds: soil, leaves and flowers, fixed to the deck
+      const cw0 = Math.floor((cam.w - 520) / 46)
+      const cw1 = Math.ceil((cam.w + 1100) / 46)
+      for (let cw = cw0; cw <= cw1; cw++) {
+        for (let cv = -7; cv <= 7; cv++) {
+          if (cv > -1 && cv < 1) continue
+          const v = Math.sign(cv) * (W + 6 + (Math.abs(cv) - 1) * 18 + hash(cv, cw) * 14)
+          if (Math.abs(v) > RAIL - 6) continue
+          const w = cw * 46 + hash(cw, cv) * 40
+          if (w < DECK0 || w > DECK1) continue
+          const [x, y] = P(w, v)
+          if (!onScreen(x, y, 20)) continue
+          const h = hash(cw + 11, cv * 3)
+          g.fillStyle = h < 0.45 ? '#77a84a' : h < 0.75 ? '#4f7b2f' : h < 0.86 ? '#a4c95a' : h < 0.93 ? '#9a7fe0' : '#f2c84b'
+          g.beginPath()
+          g.ellipse(x, y, h < 0.86 ? 9 : 4, h < 0.86 ? 5 : 4, 0, 0, Math.PI * 2)
+          g.fill()
+        }
+      }
+      // the path: long pale concrete planks
+      band(d0, d1, -W - 6, W + 6, '#dcd6c8')
+      g.strokeStyle = 'rgba(120, 108, 88, 0.28)'
+      g.lineWidth = 1.5
+      g.beginPath()
+      for (let k = 1; k < 12; k++) segLine(d0, -W + k * 30, d1, -W + k * 30)
+      g.stroke()
+      g.beginPath()
+      for (let k = 0; k < 12; k++) {
+        const va = -W + k * 30
+        const off = hash(k, 99) * 240
+        for (let jw = Math.floor((d0 - off) / 240) * 240 + off; jw < d1; jw += 240) segLine(jw, va, jw, va + 30)
+      }
+      g.stroke()
+      // the curbs between path and beds
+      g.strokeStyle = '#8f8a7c'
+      g.lineWidth = 3
+      g.beginPath()
+      segLine(d0, -W - 6, d1, -W - 6)
+      segLine(d0, W + 6, d1, W + 6)
+      g.stroke()
+      // the ends of the deck (Gansevoort St, past 34th St)
+      for (const e of [DECK0, DECK1]) {
+        if (e < w0 || e > w1) continue
+        g.strokeStyle = INK
+        g.lineWidth = 4
+        g.beginPath()
+        segLine(e, -RAIL, e, RAIL)
+        g.stroke()
+      }
+    }
+    // the stretches with something special: the Sundeck's water, 10th Ave Square's steps, Chelsea Market overhead
+    for (const z of course.zones) {
+      if (z.w1 < w0 || z.w0 > w1) continue
+      if (z.k === 'square') {
+        // the amphitheater steps down toward the big window over 10th Ave (the near side)
+        for (let k = 0; k < 4; k++) {
+          const va = -W - 8 - k * 26
+          band(z.w0 + k * 18, z.w1 - k * 18, va, va - 26, k % 2 ? '#a8743f' : '#c18a4e', INK, 2)
+        }
+      } else if (z.k === 'market') {
+        // the old biscuit factory overhead: shade on the path, a low brick base on the near side
+        band(z.w0, z.w1, -RAIL, RAIL, 'rgba(36, 30, 48, 0.26)')
+        band(z.w0, z.w1, -W - 30, -W - 52, '#9c4a36', INK, 2.5)
+      }
+    }
+    for (const o of course.objs) {
+      if (o.k !== 'water' || o.w > w1 || o.w + (o.len ?? 0) < w0) continue
+      const va = o.v
+      const vb = o.v1 ?? o.v
+      band(o.w, o.w + (o.len ?? 0), va, vb, 'rgba(140, 205, 245, 0.55)', 'rgba(70, 140, 200, 0.55)', 2)
+      g.strokeStyle = 'rgba(255,255,255,0.8)'
+      g.lineWidth = 2
+      g.lineCap = 'round'
+      g.beginPath()
+      for (let k = 0; k < 10; k++) {
+        const ww = o.w + ((k + 0.5) * (o.len ?? 0)) / 10 + Math.sin(t * 2 + k) * 12
+        const vv = va + ((k * 37) % 50) + 8
+        segLine(ww - 14, vv, ww + 14, vv)
+      }
       g.stroke()
     }
-    // the narrows: banks of deep snow
+    // the railings: dark steel, a mesh panel, posts (the window over 10th Ave is glass)
+    for (const s of d1 > d0 ? [-1, 1] : []) {
+      const [ax, ay] = P(d0, s * RAIL)
+      const [bx, by] = P(d1, s * RAIL)
+      poly([[ax, ay], [bx, by], [bx, by - 20], [ax, ay - 20]], 'rgba(40, 44, 60, 0.3)')
+      g.strokeStyle = INK
+      g.lineWidth = 4
+      g.beginPath()
+      g.moveTo(ax, ay - 20)
+      g.lineTo(bx, by - 20)
+      g.stroke()
+      g.lineWidth = 3
+      g.beginPath()
+      for (let pw = Math.ceil(d0 / 60) * 60; pw < d1; pw += 60) {
+        const [x, y] = P(pw, s * RAIL)
+        if (x < -20 || x > 1020) continue
+        g.moveTo(x, y)
+        g.lineTo(x, y - 20)
+      }
+      g.stroke()
+    }
+    for (const z of course.zones) {
+      if (z.k !== 'square' || z.w1 < w0 || z.w0 > w1) continue
+      const [ax, ay] = P(z.w0 + 60, -RAIL)
+      const [bx, by] = P(z.w1 - 60, -RAIL)
+      poly([[ax, ay + 4], [bx, by + 4], [bx, by - 30], [ax, ay - 30]], 'rgba(170, 220, 250, 0.55)', INK, 4)
+      g.strokeStyle = 'rgba(255,255,255,0.75)'
+      g.lineWidth = 3
+      g.beginPath()
+      for (let k = 1; k < 5; k++) {
+        const x = ax + ((bx - ax) * k) / 5
+        const y = ay + ((by - ay) * k) / 5
+        g.moveTo(x, y + 4)
+        g.lineTo(x, y - 30)
+      }
+      g.stroke()
+    }
+    // café tables in the Chelsea Market Passage
     for (const o of course.objs) {
       if (o.k !== 'bank' || o.w > w1 || o.w + (o.len ?? 0) < w0) continue
       const s = o.side ?? 1
-      poly([P(o.w, s * o.v), P(o.w + (o.len ?? 0), s * o.v), P(o.w + (o.len ?? 0), s * (W + 12)), P(o.w, s * (W + 12))], '#dde8f6', 'rgba(120,160,215,.6)', 3)
-      for (let k = 0; k < 12; k++) {
-        const [x, y] = P(o.w + ((k + 0.5) * (o.len ?? 0)) / 12, s * (o.v + 30 + (k % 3) * 22))
-        g.fillStyle = '#ffffff'
-        g.beginPath()
-        g.ellipse(x, y, 16, 7, 0, 0, Math.PI * 2)
-        g.fill()
-      }
-    }
-    // texture: sparkles and soft ridges, fixed to the hill
-    const cw0 = Math.floor((cam.w - 520) / 90)
-    const cw1 = Math.ceil((cam.w + 1100) / 90)
-    for (let cw = cw0; cw <= cw1; cw++) {
-      for (let cv = -9; cv <= 9; cv++) {
-        const h = hash(cw, cv)
-        if (h > 0.55) continue
-        const w = cw * 90 + hash(cv, cw) * 90
-        const v = cv * 70 + hash(cw + 7, cv - 3) * 70
-        const [x, y] = P(w, v)
-        if (!onScreen(x, y, 20)) continue
-        if (h < 0.18) {
-          g.fillStyle = 'rgba(255,255,255,0.95)'
+      band(o.w, o.w + (o.len ?? 0), s * o.v, s * (W + 6), 'rgba(178, 140, 96, 0.3)')
+      g.strokeStyle = 'rgba(110, 76, 40, 0.6)'
+      g.lineWidth = 2
+      g.setLineDash([8, 7])
+      g.beginPath()
+      segLine(o.w, s * o.v, o.w + (o.len ?? 0), s * o.v)
+      g.stroke()
+      g.setLineDash([])
+      for (let k = 0; k < 9; k++) {
+        const [x, y] = P(o.w + ((k + 0.5) * (o.len ?? 0)) / 9, s * (o.v + 28 + (k % 2) * 36))
+        // two green bistro chairs and a little round table on one leg
+        for (const [cx, cy] of [[-16, 3], [16, -3]]) {
+          g.fillStyle = '#2f7d4f'
+          g.strokeStyle = INK
+          g.lineWidth = 1.8
           g.beginPath()
-          g.arc(x, y, 1.6, 0, Math.PI * 2)
+          g.roundRect(x + cx - 6, y + cy - 18, 12, 9, 2)
           g.fill()
-          g.fillStyle = 'rgba(150,185,230,0.5)'
-          g.fillRect(x - 0.8, y + 1.5, 1.6, 1.2)
-        } else {
-          g.strokeStyle = 'rgba(150, 185, 228, 0.45)'
-          g.lineWidth = 2
+          g.stroke()
           g.beginPath()
-          g.arc(x, y, 10 + h * 14, Math.PI * 1.15, Math.PI * 1.85)
+          g.moveTo(x + cx - 5, y + cy - 9)
+          g.lineTo(x + cx - 5, y + cy)
+          g.moveTo(x + cx + 5, y + cy - 9)
+          g.lineTo(x + cx + 5, y + cy)
           g.stroke()
         }
+        g.strokeStyle = INK
+        g.lineWidth = 2.5
+        g.beginPath()
+        g.moveTo(x, y - 12)
+        g.lineTo(x, y)
+        g.stroke()
+        g.fillStyle = '#c99358'
+        g.beginPath()
+        g.ellipse(x, y - 14, 12, 6, 0, 0, Math.PI * 2)
+        g.fill()
+        g.stroke()
+        g.fillStyle = '#ffffff'
+        g.fillRect(x + 1, y - 19, 4, 5)
       }
     }
     // the start and finish lines
@@ -573,31 +874,42 @@ export function start(ctx: GameCtx): RunningGame {
       for (let k = 0; k < n; k++) {
         const va = -W + (2 * W * k) / n
         const vb = -W + (2 * W * (k + 1)) / n
-        poly([P(lw - 8, va), P(lw - 8, vb), P(lw + 8, vb), P(lw + 8, va)], k % 2 ? '#1d2140' : lw ? '#ffffff' : '#e5483b')
+        poly([P(lw - 8, va), P(lw - 8, vb), P(lw + 8, vb), P(lw + 8, va)], k % 2 ? INK : lw ? '#ffffff' : '#1f6fd1')
       }
     }
-    // ice
+    // fresh pavement: smooth new blacktop
     for (const o of course.objs) {
-      if (o.k !== 'ice' || o.w < w0 || o.w > w1) continue
+      if (o.k !== 'fresh' || o.w < w0 - 200 || o.w > w1) continue
       const [x, y] = P(o.w, o.v)
       g.save()
       g.translate(x, y)
       g.rotate(TH)
-      g.fillStyle = 'rgba(150, 215, 245, 0.85)'
-      g.strokeStyle = 'rgba(70, 140, 205, 0.8)'
+      g.fillStyle = '#69707f'
+      g.strokeStyle = INK
       g.lineWidth = 3
       g.beginPath()
-      g.ellipse(0, 0, o.r, 46, 0, 0, Math.PI * 2)
+      g.roundRect(-o.r, -40, o.r * 2, 80, 30)
       g.fill()
       g.stroke()
-      g.strokeStyle = 'rgba(255,255,255,0.85)'
-      g.lineWidth = 3
-      g.lineCap = 'round'
-      for (const [a, b] of [[-0.5, -12], [0.1, 6], [0.45, -4]]) {
+      // a glossy edge and a few sparkles: smooth, new, fast
+      g.fillStyle = 'rgba(255,255,255,0.16)'
+      g.beginPath()
+      g.roundRect(-o.r + 10, -33, o.r * 2 - 20, 22, 11)
+      g.fill()
+      g.fillStyle = 'rgba(255,255,255,0.85)'
+      for (const [a, b, sz] of [[-0.62, -20, 6], [-0.18, 12, 4.5], [0.3, -14, 5.5], [0.7, 14, 4]]) {
+        const sx = o.r * a
         g.beginPath()
-        g.moveTo(o.r * a - 20, b)
-        g.lineTo(o.r * a + 20, b - 4)
-        g.stroke()
+        g.moveTo(sx, b - sz)
+        g.lineTo(sx + sz * 0.3, b - sz * 0.3)
+        g.lineTo(sx + sz, b)
+        g.lineTo(sx + sz * 0.3, b + sz * 0.3)
+        g.lineTo(sx, b + sz)
+        g.lineTo(sx - sz * 0.3, b + sz * 0.3)
+        g.lineTo(sx - sz, b)
+        g.lineTo(sx - sz * 0.3, b - sz * 0.3)
+        g.closePath()
+        g.fill()
       }
       g.restore()
     }
@@ -610,7 +922,7 @@ export function start(ctx: GameCtx): RunningGame {
           g.save()
           g.translate(x, y)
           g.rotate(TH)
-          g.strokeStyle = 'rgba(229, 72, 59, 0.55)'
+          g.strokeStyle = 'rgba(242, 193, 46, 0.9)'
           g.lineWidth = 5
           g.lineCap = 'round'
           g.beginPath()
@@ -622,59 +934,20 @@ export function start(ctx: GameCtx): RunningGame {
         }
       }
     }
-    // sled tracks
-    g.lineCap = 'round'
-    for (const r of racers) {
-      if (r.trail.length < 2) continue
-      for (const off of [-8, 8]) {
-        g.strokeStyle = 'rgba(140, 175, 225, 0.42)'
-        g.lineWidth = 2.5
-        g.beginPath()
-        r.trail.forEach((p, k) => {
-          const [x, y] = P(p.w, p.v + off)
-          if (k) g.lineTo(x, y)
-          else g.moveTo(x, y)
-        })
-        const [x, y] = P(r.w, r.v + off)
-        g.lineTo(x, y)
-        g.stroke()
-      }
-    }
-    // bumps (low, part of the ground)
-    for (const o of course.objs) {
-      if (o.k !== 'bump' || o.w < w0 || o.w > w1) continue
-      const [x, y] = P(o.w, o.v)
-      // a mound of snow: a blue shadow on its downhill side, a bright top
-      g.fillStyle = 'rgba(110, 150, 210, 0.5)'
-      g.beginPath()
-      g.ellipse(x + 6, y + 5, o.r * 1.2, o.r * 0.6, TH, 0, Math.PI * 2)
-      g.fill()
-      const mound = g.createRadialGradient(x - o.r * 0.3, y - o.r * 0.55, 2, x, y - 2, o.r * 1.2)
-      mound.addColorStop(0, '#ffffff')
-      mound.addColorStop(0.7, '#eef4fc')
-      mound.addColorStop(1, '#c9dcf2')
-      g.fillStyle = mound
-      g.strokeStyle = 'rgba(29,33,64,0.45)'
-      g.lineWidth = 2
-      g.beginPath()
-      g.ellipse(x, y - 4, o.r * 1.05, o.r * 0.62, TH, Math.PI * 0.98, Math.PI * 2.02)
-      g.fill()
-      g.stroke()
-    }
     // shadows
     for (const r of racers) {
       if (r.out) continue
       const [x, y] = P(r.w, r.v)
-      g.fillStyle = 'rgba(29, 33, 64, 0.2)'
+      g.fillStyle = 'rgba(29, 33, 64, 0.22)'
       g.beginPath()
-      g.ellipse(x, y + 2, 30 - Math.min(14, r.air * 0.2), 12 - Math.min(5, r.air * 0.08), 0, 0, Math.PI * 2)
+      g.ellipse(x - 2, y + 2, 34 - Math.min(14, r.air * 0.2), 11 - Math.min(5, r.air * 0.08), TH * 0.6, 0, Math.PI * 2)
       g.fill()
     }
-    void t
   }
 
   type Item = { y: number; draw: () => void }
-  function logPieces(o: SledObj, items: Item[]) {
+  /** a row of concrete planters across the path, with one gap */
+  function planterPieces(o: SledObj, items: Item[]) {
     const W = SLED.halfW + 26
     const spans: [number, number][] = [
       [-W, o.g0 ?? 0],
@@ -688,61 +961,50 @@ export function start(ctx: GameCtx): RunningGame {
         const b = va + ((vb - va) * (k + 1)) / n
         const [x0, y0] = P(o.w, a)
         const [x1, y1] = P(o.w, b)
-        const cy = (y0 + y1) / 2
+        // the planter's depth along the path (its top is a parallelogram)
+        const [dx, dy] = [CA * 22, SA * 22]
         items.push({
-          y: cy,
+          y: (y0 + y1) / 2 + 8,
           draw: () => {
             const H = 22
-            const ov = 0.6
-            const dx = (x1 - x0) * ov * 0.05
-            const dy = (y1 - y0) * ov * 0.05
-            poly([[x0 - dx, y0 - dy], [x1 + dx, y1 + dy], [x1 + dx, y1 + dy - H], [x0 - dx, y0 - dy - H]], '#8a5a2b')
-            g.strokeStyle = '#1d2140'
-            g.lineWidth = 3
+            // the top: soil and leaves, then the front face
+            poly([[x0 - dx, y0 - dy - H], [x1 - dx, y1 - dy - H], [x1 + dx, y1 + dy - H], [x0 + dx, y0 + dy - H]], '#5f8a3a', INK, 2.5)
+            poly([[x0 + dx, y0 + dy - H], [x1 + dx, y1 + dy - H], [x1 + dx, y1 + dy], [x0 + dx, y0 + dy]], '#b8b4aa', INK, 2.5)
+            g.strokeStyle = 'rgba(70, 66, 60, 0.35)'
+            g.lineWidth = 1.5
             g.beginPath()
-            g.moveTo(x0, y0)
-            g.lineTo(x1, y1)
-            g.moveTo(x0, y0 - H)
-            g.lineTo(x1, y1 - H)
+            g.moveTo(x0 + dx, y0 + dy - H / 2)
+            g.lineTo(x1 + dx, y1 + dy - H / 2)
             g.stroke()
-            g.strokeStyle = 'rgba(60, 35, 15, 0.6)'
-            g.lineWidth = 2
-            g.beginPath()
-            g.moveTo(x0 + (x1 - x0) * 0.2, y0 + (y1 - y0) * 0.2 - H * 0.55)
-            g.lineTo(x0 + (x1 - x0) * 0.75, y0 + (y1 - y0) * 0.75 - H * 0.45)
-            g.stroke()
-            // snow along the top
-            g.strokeStyle = '#ffffff'
-            g.lineWidth = 6
-            g.lineCap = 'round'
-            g.beginPath()
-            g.moveTo(x0, y0 - H + 2)
-            g.lineTo(x1, y1 - H + 2)
-            g.stroke()
-            // a cut end at the gap
-            const ends: number[] = []
-            if (Math.abs(a - (o.g1 ?? 1e9)) < 0.5) ends.push(0)
-            if (Math.abs(b - (o.g0 ?? -1e9)) < 0.5) ends.push(1)
-            for (const e of ends) {
-              const [ex, ey] = e ? [x1, y1] : [x0, y0]
-              g.fillStyle = '#e8c08a'
-              g.strokeStyle = '#1d2140'
-              g.lineWidth = 3
-              g.beginPath()
-              g.ellipse(ex, ey - H / 2, 7, H / 2 + 1, 0, 0, Math.PI * 2)
-              g.fill()
-              g.stroke()
-              g.strokeStyle = 'rgba(138, 90, 43, 0.8)'
+            // leaves and flowers poking up
+            const seed = Math.round(a * 7 + o.w)
+            for (let j = 0; j < 4; j++) {
+              const f = (j + 0.5) / 4
+              const lx = x0 + (x1 - x0) * f + (hash(seed, j) - 0.5) * 10
+              const ly = y0 + (y1 - y0) * f - H - 2 - hash(j, seed) * 6
+              g.fillStyle = '#7fb84a'
+              g.strokeStyle = INK
               g.lineWidth = 1.5
               g.beginPath()
-              g.ellipse(ex, ey - H / 2, 3.5, H / 4, 0, 0, Math.PI * 2)
+              g.ellipse(lx, ly, 6, 5, 0, 0, Math.PI * 2)
+              g.fill()
               g.stroke()
+              if (hash(seed + 3, j) < 0.8) {
+                g.fillStyle = hash(seed, j + 9) < 0.5 ? '#9a7fe0' : '#f2c84b'
+                g.strokeStyle = INK
+                g.lineWidth = 1
+                g.beginPath()
+                g.arc(lx + 2, ly - 4, 3.2, 0, Math.PI * 2)
+                g.fill()
+                g.stroke()
+              }
             }
           },
         })
       }
     }
   }
+  /** a plywood ramp someone left on the Spur */
   function rampPieces(o: SledObj, items: Item[]) {
     const W = SLED.halfW + 16
     const n = 10
@@ -757,10 +1019,10 @@ export function start(ctx: GameCtx): RunningGame {
         y: (ly0 + ly1) / 2,
         draw: () => {
           const H = 18
-          // the slope up, the lip, and the drop face
-          poly([[bx0, by0], [bx1, by1], [lx1, ly1 - H], [lx0, ly0 - H]], '#ffffff')
-          poly([[lx0, ly0 - H], [lx1, ly1 - H], [lx1, ly1], [lx0, ly0]], '#a8743f')
-          g.strokeStyle = '#1d2140'
+          // the slope up (plywood), the lip, and a hazard-striped face
+          poly([[bx0, by0], [bx1, by1], [lx1, ly1 - H], [lx0, ly0 - H]], '#e2b977')
+          poly([[lx0, ly0 - H], [lx1, ly1 - H], [lx1, ly1], [lx0, ly0]], k % 2 ? INK : '#f2c12e')
+          g.strokeStyle = INK
           g.lineWidth = 3
           g.beginPath()
           g.moveTo(lx0, ly0 - H)
@@ -768,17 +1030,18 @@ export function start(ctx: GameCtx): RunningGame {
           g.moveTo(lx0, ly0)
           g.lineTo(lx1, ly1)
           g.stroke()
-          g.strokeStyle = 'rgba(70, 40, 15, 0.5)'
+          g.strokeStyle = 'rgba(140, 96, 40, 0.45)'
           g.lineWidth = 1.5
           g.beginPath()
-          g.moveTo(lx0, ly0 - H / 2)
-          g.lineTo(lx1, ly1 - H / 2)
+          g.moveTo((bx0 + lx0) / 2, (by0 + ly0 - H) / 2)
+          g.lineTo((bx1 + lx1) / 2, (by1 + ly1 - H) / 2)
           g.stroke()
         },
       })
     }
   }
 
+  /** the bike, its rider, a pennant in the racer's colour */
   function racerItem(r: Racer, t: number): Item | null {
     if (r.out && r !== me) return null
     const [x, y0] = P(r.w, r.v)
@@ -790,51 +1053,58 @@ export function start(ctx: GameCtx): RunningGame {
         const crashed = !!(r.flags & GF.crash)
         if (crashed) r.spin += 0.35
         else r.spin *= 0.8
+        const img = imgs.bike
         g.save()
         g.translate(x, y)
-        if (r.spin) g.rotate(Math.sin(r.spin) * 0.6)
-        // the tube: back half, the rider, front half
-        const tube = (front: boolean) => {
-          g.beginPath()
-          g.ellipse(0, -6, 30, 13, 0, front ? 0 : Math.PI, front ? Math.PI : Math.PI * 2)
-          g.lineWidth = 11
-          g.strokeStyle = '#1d2140'
-          g.stroke()
-          g.lineWidth = 7
-          g.strokeStyle = r.color
-          g.stroke()
-          if (front) {
-            g.lineWidth = 2.5
-            g.strokeStyle = 'rgba(255,255,255,0.65)'
-            g.beginPath()
-            g.ellipse(0, -8, 26, 10, 0, Math.PI * 0.15, Math.PI * 0.55)
-            g.stroke()
-          }
-        }
-        tube(false)
+        g.rotate((r.spin ? Math.sin(r.spin) * 0.55 : 0) + r.lean)
+        const bh = BIKE_H
+        const bw = img?.naturalWidth ? (img.naturalWidth / img.naturalHeight) * bh : bh * 0.88
+        const bx = -bw * BIKE_GROUND[0]
+        const by = -bh * BIKE_GROUND[1]
+        // the pennant on a pole off the back of the bike (your colour, or your team's)
+        const px = bx + bw * 0.1
+        const py = by + bh * 0.3
+        const wave = Math.sin(t * 9 + r.i) * 3
+        g.strokeStyle = INK
+        g.lineWidth = 2
+        g.beginPath()
+        g.moveTo(px, py)
+        g.lineTo(px - 6, py - 66)
+        g.stroke()
+        poly([[px - 6, py - 66], [px - 30, py - 60 + wave], [px - 6, py - 52]], r.color, INK, 2)
+        // the bike, the rider on the saddle, then the front of the bike over the rider's legs
+        if (img?.naturalWidth) g.drawImage(img, bx, by, bw, bh)
         const pic = r.done && r.pics.cheer && r !== me ? r.pics.cheer : crashed ? r.pics.oops : r.flags & (GF.boost | GF.air) ? r.pics.grin : r.pics.sit
-        // sitting in the ring: the tube's front half hides the legs
-        if (pic) drawAvatar(g, pic, 0, 9, 0.5)
-        tube(true)
+        const pedal = !crashed && !r.done && r.air < 1 ? Math.sin(t * 12 + r.i) * 0.8 : 0
+        if (pic) drawAvatar(g, pic, bx + bw * BIKE_SADDLE[0], by + bh * BIKE_SADDLE[1] + 14 + pedal, RIDER_SCALE)
+        if (img?.naturalWidth) {
+          g.save()
+          g.beginPath()
+          BIKE_FRONT.forEach(([fx, fy], k) => (k ? g.lineTo(bx + fx * bw, by + fy * bh) : g.moveTo(bx + fx * bw, by + fy * bh)))
+          g.closePath()
+          g.clip()
+          g.drawImage(img, bx, by, bw, bh)
+          g.restore()
+        }
         if (crashed) {
           // stars
           for (let k = 0; k < 3; k++) {
             const a = t * 6 + (k * Math.PI * 2) / 3
             g.fillStyle = '#ffd166'
-            g.strokeStyle = '#1d2140'
+            g.strokeStyle = INK
             g.lineWidth = 1.5
-            star(Math.cos(a) * 22, -78 + Math.sin(a) * 6, 6)
+            star(Math.cos(a) * 22, -104 + Math.sin(a) * 6, 6)
           }
         }
         if (r.flags & GF.boost) {
-          g.strokeStyle = 'rgba(255, 190, 70, 0.8)'
+          g.strokeStyle = 'rgba(255, 190, 70, 0.85)'
           g.lineWidth = 3
           g.lineCap = 'round'
           for (let k = 0; k < 3; k++) {
-            const o = (k - 1) * 9
+            const o = (k - 1) * 10
             g.beginPath()
-            g.moveTo(-CA * 40 + SA * o, -SA * 40 - CA * o - 8)
-            g.lineTo(-CA * 70 + SA * o, -SA * 70 - CA * o - 8)
+            g.moveTo(-CA * 40 + SA * o, -SA * 40 - CA * o - 20)
+            g.lineTo(-CA * 72 + SA * o, -SA * 72 - CA * o - 20)
             g.stroke()
           }
         }
@@ -853,64 +1123,129 @@ export function start(ctx: GameCtx): RunningGame {
     g.fill()
     g.stroke()
   }
+  function bubble(x: number, y: number, text: string) {
+    g.font = `14px ${FONT}`
+    g.textAlign = 'center'
+    const tw = g.measureText(text).width + 20
+    g.fillStyle = '#ffffff'
+    g.strokeStyle = INK
+    g.lineWidth = 2.5
+    g.beginPath()
+    g.roundRect(x - tw / 2, y - 26, tw, 26, 11)
+    g.fill()
+    g.stroke()
+    poly([[x - 6, y - 1.5], [x + 6, y - 1.5], [x, y + 8]], '#ffffff')
+    g.beginPath()
+    g.moveTo(x - 6, y)
+    g.lineTo(x, y + 8)
+    g.lineTo(x + 6, y)
+    g.stroke()
+    g.fillStyle = INK
+    g.fillText(text, x, y - 8)
+  }
 
   function decorItem(d: SledDecor): Item | null {
     const [x, y] = P(d.w, d.v)
-    if (!onScreen(x, y, 200)) return null
-    const s = 0.82 + (d.var % 4) * 0.1
+    if (!onScreen(x, y, 260)) return null
+    const s = 0.84 + (d.var % 4) * 0.08
     return {
       y,
       draw: () => {
-        if (d.k === 'pine') drawImg(d.var % 2 ? 'pine2' : 'pine', x, y, 118 * s, { flip: d.var > 1 })
-        else if (d.k === 'lamp') drawImg('lamp', x, y, 112)
-        else if (d.k === 'bench') drawImg('bench', x, y, 58, { flip: d.v > 0 })
-        else if (d.k === 'rock') drawImg('rock', x, y, 34 * s)
-        else if (d.k === 'crowd') {
-          const pic = crowd[d.var]
-          if (pic) drawAvatar(g, pic, x, y, 0.42 + Math.sin(performance.now() / 300 + d.var) * 0.004)
-        } else if (d.k === 'stand') {
-          drawImg('cart', x, y, 92)
-        } else if (d.k === 'sign') signPost(x, y)
-        else if (d.k === 'statue') statue(x, y)
+        switch (d.k) {
+          case 'birch':
+            drawImg(d.var % 2 ? 'birch2' : 'birch', x, y + 3, 118 * s, { flip: d.var > 1 })
+            break
+          case 'flowers':
+            drawImg('flowers', x, y + 4, 40 * s, { flip: d.var % 2 === 1 })
+            break
+          case 'grass':
+            drawImg('grass', x, y + 4, 50 * s, { flip: d.var % 2 === 1 })
+            break
+          case 'shrub':
+            drawImg('shrub', x, y + 4, 32 * s, { flip: d.var % 2 === 1 })
+            break
+          case 'bench':
+            drawImg('bench', x, y + 6, 38, { flip: true })
+            break
+          case 'track':
+            drawImg('rails', x, y + 8, 40, { flip: true })
+            break
+          case 'lounger':
+            drawImg('lounger', x, y + 6, 52, { flip: true })
+            break
+          case 'dock':
+            drawImg('dock', x, y + 6, 74, { flip: d.var === 1 })
+            break
+          case 'nobikes':
+            drawImg('nobikes', x, y + 2, 66)
+            break
+          case 'ranger':
+            drawImg('ranger', x, y + 2, 76)
+            if (performance.now() < rangerUntil) bubble(x, y - 82, 'Hey! No bikes up here!')
+            break
+          case 'vessel':
+            drawImg('vessel', x, y + 10, 250)
+            break
+          case 'crowd': {
+            const pic = crowd[d.var]
+            if (pic) drawAvatar(g, pic, x, y, 0.4 + Math.sin(performance.now() / 300 + d.var) * 0.004)
+            break
+          }
+          case 'street':
+            streetSign(x, y, d.var)
+            break
+          case 'hlsign':
+            highLineSign(x, y)
+            break
+        }
       },
     }
   }
-  function signPost(x: number, y: number) {
-    g.fillStyle = '#9a6435'
-    g.strokeStyle = '#1d2140'
-    g.lineWidth = 3
-    g.fillRect(x - 5, y - 70, 10, 70)
-    g.strokeRect(x - 5, y - 70, 10, 70)
-    g.fillStyle = '#c98a4b'
-    g.beginPath()
-    g.roundRect(x - 58, y - 92, 116, 30, 6)
-    g.fill()
-    g.stroke()
-    g.fillStyle = '#3b2210'
-    g.font = "15px 'Burbank Display', 'Lilita One', sans-serif"
+  /** a green New York street sign on its post */
+  function streetSign(x: number, y: number, st: number) {
+    const label = st <= STREET0 ? 'Gansevoort St' : `W ${st} St`
+    g.fillStyle = '#7d8290'
+    g.strokeStyle = INK
+    g.lineWidth = 2.5
+    g.fillRect(x - 2.5, y - 56, 5, 56)
+    g.strokeRect(x - 2.5, y - 56, 5, 56)
+    g.font = `13px ${FONT}`
     g.textAlign = 'center'
-    g.fillText('PILGRIM HILL', x, y - 71)
-    g.fillStyle = '#ffffff'
+    const tw = g.measureText(label).width + 16
+    g.fillStyle = '#1f7a45'
     g.beginPath()
-    g.ellipse(x - 20, y - 92, 36, 6, 0, Math.PI, Math.PI * 2)
-    g.fill()
-  }
-  function statue(x: number, y: number) {
-    // the Pilgrim on his pedestal (bronze, tall hat), at the top of the hill since 1885
-    poly([[x - 34, y], [x + 34, y], [x + 28, y - 42], [x - 28, y - 42]], '#9aa3b5', '#1d2140', 3)
-    poly([[x - 38, y - 42], [x + 38, y - 42], [x + 38, y - 50], [x - 38, y - 50]], '#b8c0cf', '#1d2140', 3)
-    poly([[x - 16, y - 50], [x + 16, y - 50], [x + 12, y - 104], [x - 12, y - 104]], '#8a5a2b', '#1d2140', 3)
-    g.fillStyle = '#c99a5b'
-    g.beginPath()
-    g.arc(x, y - 114, 11, 0, Math.PI * 2)
+    g.roundRect(x - tw / 2, y - 74, tw, 21, 4)
     g.fill()
     g.stroke()
-    poly([[x - 9, y - 120], [x + 9, y - 120], [x + 7, y - 142], [x - 7, y - 142]], '#5a3a1c', '#1d2140', 3)
-    poly([[x - 16, y - 120], [x + 16, y - 120], [x + 16, y - 124], [x - 16, y - 124]], '#5a3a1c', '#1d2140', 2.5)
-    g.fillStyle = '#ffffff'
+    g.strokeStyle = 'rgba(255,255,255,0.8)'
+    g.lineWidth = 1.2
     g.beginPath()
-    g.ellipse(x, y - 50, 40, 6, 0, Math.PI, Math.PI * 2)
+    g.roundRect(x - tw / 2 + 3, y - 71, tw - 6, 15, 2)
+    g.stroke()
+    g.fillStyle = '#ffffff'
+    g.fillText(label, x, y - 58.5)
+  }
+  /** the High Line's own sign at the Gansevoort St end */
+  function highLineSign(x: number, y: number) {
+    g.fillStyle = '#4a505c'
+    g.strokeStyle = INK
+    g.lineWidth = 3
+    g.fillRect(x - 36, y - 50, 6, 50)
+    g.strokeRect(x - 36, y - 50, 6, 50)
+    g.fillRect(x + 30, y - 50, 6, 50)
+    g.strokeRect(x + 30, y - 50, 6, 50)
+    g.fillStyle = '#2f3440'
+    g.beginPath()
+    g.roundRect(x - 66, y - 96, 132, 50, 5)
     g.fill()
+    g.stroke()
+    g.fillStyle = '#ffffff'
+    g.textAlign = 'center'
+    g.font = `17px ${FONT}`
+    g.fillText('THE HIGH LINE', x, y - 74)
+    g.font = `12px ${FONT}`
+    g.fillStyle = '#c9d3e0'
+    g.fillText('Gansevoort St', x, y - 57)
   }
   function finishArch(items: Item[]) {
     const L = SLED.length
@@ -918,12 +1253,12 @@ export function start(ctx: GameCtx): RunningGame {
     const [ax, ay] = P(L, -W)
     const [bx, by] = P(L, W)
     if (!onScreen(ax, ay, 300) && !onScreen(bx, by, 300)) return
-    const H = 120
+    const H = 132
     items.push({
       y: Math.max(ay, by) + 4,
       draw: () => {
         g.lineWidth = 5
-        g.strokeStyle = '#1d2140'
+        g.strokeStyle = INK
         g.lineCap = 'round'
         for (const [x, y] of [[ax, ay], [bx, by]]) {
           g.beginPath()
@@ -937,30 +1272,83 @@ export function start(ctx: GameCtx): RunningGame {
           g.lineTo(x, y - H)
           g.stroke()
           g.lineWidth = 5
-          g.strokeStyle = '#1d2140'
+          g.strokeStyle = INK
         }
-        poly([[ax, ay - H], [bx, by - H], [bx, by - H + 34], [ax, ay - H + 34]], '#e5483b', '#1d2140', 4)
+        poly([[ax, ay - H], [bx, by - H], [bx, by - H + 34], [ax, ay - H + 34]], '#1f6fd1', INK, 4)
         g.save()
         g.translate((ax + bx) / 2, (ay + by) / 2 - H + 23)
         g.rotate(Math.atan2(by - ay, bx - ax))
         g.fillStyle = '#ffffff'
-        g.font = "24px 'Burbank Display', 'Lilita One', sans-serif"
+        g.font = `22px ${FONT}`
         g.textAlign = 'center'
-        g.fillText('FINISH', 0, 0)
+        g.fillText('FINISH · 34TH ST', 0, 0)
         g.restore()
       },
     })
+  }
+  /** Chelsea Market's wall along the far side of the passage (behind everyone) */
+  function marketWall(items: Item[]) {
+    for (const z of course.zones) {
+      if (z.k !== 'market') continue
+      const v = RAIL - 12
+      const [ax, ay] = P(z.w0, v)
+      const [bx, by] = P(z.w1, v)
+      if (!onScreen(ax, ay, 400) && !onScreen(bx, by, 400)) continue
+      const H = 92
+      items.push({
+        y: Math.min(ay, by) - 400,
+        draw: () => {
+          poly([[ax, ay], [bx, by], [bx, by - H], [ax, ay - H]], '#a9523c', INK, 4)
+          // windows and the big sign
+          for (let k = 1; k < 9; k++) {
+            const f = k / 9
+            const x = ax + (bx - ax) * f
+            const y = ay + (by - ay) * f
+            poly([[x - 9, y - 66], [x + 9, y - 66 + 18 * Math.tan(TH) * 0.5], [x + 9, y - 40 + 18 * Math.tan(TH) * 0.5], [x - 9, y - 40]], '#3b4a63', INK, 2)
+          }
+          poly([[ax, ay - H], [bx, by - H], [bx, by - H - 10], [ax, ay - H - 10]], '#7b3a2a', INK, 3)
+        },
+      })
+      // the way in: brick piers and a lintel with the market's name, over the path
+      const W2 = SLED.halfW + 40
+      const [px, py] = P(z.w0, -W2)
+      const [qx, qy] = P(z.w0, W2)
+      if (!onScreen(px, py, 300) && !onScreen(qx, qy, 300)) continue
+      const BH = 118
+      items.push({
+        y: Math.max(py, qy) + 4,
+        draw: () => {
+          for (const [x, y] of [[px, py], [qx, qy]]) {
+            g.fillStyle = '#a9523c'
+            g.strokeStyle = INK
+            g.lineWidth = 3.5
+            g.fillRect(x - 9, y - BH, 18, BH)
+            g.strokeRect(x - 9, y - BH, 18, BH)
+          }
+          poly([[px - 10, py - BH], [qx + 10, qy - BH], [qx + 10, qy - BH + 32], [px - 10, py - BH + 32]], '#8a3f2e', INK, 4)
+          g.save()
+          g.translate((px + qx) / 2, (py + qy) / 2 - BH + 22)
+          g.rotate(Math.atan2(qy - py, qx - px))
+          g.fillStyle = '#f4e9c8'
+          g.font = `19px ${FONT}`
+          g.textAlign = 'center'
+          g.fillText('CHELSEA MARKET', 0, 0)
+          g.restore()
+        },
+      })
+    }
   }
 
   function sprites(t: number) {
     const items: Item[] = []
     const w0 = cam.w - 520
     const w1 = cam.w + 1150
+    const now = performance.now()
     for (const o of course.objs) {
       if (o.w < w0 - 40 || o.w > w1) continue
-      if (o.k === 'bump' || o.k === 'ice' || o.k === 'bank') continue
-      if (o.k === 'log') {
-        logPieces(o, items)
+      if (o.k === 'fresh' || o.k === 'bank' || o.k === 'water') continue
+      if (o.k === 'planter') {
+        planterPieces(o, items)
         continue
       }
       if (o.k === 'ramp') {
@@ -970,52 +1358,91 @@ export function start(ctx: GameCtx): RunningGame {
       const v = o.k === 'cart' ? cartV(o, t) : o.v
       const [x, y] = P(o.w, v)
       if (!onScreen(x, y)) continue
-      if (o.k === 'cocoa' && me && S.used.has(o.id)) continue
+      if (o.k === 'coffee' && me && S.used.has(o.id)) continue
+      const hit = shook.get(o.id)
+      const since = hit ? (now - hit) / 1000 : 99
       items.push({
         y,
         draw: () => {
           switch (o.k) {
-            case 'rock':
-              drawImg('rock', x, y + 4, 36)
+            case 'pigeon':
+              // hit one and it's off (pigeons always come back, just not to this spot)
+              if (since < 1.2) drawImg('pigeon', x + since * 60, y - since * 120, 30, { flip: o.var % 2 === 1, alpha: Math.max(0, 1 - since) })
+              else if (since > 1.2 && hit) break
+              else drawImg('pigeon', x, y + 3, 30 + Math.sin(t * 3 + o.id) * 0.6, { flip: o.var % 2 === 1 })
               break
-            case 'boulder':
-              drawImg('boulder', x, y + 6, 70)
+            case 'tourist': {
+              const pic = tourists[o.var % 4]
+              if (pic) drawAvatar(g, pic, x, y + 2, 0.4, { rot: since < 0.5 ? Math.sin(since * 30) * 0.08 : 0 })
+              // the phone held up for the photo
+              g.fillStyle = INK
+              g.beginPath()
+              g.roundRect(x + 9, y - 70, 9, 13, 2)
+              g.fill()
               break
-            case 'pine':
-              drawImg(o.var % 2 ? 'pine2' : 'pine', x, y + 4, 122)
+            }
+            case 'ranger':
+              drawImg('ranger', x, y + 3, 78, { rot: since < 0.6 ? Math.sin(since * 30) * 0.06 : 0 })
+              if (since < 1.6) bubble(x, y - 84, 'No bikes!')
               break
-            case 'snowman':
-              drawImg('snowman', x, y + 4, 76)
+            case 'lounger':
+              drawImg('lounger', x, y + 8, 58, { flip: true })
               break
+            case 'birch':
+              drawImg(o.var % 2 ? 'birch2' : 'birch', x, y + 4, 124, { flip: o.var > 1, rot: since < 0.6 ? Math.sin(since * 26) * 0.04 : 0 })
+              break
+            case 'rails':
+              drawImg('rails', x, y + 10, 34)
+              break
+            case 'selfie': {
+              const pic = selfies[o.var % 4]
+              const sc = 0.4
+              if (pic) drawAvatar(g, pic, x, y + 2, sc, { rot: since < 0.5 ? Math.sin(since * 30) * 0.08 : 0 })
+              // the selfie stick, phone at the top
+              const hx = x + 31 * sc
+              const hy = y - 91 * sc
+              g.strokeStyle = INK
+              g.lineWidth = 2.5
+              g.lineCap = 'round'
+              g.beginPath()
+              g.moveTo(hx, hy)
+              g.lineTo(hx + 9, hy - 30)
+              g.stroke()
+              g.fillStyle = INK
+              g.beginPath()
+              g.roundRect(hx + 4, hy - 42, 11, 15, 2.5)
+              g.fill()
+              if (since < 0.4) {
+                // flash
+                g.fillStyle = `rgba(255, 250, 210, ${1 - since / 0.4})`
+                g.beginPath()
+                g.arc(hx + 9, hy - 35, 16, 0, Math.PI * 2)
+                g.fill()
+              }
+              break
+            }
             case 'cart':
-              drawImg('cart', x, y + 6, 96, { flip: Math.cos(((t / (o.per ?? 4)) + (o.ph ?? 0)) * Math.PI * 2) < 0 })
+              drawImg('cart', x, y + 6, 92, { flip: Math.cos(((t / (o.per ?? 4)) + (o.ph ?? 0)) * Math.PI * 2) < 0 })
               break
-            case 'cocoa': {
+            case 'coffee': {
               const lift = o.var === 9 ? 46 : 0
               const bob = Math.sin(t * 4 + o.id) * 3
-              g.fillStyle = 'rgba(255, 214, 102, 0.35)'
+              g.fillStyle = 'rgba(255, 214, 102, 0.4)'
               g.beginPath()
-              g.ellipse(x, y - lift - 18 + bob, 20, 20, 0, 0, Math.PI * 2)
+              g.ellipse(x, y - lift - 18 + bob, 21, 21, 0, 0, Math.PI * 2)
               g.fill()
-              drawImg('cocoa', x, y - lift + bob, 40)
+              drawImg('coffee', x, y - lift + bob, 40)
               break
             }
-            case 'flag': {
-              g.strokeStyle = '#1d2140'
-              g.lineWidth = 3
-              g.beginPath()
-              g.moveTo(x, y)
-              g.lineTo(x, y - 44)
-              g.stroke()
-              poly([[x, y - 44], [x + 20, y - 38], [x, y - 31]], o.var ? '#2a7bd5' : '#e5483b', '#1d2140', 2.5)
+            case 'cone':
+              drawImg('cone', x, y + 3, 24)
               break
-            }
           }
         },
       })
     }
     for (const d of course.decor) {
-      if (d.w < w0 - 200 || d.w > w1) continue
+      if (d.w < w0 - 300 || d.w > w1 + 300) continue
       const it = decorItem(d)
       if (it) items.push(it)
     }
@@ -1024,6 +1451,7 @@ export function start(ctx: GameCtx): RunningGame {
       if (it) items.push(it)
     }
     finishArch(items)
+    marketWall(items)
     items.sort((a, b) => a.y - b.y)
     for (const it of items) it.draw()
   }
@@ -1043,7 +1471,7 @@ export function start(ctx: GameCtx): RunningGame {
       const [x, y] = P(p.w, p.v)
       g.globalAlpha = 1 - p.life / p.max
       g.fillStyle = p.c
-      g.strokeStyle = 'rgba(120,160,215,0.7)'
+      g.strokeStyle = 'rgba(29,33,64,0.45)'
       g.lineWidth = 1
       g.beginPath()
       g.arc(x, y - p.h, p.r, 0, Math.PI * 2)
@@ -1054,7 +1482,7 @@ export function start(ctx: GameCtx): RunningGame {
   }
 
   function tags() {
-    g.font = "12px 'Burbank Display', 'Lilita One', sans-serif"
+    g.font = `12px ${FONT}`
     g.textAlign = 'center'
     const list: { r: Racer; x: number; y: number; tw: number; label: string }[] = []
     for (const r of racers) {
@@ -1062,9 +1490,9 @@ export function start(ctx: GameCtx): RunningGame {
       const [x, y0] = P(r.w, r.v)
       if (!onScreen(x, y0, 40)) continue
       const label = r === me ? 'You' : r.name
-      list.push({ r, x, y: y0 - r.air * 0.9 - 74, tw: g.measureText(label).width + 26, label })
+      list.push({ r, x: x - 6, y: y0 - r.air * 0.9 - 112, tw: g.measureText(label).width + 26, label })
     }
-    // sledders bunch up: a tag that would cover another one moves up above it (yours stays put, order is kept)
+    // riders bunch up: a tag that would cover another one moves up above it (yours stays put, order is kept)
     list.sort((a, b) => (a.r === me ? -1 : b.r === me ? 1 : Math.round(b.y / 14) - Math.round(a.y / 14) || a.r.i - b.r.i))
     const placed: typeof list = []
     for (const t of list) {
@@ -1077,7 +1505,7 @@ export function start(ctx: GameCtx): RunningGame {
     }
     for (const { r, x, y, tw, label } of placed) {
       g.fillStyle = r === me ? '#ffd166' : 'rgba(255,255,255,0.94)'
-      g.strokeStyle = '#1d2140'
+      g.strokeStyle = INK
       g.lineWidth = r === me ? 2.5 : 1.5
       g.beginPath()
       g.roundRect(x - tw / 2, y - 10, tw, 19, 8)
@@ -1088,10 +1516,10 @@ export function start(ctx: GameCtx): RunningGame {
       g.arc(x - tw / 2 + 10, y - 0.5, 6, 0, Math.PI * 2)
       g.fill()
       g.stroke()
-      g.fillStyle = '#1d2140'
+      g.fillStyle = INK
       g.fillText(label, x + 6, y + 4)
       if (r.react && r.react.until > performance.now()) {
-        g.font = "15px 'Burbank Display', 'Lilita One', sans-serif"
+        g.font = `15px ${FONT}`
         const txt = r.react.html
         const rw = g.measureText(txt).width + 18
         g.fillStyle = '#ffffff'
@@ -1099,9 +1527,9 @@ export function start(ctx: GameCtx): RunningGame {
         g.roundRect(x - rw / 2, y - 38, rw, 24, 10)
         g.fill()
         g.stroke()
-        g.fillStyle = '#1d2140'
+        g.fillStyle = INK
         g.fillText(txt, x, y - 21)
-        g.font = "12px 'Burbank Display', 'Lilita One', sans-serif"
+        g.font = `12px ${FONT}`
       }
     }
   }
@@ -1145,7 +1573,6 @@ export function start(ctx: GameCtx): RunningGame {
   // ---------- the loop ----------
   let raf = 0
   let last = performance.now()
-  let trailAcc = 0
   let lastLeaderCheck = 0
   function frame(now: number) {
     raf = requestAnimationFrame(frame)
@@ -1156,7 +1583,13 @@ export function start(ctx: GameCtx): RunningGame {
     if (t >= 0) step(dt, t)
     coast(dt)
     ghosts(t)
-    // who the camera follows when you're watching: the leader of whoever's still sliding
+    // lean into turns
+    for (const r of racers) {
+      const lat = dt > 0 ? (r.v - r.lastV) / dt : 0
+      r.lastV = r.v
+      r.lean += (Math.max(-0.16, Math.min(0.16, -lat / 1500)) - r.lean) * Math.min(1, dt * 8)
+    }
+    // who the camera follows when you're watching: the leader of whoever's still riding
     if ((!me || S.finished) && !watchPicked && now - lastLeaderCheck > 900) {
       lastLeaderCheck = now
       const racing = racers.filter((r) => !r.done && !r.out)
@@ -1165,19 +1598,6 @@ export function start(ctx: GameCtx): RunningGame {
     }
     const focus = me && !S.finished ? me : racers[watch] ?? me
     if (focus) cam.w += ((focus === me ? S.w : focus.w) - cam.w) * (focus === me ? 1 : Math.min(1, dt * 6))
-    // trails
-    trailAcc += dt
-    if (trailAcc > 0.05) {
-      trailAcc = 0
-      for (const r of racers) {
-        if (r.air > 1 || r.out) continue
-        if (r.w - r.lastTrailW > 14) {
-          r.trail.push({ w: r.w, v: r.v })
-          r.lastTrailW = r.w
-          if (r.trail.length > 130) r.trail.shift()
-        }
-      }
-    }
     loop.set(me && !S.finished && t >= 0 && S.air < 1 ? Math.min(1, S.speed / 420) : 0)
     fit()
     g.save()
@@ -1256,7 +1676,7 @@ export function start(ctx: GameCtx): RunningGame {
     },
     finish(r: ResultsWire) {
       void r
-      // a beat to see the bottom of the hill (longer if you just crossed the line)
+      // a beat to see the finish at 34th St (longer if you just crossed the line)
       return me && S.finished && performance.now() - t0 - S.finishT * 1000 < 2500 ? 2200 : 1200
     },
     destroy() {
@@ -1269,7 +1689,17 @@ export function start(ctx: GameCtx): RunningGame {
   }
 }
 
-/** where sledder i of n lines up (the server's race.ts uses the same spread) */
+const CRASH_LINE: Partial<Record<SledObj['k'], string>> = {
+  cart: 'Gelato cart! Wipeout!',
+  planter: 'Planter! Wipeout!',
+  ranger: 'The park ranger blew the whistle. Wipeout!',
+  pigeon: 'Pigeon! Wipeout!',
+  tourist: 'Tourist! Wipeout!',
+  lounger: 'Lounger! Wipeout!',
+  birch: 'Birch tree! Wipeout!',
+}
+
+/** where rider i of n lines up (the server's race.ts uses the same spread) */
 function startV(i: number, n: number): number {
   if (n <= 1) return 0
   const span = Math.min(SLED.halfW * 1.5, 90 * (n - 1))

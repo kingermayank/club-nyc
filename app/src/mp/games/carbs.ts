@@ -1,5 +1,5 @@
 /**
- * Carb-Jitsu, in the browser: the table in the back of the 99¢ Slice, the bodega cat presiding. Pick a card (click or
+ * Carb-Jitsu, in the browser: the table in the back of Joe’s Pizza, the bodega cat presiding. Pick a card (click or
  * 1-5) before the clock runs out; both cards flip at once; the server says who won the round and why. Spectators see
  * both trays and every reveal. Everything is decided on the server (server/src/game/mp/duel.ts).
  */

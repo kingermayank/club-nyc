@@ -2,14 +2,23 @@
 title: What's New
 description: The latest changes to Club NYC, newest first, and what's coming next.
 icon: sparkles
-updated: 2026-10-20
+updated: 2026-10-24
 ---
 
 Club NYC is in early access, so the city changes often. Here's what's new, newest first. For first looks at what's coming, join the [Discord](/discord).
 
+## October 24, 2026 {#2026-10-24}
+
+- **The sled race moved to the High Line.** No snow in the city, so the Pilgrim Hill Sled Race is now the [High Line Citi Bike Dash](multiplayer-games/citi-bike-dash.md): up to four riders on Citi Bikes from Gansevoort St to 34th St, past the Sundeck, through the Chelsea Market Passage and over a ramp at the Spur. Dodge tour groups, planters and a runaway gelato cart. Its sign is on [The High Line](places/high-line-and-chelsea-market.md) now, and your best times, wins and stamps came along (the stamps are now called Gansevoort to 34th and Top of the Line). Bikes aren't allowed on the real High Line. Nobody told these racers.
+
+## October 23, 2026 {#2026-10-23}
+
+- **Real New York names.** The shops and food spots now go by their real names: [Louis Vuitton](places/fifth-avenue.md#louis-vuitton), [Saks Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) and the Adel's Famous Halal Food cart on Fifth Avenue, [Supreme](places/soho.md#supreme), [Nike](places/soho.md#nike) and [Ralph's Coffee](places/soho.md#ralphs-coffee) in SoHo, and Joe's Shanghai, Ten Ren Tea and [Joe's Pizza](places/chinatown-and-little-italy.md#joes-pizza) downtown. Everything you own stays yours.
+- **The toy store is now Saks Fifth Avenue.** Saks sells shoes (from the 10022-SHOE floor), coats, jewelry and shades. The toys, balloons and dress-up moved to [I ♥ NY Souvenirs](places/times-square.md#i-love-ny-souvenirs) in Times Square. The floor piano went with the toys, so the Heart and Soul stamp is retired.
+
 ## October 21, 2026 {#2026-10-21}
 
-- **Multiplayer games are here.** Race up to three friends down the [Pilgrim Hill Sled Race](multiplayer-games/sled-race.md), sprint the platform in [Rush Hour Run](multiplayer-games/rush-hour-run.md) with up to nine, or settle it at the [Carb-Jitsu](multiplayer-games/carb-jitsu.md) table. Find them on the new **Games** tab ([[F]]), with Quick Match, lobbies you can share with a code, and city locals to fill any empty seat. Nine new stamps come with them. [Multiplayer Games](multiplayer-games/README.md)
+- **Multiplayer games are here.** Race up to three friends in the Pilgrim Hill Sled Race (now the [High Line Citi Bike Dash](multiplayer-games/citi-bike-dash.md)), sprint the platform in [Rush Hour Run](multiplayer-games/rush-hour-run.md) with up to nine, or settle it at the [Carb-Jitsu](multiplayer-games/carb-jitsu.md) table. Find them on the new **Games** tab ([[F]]), with Quick Match, lobbies you can share with a code, and city locals to fill any empty seat. Nine new stamps come with them. [Multiplayer Games](multiplayer-games/README.md)
 
 ## October 20, 2026 {#2026-10-20}
 

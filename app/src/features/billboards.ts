@@ -16,7 +16,7 @@ const LED = [
   ['BREAKING: PIZZA RAT SPOTTED ON THE 1 TRAIN ★', 'led-ticker'],
   ['♥ NEW YORK', 'led-pulse'],
   ['NOW PLAYING · PHANTOM OF THE SUBWAY', 'led-ticker'],
-  ['HALAL BROS · 5 AV & 57 ST', 'led-pulse'],
+  ['ADEL’S FAMOUS HALAL FOOD · 5 AV & 57 ST', 'led-ticker'],
   ['62°F ☀ PARTLY PIGEONY', 'led-pulse'],
 ] as const
 

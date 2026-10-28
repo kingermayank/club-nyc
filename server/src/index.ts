@@ -187,6 +187,8 @@ if (existsSync(config.staticDir)) {
     await next()
   })
   app.use('/*', serveStatic({ root, precompressed: true }))
+  // the sled race moved to the High Line (no snow): its old Help Center page sends you to the new one
+  for (const old of ['/help/multiplayer-games/sled-race', '/help/multiplayer-games/sled-race/']) app.get(old, (c) => c.redirect('/help/multiplayer-games/citi-bike-dash', 301))
   // an unknown Help Center address gets the Help Center's own "page not found" (with its search box)
   const help404 = existsSync(join(root, 'help/404.html')) ? readFileSync(join(root, 'help/404.html'), 'utf8') : null
   if (help404) app.get('/help/*', (c) => c.html(help404, 404))

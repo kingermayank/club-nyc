@@ -59,7 +59,7 @@ function noise(dur: number, vol = 0.08, freq = 900, delay = 0, q = 1) {
   src.start(t)
 }
 
-/** a looping "shhhh" whose loudness follows a speed (the sled on snow, the runner's footsteps) */
+/** a looping "shhhh" whose loudness follows a speed (tires on the High Line, the runner's footsteps) */
 export function slideLoop() {
   const a = audio()
   if (!a || !master) return { set: (_v: number) => {}, stop: () => {} }
@@ -120,6 +120,20 @@ export const msfx = {
     tone(NOTE(88), 0.16, 'square', 0.04, 0.14)
   },
   whoosh: () => noise(0.5, 0.07, 1200, 0, 0.5),
+  /** the runaway gelato cart's bell: ding-ding */
+  bell: () => {
+    tone(NOTE(96), 0.35, 'sine', 0.06)
+    tone(NOTE(103), 0.3, 'sine', 0.025)
+    tone(NOTE(96), 0.35, 'sine', 0.06, 0.18)
+    tone(NOTE(103), 0.3, 'sine', 0.025, 0.18)
+  },
+  /** the park ranger's whistle */
+  whistle: () => {
+    tone(2600, 0.32, 'sine', 0.045, 0, 2900)
+    tone(2650, 0.3, 'square', 0.008, 0)
+  },
+  /** riding through the Sundeck's water feature */
+  splash: () => noise(0.3, 0.07, 2400, 0, 0.8),
   card: () => {
     noise(0.05, 0.06, 3000)
     tone(NOTE(84), 0.05, 'triangle', 0.05, 0.02)

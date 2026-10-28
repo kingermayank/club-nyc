@@ -45,7 +45,7 @@ const DAILY: Daily[] = [
   { id: 'jam', text: 'Dance at the Dance Jam', hint: 'Times Square, every 8 minutes. Get on the floor and press D.', metric: 'jams', target: 1 },
   { id: 'snacks', text: 'Grab 2 NYC Snacks', hint: 'Hot dogs, pretzels, slices, boba. A balanced diet.', metric: 'snacks', target: 2 },
   { id: 'photo', text: 'Take a Group Photo', hint: 'Find a photo booth (the I ♥ NY shop in Times Square has one). Everyone nearby squeezes in.', metric: 'photos', target: 1 },
-  { id: 'shop', text: 'Buy Something New to Wear', hint: 'THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
+  { id: 'shop', text: 'Buy Something New to Wear', hint: 'Supreme in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
   { id: 'sign', text: 'Sign a Guestbook', hint: 'Visit someone’s apartment and leave a note. Compliment the square footage.', metric: 'signs', target: 1 },
   { id: 'share', text: 'Share Your Invite Link', hint: 'Phone → Invite friends. They land right next to you.', metric: 'shares', target: 1 },
   { id: 'rides', text: 'Ride the Subway Twice', hint: 'Click the MetroCard on your toolbar.', metric: 'rides', target: 2 },
@@ -110,8 +110,9 @@ function render() {
 
 function renderStarter(q: Quest) {
   const doneCount = QUESTS.filter((x) => save.quests[x.id]).length
-  box.className = 'quests'
-  box.innerHTML = `<button class="q-head"><b>New in Town</b><span>${doneCount}/${QUESTS.length}</span><i>${open ? '▴' : '▾'}</i></button>
+  box.className = 'quests' + (save.questsHidden ? ' min' : '')
+  if (save.questsHidden) return headOnly('New in Town', `${doneCount}/${QUESTS.length}`)
+  box.innerHTML = `<button class="q-head"><b>New in Town</b><span>${doneCount}/${QUESTS.length}</span><i>${open ? '▴' : '▾'}</i></button>${HIDE_BTN}
     <div class="q-now"><span class="q-dot"></span><div class="q-text"><b>${q.text}</b><small>${q.hint}</small><button class="q-show">Show Me</button></div><em>+${reward(q)}</em></div>
     ${open ? `<ul class="q-list">${QUESTS.map((x) => `<li class="${save.quests[x.id] ? 'done' : x === q ? 'now' : ''}">${save.quests[x.id] ? '✓' : '○'} ${x.text}</li>`).join('')}</ul>` : ''}`
   bindHead()
@@ -157,11 +158,11 @@ async function showMe(id: string) {
     case 'subway':
       return t.pointAt(t.toolbarButton('Subway'), 'Ride the Subway', 'Click your MetroCard and pick any stop.')
     case 'job': {
-      const jobs = /halal bros|order a slice|order counter|board the train|ferry tickets|board the ferry/i
+      const jobs = /adel’s famous halal food|order a slice|order counter|board the train|ferry tickets|board the ferry/i
       if (!here(jobs)) await arrive('pizza')
       const h = here(jobs)
       if (h) return t.pointAt(h, 'Work a Shift', 'Click it and choose “Work a Shift”. Every job has a weekly leaderboard.')
-      return t.pointAt(t.toolbarButton('Map'), 'Work a Shift', 'Jobs: 99¢ Slice in Little Italy, the Halal Bros cart on Fifth Avenue, Bean There café in SoHo, the ferry at Battery Park and Showtime in the subway.')
+      return t.pointAt(t.toolbarButton('Map'), 'Work a Shift', 'Jobs: Joe’s Pizza in Little Italy, the Adel’s Famous Halal Food cart on Fifth Avenue, Ralph’s Coffee in SoHo, the ferry at Battery Park and Showtime in the subway.')
     }
   }
 }
@@ -181,9 +182,10 @@ function renderDaily() {
   const picks = save.daily.picks.map((id) => DAILY_BY_ID[id]).filter(Boolean)
   const done = save.daily.done.length
   const hrs = Math.max(1, Math.round(msToMidnightNyc() / 3600_000))
-  box.className = 'quests daily' + (done === picks.length ? ' all-done' : '')
+  box.className = 'quests daily' + (done === picks.length ? ' all-done' : '') + (save.questsHidden ? ' min' : '')
+  if (save.questsHidden) return headOnly('Today in the City', `${done}/${picks.length}`)
   const next = picks.find((d) => !save.daily.done.includes(d.id))
-  box.innerHTML = `<button class="q-head"><b>Today in the City</b>${weekChip()}<span>${done}/${picks.length}</span><i>${open ? '▴' : '▾'}</i></button>
+  box.innerHTML = `<button class="q-head"><b>Today in the City</b>${weekChip()}<span>${done}/${picks.length}</span><i>${open ? '▴' : '▾'}</i></button>${HIDE_BTN}
     ${
       next && !open
         ? `<div class="q-now"><span class="q-dot"></span><div><b>${next.text}</b><small>${progress(next)}/${next.target} · ${next.hint}</small></div><em>+${DAILY_REWARD}</em></div>`
@@ -204,11 +206,31 @@ function renderDaily() {
   bindHead()
 }
 
+const HIDE_BTN = '<button class="q-hide" aria-label="Hide (click the bar to bring it back)" title="Hide"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>'
+/** tucked away: just the title bar and the count; clicking it brings the card back */
+function headOnly(title: string, count: string) {
+  box.innerHTML = `<button class="q-head" aria-label="Show ${title}"><b>${title}</b><span>${count}</span><i>▾</i></button>`
+  box.querySelector<HTMLButtonElement>('.q-head')!.onclick = (e) => {
+    e.stopPropagation()
+    sfx.click()
+    save.questsHidden = false
+    persist()
+    render()
+  }
+}
 function bindHead() {
   box.querySelector<HTMLButtonElement>('.q-head')!.onclick = (e) => {
     e.stopPropagation()
     open = !open
     sfx.click()
+    render()
+  }
+  box.querySelector<HTMLButtonElement>('.q-hide')!.onclick = (e) => {
+    e.stopPropagation()
+    sfx.click()
+    save.questsHidden = true
+    open = false
+    persist()
     render()
   }
 }

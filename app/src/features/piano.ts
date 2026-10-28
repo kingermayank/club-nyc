@@ -10,7 +10,7 @@ const lerp = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + 
 /** point on the piano surface: u across (0..1 left→right), v depth (0 = far/top edge, 1 = near/bottom edge) */
 const at = (q: Pt[], u: number, v: number) => lerp(lerp(q[0], q[1], u), lerp(q[3], q[2], u), v)
 
-/** Toy Palace: walk on the giant floor piano and it plays. */
+/** the giant floor piano (from the Fifth Avenue toy-store days; only plays if the room's geo still has one): walk on it and it plays. */
 onRoom('toy-palace', ({ geo, scene }) => {
   const pf = geo.piano
   if (!pf) return

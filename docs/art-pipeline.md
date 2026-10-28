@@ -34,7 +34,7 @@ Aspect ratio is `16:9`. After generating, run `app/public/art` → `rooms/*.jpg`
 
 What makes it work:
 - **"Open floor filling the lower half"** gives the avatar room to walk.
-- **Parody names** (Halal Bros, 99¢ Slice, Toy Palace, Diamonds on 5th, Candy City) avoid trademarks. ⚠️ The bodega image has real cereal and candy logos (Cheerios, Twix, etc.). Regenerate it before anything public.
+- **Store names** (updated 2026-10-23): the user decided the game uses the real New York names (Louis Vuitton, Saks Fifth Avenue, Adel's Famous Halal Food, Supreme, Nike, Ralph's Coffee, Joe's Shanghai, Ten Ren Tea, Joe's Pizza) in copy and painted signs. Other art still avoids real logos. ⚠️ The bodega image has real cereal and candy logos (Cheerios, Twix, etc.). Regenerate it before anything public.
 - Ask for **specific props by position** ("hot dog cart at the right") so hotspots are easy to place. Then open the room with `` ` `` debug mode and click to read coordinates.
 
 ## Avatar

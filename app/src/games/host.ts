@@ -284,7 +284,7 @@ function payout(id: string, title: string, r: GameResult, run: Promise<string | 
       <ul class="payout-lines">${(r.lines ?? []).map((l) => `<li>${l}</li>`).join('')}</ul>
       ${newItems.length ? `<div class="payout-reward"><small>Unlocked!</small><div class="payout-items">${newItems.map((i) => `<span>${itemIcon(i)}${ITEM[i]?.name ?? i}</span>`).join('')}</div></div>` : ''}
       ${stampLine(id, r)}
-      ${coins + save.coins > 0 ? `<div class="payout-spend"><small>Spend your coins</small><button class="spend" data-go="thread">${iconHtml('🛍')}<span>THREAD</span></button><button class="spend" data-go="iloveny">${iconHtml('🗽')}<span>Souvenirs</span></button><button class="spend" data-go="furniture">${iconHtml('🛋')}<span>Flatbush Flea</span></button></div>` : ''}
+      ${coins + save.coins > 0 ? `<div class="payout-spend"><small>Spend your coins</small><button class="spend" data-go="thread">${iconHtml('🛍')}<span>Supreme</span></button><button class="spend" data-go="iloveny">${iconHtml('🗽')}<span>Souvenirs</span></button><button class="spend" data-go="furniture">${iconHtml('🛋')}<span>Flatbush Flea</span></button></div>` : ''}
       <div class="payout-btns"><button class="btn ghost rematch">↻ Play Again</button><button class="btn go">Back to the City</button></div>
     </div>`
   stage.root.append(card)

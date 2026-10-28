@@ -1,5 +1,5 @@
 /**
- * A race (the sled hill or Rush Hour Run), run by the server.
+ * A race (the High Line Citi Bike Dash, internally still "sled", or Rush Hour Run), run by the server.
  *
  * Everyone gets the same seed, so every browser builds the same course. Each browser simulates its own racer and
  * reports progress ~10 times a second; the server never takes those numbers on trust: a racer can't be further
@@ -12,7 +12,7 @@ import type { LookWire } from '../../../../app/src/net/protocol.ts'
 import { GF, type GhostWire, type MatchWire, type MpC2S, type RacerWire } from '../../../../app/src/mp/shared/protocol.ts'
 import { teamPoints, type MpGameId, type MpMode, type MpTeam } from '../../../../app/src/mp/shared/games.ts'
 import { SLED, sledCourse, sledMaxDistance, makeSledBot, stepSledBot, type SledBot, type SledCourse } from '../../../../app/src/mp/shared/sled.ts'
-import { RUN, runnerCourse, runMaxDistance, makeRunBot, stepRunBot, runSpeed, type RunBot, type RunCourse } from '../../../../app/src/mp/shared/runner.ts'
+import { RUN, runnerCourse, runMaxDistance, runStartGrid, makeRunBot, stepRunBot, runSpeed, type RunBot, type RunCourse, type RunNear } from '../../../../app/src/mp/shared/runner.ts'
 import type { Match, MatchHost, Standing } from './types.ts'
 
 export interface Entrant {
@@ -89,9 +89,12 @@ export class RaceMatch implements Match {
     this.sledCourse = o.game === 'sled' ? sledCourse(o.seed) : null
     this.runCourse = o.game === 'runner' ? runnerCourse(o.seed) : null
     const n = o.entrants.length
+    // runners line up across the three lanes (real players level at the line, the locals around and behind them)
+    const grid = o.game === 'runner' ? runStartGrid(o.entrants.map((e) => !!e.bot)) : null
     this.racers = o.entrants.map((e, i) => {
-      // sledders line up across the top of the hill; runners all start in the middle lane
-      const startX = o.game === 'sled' ? startLateral(i, n) : 1
+      // riders line up across the start line at Gansevoort St
+      const startX = grid ? grid[i].lane : startLateral(i, n)
+      const startD = grid ? grid[i].d : 0
       return {
         i,
         id: e.id,
@@ -100,8 +103,8 @@ export class RaceMatch implements Match {
         team: e.team,
         bot: !!e.bot,
         sled: e.bot && o.game === 'sled' ? makeSledBot(o.seed, i, e.bot.skill, startX) : null,
-        run: e.bot && o.game === 'runner' ? makeRunBot(o.seed, i, e.bot.skill) : null,
-        d: 0,
+        run: e.bot && o.game === 'runner' ? makeRunBot(o.seed, i, e.bot.skill, startX, startD) : null,
+        d: startD,
         x: startX,
         v: 0,
         f: 0,
@@ -279,7 +282,7 @@ export class RaceMatch implements Match {
       r.x = b.v
       r.v = b.speed
       r.f = (b.air > 1 ? GF.air : 0) | (ts < b.crashUntil ? GF.crash : 0) | (ts < b.boostUntil ? GF.boost : 0)
-      r.c = b.used.size
+      r.c = b.cocoa
       if (b.done) {
         r.status = 'done'
         r.doneMs = b.doneMs
@@ -300,7 +303,9 @@ export class RaceMatch implements Match {
         }
       }
       r.incoming = r.incoming.filter((inc) => inc.d > b.d)
-      stepRunBot(b, this.runCourse, ts, dt)
+      const others: RunNear[] = []
+      for (const o of this.racers) if (o !== r && o.status === 'racing') others.push({ d: o.d, x: o.x })
+      stepRunBot(b, this.runCourse, ts, dt, others)
       r.d = b.d
       r.x = b.x
       r.v = runSpeed(ts)
@@ -330,9 +335,12 @@ export class RaceMatch implements Match {
   }
 
   private broadcastGhosts(t: number) {
+    const now = Date.now()
     const p: GhostWire[] = this.racers.map((r) => [
       r.i,
-      Math.round(r.d * 10) / 10,
+      // a real player's last report is up to a tick old (their reports and this broadcast don't line up): carry it to
+      // now at the speed they reported, so the stamp and the distance agree. Display only; the result uses r.d.
+      Math.round((r.bot || r.status !== 'racing' ? r.d : Math.min(this.length, r.d + r.v * Math.min(0.25, Math.max(0, now - r.lastAt) / 1000))) * 10) / 10,
       Math.round(r.x * 100) / 100,
       Math.round(r.v),
       r.f | (r.status === 'out' || r.status === 'left' ? GF.out : 0) | (r.status === 'done' ? GF.done : 0),
@@ -360,7 +368,7 @@ export class RaceMatch implements Match {
       left: r.status === 'left',
       // more than a few impossible reports means we don't believe the run
       void: r.susp > 6,
-      stat: this.game === 'sled' ? `${r.c} cocoa` : `${r.c} MetroCards`,
+      stat: this.game === 'sled' ? `${r.c} iced ${r.c === 1 ? 'coffee' : 'coffees'}` : `${r.c} MetroCards`,
     }))
     let teams: { up: number; down: number; win: MpTeam } | undefined
     if (this.mode === 'teams') {
@@ -375,7 +383,7 @@ export class RaceMatch implements Match {
   }
 }
 
-/** where sledder i of n lines up across the top of the hill */
+/** where rider i of n lines up across the start line */
 export function startLateral(i: number, n: number): number {
   if (n <= 1) return 0
   const span = Math.min(SLED.halfW * 1.5, 90 * (n - 1))

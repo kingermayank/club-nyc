@@ -2,7 +2,7 @@
 title: Keyboard Shortcuts
 description: Every key in Club NYC on one page. Point at any toolbar button in the game to see its key, too.
 icon: joystick
-updated: 2026-10-20
+updated: 2026-10-24
 ---
 
 You can play Club NYC with just the mouse, but these keys make life faster. In the game, point at any toolbar button to see its key.
@@ -80,7 +80,7 @@ Each job shows its keys on its how-to screen before you start. In every job, [[E
 | Game | Keys |
 | --- | --- |
 | Lobbies | [[Enter]] presses the big button (Ready, Start, Play Again), [[Esc]] leaves |
-| [Pilgrim Hill Sled Race](multiplayer-games/sled-race.md) | [[↑]] or [[→]] and [[↓]] or [[←]] to steer, [[Space]] to hop |
+| [High Line Citi Bike Dash](multiplayer-games/citi-bike-dash.md) | [[↑]] or [[→]] and [[↓]] or [[←]] to steer, [[Space]] to hop |
 | [Rush Hour Run](multiplayer-games/rush-hour-run.md) | [[←]] [[→]] lanes, [[↑]] jump, [[↓]] slide. Out? [[1]] [[2]] [[3]] send a dancer |
 | [Carb-Jitsu](multiplayer-games/carb-jitsu.md) | [[1]] to [[5]] to pick a card (or click it) |
 

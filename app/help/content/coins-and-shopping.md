@@ -65,7 +65,7 @@ If you reach a limit, you'll see a note like "That's all the coins the city hand
 | A Broadway show | [Times Square](places/times-square.md#broadway-theater) | 5 |
 | A carriage ride, or a rowboat | [Central Park](places/central-park.md) | 4, or 3 |
 | The ferry (as a passenger) | [Battery Park](places/battery-park-and-liberty-island.md) | 2 |
-| A wish, a gumball, a busker tip, a soda | Around the city | 1 |
+| A wish, a busker tip, a soda | Around the city | 1 |
 
 The map, the subway, taxis and the ferry home are always free.
 

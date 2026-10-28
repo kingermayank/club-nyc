@@ -1,23 +1,23 @@
 ---
 title: Multiplayer Games
-description: Race your friends down a sledding hill, sprint a rush-hour subway platform, or settle it at the Carb-Jitsu table. Quick Match, lobbies, codes, prizes and stamps.
+description: Race your friends up the High Line on Citi Bikes, sprint a rush-hour subway platform, or settle it at the Carb-Jitsu table. Quick Match, lobbies, codes, prizes and stamps.
 icon: swords
-updated: 2026-10-21
+updated: 2026-10-24
 ---
 
 The [jobs](jobs/README.md) are solo. These three games are for playing **with each other**: short rounds of one to two minutes with whoever's around, and a rematch one click away. Nobody around? City locals fill the empty seats, so you can always play.
 
 :::cards
-- [Pilgrim Hill Sled Race](multiplayer-games/sled-race.md) {img:/help/img/mp-sled.webp} 2 to 4 sledders down Central Park's favorite hill.
+- [High Line Citi Bike Dash](multiplayer-games/citi-bike-dash.md) {img:/help/img/mp-citi-bike.webp} 2 to 4 riders on Citi Bikes, Gansevoort St to 34th St.
 - [Rush Hour Run](multiplayer-games/rush-hour-run.md) {img:/help/img/mp-runner.webp} Up to 9 runners on a rush-hour subway platform.
 - [Carb-Jitsu](multiplayer-games/carb-jitsu.md) {img:/help/img/mp-carbs.webp} Pizza beats Pretzel. Pretzel beats Bagel. Bagel beats Pizza.
 :::
 
 | Game | Players | A round | Its sign in the city | Best score |
 | --- | :---: | --- | --- | --- |
-| Pilgrim Hill Sled Race | 2 to 4 | 45 to 60 seconds | A signpost on the [Central Park](places/central-park.md) lawn | Fastest time |
+| High Line Citi Bike Dash | 2 to 4 | 45 to 60 seconds | A signpost on [The High Line](places/high-line-and-chelsea-market.md) | Fastest time |
 | Rush Hour Run | 2 to 9 | Until the last runner is out | A chalkboard in the [Times Sq–42 St Station](places/subway-station.md) | Farthest run |
-| Carb-Jitsu | 1 on 1, up to 6 at a table | 1 to 2 minutes | A chalkboard by the window table at the [99¢ Slice](places/chinatown-and-little-italy.md#99c-slice) | Longest win streak |
+| Carb-Jitsu | 1 on 1, up to 6 at a table | 1 to 2 minutes | A chalkboard by the window table at [Joe's Pizza](places/chinatown-and-little-italy.md#joes-pizza) | Longest win streak |
 
 ## Finding a Game {#finding-a-game}
 
@@ -25,7 +25,7 @@ You can join from anywhere:
 
 - **The Games tab.** Press [[F]] (or **Friends & Leaderboards** on the toolbar) and open **Games**.
 - **A sign in the city.** Click a game's sign to walk over and open its card. While you're nearby, it shows who's waiting.
-- **A code.** Got a 4 letter code from a friend? Type it into **Got a Code From a Friend?** on the Games tab and press **Join**.
+- **A code.** Got a 4 letter code from a friend? Type it into **Got a code?** on the Games tab and press **Join**.
 - **A link or an invite.** A friend's game link (or an invite notice with **Join**) takes you straight to their lobby.
 
 ![The Games tab in the Community panel: three game cards with Quick Match, Create Lobby and Leaderboard buttons, and a box for a friend's code.](/help/img/mp-games-tab.webp "The Games tab: play with whoever's around, or with the city locals.")
@@ -37,7 +37,7 @@ You can join from anywhere:
 
 ## The Lobby {#the-lobby}
 
-![A Pilgrim Hill Sled Race lobby: the code and Copy Link at the top, the players and open seats, how to play, the settings, Start with Locals, and quick reactions along the bottom.](/help/img/mp-lobby.webp "A lobby: the code, the seats, how to play, and a big button that says what it does.")
+![A High Line Citi Bike Dash lobby: the code and Copy Link at the top, the players and open seats, how to play, the settings, Start with Locals, and quick reactions along the bottom.](/help/img/mp-lobby.webp "A lobby: the code, the seats, how to play, and a big button that says what it does.")
 
 - **The code and Copy Link** at the top are for your friends. **Invite** sends online friends a notice with a **Join** button.
 - **The big button** always says what it does: **Start Race**, **Ready**, **Take a Seat**, **Play Again**. [[Enter]] presses it.
@@ -79,8 +79,8 @@ Every game has its own board, for **wins** and for **best score**, this week (re
 | Game On | Play a multiplayer game. |
 | Bragging Rights | Win a multiplayer game against a real New Yorker. |
 | Full House | Play a game with 4 or more real New Yorkers. |
-| Pilgrim Hill | Finish a sled race on Pilgrim Hill. |
-| King of the Hill | Win a sled race against real New Yorkers. |
+| Gansevoort to 34th | Finish a Citi Bike Dash on the High Line. |
+| Top of the Line | Win a Citi Bike Dash against real New Yorkers. |
 | Stand Clear | Run Rush Hour Run. |
 | Last Stop | Make it all the way to South Ferry in Rush Hour Run. |
 | Carb Loading | Play a game of Carb-Jitsu. |

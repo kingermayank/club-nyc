@@ -1,11 +1,11 @@
-/* Pilgrim Hill Sled Race: the HUD over the canvas (the hill itself is drawn on the canvas) */
-.sl { background: #dfe9f7; }
+/* High Line Citi Bike Dash (internally "sled"): the HUD over the canvas (the High Line itself is drawn on the canvas) */
+.sl { background: #4a4e5b; }
 .sl-canvas { position: absolute; left: 0; top: 0; }
-/* the race at a glance: everyone's face along a line from the top of the hill to the finish */
+/* the race at a glance: everyone's face along a line from Gansevoort St to 34th St */
 .sl-prog { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: 384px; height: 40px; padding: 0 26px 0 12px; border: 3px solid var(--ink); border-radius: 999px; background: rgba(255, 253, 246, 0.94); box-shadow: 0 3px 0 var(--ink); pointer-events: none; }
-.sl-prog-line { position: absolute; left: 26px; right: 38px; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: repeating-linear-gradient(90deg, #9fb8de 0 10px, transparent 10px 16px); }
+.sl-prog-line { position: absolute; left: 26px; right: 38px; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: repeating-linear-gradient(90deg, #8fc06a 0 10px, transparent 10px 16px); }
 .sl-prog-flag { position: absolute; right: 12px; top: 8px; width: 18px; height: 18px; border: 2px solid var(--ink); border-radius: 3px; background: conic-gradient(var(--ink) 0 25%, #fff 0 50%, var(--ink) 0 75%, #fff 0); }
-.sl-dot { position: absolute; left: 8px; top: 4px; width: 28px; height: 28px; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(#fff, #cfe8ff); overflow: hidden; transition: transform 0.12s linear; }
+.sl-dot { position: absolute; left: 8px; top: 4px; width: 28px; height: 28px; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(#fff, #d6ecc4); overflow: hidden; transition: transform 0.12s linear; }
 .sl-dot svg { width: 100%; height: 100%; display: block; }
 .sl-dot.you { z-index: 2; box-shadow: 0 0 0 3px var(--sun); }
 .sl-dot.out { opacity: 0.35; }

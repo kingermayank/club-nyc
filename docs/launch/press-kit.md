@@ -13,7 +13,7 @@ Companion docs: [growth-playbook.md](growth-playbook.md) · [launch-campaign.md]
 
 ## Boilerplate
 
-Club NYC is a free multiplayer game set in a pocket-sized, illustrated New York City, played in a desktop web browser. Players make a cartoon New Yorker and explore 24 places, from Times Square to Liberty Island. They work shifts at five NYC-themed jobs, decorate apartments, throw house parties where everyone hears the same song, and meet friends at a Dance Jam that lights up Times Square every eight minutes. Every brand in the city is a parody, from Starducks to StreetCheesy. Club NYC is free to play, for ages 13 and up, and made by [FOUNDER NAME] in [CITY]. Play at [URL].
+Club NYC is a free multiplayer game set in a pocket-sized, illustrated New York City, played in a desktop web browser. Players make a cartoon New Yorker and explore 24 places, from Times Square to Liberty Island. They work shifts at five NYC-themed jobs, decorate apartments, throw house parties where everyone hears the same song, and meet friends at a Dance Jam that lights up Times Square every eight minutes. The shops go by their real New York names, from Joe's Pizza to Saks Fifth Avenue. Club NYC is free to play, for ages 13 and up, and made by [FOUNDER NAME] in [CITY]. Play at [URL].
 
 *Club NYC is an independent game. It is not affiliated with, endorsed by or connected to Disney or Club Penguin. All brands that appear in the game are parodies.*
 
@@ -46,7 +46,7 @@ Club NYC is a free multiplayer game set in a pocket-sized, illustrated New York 
 - **57 computer-run "city locals,"** clearly labeled, who keep quiet rooms alive and step aside as real players arrive.
 - **Accounts:** play instantly as a guest, then sign in with Google or X to keep your New Yorker **[CONFIRM keys live]**.
 - **Safety tools:** mute, block and report.
-- **Parody brands only** (Starducks, NYKE, StreetCheesy, Belly…), and original synthesized music with parody titles like "Empire State of Mine."
+- **Real New York names** on the shops and food spots (Joe's Pizza, Adel's Famous Halal Food, Ralph's Coffee, Saks Fifth Avenue and more), and original synthesized music with parody titles like "Empire State of Mine."
 
 ### New at launch **[CONFIRM SHIPPED, line by line]**
 - Invite links that drop a friend right next to you, with rewards for both of you.
@@ -91,7 +91,7 @@ Club NYC is built for hanging out with people you know. Players can send a frien
 
 New players get a short first-day tour from Rosa, the super in their building. A photo booth lets players snap a four-pose strip with whoever is standing nearby and share it **[CONFIRM SHIPPED]**.
 
-Every brand in Club NYC is a parody, including Starducks, NYKE and StreetCheesy. The in-game newspaper, The Club NYC Times, covers real New York moments in its own voice, including "Pizza Rat: A Legend Turns 11." The soundtrack is original synthesized music with titles like "Empire State of Mine."
+The shops and food spots go by their real New York names, from Joe's Pizza in Little Italy to Saks Fifth Avenue. The in-game newspaper, The Club NYC Times, covers real New York moments in its own voice, including "Pizza Rat: A Legend Turns 11." The soundtrack is original synthesized music with titles like "Empire State of Mine."
 
 Club NYC is for players 13 and up **[CONFIRM SHIPPED]**. Chat is filtered on the server, which removes links, email addresses and phone numbers and masks swearing, and players can mute, block or report anyone. [CONFIRM: how reports are reviewed and by whom.]
 
@@ -147,7 +147,7 @@ All files live in `docs/deck/`. Two things to settle before sending:
 | `docs/deck/img/f42.jpg`, `f44.jpg` | Your player card and wardrobe; another New Yorker's card (Wave, Add Friend, Visit their place) | Halloween badge |
 | `docs/deck/img/f45.jpg`, `f46.jpg`, `f47.jpg` | Friends with live locations; a weekly leaderboard; Neighborhood Wars standings | Halloween badge |
 | `docs/deck/img/f50.jpg`–`f54.jpg` | Your apartment, decorating, the furniture catalog, the guestbook, visiting a friend | Halloween badge |
-| `docs/deck/img/f07.jpg`, `f08.jpg`, `f12.jpg`–`f32.jpg` | Rooms with players: Times Square, Broadway, Rockefeller Center, Central Park, the Met, the Empire State observatory, Grand Central, the subway, the High Line, Chelsea Market, SoHo, Chinatown & Little Italy, 99¢ Slice | Halloween badge |
+| `docs/deck/img/f07.jpg`, `f08.jpg`, `f12.jpg`–`f32.jpg` | Rooms with players: Times Square, Broadway, Rockefeller Center, Central Park, the Met, the Empire State observatory, Grand Central, the subway, the High Line, Chelsea Market, SoHo, Chinatown & Little Italy, Joe's Pizza | Halloween badge |
 | `docs/deck/img/f59.jpg` | The stamp book | Halloween badge; it says 38 stamps (there are 51 now) |
 | `docs/deck/img/f09.jpg`, `f11.jpg` | The map; a subway car | The map shows the Halloween Parade; the subway car shows route bullets (brand review) |
 | `docs/deck/shots/news-front.png`, `news-moments.png` (also `img/newsfront.jpg`, `newsmoments.jpg`) | The Club NYC Times | The front page is about a real NBA team and the Moments page names real people. Reshoot a launch edition, or crop to the Pizza Rat story. |

@@ -17,7 +17,7 @@ export const EMOJI_ICON: Record<string, string> = {
   '🧀': 'cheese', '🥟': 'dumpling', '🧋': 'boba', '🥤': 'soda', '🍨': 'gelato', '🌮': 'taco',
   '🍩': 'donut', '🍭': 'lollipop', '🥂': 'cheers', '🍽': 'plate',
   // Places & transport
-  '🚇': 'subway', '⛴': 'ferry', '🚚': 'truck', '🚂': 'toy-train', '🏙': 'skyline', '🌇': 'sunset-city',
+  '🚇': 'subway', '⛴': 'ferry', '🚚': 'truck', '🚲': 'bicycle', '🚂': 'toy-train', '🏙': 'skyline', '🌇': 'sunset-city',
   '🌆': 'sunset-city', '🌉': 'bridge', '🏛': 'museum', '⛲': 'fountain', '🏚': 'old-house', '🚪': 'door',
   '🪟': 'window', '🌳': 'tree', '⚓': 'anchor', '🌎': 'globe', '📍': 'pin',
   // Party & fun
