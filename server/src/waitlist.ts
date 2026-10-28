@@ -132,13 +132,29 @@ const cleanSource = (s?: string) => (s ?? '').toLowerCase().replace(/[^a-z0-9:-]
 const cleanRef = (s?: string) => (s ?? '').replace(/[^A-Za-z0-9_]/g, '').slice(0, 14) || null
 const unsubUrl = (id: number) => siteUrl(`/api/waitlist/unsubscribe?u=${id}.${signLink(`waitlist-unsub:${id}`)}`)
 
+/** what's coming, shown in the waitlist emails */
+const COMING: EmailContent['features'] = {
+  heading: 'What’s Waiting for You',
+  items: [
+    { img: '/email/home.jpg', title: 'Your Own Apartment', text: 'A walk-up with a skyline view to decorate however you like. Rent is free, the most fictional part of the game.' },
+    { img: '/email/jobs.jpg', title: 'Silly Jobs, Real Coins', text: 'Toss pies at Joe’s Pizza, run Adel’s halal cart at lunch rush or captain the ferry to Liberty Island.' },
+    { img: '/email/games.jpg', title: 'Games With Friends', text: 'Race Citi Bikes up the High Line, sprint the subway platform and play Carb-Jitsu at the back table.' },
+  ],
+}
+
+/** the thank-you for joining, with the one click that confirms the address is theirs (double opt-in) */
 function confirmContent(id: number, token: string): EmailContent {
   return {
-    subject: 'Confirm Your Spot on the Club NYC Waitlist',
-    preheader: 'One click and you’re in line. No velvet rope, we promise.',
-    title: 'One Click and You’re in Line',
-    paragraphs: ['Thanks for joining the Club NYC waitlist! Confirm this is your email and we’ll let you know the day the city opens.'],
+    subject: 'Thanks for Joining the Club NYC Waitlist!',
+    preheader: 'One click to confirm and you’re in line. No velvet rope, we promise.',
+    hero: { src: '/email/hero.jpg', alt: 'Times Square in Club NYC: a Broadway marquee, red steps and an I ♥ NY souvenir shop' },
+    title: 'Thanks for Joining the Waitlist!',
+    paragraphs: [
+      'Club NYC is a cozy little New York you can play in your browser with friends: make a New Yorker, wander from Times Square to the High Line and say hi to whoever’s around.',
+      'One last thing: confirm this is your email, and we’ll write the day the city opens.',
+    ],
     button: { label: 'Confirm My Spot', url: siteUrl(`/api/waitlist/confirm?token=${token}`) },
+    features: COMING,
     after: ['Didn’t sign up? Ignore this email and you won’t hear from us again.'],
     unsubscribeUrl: unsubUrl(id),
     reason: 'You’re getting this because this address was entered on the Club NYC waitlist.',
@@ -148,17 +164,21 @@ function launchContent(id: number): EmailContent {
   return {
     subject: 'Club NYC Is Open!',
     preheader: 'You were on the waitlist. Now you’re on the guest list.',
+    hero: { src: '/email/hero.jpg', alt: 'Times Square in Club NYC: a Broadway marquee, red steps and an I ♥ NY souvenir shop' },
     title: 'The City Is Open!',
     paragraphs: [
       'You joined the Club NYC waitlist, and the wait is over. Make your New Yorker in 30 seconds, then come say hi in Times Square.',
       'Rent is free, slices are one coin and the pigeons are friendly. Mostly.',
     ],
     button: { label: 'Play Now', url: siteUrl('/play?start=guest') },
+    features: COMING,
     after: ['Club NYC plays in your web browser on a computer. Reading this on your phone? Open it on your laptop later.'],
     unsubscribeUrl: unsubUrl(id),
     reason: 'You’re getting this because you joined the Club NYC waitlist. This is the one email we promised.',
   }
 }
+/** for looking at the emails without sending them (a preview script renders these to HTML) */
+export const previewContent = { confirm: confirmContent, launch: launchContent }
 const confirmMail = (id: number, email: string, token: string) => makeMail(email, confirmContent(id, token), 'waitlist-confirm')
 const launchMail = (id: number, email: string): Mail => makeMail(email, launchContent(id), 'waitlist-launch')
 

@@ -102,6 +102,10 @@ export interface EmailContent {
   /** plain text (escaped here) */
   paragraphs: string[]
   button?: { label: string; url: string }
+  /** a wide picture across the top of the card (an image in app/public/email/, 1080 x 540) */
+  hero?: { src: string; alt: string }
+  /** a small "what's waiting" list under the button: a picture (app/public/email/, 400 x 280), a title and a line */
+  features?: { heading: string; items: { img: string; title: string; text: string }[] }
   /** small print under the button, plain text */
   after?: string[]
   /** the waitlist emails' one-click unsubscribe link (also sent as List-Unsubscribe headers) */
@@ -124,7 +128,9 @@ const site = (path = '') => `${config.publicUrl}${path}`
 const DISPLAY = `'Arial Rounded MT Bold', 'Helvetica Rounded', 'Helvetica Neue', Helvetica, Arial, sans-serif`
 const BODY = `'Helvetica Neue', Helvetica, Arial, sans-serif`
 
-/** The Club NYC look in an email: sky-blue page, a paper card with a thick ink border, one big green button. */
+/** The Club NYC look in an email: sky-blue page, a paper card with a thick ink border, a city picture across its top,
+ * one big green button, and a short list of what's coming. Tables and inline styles only, so Gmail, Apple Mail and
+ * Outlook all agree; every picture has alt text for inboxes that block images. */
 export function renderEmail(c: EmailContent): { html: string; text: string } {
   const who = [config.companyName, config.mailingAddress].filter(Boolean).join(', ')
   const p = (t: string, extra = '') => `<p style="margin:0 0 14px;font-family:${BODY};font-size:16px;line-height:1.5;color:#1d2140;${extra}">${esc(t)}</p>`
@@ -133,6 +139,23 @@ export function renderEmail(c: EmailContent): { html: string; text: string } {
          <a href="${esc(c.button.url)}" style="display:inline-block;padding:13px 28px;font-family:${DISPLAY};font-size:19px;font-weight:bold;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:13px;">${esc(c.button.label)}</a>
        </td></tr></table>
        <p style="margin:0 0 16px;font-family:${BODY};font-size:13px;line-height:1.5;color:#4b5272;">Button not working? Copy this link into your browser:<br><a href="${esc(c.button.url)}" style="color:#134a96;word-break:break-all;">${esc(c.button.url)}</a></p>`
+    : ''
+  const hero = c.hero
+    ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${esc(site(c.hero.src))}" width="532" alt="${esc(c.hero.alt)}" style="display:block;width:100%;max-width:532px;height:auto;border:0;border-radius:20px 20px 0 0;"></td></tr>
+<tr><td style="height:4px;line-height:4px;font-size:0;background:#1d2140;">&nbsp;</td></tr>`
+    : ''
+  const features = c.features
+    ? `<tr><td style="padding:4px 30px 8px;">
+<p style="margin:0 0 12px;font-family:${DISPLAY};font-size:19px;font-weight:bold;line-height:1.3;color:#1d2140;">${esc(c.features.heading)}</p>
+${c.features.items
+  .map(
+    (f) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 12px;"><tr>
+<td width="112" valign="top" style="width:112px;padding:0 14px 0 0;"><img src="${esc(site(f.img))}" width="112" height="78" alt="" style="display:block;width:112px;height:78px;border:3px solid #1d2140;border-radius:12px;"></td>
+<td valign="top" style="font-family:${BODY};font-size:15px;line-height:1.45;color:#1d2140;"><b style="display:block;margin:2px 0 2px;font-family:${DISPLAY};font-size:16px;">${esc(f.title)}</b>${esc(f.text)}</td>
+</tr></table>`,
+  )
+  .join('\n')}
+</td></tr>`
     : ''
   const footer = [
     `<a href="${esc(site('/'))}" style="color:#1d2140;font-weight:bold;text-decoration:none;">Club NYC</a>, a cozy online New York.`,
@@ -155,11 +178,17 @@ export function renderEmail(c: EmailContent): { html: string; text: string } {
 <tr><td align="center" style="padding:28px 12px 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;">
 <tr><td align="center" style="padding:0 0 16px;"><a href="${esc(site('/'))}"><img src="${esc(site('/email/logo.png'))}" width="150" height="85" alt="Club NYC" style="display:block;width:150px;height:auto;border:0;"></a></td></tr>
-<tr><td bgcolor="#fffdf6" style="background:#fffdf6;border:4px solid #1d2140;border-radius:24px;padding:30px 30px 14px;">
+<tr><td bgcolor="#fffdf6" style="background:#fffdf6;border:4px solid #1d2140;border-radius:24px;padding:0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+${hero}
+<tr><td style="padding:${c.hero ? 26 : 30}px 30px 4px;">
 <h1 style="margin:0 0 12px;font-family:${DISPLAY};font-size:27px;line-height:1.2;font-weight:bold;color:#1d2140;">${esc(c.title)}</h1>
 ${c.paragraphs.map((t) => p(t)).join('\n')}
 ${button}
-${(c.after ?? []).map((t) => p(t, 'font-size:14px;color:#4b5272;')).join('\n')}
+</td></tr>
+${features}
+${c.after?.length ? `<tr><td style="padding:4px 30px 14px;border-top:2px dashed #d9dcea;">${c.after.map((t) => p(t, 'margin:12px 0 0;font-size:14px;color:#4b5272;')).join('\n')}</td></tr>` : ''}
+</table>
 </td></tr>
 <tr><td align="center" style="padding:18px 16px 0;font-family:${BODY};font-size:12px;line-height:1.6;color:#1d2140;">${footer.join('<br>')}</td></tr>
 </table>
@@ -172,6 +201,7 @@ ${(c.after ?? []).map((t) => p(t, 'font-size:14px;color:#4b5272;')).join('\n')}
     '',
     ...c.paragraphs.flatMap((t) => [t, '']),
     ...(c.button ? [`${c.button.label}: ${c.button.url}`, ''] : []),
+    ...(c.features ? [c.features.heading, ...c.features.items.map((f) => `- ${f.title}: ${f.text}`), ''] : []),
     ...(c.after ?? []).flatMap((t) => [t, '']),
     '--',
     'Club NYC, a cozy online New York.',

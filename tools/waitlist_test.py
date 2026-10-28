@@ -160,7 +160,7 @@ def http_checks(base, log_path):
     check('the public count is null while the list is small (no tiny numbers)', st == 200 and js == {'count': None}, js)
     st, _, _, js = h('POST', '/api/waitlist', {'email': f'  {a.upper()}  ', 'source': 'test-hero'}, ip=next(ip))
     check('signing up: "You’re on the list", with a confirmation email (dev: printed)', st == 200 and js and js.get('status') == 'added' and js.get('confirm') is True, (st, js))
-    conf = wait_email(log_path, a, 'Confirm Your Spot')
+    conf = wait_email(log_path, a, 'Thanks for Joining the Club NYC Waitlist')
     links = conf.get('links', []) if conf else []
     confirm_url = next((l for l in links if '/api/waitlist/confirm?token=' in l), None)
     unsub_url = next((l for l in links if '/api/waitlist/unsubscribe?u=' in l), None)
@@ -190,7 +190,7 @@ def http_checks(base, log_path):
     check('one confirmed person is still below the threshold: no count', js == {'count': None}, js)
     for who in ('b', 'c'):
         h('POST', '/api/waitlist', {'email': mail(who), 'source': 'test-sheet', 'ref': 'Inviter_1'}, ip=next(ip))
-        e = wait_email(log_path, mail(who), 'Confirm Your Spot')
+        e = wait_email(log_path, mail(who), 'Thanks for Joining the Club NYC Waitlist')
         u = next((l for l in (e or {}).get('links', []) if '/confirm?' in l), None)
         if u:
             h('GET', path_of(u), jar=False)
@@ -260,7 +260,7 @@ def http_checks(base, log_path):
     st, _, _, js = adm('POST', '/api/admin/waitlist/launch-email/test', {'to': mail('test')})
     check('Send a Test goes to one address of your choosing', js and js.get('ok') and wait_email(log_path, mail('test'), 'Club NYC Is Open'), js)
     # a third confirmed person (the one who came back), so the landing page's count line has something real to show
-    again = wait_email(log_path, a, 'Confirm Your Spot', seen=1)
+    again = wait_email(log_path, a, 'Thanks for Joining the Club NYC Waitlist', seen=1)
     u = next((l for l in (again or {}).get('links', []) if '/confirm?' in l), None)
     if u:
         h('GET', path_of(u), jar=False)
@@ -326,7 +326,7 @@ async def browser_checks(base, log_path, preview_cookie):
         done = await pg.text_content('.hero-join .wl-done')
         check('joining from the hero: "You’re on the list!" (and check your inbox to confirm)', 'You’re on the list!' in done and 'confirm' in done, done)
         check('...every form on the page shows it (the last call too)', await pg.locator('.final .wl-done').count() == 1)
-        check('the address reached the server, with where it came from', wait_email(log_path, mail('landing'), 'Confirm Your Spot') is not None)
+        check('the address reached the server, with where it came from', wait_email(log_path, mail('landing'), 'Thanks for Joining the Club NYC Waitlist') is not None)
         await pg.screenshot(path=os.path.join(OUT, 'landing-waitlist-joined.png'))
         await pg.reload(wait_until='networkidle')
         check('back again later: the page remembers you joined', await pg.is_visible('.hero-join .wl-done'))
