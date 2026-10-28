@@ -333,9 +333,9 @@ async def browser_checks(base, log_path, preview_cookie):
         await pg.click('.hero-join .wl-again')
         check('"Use a Different Email" brings the form back', await pg.is_visible('#wl-hero'))
         await pg.evaluate('scrollTo(0, 0)')
-        await pg.click('.site-header [data-join=header]')
-        await pg.wait_for_timeout(200)
-        check('the header’s Join the Waitlist puts the cursor in the hero’s field when it’s on screen', await pg.evaluate("document.activeElement?.id") == 'wl-hero')
+        # the header's Join the Waitlist, Discord link and the hero's trailer button are hidden for now (the user's call)
+        check('the header shows no Discord link or Join the Waitlist button, and the hero no trailer button (hidden for now)',
+              not await pg.is_visible('.site-header [data-join=header]') and not await pg.is_visible('.site-header .discord-link') and not await pg.is_visible('.hero .btn-trailer'))
         await pg.evaluate("document.querySelector('.mid-cta').scrollIntoView({block: 'center'})")
         await pg.wait_for_timeout(300)
         await pg.click('.mid-cta [data-join=features]')

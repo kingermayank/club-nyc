@@ -114,6 +114,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .site-nav a:hover { background: rgba(255, 255, 255, 0.16); }
 .site-header.scrolled .site-nav a:hover { background: var(--sky); }
 .header-actions { display: flex; align-items: center; gap: 10px; }
+/* hidden for now (the user's call): the header's Discord link and Join the Waitlist button, the hero's Watch the Trailer
+   and "Coming Soon" label. Delete these lines to bring them back. */
+.header-actions .discord-link, .header-actions .when-soon, .hero .btn-trailer, .hero .wl-kicker { display: none !important; }
 .discord-link { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px; border-radius: 12px; color: inherit; font: 17px var(--display); text-decoration: none; }
 .discord-link svg { width: 24px; height: 24px; }
 .discord-link:hover { background: rgba(255, 255, 255, 0.16); }
@@ -121,7 +124,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .site-header.scrolled .discord-link:hover { background: #eef0ff; }
 
 /* ---------- hero: the city, full bleed (real gameplay, silent) ---------- */
-.hero { position: relative; display: grid; align-items: center; min-height: min(100svh, 880px); margin-top: -72px; padding: 132px 0 148px; overflow: hidden; isolation: isolate; color: #fff; background: var(--night) url('/video/hero-loop.webp') center / cover; }
+.hero { position: relative; display: grid; align-items: center; min-height: min(100svh, 880px); margin-top: -72px; padding: 192px 0 120px; overflow: hidden; isolation: isolate; color: #fff; background: var(--night) url('/video/hero-loop.webp') center / cover; }
 .hero-video { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
 /* dark where the words are, clear where the city is */
 .hero-shade { position: absolute; inset: 0; z-index: -1; background:
@@ -131,7 +134,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .welcome-back { margin-bottom: var(--sp-3); color: var(--sun); font: 22px var(--display); }
 /* (the W's own side bearing would start it 0.027em right of everything else: pull it back so the ink lines up;
    re-measure if the headline's first letter changes; the description's first letter, an R, is pulled back the same way) */
-.hero h1 { margin-left: -0.027em; text-wrap: balance; font-size: clamp(46px, 5.6vw, 82px); line-height: 1.12; text-shadow: 0 4px 0 rgba(11, 24, 53, 0.7); }
+/* the hero sits under the 72px header, so its padding is 72px heavier on top: the words land in the middle of what you see */
+.hero h1 { margin-left: -0.027em; text-wrap: balance; font-size: clamp(42px, calc(5.6vw - 4px), 78px); line-height: calc(1.12em - 4px); letter-spacing: -0.02em; text-shadow: 0 4px 0 rgba(11, 24, 53, 0.7); }
 .lede { margin-top: var(--sp-4); max-width: 32em; text-indent: -0.077em; color: #e3ecff; font-size: 20px; line-height: 1.5; }
 /* Play now starts exactly where the words start */
 .hero-cta { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 16px 20px; margin-top: 32px; }
@@ -380,7 +384,7 @@ a.tile:hover { translate: 0 -3px; }
   .hero { align-items: end; min-height: 760px; margin-top: -64px; padding: 96px 0 104px; }
   .hero-video { object-position: 40% 50%; }
   .hero-shade { background: linear-gradient(180deg, rgba(11, 24, 53, 0.6) 0%, rgba(11, 24, 53, 0.1) 24%, rgba(11, 24, 53, 0.86) 56%, rgba(11, 24, 53, 0.97) 100%); }
-  .hero h1 { font-size: clamp(38px, 11vw, 48px); }
+  .hero h1 { font-size: clamp(34px, calc(11vw - 4px), 44px); }
   .lede { font-size: 18px; }
   .btn-xl { width: 100%; padding: 0 18px; font-size: 24px; }
   .btn-trailer { width: 100%; justify-content: center; min-height: 60px; font-size: 20px; }

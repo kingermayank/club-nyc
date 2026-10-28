@@ -42,6 +42,8 @@ html:not([data-launch='waitlist']) .when-soon { display: none !important; }
 
 /* ---------- the hero, waitlist version ---------- */
 .hero-join { margin-top: 30px; }
+/* the hero's email box is 100px wider than the text column above it (big screens; phones stack it full width) */
+@media (min-width: 900px) { .hero-join .wl-form { width: calc(100% + 100px); max-width: none; } }
 .hero-join-more { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 24px; }
 .hero-join-more .btn-trailer { min-height: 60px; font-size: 20px; }
 .wl-count { display: inline-flex; align-items: center; gap: 9px; color: #e3ecff; font: 18px/1.3 var(--display); }
