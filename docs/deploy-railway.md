@@ -173,7 +173,7 @@ Save it in your password manager too. It's the password for the moderator dashbo
 | `TRUST_PROXY` | `true` | Railway's edge passes each visitor's real IP to the server. Without this every visitor looks like the same proxy, and rate limits would treat the whole world as one person. |
 | `DB_PATH` | `/data/club-nyc.db` | The database file, on the volume. |
 | `BACKUP_DIR` | `/data/backups` | Where the server keeps its own snapshots, also on the volume. |
-| `ADMIN_TOKEN` | a long random secret | Unlocks the moderator dashboard at `/admin.html`. If unset, the dashboard is off. |
+| `ADMIN_TOKEN` | the team password | Unlocks Launch HQ at `/hq.html` (moderation included; `/admin.html` points there). Spaces and capitals don't matter when typing it. If unset, it's off. |
 | `CONTACT_EMAIL` | an inbox you read | Shown to banned players for appeals, and filled in wherever the landing page and the privacy policy, terms and rules say `[CONTACT EMAIL]`. |
 | `COMPANY_NAME` | your name or your company's legal name | Fills `[COMPANY NAME]` in the terms, privacy policy and the landing page footer. The legal pages show the placeholder until it's set. |
 | `GOVERNING_STATE`, `MAILING_ADDRESS` | e.g. `New York`; a postal address | Fill `[GOVERNING STATE]` (the terms' governing law and courts) and `[MAILING ADDRESS]` (where legal notices go). Decide these with a lawyer. |
@@ -241,7 +241,7 @@ There's nothing to set under Build: Railway builds the `Dockerfile` automaticall
    tick "I agree", and walk around as a guest. (`/play?preview=off` puts that browser back to Coming Soon.)
    Also check: `/robots.txt` and `/sitemap.xml` show your `https://` address, and `/discord` goes to your invite (or back to the landing page with an "opens soon" note).
 6. About a minute after the start, the logs should show the first snapshot: `[ops] backup club-nyc-2026-10-16T12-00-00Z.db (…) in … ms`. Snapshot names use UTC time.
-7. Open `https://<your domain>/admin.html` and log in with your `ADMIN_TOKEN`. The **Waitlist** tab shows who's joined.
+7. Open `https://<your domain>/hq.html` (or the **Team** link in the landing page's footer) and sign in with your `ADMIN_TOKEN`. **Waitlist** shows who's joined.
 
 ---
 
@@ -284,7 +284,7 @@ Until now the site has been in waitlist mode (`LAUNCH_MODE` unset or `waitlist`)
 1. Service → **Variables** → set `LAUNCH_MODE=open` → **Deploy**.
 2. Check in a private window: the landing page says **Play Now**, `/play` opens the game, and a new guest can walk
    into Times Square.
-3. `/admin.html` → **Waitlist** → **Email the Waitlist That We're Open**. It shows how many people will get it
+3. Launch HQ → **Waitlist** → **Email the waitlist**. It shows how many people will get it
    first, sends in batches of 100 (Resend's batch API), and marks each person as emailed. Unsubscribed people,
    unconfirmed addresses and anyone already emailed are skipped, so pressing it again later (say, after a quota
    hiccup or for late signups) only reaches people who haven't had it. Try **Send a Test** to yourself first.

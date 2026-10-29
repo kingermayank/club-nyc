@@ -1056,6 +1056,8 @@ input::placeholder, textarea::placeholder { font-family: var(--field); }
 .btn.tiny { padding: 6px 12px; font-size: var(--fs-xs); border-width: 2.5px; border-radius: 10px; flex-direction: row; box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45), 0 2px 0 var(--ink); min-height: 30px; }
 .pc-meta { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 6px; font-size: var(--fs-xs); opacity: 0.85; }
 .pc-live { color: #1b7a3d; font-weight: 700; }
+/* the Founder badge: here before the city opened (or on the waitlist) */
+.pc-founder { display: inline-flex; align-items: center; height: 20px; padding: 1px 9px 0; border: 2px solid var(--ink); border-radius: 999px; background: var(--sun); color: var(--ink); font: 700 var(--fs-xs)/1 var(--display); vertical-align: middle; }
 .pc-safety { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; padding-top: 8px; border-top: 2px dashed rgba(29, 33, 64, 0.15); }
 .pc-safety .btn { background: linear-gradient(#f2f2f2, #d9dce6); color: var(--ink); text-shadow: none; }
 .pc-local { display: inline-block; margin-top: 6px; padding: 1px 8px; border-radius: 8px; background: rgba(29, 33, 64, 0.1); font-size: var(--fs-2xs); }

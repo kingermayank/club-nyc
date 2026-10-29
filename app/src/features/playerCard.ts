@@ -300,7 +300,7 @@ export function remoteCard(a: Actor) {
       chip.title = `Level ${l.level}`
       chip.hidden = false
       const since = new Date(info.user.memberSince + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-      card.querySelector('.pc-meta')!.innerHTML = `<span class="pc-live">● Here now</span><span>New Yorker since ${since}</span><span>❤️ ${info.likes} · 🏠 ${info.furniture.length} things</span>`
+      card.querySelector('.pc-meta')!.innerHTML = `<span class="pc-live">● Here now</span>${info.user.founder ? '<span class="pc-founder" title="Here before the city opened">Founder</span>' : ''}<span>New Yorker since ${since}</span><span>❤️ ${info.likes} · 🏠 ${info.furniture.length} things</span>`
     }
     actions.innerHTML = ''
     safety.innerHTML = ''
@@ -365,7 +365,7 @@ function accountRow(): HTMLElement {
     const week = Math.max(me.week ?? 0, save.week?.start === weekStart(nycDay()) ? save.week.days : 0)
     if (me.memberNo)
       box.append(
-        el('div', 'pc-member', `New Yorker <b>No. ${String(me.memberNo).padStart(4, '0')}</b>${week >= 2 ? ` · <em>📅 ${week} of 7 days this week</em>` : ''}`),
+        el('div', 'pc-member', `New Yorker <b>No. ${String(me.memberNo).padStart(4, '0')}</b>${me.founder ? ' <span class="pc-founder" title="Here before the city opened">Founder</span>' : ''}${week >= 2 ? ` · <em>📅 ${week} of 7 days this week</em>` : ''}`),
       )
     const row = el('div', 'pc-acct-row')
     box.append(row)

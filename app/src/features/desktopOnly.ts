@@ -19,7 +19,7 @@ export function desktopOnly(root: HTMLElement, carryOn: () => void) {
   page.innerHTML = `<div class="do-card">
       <img src="/art/ui/logo.png" alt="Club NYC" class="do-logo">
       <h1>Best on a computer</h1>
-      <p>Club NYC is a whole city in your browser, and it needs a keyboard and a bigger screen. Open this link on your laptop or desktop and you’re in.</p>
+      <p>Club NYC is a whole city, and it needs a keyboard and a bigger screen. Open this link on your laptop or desktop and you’re in.</p>
       <div class="do-link"><input readonly value="${url}" aria-label="Link to Club NYC"><button class="do-copy">Copy</button></div>
       <div class="do-actions">
         <a class="do-btn" href="mailto:?subject=${encodeURIComponent('Club NYC: open on my computer')}&body=${encodeURIComponent(`${pitch} ${url}`)}">✉️ Email it to myself</a>

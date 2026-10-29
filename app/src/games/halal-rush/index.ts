@@ -1388,6 +1388,19 @@ function run(ctx: MiniGameContext) {
     act(s)
   }
   window.addEventListener('keydown', onKey)
+  // dev only: one good move per call for the trailer capture bot (video/capture), using the game's own next-step hint
+  if (import.meta.env.DEV) {
+    ;(window as unknown as { __halalBot?: () => string }).__halalBot = () => {
+      if (phase !== 'play') return phase
+      const c = customers.find((x) => x.state === 'order')
+      if (!c) return 'waiting'
+      if (c.kind === 'tourist') return (serve(c), 'tourist')
+      const step = nextStep(c.order, build)
+      if (step === 'serve') serve(c)
+      else act(step as Station)
+      return step
+    }
+  }
 
   // ---------------------------------------------------------------------------- loop
   let last = performance.now()

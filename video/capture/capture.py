@@ -1,7 +1,7 @@
 """Real Club NYC footage for the launch trailer -> video/public/footage/ (1920 x 1080 clips and stills).
 
 usage: .venv/bin/python video/capture/capture.py [scene ...]
-       scenes: crowd creator map places jam jobs party stamps extras flashmob hero (default: all)
+       scenes: crowd creator map places jam jobs party stamps extras flashmob hero rush (default: all)
 Needs the private QA copy of the game running (bash tools/qa_stack.sh -> http://localhost:5197). The crowd scene signs
 real guest players into that copy; everything else is a single-player test save (?profile=trailer), so nothing here
 touches your real save or your dev servers.
@@ -463,6 +463,62 @@ async def flashmob(b):
 
 SCENES = {'hero': hero, 'flashmob': flashmob, 'crowd': crowd, 'creator': creator, 'map': map_scene, 'places': places, 'jam': jam, 'jobs': jobs,
           'party': party, 'stamps': stamps, 'extras': extras}
+
+
+async def rush(b):
+    """Halal Rush played properly for 30 s by the dev-only bot (games/halal-rush __halalBot): the mock-epic trailer's footage"""
+    c = await b.new_context(viewport=VIEW, device_scale_factor=2)
+    pg = await c.new_page()
+    await pg.goto(f'{BASE}/play?profile=trailer&game=halal-rush', wait_until='networkidle')
+    await pg.wait_for_timeout(2500)
+    start = pg.get_by_role('button', name=re.compile(r'open the cart|start|play', re.I)).first
+    await start.click(timeout=5000)
+    await pg.wait_for_timeout(1200)
+
+    async def work():
+        end = asyncio.get_event_loop().time() + 30
+        while asyncio.get_event_loop().time() < end:
+            await pg.evaluate("window.__halalBot?.()")
+            # a quick human pace: about three moves a second
+            await pg.wait_for_timeout(330)
+
+    await clip(pg, 'rush', 31, work)
+    await c.close()
+
+
+SCENES['rush'] = rush
+
+# ---------------------------------------------------------------- portrait reels: the New Yorker walks through the
+# middle third of the frame (a full-height 9:16 crop shows 32% of the width), aimed at each room's landmark.
+# (room, crop centre as a fraction of the width, floor y). Rooms whose art shows real store names stay out.
+TALL = [('coffee', .42, 470), ('subway', .5, 470), ('grand-central', .5, 480), ('central-park', .47, 470), ('high-line', .42, 480),
+        ('the-met', .5, 490), ('brooklyn-bridge', .47, 480), ('liberty-island', .62, 470), ('empire-deck', .24, 480),
+        ('rockefeller', .48, 500), ('apartment', .45, 470), ('loft', .42, 470), ('penthouse', .55, 470), ('wall-street', .55, 490),
+        ('broadway', .5, 480), ('sky-deck', .5, 480)]
+
+
+async def tall(b):
+    """5 s per room at 2560 x 1446: a short stroll across the middle of the portrait crop, then a dance"""
+    c, pg = await sharp_page(b)
+    for room, cx, y in TALL:
+        try:
+            await goto(pg, room, settle=5500)
+            await walk(pg, round(cx * 1000) - 70, y)
+            await pg.wait_for_timeout(2200)
+
+            async def stroll(cx=cx, y=y):
+                await walk(pg, round(cx * 1000) + 40, y)
+                await pg.wait_for_timeout(2400)
+                await pg.keyboard.press('d')
+
+            await sharp_clip(pg, 'tall-' + room, 5, stroll)
+            print('  tall', room, flush=True)
+        except Exception as e:
+            print('  tall', room, 'failed:', e, flush=True)
+    await c.close()
+
+
+SCENES['tall'] = tall
 
 
 async def main():

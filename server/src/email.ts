@@ -135,10 +135,9 @@ export function renderEmail(c: EmailContent): { html: string; text: string } {
   const who = [config.companyName, config.mailingAddress].filter(Boolean).join(', ')
   const p = (t: string, extra = '') => `<p style="margin:0 0 14px;font-family:${BODY};font-size:16px;line-height:1.5;color:#1d2140;${extra}">${esc(t)}</p>`
   const button = c.button
-    ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 18px;"><tr><td align="center" bgcolor="#2fa54a" style="border:3px solid #1d2140;border-radius:16px;background:#2fa54a;">
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 22px;"><tr><td align="center" bgcolor="#2fa54a" style="border:3px solid #1d2140;border-radius:16px;background:#2fa54a;">
          <a href="${esc(c.button.url)}" style="display:inline-block;padding:13px 28px;font-family:${DISPLAY};font-size:19px;font-weight:bold;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:13px;">${esc(c.button.label)}</a>
-       </td></tr></table>
-       <p style="margin:0 0 16px;font-family:${BODY};font-size:13px;line-height:1.5;color:#4b5272;">Button not working? Copy this link into your browser:<br><a href="${esc(c.button.url)}" style="color:#134a96;word-break:break-all;">${esc(c.button.url)}</a></p>`
+       </td></tr></table>`
     : ''
   const hero = c.hero
     ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${esc(site(c.hero.src))}" width="532" alt="${esc(c.hero.alt)}" style="display:block;width:100%;max-width:532px;height:auto;border:0;border-radius:20px 20px 0 0;"></td></tr>
@@ -172,9 +171,9 @@ ${c.features.items
 <meta name="supported-color-schemes" content="light only">
 <title>${esc(c.subject)}</title>
 </head>
-<body style="margin:0;padding:0;background:#78bdf2;">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#78bdf2;">${esc(c.preheader)}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#78bdf2" style="background:#78bdf2;">
+<body style="margin:0;padding:0;background:#cde6fe;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#cde6fe;">${esc(c.preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#cde6fe" style="background:#cde6fe;">
 <tr><td align="center" style="padding:28px 12px 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;">
 <tr><td align="center" style="padding:0 0 16px;"><a href="${esc(site('/'))}"><img src="${esc(site('/email/logo.png'))}" width="150" height="85" alt="Club NYC" style="display:block;width:150px;height:auto;border:0;"></a></td></tr>

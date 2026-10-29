@@ -40,6 +40,11 @@ def check(name, ok, detail=''):
     print(('PASS ' if ok else 'FAIL ') + name + (f'  ({detail})' if detail and not ok else ''), flush=True)
 
 
+def wl_name(n):
+    """a unique username for a waitlist form (2 to 14 letters, numbers and _)"""
+    return (n[:6].capitalize() + '_' + TAG)[:14]
+
+
 def mail(n):
     return f'wl{TAG}.{n}@example.com'
 
@@ -252,13 +257,14 @@ def http_checks(base, log_path):
     st_a = next((r['status'] for r in rows if r['email'] == a), None)
     check('...each is marked emailed; the unconfirmed re-signup isn’t', st_b == 'emailed' and st_a == 'waiting to confirm', (st_b, st_a))
     launch = wait_email(log_path, mail('b'), 'Club NYC Is Open')
-    check('the launch email has the Play Now link and its own unsubscribe link', launch and any('/play?start=guest' in l for l in launch['links']) and any('/api/waitlist/unsubscribe?u=' in l for l in launch['links']), launch)
+    # the launch email's button signs its reader in (the Claim link, waitlist.ts claimUrl)
+    check('the launch email has the one-click Claim link and its own unsubscribe link', launch and any('/api/auth/claim?u=' in l for l in launch['links']) and any('/api/waitlist/unsubscribe?u=' in l for l in launch['links']), launch)
     st, _, _, js = adm('POST', '/api/admin/waitlist/launch-email', {'force': True})
     check('running it again is safe: nobody is emailed twice', js and js.get('ok') is False and js.get('error') == 'nobody-left', js)
     st, _, html, _ = adm('GET', '/api/admin/waitlist/launch-email/preview')
-    check('the dashboard can preview the launch email (no em dashes, Title Case button)', st == 200 and 'The City Is Open!' in html and '>Play Now<' in html and '—' not in html, st)
+    check('the dashboard can preview the launch email (no em dashes, the Claim button)', st == 200 and 'the city is open!' in html and 'Claim Sleepy_Bagel' in html and '—' not in html, st)
     st, _, _, js = adm('POST', '/api/admin/waitlist/launch-email/test', {'to': mail('test')})
-    check('Send a Test goes to one address of your choosing', js and js.get('ok') and wait_email(log_path, mail('test'), 'Club NYC Is Open'), js)
+    check('Send a Test goes to one address of your choosing', js and js.get('ok') and wait_email(log_path, mail('test'), 'the city is open'), js)
     # a third confirmed person (the one who came back), so the landing page's count line has something real to show
     again = wait_email(log_path, a, 'Thanks for Joining the Club NYC Waitlist', seen=1)
     u = next((l for l in (again or {}).get('links', []) if '/confirm?' in l), None)
@@ -316,6 +322,10 @@ async def browser_checks(base, log_path, preview_cookie):
         check('the count line shows the real number once it’s above the threshold', await pg.is_visible('.hero-join .wl-count') and 'in line' in (await pg.text_content('.hero-join .wl-count')), await pg.text_content('.hero-join .wl-count'))
         await pg.screenshot(path=os.path.join(OUT, 'landing-waitlist-1280.png'))
         await pg.click('.hero-join button[type=submit]')
+        check('Join with no name asks for one first', 'Pick a name' in (await pg.text_content('.hero-join .wl-name-status')))
+        await pg.fill('.hero-join .wl-name-input', wl_name('landing'))
+        await pg.wait_for_timeout(500)
+        await pg.click('.hero-join button[type=submit]')
         check('Join with an empty field says what to do', 'Type your email' in (await pg.text_content('.hero-join .wl-msg')))
         await pg.fill('#wl-hero', 'not-an-email')
         await pg.click('.hero-join button[type=submit]')
@@ -324,9 +334,9 @@ async def browser_checks(base, log_path, preview_cookie):
         await pg.click('.hero-join button[type=submit]')
         await pg.wait_for_selector('.hero-join .wl-done', timeout=8000)
         done = await pg.text_content('.hero-join .wl-done')
-        check('joining from the hero: "You’re on the list!" (and check your inbox to confirm)', 'You’re on the list!' in done and 'confirm' in done, done)
+        check('joining from the hero: "<name> is yours!" (and check your inbox to confirm)', wl_name('landing') + ' is yours!' in done and 'confirm' in done, done)
         check('...every form on the page shows it (the last call too)', await pg.locator('.final .wl-done').count() == 1)
-        check('the address reached the server, with where it came from', wait_email(log_path, mail('landing'), 'Thanks for Joining the Club NYC Waitlist') is not None)
+        check('the address reached the server, with the saved name', wait_email(log_path, mail('landing'), f"{wl_name('landing')} is saved for you") is not None)
         await pg.screenshot(path=os.path.join(OUT, 'landing-waitlist-joined.png'))
         await pg.reload(wait_until='networkidle')
         check('back again later: the page remembers you joined', await pg.is_visible('.hero-join .wl-done'))
@@ -340,12 +350,13 @@ async def browser_checks(base, log_path, preview_cookie):
         await pg.wait_for_timeout(300)
         await pg.click('.mid-cta [data-join=features]')
         await pg.wait_for_selector('#join-sheet[open]', timeout=3000)
-        check('further down, Join the Waitlist opens the sheet with its own form, cursor in the field', await pg.evaluate("document.activeElement?.id") == 'wl-sheet')
+        check('further down, Join the Waitlist opens the sheet with its own form, cursor in the name field', await pg.evaluate("!!document.activeElement?.closest('#join-sheet') && document.activeElement.classList.contains('wl-name-input')"))
         await pg.screenshot(path=os.path.join(OUT, 'landing-waitlist-sheet.png'))
+        await pg.fill('#join-sheet .wl-name-input', wl_name('sheet'))
         await pg.fill('#wl-sheet', mail('sheet'))
         await pg.click('#join-sheet button[type=submit]')
         await pg.wait_for_selector('#join-sheet .wl-done', timeout=8000)
-        check('joining from the sheet works too', 'on the list' in (await pg.text_content('#join-sheet .wl-done')))
+        check('joining from the sheet works too', 'is yours' in (await pg.text_content('#join-sheet .wl-done')))
         await pg.context.close()
 
         pg = await page(390, 844, mobile=True)
@@ -355,6 +366,7 @@ async def browser_checks(base, log_path, preview_cookie):
         note = await pg.text_content('.hero-note')
         check('phones are told the city plays on a computer (and can still join)', 'computer' in (note or ''), note)
         await pg.screenshot(path=os.path.join(OUT, 'landing-waitlist-390.png'))
+        await pg.fill('.hero-join .wl-name-input', wl_name('phone'))
         await pg.fill('#wl-hero', mail('phone'))
         await pg.click('.hero-join button[type=submit]')
         await pg.wait_for_selector('.hero-join .wl-done', timeout=8000)
@@ -366,10 +378,11 @@ async def browser_checks(base, log_path, preview_cookie):
         await pg.goto(base + '/play?preview=definitely-wrong', wait_until='networkidle')
         check('a wrong preview code: the Coming Soon page says the code didn’t work', 'Coming Soon to a Browser Near You' in (await pg.text_content('h1')) and await pg.is_visible('.soon-code'))
         await pg.screenshot(path=os.path.join(OUT, 'coming-soon-1280.png'))
+        await pg.fill('.soon-card .wl-name-input', wl_name('soon'))
         await pg.fill('#wl-soon', mail('soon'))
         await pg.click('.soon-card button[type=submit]')
         await pg.wait_for_selector('.soon-card .wl-done', timeout=8000)
-        check('joining from the Coming Soon page', 'on the list' in (await pg.text_content('.soon-card .wl-done')))
+        check('joining from the Coming Soon page', 'is yours' in (await pg.text_content('.soon-card .wl-done')))
         await pg.context.close()
 
         # ---- the preview code in a browser, then email sign-in
@@ -440,6 +453,7 @@ async def browser_checks(base, log_path, preview_cookie):
         await pg.wait_for_selector('.soon-invite:not([hidden])', timeout=8000)
         check('an invite link before launch: "<name> invited you to Club NYC!" on the Coming Soon page', name in (await pg.text_content('.soon-invite')))
         await pg.screenshot(path=os.path.join(OUT, 'coming-soon-invite.png'))
+        await pg.fill('.soon-card .wl-name-input', wl_name('invite'))
         await pg.fill('#wl-soon', mail('invited'))
         await pg.click('.soon-card button[type=submit]')
         await pg.wait_for_selector('.soon-card .wl-done', timeout=8000)

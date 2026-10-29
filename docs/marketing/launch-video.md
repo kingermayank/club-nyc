@@ -38,7 +38,7 @@ One bar is 4 beats = 2.4 s. Messages and words appear on the beat.
 | 0:24–0:29 | The breakdown: bass, marimba and claps, then a snare roll and the slide whistle again | A walk-up apartment, furniture landing on the beat, then a house party | "afterparty at mine?" · **Decorate your place** · **Throw a house party** |
 | 0:29–0:34 | The last chorus, in harmony, plus tambourine; a honk | The cab again, then one more thing per beat: stamps, the photo booth, Neighborhood Wars, Today in the City, shopping in SoHo, the Met steps, Slice Factory | each name, then **and so much more** |
 | 0:34–0:38 | The tune's last line, ending on G | Everyone in Times Square | "same time tomorrow?" · **The Big Apple is waiting.** |
-| 0:38–0:43 | Ta-da on C, and a little marimba sparkle | End card | Logo · **Play free in your browser** · Play now · No download · Ages 13+ · Early access |
+| 0:38–0:43 | Ta-da on C, and a little marimba sparkle | End card | Logo · Play now · No download · Ages 13+ · Early access |
 
 ## Ground rules
 

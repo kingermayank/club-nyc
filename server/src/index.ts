@@ -22,7 +22,7 @@ import { rateLimit, byPlayer } from './limits.ts'
 import { purgeOld } from './moderation.ts'
 import { siteHeaders, staticMtime } from './headers.ts'
 import { fillPlaceholders, discordTarget, discordInvite, landingForMode } from './landing.ts'
-import { waitlist, launch, launchGate, launchMode, playGate } from './waitlist.ts'
+import { waitlist, launch, launchGate, launchModeNow, playGate } from './waitlist.ts'
 
 const app = new Hono()
 // no request body the game sends comes near this (a cloud save is ~20 KB); bigger ones are refused before
@@ -82,7 +82,9 @@ if (existsSync(config.staticDir)) {
   const fill = (html: string, legal = false) =>
     fillPlaceholders(html, { contactEmail: config.contactEmail, companyName: config.companyName, governingState: config.governingState, mailingAddress: config.mailingAddress, legal })
   // waitlist mode (LAUNCH_MODE): the landing page's calls to action become "Join the Waitlist" (landing.ts)
-  const landing = fill(absolute(landingForMode(readFileSync(join(root, 'index.html'), 'utf8'), launchMode), abs('/')))
+  // both versions are made once; each visit gets the one for the mode right now (LAUNCH_AT can flip it while running)
+  const landingHtml = readFileSync(join(root, 'index.html'), 'utf8')
+  const landings = { waitlist: fill(absolute(landingForMode(landingHtml, 'waitlist'), abs('/'))), open: fill(absolute(landingForMode(landingHtml, 'open'), abs('/'))) }
   // the policy pages: same fill-in (the company name only once it's really set: they need the legal name)
   for (const name of ['rules', 'privacy', 'terms']) {
     const file = join(root, `${name}.html`)
@@ -107,7 +109,7 @@ if (existsSync(config.staticDir)) {
   // for testers who've entered the preview code (PREVIEW_CODE, see waitlist.ts)
   const soonFile = join(root, 'soon.html')
   const soonBase = existsSync(soonFile) ? fill(readFileSync(soonFile, 'utf8')) : null
-  const soon = soonBase ? withMeta('Club NYC (Coming Soon)', 'A cozy online New York opens soon. Join the waitlist and we’ll email you the day the doors open.', '/og/club-nyc.jpg', abs('/play'), soonBase) : landing
+  const soon = soonBase ? withMeta('Club NYC (Coming Soon)', 'A cozy online New York opens soon. Join the waitlist and we’ll email you the day the doors open.', '/og/club-nyc.jpg', abs('/play'), soonBase) : landings.waitlist
   const gamePage = (c: Context, html: string, soonHtml: string) => {
     const g = playGate(c)
     if (g.redirect) return c.redirect(g.redirect)
@@ -123,7 +125,7 @@ if (existsSync(config.staticDir)) {
     )
   })
   // search engines: the landing page and the policy pages (the game at /play says noindex, so it stays crawlable)
-  app.get('/robots.txt', (c) => c.text(`User-agent: *\nDisallow: /api/\nDisallow: /admin.html\n\nSitemap: ${abs('/sitemap.xml')}\n`))
+  app.get('/robots.txt', (c) => c.text(`User-agent: *\nDisallow: /api/\nDisallow: /admin.html\nDisallow: /hq.html\n\nSitemap: ${abs('/sitemap.xml')}\n`))
   // the Help Center's pages come from its built search index (one entry per page)
   const helpUrls = (() => {
     try {
@@ -142,7 +144,7 @@ if (existsSync(config.staticDir)) {
       .join('\n')
     return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
   })
-  app.get('/', (c) => c.html(landing))
+  app.get('/', (c) => c.html(landings[launchModeNow()]))
   // a game's link pasted in Discord (/play?lobby=K7QX) unfurls as that game: who's hosting, how many seats are taken
   app.get('/play', (c) => {
     const p = lobbyPreview(String(c.req.query('lobby') ?? '').slice(0, 8))
@@ -193,7 +195,7 @@ if (existsSync(config.staticDir)) {
   const help404 = existsSync(join(root, 'help/404.html')) ? readFileSync(join(root, 'help/404.html'), 'utf8') : null
   if (help404) app.get('/help/*', (c) => c.html(help404, 404))
   // anything else: the landing page (a 404, so search engines don't index stray addresses)
-  app.get('*', (c) => c.html(landing, 404))
+  app.get('*', (c) => c.html(landings[launchModeNow()], 404))
 }
 
 // a production deploy with a missing setting should say so loudly in the logs (search them for WARNING)
@@ -206,7 +208,7 @@ if (!config.dev) {
   if (!config.companyName) warn('COMPANY_NAME is not set: the privacy policy and terms show [COMPANY NAME].')
   if (!config.governingState || !config.mailingAddress) warn('GOVERNING_STATE / MAILING_ADDRESS are not set: the terms show [GOVERNING STATE] / [MAILING ADDRESS].')
   if (!discordInvite(config.discordInvite)) console.log('[config] DISCORD_INVITE_URL is not set (or not a discord.gg / discord.com/invite link): the Discord buttons say "opens soon".')
-  if (!config.adminToken) console.log('[config] ADMIN_TOKEN is not set, so the moderator dashboard (/admin.html) is off.')
+  if (!config.adminToken) console.log('[config] ADMIN_TOKEN is not set, so Launch HQ (/hq.html) is off.')
   if (!config.google && !config.x && !config.discord) console.log('[config] No Google / X / Discord keys yet: players can only play as guests.')
 }
 

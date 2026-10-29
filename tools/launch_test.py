@@ -371,21 +371,25 @@ async def main():
             log = await D.evaluate("document.body.innerText")
             check('chat is paused' in log.lower() or 'can’t chat' in log.lower(), 'three reports in an hour pause someone’s chat automatically')
 
-            # ---------- the moderator dashboard ----------
+            # ---------- Launch HQ (the moderator tools live there; /admin.html points to it) ----------
             M = watch(await ctx[3].new_page())
             await M.goto(BASE + '/admin.html', wait_until='networkidle')
+            await M.wait_for_selector('#token', timeout=8000)
+            check('/hq.html' in M.url, 'the old moderator address opens Launch HQ', M.url)
             await M.fill('#token', TOKEN)
             await M.click('#go')
-            await M.wait_for_selector('.stat', timeout=8000)
-            stats = await M.evaluate("document.querySelector('[data-panel=overview]').innerText")
+            await M.wait_for_selector('#live-now .stat', timeout=8000)
+            stats = await M.evaluate("document.querySelector('[data-panel=controls]').innerText")
             await M.screenshot(path=os.path.join(OUT, 'launch-admin.png'), full_page=True)
-            check('New Yorkers online' in stats and 'open reports' in stats and 'came back the next day' in stats, 'the moderator dashboard signs in and shows the city, growth and retention')
+            check('New Yorkers online' in stats and 'open reports' in stats, 'Launch HQ signs in and shows the city right now', stats[:200])
+            people = await M.evaluate("fetch('/api/admin/hq/people').then(r => r.json())")
+            check(people['players']['total'] >= 3 and 'collect' in people, 'People counts New Yorkers and lists where emails come from', people['players'])
             bad_login = http('/api/admin/login', 'POST', {'token': 'nope'})[0]
             check(bad_login == 401, 'a wrong admin token is refused')
             check(http('/api/admin/overview')[0] == 401, 'the admin API is locked without signing in')
             reports = await M.evaluate("fetch('/api/admin/reports').then(r => r.json())")
             check(len(reports['reports']) == 3 and reports['reports'][0]['targetMuted'], 'the reports queue shows the three reports (target already muted)')
-            await M.evaluate("tab('reports')")
+            await M.evaluate("go('reports')")
             await M.wait_for_selector('.report')
             await M.screenshot(path=os.path.join(OUT, 'launch-admin-reports.png'), full_page=True)
 

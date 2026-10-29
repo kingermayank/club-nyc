@@ -33,7 +33,8 @@ export const SCENE = {
 /** the yellow cab drives across these cuts (in beats), honking on the way */
 export const TAXI = [SCENE.explore.at, SCENE.more.at] as const
 
-export type SfxKind = 'pop' | 'coin' | 'stamp' | 'thud' | 'whoosh' | 'click' | 'honk'
+/** pop…honk: the game's own sounds. boom, braam, riser, crash: movie-trailer hits for the mock-epic reels */
+export type SfxKind = 'pop' | 'coin' | 'stamp' | 'thud' | 'whoosh' | 'click' | 'honk' | 'boom' | 'braam' | 'riser' | 'crash'
 
 /** sound effects that land with something on screen, in beats from the start (`notes`: a honk's two pitches, MIDI) */
 export const SFX: { beat: number; kind: SfxKind; notes?: [number, number] }[] = [

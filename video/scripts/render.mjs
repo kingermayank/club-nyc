@@ -3,7 +3,8 @@
 //   app/public/video/     the web copies the landing page serves (smaller, start playing sooner)
 // usage: npm run render                       (the end card shows no web address)
 //        npm run render -- --url=clubnyc.com    (the end card shows it)
-//        npm run render -- --only=hero          (or --only=trailer, or --only=cards: the link-preview images)
+//        npm run render -- --only=hero          (or --only=trailer, --only=cards: the link-preview images, --only=reels)
+//        reels need their soundtrack first: .venv/bin/python video/capture/music.py --reel=<id>
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
@@ -57,9 +58,22 @@ if (!only || only === 'cards') {
   const og = resolve(root, '../app/public/og')
   const cards = {
     // landmarks with no "I ♥ NY" in the art (a New York State trademark, see docs/launch/legal-callouts.md)
-    'club-nyc.jpg': { src: 'hero-liberty-island.mp4', at: 1.6, origin: '50% 50%', title: 'Waddle on over to New York.', sub: 'A cozy online hangout · Free in your browser' },
+    'club-nyc.jpg': { src: 'hero-liberty-island.mp4', at: 1.6, origin: '50% 50%', title: 'Waddle on over to New York.', sub: 'A cozy online hangout' },
     'invite.jpg': { src: 'hero-empire-deck.mp4', at: 1.6, origin: '50% 50%', title: 'You’re invited to Club NYC!', sub: 'Your friend is in the city. You’ll land right next to them.' },
   }
   for (const [file, props] of Object.entries(cards)) remotion('still', 'ShareCard', join(og, file), '--image-format=jpeg', '--jpeg-quality=86', `--props=${JSON.stringify(props)}`)
   console.log('share cards:', Object.keys(cards).map((f) => `${f} ${Math.round(statSync(join(og, f)).size / 1024)} KB`).join(' · '))
+}
+if (only === 'reels') {
+  // 9:16 reels (src/reels.ts), each twice: with Sidewalk Shuffle, and with only its sound effects so a trending
+  // sound can be added on top in Instagram or TikTok (commercial songs never go into our files)
+  const { readFileSync } = await import('node:fs')
+  const ids = [...readFileSync(join(root, 'src/reels.ts'), 'utf8').matchAll(/^  '([a-z0-9-]+)': \{/gm)].map((m) => m[1])
+  mkdirSync(join(masters, 'reels'), { recursive: true })
+  for (const id of ids)
+    for (const [audio, suffix] of [['music', ''], ['sfx', '-no-music']]) {
+      const out = join(masters, 'reels', `club-nyc-reel-${id}${suffix}.mp4`)
+      remotion('render', `Reel-${id}`, out, '--codec=h264', '--crf=16', '--audio-bitrate=320k', `--props=${JSON.stringify({ id, audio })}`)
+      console.log('reel:', out, mb(out))
+    }
 }

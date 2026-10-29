@@ -160,6 +160,6 @@ Club Penguin's card is loved because it is **your avatar, big, on a background y
 - Colour-matched outlines: each region uses a deep shade of its own fill (`ink()` in `avatar/items.ts`); facial features stay navy.
 - Colour Cap, Colour Beanie (I ♥ NY), Colour Tee and Colour Puffer (THREAD) wear your signature colour. Catalog and wardrobe icons show them in your colour.
 - Welcome gift: Sal's hot dog cart in Times Square offers one free welcome gift. A "Pick up your welcome gift" quest with Show me and the arrow leads there. The server allows exactly one.
-- Creator funnel: anonymous per-session events (`net/events.ts` → `POST /api/events`, `events` table) feed a "New Yorker creator · last 7 days" card in `/admin.html` with step counts, finish rate and median seconds.
+- Creator funnel: anonymous per-session events (`net/events.ts` → `POST /api/events`, `events` table) feed a "New Yorker creator · last 7 days" card in Launch HQ → Live with step counts, finish rate and median seconds.
 
 **Still open:** 4-direction walk sprites. The current side and back views with flipping cover it; a true front-3/4 walk would mean redrawing every item.

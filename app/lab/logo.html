@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- The animated logo (src/features/logoMotion.ts). Dev only: Vite serves it at /lab/logo.html, the build leaves it out. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Club NYC: logo motion</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      @font-face { font-family: 'Burbank'; src: url('/fonts/BurbankSmall-Bold.otf') format('opentype'); font-weight: 700; ascent-override: 85%; descent-override: 15%; line-gap-override: 0%; }
+      @font-face { font-family: 'Burbank'; src: url('/fonts/BurbankSmall-Medium.otf') format('opentype'); font-weight: 500; ascent-override: 85%; descent-override: 15%; line-gap-override: 0%; }
+      :root { --ink: #1d2140; --paper: #fffdf6; --page: #f3efe4; --blue: #2a7bd5; --taxi: #ffc634; --muted: #5a5e7d; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--page); color: var(--ink); font: 500 17px/1.5 Burbank, system-ui, sans-serif; }
+      main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 80px; display: flex; flex-direction: column; gap: 40px; }
+      h1, h2, b, button, label { font-weight: 700; }
+      h1 { font-size: clamp(36px, 5vw, 56px); line-height: 1.05; margin: 0; }
+      h2 { font-size: 26px; margin: 0; }
+      p { margin: 0; max-width: 64ch; }
+      .muted { color: var(--muted); }
+      .stage { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+      .hero { background: var(--paper); border: 3px solid var(--ink); border-radius: 26px; box-shadow: 0 6px 0 var(--ink); padding: 40px; }
+      .hero .slot { max-width: 560px; margin: 0 auto; }
+      .controls { display: flex; flex-direction: column; gap: 14px; }
+      .row { display: flex; flex-wrap: wrap; gap: 10px; }
+      button { font: 700 16px/1 Burbank, system-ui, sans-serif; height: 44px; padding: 0 20px; border: 3px solid var(--ink); border-radius: 16px; background: var(--paper); color: var(--ink); box-shadow: 0 4px 0 var(--ink); cursor: pointer; }
+      button.go { background: var(--taxi); }
+      button:active { transform: translateY(4px); box-shadow: none; }
+      label { display: inline-flex; gap: 8px; align-items: center; font-size: 15px; }
+      ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+      .places { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+      .place { border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+      .place .slot { margin: auto; }
+      .place.header { background: var(--paper); } .place.header .slot { width: 150px; }
+      .place.blue { background: radial-gradient(circle at 50% 40%, #4a86e8, var(--ink) 80%); color: var(--paper); } .place.blue .slot { width: 260px; }
+      .place.night { background: var(--ink); color: var(--paper); } .place.night .slot { width: 200px; }
+      .place small { font-size: 13.5px; opacity: .8; }
+      @media (max-width: 860px) { .stage, .places { grid-template-columns: 1fr; } }
+    </style>
+    <script type="module" src="/lab/logo.ts"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>The logo, alive</h1>
+        <p class="muted">The flat logo is cut into 13 layers (tools/logo_layers.py): sticker, seven letters, the tower, the taxi, three sparkles. Hover over it, then click the taxi, the tower, a letter or a sparkle.</p>
+      </header>
+      <section class="stage">
+        <div class="hero"><div class="slot" id="hero"></div></div>
+        <div class="controls">
+          <h2>Try each one</h2>
+          <div class="row">
+            <button class="go" data-do="intro">Replay the intro</button>
+            <button data-do="wave">Wave</button>
+            <button data-do="honk">Honk</button>
+            <button data-do="sway">Sway</button>
+            <button data-do="twinkle">Twinkle</button>
+          </div>
+          <label><input type="checkbox" id="sound" /> Sound on click (the taxi honks)</label>
+          <ul class="muted">
+            <li><b>Intro</b>, about 1.5 s: sticker pops, CLUB drops in, NYC bounces up, the tower grows from behind, the taxi drives in and brakes, sparkles twinkle on, one shine.</li>
+            <li><b>Idle</b>: a sparkle twinkles every few seconds; now and then the taxi’s engine jiggles.</li>
+            <li><b>Hover</b>: the letters do a wave and a shine sweeps across (once every 1.6 s at most).</li>
+            <li><b>Click</b>: taxi honks and hops, the tower sways, letters squash like jelly, sparkles spin.</li>
+            <li><b>Reduced motion</b>: the logo fades in, nothing moves on its own.</li>
+          </ul>
+        </div>
+      </section>
+      <section class="places">
+        <div class="place header"><small>Site header, 150 px</small><div class="slot" id="small"></div></div>
+        <div class="place blue"><small>Reel end card / game splash</small><div class="slot" id="card"></div></div>
+        <div class="place night"><small>On ink (no intro, idle only)</small><div class="slot" id="night"></div></div>
+      </section>
+    </main>
+  </body>
+</html>

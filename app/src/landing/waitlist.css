@@ -14,6 +14,21 @@ html:not([data-launch='waitlist']) .when-soon { display: none !important; }
 .wl-input[aria-invalid='true'] { border-color: var(--red); }
 .wl-form .btn-xl { flex: none; padding: 0 30px; font-size: 27px; }
 .wl-form .btn:disabled { cursor: progress; filter: saturate(0.7); transform: none; }
+/* "Claim your name": the username row above the email row, with its live "Available" check */
+.wl-name { margin-bottom: 16px; text-align: left; }
+.wl-name-label { display: block; margin: 0 0 8px 4px; color: inherit; font: 19px/1.3 var(--display); }
+.wl-name-field { position: relative; display: flex; }
+.wl-name-field .wl-input { padding-right: 150px; }
+.wl-name-status { position: absolute; right: 14px; top: 50%; translate: 0 calc(-50% - 3px); display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 6px; border-radius: 999px; font: 15px/1 var(--display); white-space: nowrap; pointer-events: none; }
+.wl-name-status:empty { display: none; }
+.wl-name-status[data-state='checking'] { background: #eef1f8; color: var(--muted, #5a5e7d); }
+.wl-name-status[data-state='ok'] { background: #d7f5dc; color: #1b6b2e; }
+.wl-name-status[data-state='ok']::before { content: '✓'; }
+.wl-name-status[data-state='bad'] { position: static; translate: none; margin: 10px 0 0 4px; padding: 0; background: none; color: #ffd6d1; white-space: normal; }
+.wl-light .wl-name-status[data-state='bad'] { color: #b3261e; }
+.wl-name-field:has([data-state='bad']) { flex-direction: column; }
+.wl-name-field:has([data-state='bad']) .wl-input { padding-right: 22px; }
+
 /* what went wrong, right under the field (in words: never only a red border) */
 .wl-msg { margin-top: 14px; color: #ffd6d1; font: 17px/1.35 var(--display); }
 .wl-msg:empty { display: none; }

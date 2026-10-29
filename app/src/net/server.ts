@@ -12,6 +12,8 @@ export interface PublicUser {
   memberNo?: number
   /** total XP (data/levels.ts turns it into a level and title) */
   xp?: number
+  /** in before the city opened, or on the waitlist: the Founder badge on the player card */
+  founder?: boolean
 }
 export interface Me extends PublicUser {
   profileDone: boolean

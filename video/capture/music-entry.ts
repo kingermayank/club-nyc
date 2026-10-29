@@ -11,6 +11,8 @@
  * Bundled with esbuild and run by video/capture/music.py, which writes video/public/audio/trailer.wav.
  */
 import { BPM, FPS, SFX, SONG_BARS, TOTAL, type SfxKind } from '../src/timeline'
+import { REELS, REEL_BEATS } from '../src/reels'
+import { EPIC_BEATS, EPIC_BPM, EPIC_RESTS, EPIC_SFX } from '../src/epic'
 
 const RATE = 48000
 const BEAT_S = 60 / BPM
@@ -170,8 +172,24 @@ function clap(): Float32Array {
 }
 
 // ---------------------------------------------------------------- the mix
-function render(mute: string[] = []): Promise<AudioBuffer> {
-  const seconds = TOTAL / FPS
+/** what to play: the whole trailer by default; a reel plays one chorus phrase with its own sound effects */
+interface Plan {
+  bars: typeof BARS
+  sfx: { beat: number; kind: SfxKind; notes?: [number, number] }[]
+  seconds: number
+  /** the drops (crash cymbals), in bars */
+  crashes: [number, number][]
+  /** the trailer's ta-da end card and fade-out; a reel loops instead */
+  ending: boolean
+  /** beats where the band drops out completely (a gag's dead air); sound effects still play */
+  rests?: [number, number][]
+  /** tempo the sound effects and rests are placed at (a bought track's BPM); the band always plays at BPM */
+  bpm?: number
+}
+const TRAILER: Plan = { bars: BARS, sfx: SFX, seconds: TOTAL / FPS, crashes: [[2, 0.24], [12, 0.22]], ending: true }
+
+function render(mute: string[] = [], plan: Plan = TRAILER): Promise<AudioBuffer> {
+  const seconds = plan.seconds
   const a = new OfflineAudioContext(2, Math.ceil(seconds * RATE), RATE)
   const buffers = new WeakMap<Float32Array, AudioBuffer>()
   const buffer = (data: Float32Array) => {
@@ -233,13 +251,24 @@ function render(mute: string[] = []): Promise<AudioBuffer> {
     g.gain.value = mute.includes(name) ? 0 : vol
     let head: AudioNode = g
     for (const node of chain) head = head.connect(node) as AudioNode
-    head.connect(master)
+    head.connect(name === 'fx' ? master : band)
     if (send) {
       const s = a.createGain()
       s.gain.value = send
       head.connect(s).connect(verbIn)
     }
     return g
+  }
+  // the band's buses go through `band`, so a rest can silence the music but not the sound effects
+  const band = a.createGain()
+  band.connect(master)
+  for (const [from, to] of plan.rests ?? []) {
+    const t1 = (from * 60) / (plan.bpm ?? BPM)
+    const t2 = (to * 60) / (plan.bpm ?? BPM)
+    band.gain.setValueAtTime(1, Math.max(0, t1 - 0.03))
+    band.gain.linearRampToValueAtTime(0, t1)
+    band.gain.setValueAtTime(0, t2 - 0.01)
+    band.gain.linearRampToValueAtTime(1, t2)
   }
   const leadBus = bus('lead', 1.6, 0.2, filter('highpass', 180), filter('lowpass', 7000, 0, 0.5))
   const marimbaBus = bus('marimba', 0.6, 0.28, filter('highpass', 200))
@@ -270,6 +299,7 @@ function render(mute: string[] = []): Promise<AudioBuffer> {
     dur: number,
     o: { type: OscillatorType; vol: number; hold?: number; release?: number; cutoff?: number; cutoffEnd?: number; vibrato?: boolean; pan?: number },
   ) {
+    t = Math.max(0, t) // the humanizing jitter can nudge the very first note a hair before 0
     const osc = a.createOscillator()
     osc.type = o.type
     osc.frequency.setValueAtTime(hz(midi), t)
@@ -371,7 +401,7 @@ function render(mute: string[] = []): Promise<AudioBuffer> {
   }
 
   // ---------- the song, bar by bar ----------
-  BARS.forEach(({ sec, i, chord, then }, bar) => {
+  plan.bars.forEach(({ sec, i, chord, then }, bar) => {
     const t0 = bar * BAR_S
     /** an eighth-note position in this bar → seconds, offbeats shuffled */
     const T = (pos: number) => t0 + (Math.floor(pos / 2) + (pos % 2 ? SWING : 0)) * BEAT_S
@@ -446,11 +476,11 @@ function render(mute: string[] = []): Promise<AudioBuffer> {
     }
   })
   // the drops: the logo, the last chorus
-  crash(2 * BAR_S)
-  crash(12 * BAR_S, 0.22)
+  for (const [bar, vol] of plan.crashes) crash(bar * BAR_S, vol)
 
   // ---------- the end card: ta-da, on C ----------
   const fin = SONG_BARS * BAR_S
+  if (plan.ending) {
   kickAt(fin, 1.1)
   claps(fin)
   crash(fin, 0.28)
@@ -459,6 +489,7 @@ function render(mute: string[] = []): Promise<AudioBuffer> {
   ;[72, 76, 79, 84].forEach((m, k) => marimbaNote(m, fin + k * 0.05, 0.8, 0))
   // and a little sparkle as the Play now button appears
   ;[79, 84, 88, 91].forEach((m, k) => marimbaNote(m, fin + 2 * BEAT_S + k * (BEAT_S / 2), 0.6 - 0.08 * k, 0.15))
+  }
 
   // ---------- sound effects (the recipes from app/src/audio.ts, in the song's key) ----------
   const beep = (t: number, freq: number, dur: number, type: OscillatorType, vol: number, slideTo?: number) => {
@@ -516,12 +547,67 @@ function render(mute: string[] = []): Promise<AudioBuffer> {
       play(burst(0.55, 0.22, 0.09), t, fxBus, 0.3, 0, f)
     },
     honk: (t, notes) => honk(t, notes ?? [69, 72]),
+    // ---- trailer hits (mock-epic reels) ----
+    /** a sub drop: a sine falling from 70 Hz to 30, with a thump on top */
+    boom: (t) => {
+      const o = a.createOscillator()
+      o.type = 'sine'
+      o.frequency.setValueAtTime(72, t)
+      o.frequency.exponentialRampToValueAtTime(30, t + 1.4)
+      const g = a.createGain()
+      g.gain.setValueAtTime(0.0001, t)
+      g.gain.exponentialRampToValueAtTime(0.9, t + 0.01)
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6)
+      o.connect(g).connect(master)
+      o.start(t)
+      o.stop(t + 1.7)
+      play(burst(0.35, 0.002, 0.09), t, master, 0.5, 0, filter('lowpass', 220))
+    },
+    /** the "braam": a low brass-like cluster of detuned saws through a closing filter */
+    braam: (t) => {
+      const f = filter('lowpass', 1400, 0, 1.4)
+      f.frequency.setValueAtTime(1400, t)
+      f.frequency.exponentialRampToValueAtTime(260, t + 1.3)
+      const g = a.createGain()
+      g.gain.setValueAtTime(0.0001, t)
+      g.gain.exponentialRampToValueAtTime(0.16, t + 0.03)
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.5)
+      f.connect(g).connect(master)
+      for (const [m, det] of [[36, -9], [36, 8], [43, -6], [48, 5], [24, 0]]) {
+        const o = a.createOscillator()
+        o.type = 'sawtooth'
+        o.frequency.value = hz(m)
+        o.detune.value = det
+        o.connect(f)
+        o.start(t)
+        o.stop(t + 1.6)
+      }
+    },
+    /** a 2.4 s noise riser that peaks exactly at t (so it is placed by where it lands) */
+    riser: (t) => {
+      const d = 2.4
+      const s0 = Math.max(0, t - d)
+      const f = filter('bandpass', 400, 0, 2)
+      f.frequency.setValueAtTime(400, s0)
+      f.frequency.exponentialRampToValueAtTime(6000, t)
+      const g = a.createGain()
+      g.gain.setValueAtTime(0.0001, s0)
+      g.gain.exponentialRampToValueAtTime(0.5, t - 0.02)
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05)
+      const src = a.createBufferSource()
+      src.buffer = buffer(burst(d + 0.1, d, d))
+      src.connect(f).connect(g).connect(master)
+      src.start(s0)
+    },
+    crash: (t) => crash(t, 0.3),
   }
-  for (const c of SFX) fx[c.kind]((c.beat * 60) / BPM, c.notes)
+  for (const c of plan.sfx) fx[c.kind]((c.beat * 60) / (plan.bpm ?? BPM), c.notes)
 
-  // the very end fades out
-  master.gain.setValueAtTime(0.7, seconds - 1.4)
-  master.gain.linearRampToValueAtTime(0, seconds)
+  // the very end fades out (a reel doesn't: it loops)
+  if (plan.ending) {
+    master.gain.setValueAtTime(0.7, seconds - 1.4)
+    master.gain.linearRampToValueAtTime(0, seconds)
+  }
   return a.startRendering()
 }
 
@@ -559,3 +645,21 @@ function wav(buf: AudioBuffer): string {
 
 /** `mute`: buses to leave out (lead, marimba, bass, stabs, drums, fx), for listening to (or measuring) parts alone */
 ;(window as unknown as { renderTrailerAudio: (mute?: string[]) => Promise<string> }).renderTrailerAudio = async (mute) => wav(await render(mute))
+
+/** a reel's soundtrack (reels.ts): the first 4 chorus bars, which loop (G back to C), plus the reel's sound effects.
+ *  `mute` as above; muting every band bus leaves the sound effects alone (the "lay a trending sound over it" version) */
+;(window as unknown as { renderReelAudio: (id: string, mute?: string[]) => Promise<string> }).renderReelAudio = async (id, mute) => {
+  const reel = REELS[id]
+  const beats = reel.beats ?? REEL_BEATS
+  const bars = BARS.filter((b) => b.sec === 'chorus').slice(0, beats / 4)
+  return wav(await render(mute, { bars, sfx: reel.sfx, seconds: (beats * 60) / BPM, crashes: [], ending: false }))
+}
+
+/** the mock-epic reel (epic.ts): 'shuffle' = the Sidewalk Shuffle prototype (8 chorus bars, ending home on C) with the
+ *  trailer hits and the gag's dead air; 'hits' = the hits alone at the bought track's tempo, to sit on top of it */
+;(window as unknown as { renderEpicAudio: (mode: 'shuffle' | 'hits') => Promise<string> }).renderEpicAudio = async (mode) => {
+  const bars = BARS.filter((b) => b.sec === 'chorus').slice(0, EPIC_BEATS / 4)
+  const seconds = (EPIC_BEATS * 60) / EPIC_BPM + 1.2
+  if (mode === 'hits') return wav(await render(['lead', 'marimba', 'bass', 'stabs', 'drums'], { bars: [], sfx: EPIC_SFX, seconds, crashes: [], ending: false, bpm: EPIC_BPM }))
+  return wav(await render([], { bars, sfx: EPIC_SFX, seconds, crashes: [], ending: false, rests: EPIC_RESTS, bpm: EPIC_BPM }))
+}

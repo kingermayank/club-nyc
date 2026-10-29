@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Club NYC · 30 days on Instagram</title>
+<!--
+  The 30-day Instagram plan. Local file: open it straight from disk.
+  Videos load from video/out/reels (the masters, git-ignored) and app/public/video, so render first:
+    .venv/bin/python video/capture/music.py --reel=<id>   then   npm --prefix video run render -- --only=reels
+  Looks follow the brand book (Figma, page "Brand Book"): Burbank, paper and ink, Taxi Yellow, hard ink shadows.
+-->
+<style>
+/* the game's metrics (app/src/style.css): Burbank's own sit text high in pills and buttons */
+@font-face { font-family: 'Burbank'; src: local('Burbank Small Bold'), local('BurbankSmall-Bold'), url('../../app/public/fonts/BurbankSmall-Bold.otf') format('opentype'); font-weight: 700; font-display: swap; ascent-override: 85%; descent-override: 15%; line-gap-override: 0%; }
+@font-face { font-family: 'Burbank'; src: local('Burbank Small Medium'), local('BurbankSmall-Medium'), url('../../app/public/fonts/BurbankSmall-Medium.otf') format('opentype'); font-weight: 500; font-display: swap; ascent-override: 85%; descent-override: 15%; line-gap-override: 0%; }
+:root {
+  --ink: #1d2140; --paper: #fffdf6; --page: #f3efe4; --blue: #2a7bd5; --blue-dark: #134a96; --blue-light: #6fb6ff;
+  --sun: #ffd166; --taxi: #ffc634; --red: #e5483b; --green: #3cb371; --pink: #ff8fae; --purple: #8e5fd8;
+  --muted: #5a5e7d; --line: #ddd7c6;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px;
+  --r-chip: 12px; --r-button: 16px; --r-panel: 26px;
+  --pop: cubic-bezier(.2, 1.5, .4, 1);
+  --shadow: 0 4px 0 var(--ink); --shadow-lg: 0 6px 0 var(--ink);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 500 17px/1.5 Burbank, 'Arial Rounded MT Bold', system-ui, sans-serif; }
+h1, h2, h3, b, strong, button, .plate, .chip { font-weight: 700; }
+h1, h2, h3 { margin: 0; line-height: 1.05; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+a { color: var(--blue-dark); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 32px 16px 96px; display: flex; flex-direction: column; gap: 72px; }
+.eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+.lede { font-size: 21px; color: var(--muted); max-width: 62ch; line-height: 1.4; }
+.muted { color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 24px; }
+.head { display: flex; flex-direction: column; gap: 10px; }
+h2 { font-size: clamp(34px, 4.6vw, 56px); }
+h3 { font-size: 24px; }
+.card { background: var(--paper); border: 3px solid var(--ink); border-radius: var(--r-panel); box-shadow: var(--shadow-lg); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 3px; border: 2px solid var(--ink); border-radius: 999px; font-size: 13px; line-height: 1.3; background: var(--paper); white-space: nowrap; }
+.chip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1.5px solid var(--ink); }
+.btn { font: 700 16px/1 Burbank, system-ui, sans-serif; height: 44px; padding: 0 22px; border: 3px solid var(--ink); border-radius: var(--r-button); background: var(--taxi); color: var(--ink); box-shadow: var(--shadow); cursor: pointer; transition: transform .12s, box-shadow .12s; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
+.btn.ghost { background: var(--paper); }
+.btn.small { height: 36px; font-size: 14px; padding: 0 14px; border-width: 2.5px; border-radius: 12px; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.hero h1 { font-size: clamp(48px, 7.4vw, 96px); letter-spacing: -.01em; }
+.hero h1 mark { background: none; color: inherit; box-shadow: inset 0 -.3em 0 var(--taxi); }
+.hero-copy { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.logo { width: 150px; height: auto; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.fact { padding: 14px 16px 16px; border-radius: var(--r-button); }
+.fact b { display: block; font-size: 34px; line-height: 1.1; }
+.fact span { font-size: 15px; color: var(--muted); }
+.fact.y { background: var(--taxi); } .fact.b { background: var(--blue); color: var(--paper); } .fact.b span { color: #dbe9ff; }
+
+/* ---------- growth loop ---------- */
+.loop { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+.loop svg { width: 100%; height: auto; display: block; }
+.loop-copy { display: flex; flex-direction: column; gap: 14px; }
+.kbox { padding: 18px 20px; border-radius: var(--r-button); background: var(--ink); color: var(--paper); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--taxi); }
+.kbox b { color: var(--taxi); }
+.levers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.lever { padding: 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; border-radius: var(--r-button); }
+.lever .n { font-size: 14px; color: var(--muted); }
+.lever h3 { font-size: 22px; }
+.lever p { font-size: 15.5px; color: var(--muted); line-height: 1.4; }
+.lever .how { font-size: 14px; border-top: 2px dashed var(--line); padding-top: 8px; margin-top: auto; }
+
+/* ---------- reel library ---------- */
+.lib { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.reel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.phone { position: relative; aspect-ratio: 9 / 16; border-radius: 30px; background: #0d1024; border: 6px solid #0d1024; box-shadow: 0 0 0 3px var(--ink), var(--shadow-lg); overflow: hidden; }
+.phone video, .phone img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 24px; background: #0d1024; }
+.phone.wide video, .phone.wide img { object-fit: contain; }
+.phone .sound { position: absolute; right: 10px; bottom: 10px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--paper); cursor: pointer; font-size: 15px; display: grid; place-items: center; }
+.phone .todo { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding: 16px; background: linear-gradient(180deg, rgba(13,16,36,0) 35%, rgba(13,16,36,.88)); color: var(--paper); border-radius: 24px; }
+.phone .todo b { font-size: 20px; line-height: 1.15; }
+.phone .todo small { font-size: 13px; opacity: .85; }
+.reel h3 { font-size: 21px; }
+.reel p { font-size: 15px; color: var(--muted); line-height: 1.4; }
+.reel .row { display: flex; flex-wrap: wrap; gap: 6px; }
+.files { font-size: 12.5px; color: var(--muted); font-family: ui-monospace, Menlo, monospace; word-break: break-all; }
+.ready i { background: var(--green); } .make i { background: var(--paper); } .event i { background: var(--pink); }
+
+/* ---------- image posts ---------- */
+.posts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+.post { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.swipe { position: relative; aspect-ratio: 4 / 5; border: 3px solid var(--ink); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden; background: var(--paper); }
+.swipe .track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.swipe .track::-webkit-scrollbar { display: none; }
+.swipe img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
+.swipe .nav { position: absolute; top: 50%; translate: 0 -50%; width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--paper); color: var(--ink); font: 700 18px Burbank, sans-serif; cursor: pointer; display: grid; place-items: center; }
+.swipe .nav.l { left: 10px; } .swipe .nav.r { right: 10px; }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: background .2s, transform .2s; }
+.dots i.on { background: var(--ink); transform: scale(1.25); }
+.post h3 { font-size: 21px; }
+.post p { font-size: 15px; color: var(--muted); line-height: 1.4; }
+.singles { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
+.singles figure { margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.singles img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--ink); }
+.singles figcaption { font-size: 13.5px; color: var(--muted); line-height: 1.3; }
+.mix { display: flex; height: 18px; border: 2.5px solid var(--ink); border-radius: 999px; overflow: hidden; }
+.mix span { height: 100%; }
+.mixkey { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; }
+.mixkey i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid var(--ink); margin-right: 6px; vertical-align: -1px; }
+.dlg .feed { width: 100%; }
+
+/* ---------- calendar ---------- */
+.phases { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.phase { padding: 16px; display: flex; flex-direction: column; gap: 6px; border-radius: var(--r-button); min-width: 0; }
+.phase .when { font-size: 14px; color: var(--muted); }
+.phase h3 { font-size: 22px; }
+.phase p { font-size: 15px; line-height: 1.4; }
+.phase .ask { margin-top: auto; font-size: 14px; padding-top: 8px; border-top: 2px dashed var(--line); }
+.p1 { border-top: 10px solid var(--taxi) !important; } .p2 { border-top: 10px solid var(--blue) !important; } .p3 { border-top: 10px solid var(--red) !important; } .p4 { border-top: 10px solid var(--green) !important; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filters button { font: 700 14px/1 Burbank, system-ui, sans-serif; padding: 8.5px 14px; border: 2.5px solid var(--ink); border-radius: 999px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.dow { text-align: center; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.day { all: unset; box-sizing: border-box; position: relative; min-height: 150px; padding: 10px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: var(--r-chip); display: flex; flex-direction: column; gap: 6px; cursor: pointer; overflow: hidden; transition: transform .18s var(--pop), box-shadow .18s; box-shadow: 0 3px 0 var(--ink); min-width: 0; }
+.day:hover { transform: translateY(-3px); box-shadow: 0 6px 0 var(--ink); }
+.day:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.day.blank { background: transparent; border: 2px dashed var(--line); box-shadow: none; cursor: default; }
+.day .d { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); }
+.day .d b { font-size: 20px; color: var(--ink); }
+.day .t { font-size: 15px; line-height: 1.2; }
+.day .thumb { margin-top: auto; height: 44px; border-radius: 8px; background-size: cover; background-position: center; border: 2px solid var(--ink); }
+.day .fmt { font-size: 12px; color: var(--muted); }
+.day.launch { background: var(--taxi); }
+.day.dim { opacity: .28; }
+.day .bar { position: absolute; left: 0; right: 0; top: 0; height: 6px; }
+
+/* ---------- day dialog ---------- */
+dialog { border: 3px solid var(--ink); border-radius: var(--r-panel); box-shadow: 0 8px 0 var(--ink); padding: 0; width: min(920px, calc(100vw - 32px)); max-height: calc(100vh - 32px); background: var(--paper); color: var(--ink); }
+dialog::backdrop { background: rgba(29, 33, 64, .55); }
+dialog[open] { animation: pop .26s var(--pop); }
+@keyframes pop { from { transform: scale(.9); opacity: 0; } }
+.dlg { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; padding: 24px; }
+.dlg .phone { width: 100%; }
+.dlg-body { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.dlg-body h3 { font-size: 30px; }
+.kv { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px 14px; font-size: 16px; }
+.kv dt { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 3px; font-weight: 700; }
+.kv dd { margin: 0; min-width: 0; }
+.caption { background: var(--page); border: 2px dashed var(--line); border-radius: var(--r-chip); padding: 12px 14px; font-size: 15.5px; white-space: pre-line; }
+.close { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--paper); cursor: pointer; font: 700 18px Burbank, sans-serif; color: var(--ink); }
+
+/* ---------- model ---------- */
+.model { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 24px; padding: 24px; }
+.inputs { display: flex; flex-direction: column; gap: 14px; }
+.inputs label { display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 4px 12px; font-size: 15px; align-items: center; }
+.inputs label span { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.inputs input[type=range] { width: 100%; accent-color: var(--blue); }
+.inputs output { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bars { display: flex; align-items: flex-end; gap: 10px; height: 260px; padding-top: 10px; border-bottom: 3px solid var(--ink); }
+.bars div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%; min-width: 0; }
+.bars i { display: block; width: 100%; border: 2.5px solid var(--ink); border-bottom: 0; border-radius: 10px 10px 0 0; background: var(--blue); transition: height .4s var(--pop); }
+.bars div:last-child i { background: var(--taxi); }
+.bars b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.blabels { display: flex; gap: 10px; } .blabels span { flex: 1; text-align: center; font-size: 13px; color: var(--muted); }
+.ksay { font-size: 16px; padding: 12px 14px; border-radius: var(--r-chip); background: var(--page); border: 2px solid var(--line); }
+
+/* ---------- rules ---------- */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.panel { padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.4; }
+table { width: 100%; border-collapse: collapse; font-size: 15.5px; }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 2px solid var(--line); vertical-align: top; }
+th { font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td b { font-variant-numeric: tabular-nums; }
+.beatgrid { display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; }
+.beatgrid i { height: 18px; border-radius: 4px; background: var(--line); }
+.beatgrid i.cut { background: var(--ink); } .beatgrid i.end { background: var(--taxi); }
+code { font: 13.5px ui-monospace, Menlo, monospace; background: var(--page); padding: 2px 6px; border-radius: 6px; }
+.foot { font-size: 14px; color: var(--muted); }
+
+@media (max-width: 1000px) {
+  .hero, .loop, .model { grid-template-columns: 1fr; }
+  .levers, .lib, .phases, .posts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .singles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .two { grid-template-columns: 1fr; }
+  .cal { grid-template-columns: repeat(4, minmax(0, 1fr)); } .dow, .day.blank { display: none; }
+  .dlg { grid-template-columns: 1fr; } .dlg .phone { width: 220px; margin: 0 auto; }
+}
+@media (max-width: 560px) {
+  .levers, .lib, .phases, .cal, .posts { grid-template-columns: 1fr; }
+  .singles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .facts { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div style="position:sticky;top:0;z-index:50;padding:12px 20px;background:#1d2140;color:#fffdf6;font:600 15px system-ui;text-align:center">This plan now lives in <b>Launch HQ → Content</b>: the 60-day calendar with every reel, carousel and meme to watch and approve, the Library and the Playbook. <a style="color:#ffd166" href="http://localhost:5173/hq.html#content">Open it locally</a> · <a style="color:#ffd166" href="https://club-nyc.com/hq.html#content">on club-nyc.com</a></div>
+<main class="wrap">
+
+  <!-- ===== hero ===== -->
+  <header class="hero">
+    <div class="hero-copy">
+      <img class="logo" src="../../app/public/art/ui/logo.png" alt="Club NYC">
+      <span class="eyebrow">Instagram plan · Thu Oct 29 to Fri Nov 27, 2026</span>
+      <h1>30 days to a city <mark>full of people.</mark></h1>
+      <p class="lede">A post a day, mixing full-screen reels, carousels people swipe to learn something, and images made to be shared. Everything is built so people send it to a friend, and the friend lands in the game right next to them. Every video below is real gameplay, cut on our own beat, in Burbank and our colours. Click any day to see what goes up, what it says, and what we measure.</p>
+    </div>
+    <div class="facts">
+      <div class="fact card y"><b id="f-ready">14</b><span>reels ready, most of them full-bleed portrait</span></div>
+      <div class="fact card"><b id="f-img">53</b><span>images: carousels to swipe, and singles</span></div>
+      <div class="fact card b"><b>Nov 17</b><span>launch day. Moves with the real date</span></div>
+      <div class="fact card"><b>Sends</b><span>the one number we chase. Likes are nice, sends grow</span></div>
+    </div>
+  </header>
+
+  <!-- ===== growth engine ===== -->
+  <section>
+    <div class="head">
+      <span class="eyebrow">01 · The growth engine</span>
+      <h2>Reach adds. Sends multiply.</h2>
+      <p class="lede">Instagram pushes a reel to people who don't follow us mostly on how long they watch and how often they send it in a DM. A send is also the only view that arrives with a friend attached. So every reel is designed to be sent to one person, and the game is designed to pay that person off.</p>
+    </div>
+    <div class="loop">
+      <svg viewBox="0 0 560 420" role="img" aria-label="The loop: a reel gets sent to a friend, the friend joins next to the sender, they play together, take a photo, post it, and that post reaches new people.">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d2140"/></marker></defs>
+        <circle cx="280" cy="210" r="150" fill="none" stroke="#1d2140" stroke-width="3" stroke-dasharray="9 9"/>
+        <g font-family="Burbank, sans-serif" font-weight="700" text-anchor="middle" font-size="17" fill="#1d2140">
+          <g transform="translate(280 60)"><rect x="-92" y="-26" width="184" height="52" rx="16" fill="#ffc634" stroke="#1d2140" stroke-width="3"/><text y="6">A reel goes up</text></g>
+          <g transform="translate(440 160)"><rect x="-100" y="-26" width="200" height="52" rx="16" fill="#fffdf6" stroke="#1d2140" stroke-width="3"/><text y="6">Someone sends it</text></g>
+          <g transform="translate(420 315)"><rect x="-112" y="-26" width="224" height="52" rx="16" fill="#2a7bd5" stroke="#1d2140" stroke-width="3"/><text y="6" fill="#fffdf6">Friend lands next to them</text></g>
+          <g transform="translate(140 315)"><rect x="-100" y="-26" width="200" height="52" rx="16" fill="#fffdf6" stroke="#1d2140" stroke-width="3"/><text y="6">They play a job</text></g>
+          <g transform="translate(120 160)"><rect x="-106" y="-26" width="212" height="52" rx="16" fill="#3cb371" stroke="#1d2140" stroke-width="3"/><text y="6" fill="#fffdf6">Photo Booth, posted</text></g>
+          <text x="280" y="204" font-size="30">The loop</text>
+          <text x="280" y="232" font-size="15" font-weight="500" fill="#5a5e7d">each turn brings new people</text>
+        </g>
+        <g fill="none" stroke="#1d2140" stroke-width="3" marker-end="url(#ar)">
+          <path d="M372 70 Q 430 90 440 128"/>
+          <path d="M448 192 Q 460 250 436 284"/>
+          <path d="M306 330 L 246 330"/>
+          <path d="M112 288 Q 96 230 110 192"/>
+          <path d="M150 128 Q 170 80 186 68"/>
+        </g>
+      </svg>
+      <div class="loop-copy">
+        <h3>Why it can compound</h3>
+        <p class="muted">Reach on its own is a straight line: more reels, more views. It bends upward only when the people who arrive bring more people. Two numbers decide that.</p>
+        <div class="kbox"><b>Sends per 1,000 views.</b> How often a reel leaves the feed for a DM. We write for one specific person (“for the friend who moved away”), never “for everyone”.</div>
+        <div class="kbox"><b>Friends per new player.</b> The invite link drops a friend right next to the sender, Photo Booth snaps come out story-ready. If every new player brings more than one friend over a few weeks, growth stops depending on us posting.</div>
+      </div>
+    </div>
+    <div class="levers" id="levers"></div>
+  </section>
+
+  <!-- ===== reel library ===== -->
+  <section>
+    <div class="head">
+      <span class="eyebrow">02 · The reel library</span>
+      <h2>The game, made for a phone.</h2>
+      <p class="lede">The game is wide; a phone is tall. So most reels are now <b>full-bleed portrait</b>: footage recorded for it, where the New Yorker walks through the middle third of each room and the crop follows them, so nothing important falls off the edge. “This or that” reels stack two places, one over the other. The older “window” reels stay for testing against them. Each reel loops on our own tune, with a no-music cut for trending sounds.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Show reels">
+      <button data-lib="all" aria-pressed="true">All</button>
+      <button data-lib="portrait" aria-pressed="false">Full-bleed</button>
+      <button data-lib="window" aria-pressed="false">Window</button>
+      <button data-lib="make" aria-pressed="false">To make</button>
+    </div>
+    <div class="lib" id="lib"></div>
+  </section>
+
+  <!-- ===== image posts ===== -->
+  <section>
+    <div class="head">
+      <span class="eyebrow">03 · The image posts</span>
+      <h2>Swipe to learn something.</h2>
+      <p class="lede">Carousels are the format people save, and saves tell Instagram a post is worth showing again. Each one teaches a small, true, slightly ridiculous thing about New York, then ends on the game. Singles are made for one job: a share, a tag or a comment. All are 1080 × 1350, the tallest a feed post can be.</p>
+    </div>
+    <div class="posts" id="posts"></div>
+    <h3>Singles</h3>
+    <div class="singles" id="singles"></div>
+  </section>
+
+  <!-- ===== the month ===== -->
+  <section>
+    <div class="head">
+      <span class="eyebrow">04 · The month</span>
+      <h2>Four phases, four asks.</h2>
+      <p class="lede">Each phase changes what the reel asks for. First a follow, then an invite, then “come tonight”, then “send this to them”.</p>
+    </div>
+    <div class="phases" id="phases"></div>
+    <div class="mix" id="mix" aria-hidden="true"></div>
+    <div class="mixkey" id="mixkey"></div>
+    <div class="filters" role="group" aria-label="Filter the calendar by format" id="calf"></div>
+    <div class="cal" id="cal"></div>
+    <p class="foot">Stories go up every day as well (polls, Add Yours stickers, behind the scenes, reshared player clips). The calendar shows the main post.</p>
+  </section>
+
+  <!-- ===== model ===== -->
+  <section>
+    <div class="head">
+      <span class="eyebrow">05 · The compounding model</span>
+      <h2>Play with the numbers.</h2>
+      <p class="lede">A rough model, not a forecast: move the sliders to see when sends and invites start to matter more than reach. The defaults are cautious guesses for a brand-new account.</p>
+    </div>
+    <div class="card model">
+      <div class="inputs" id="inputs"></div>
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <h3>New players per week</h3>
+        <div class="bars" id="bars"></div>
+        <div class="blabels" id="blabels"></div>
+        <p class="ksay" id="ksay"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== review ===== -->
+  <section>
+    <div class="head">
+      <span class="eyebrow">06 · Every Monday</span>
+      <h2>Double down, or drop it.</h2>
+    </div>
+    <div class="two">
+      <div class="card panel">
+        <h3>What we watch</h3>
+        <table>
+          <thead><tr><th>Signal</th><th>Why</th><th>Bar</th></tr></thead>
+          <tbody>
+            <tr><td>Still watching at 3 s</td><td>Did the hook stop the scroll?</td><td><b>60%+</b></td></tr>
+            <tr><td>Sends per 1,000 views</td><td>The spread. Our main number</td><td><b>Beat our median</b></td></tr>
+            <tr><td>Average % watched</td><td>Loops count, so short wins</td><td><b>70%+</b></td></tr>
+            <tr><td>Follows per 1,000 reached</td><td>Did non-followers want more?</td><td><b>Beat our median</b></td></tr>
+            <tr><td>Join clicks, then sign-ups</td><td>Each reel's own link</td><td><b>Weekly</b></td></tr>
+            <tr><td>Friends per new player</td><td>Invites accepted, in game</td><td><b>Above 1 by week 4</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card panel">
+        <h3>The rules</h3>
+        <ul>
+          <li>Any reel at twice our median sends gets <b>two new versions</b> that week: a new hook, then a new place or job in the same format.</li>
+          <li>Every new hook runs first as a <b>Trial Reel</b> (shown to non-followers only). The winner goes to the grid.</li>
+          <li>Under median twice in a row: retired. No feelings about it.</li>
+          <li>The best comment of the week becomes next week's reel, and we reply to it with the video.</li>
+          <li>Numbers come from Instagram and our own join funnel. We never round up, and never post a player count we can't show.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== making them ===== -->
+  <section>
+    <div class="head">
+      <span class="eyebrow">07 · Making them</span>
+      <h2>Straight from the brand book.</h2>
+      <p class="lede">The reels use the same design system as the game (Figma, page “Brand Book”), so a stranger can recognise one with the sound off.</p>
+    </div>
+    <div class="two">
+      <div class="card panel">
+        <h3>Look</h3>
+        <ul>
+          <li><b>Burbank only.</b> Bold for hooks and plates, Medium for small print. Mock-epic trailers too: capitals, wide tracking, still Burbank.</li>
+          <li>Hooks in white with an ink outline, <b>one keyword in Taxi Yellow</b>. Seven words or fewer, word by word.</li>
+          <li>The game sits in a window with a paper border and an ink shadow. Place names go on a blue <b>plate</b> under it, like in the game.</li>
+          <li>Hook in the top third. The bottom fifth and right edge belong to Instagram's buttons.</li>
+          <li>End card: logo on Club Blue, the line on a Taxi Yellow button. Then it loops to frame one.</li>
+        </ul>
+      </div>
+      <div class="card panel">
+        <h3>Sound and timing</h3>
+        <p class="muted">100 BPM: one beat is 0.6 s (18 frames). A reel is 16 beats. Ink = a cut, yellow = the end card.</p>
+        <div class="beatgrid" aria-hidden="true"><i class="cut"></i><i></i><i></i><i class="cut"></i><i></i><i></i><i class="cut"></i><i></i><i></i><i class="cut"></i><i></i><i></i><i class="cut"></i><i></i><i class="end"></i><i class="end"></i></div>
+        <ul>
+          <li>Master: Sidewalk Shuffle, our own tune, so it's always safe to post.</li>
+          <li>“No music” cut: sound effects only, for a trending sound added in the app. Licensed songs never go in our files.</li>
+          <li>New reel = new entry in <code>video/src/reels.ts</code>, then <code>music.py --reel=&lt;id&gt;</code> and <code>render -- --only=reels</code>. A week renders in one go.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card panel">
+      <h3>Lines we don't cross</h3>
+      <ul>
+        <li>No “Club Penguin” in on-screen text or the account name. In a caption only, with “not affiliated with Disney or Club Penguin”.</li>
+        <li>Real gameplay only. City locals are never called players, and player counts are real or absent.</li>
+        <li>Real store names stay out of reels until the trademark review. No I ♥ NY sign in shots.</li>
+        <li>No fake scarcity and no countdowns to nothing. The only deadlines are real event times.</li>
+        <li>No em dashes on screen or in captions, and the joke comes after the useful part. Creators tag #ad.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="foot">Club NYC · Instagram plan v1 · written Oct 28, 2026. Videos load from <code>video/out/reels</code> and <code>app/public/video</code> on this machine.</p>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <button class="close" id="dlg-close" aria-label="Close">✕</button>
+  <div class="dlg">
+    <div class="phone" id="dlg-media"></div>
+    <div class="dlg-body">
+      <span class="eyebrow" id="dlg-eye"></span>
+      <h3 id="dlg-title"></h3>
+      <dl class="kv" id="dlg-kv"></dl>
+      <div class="caption" id="dlg-cap"></div>
+      <div><button class="btn small" id="dlg-copy">Copy caption</button></div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+
+const R = '../../video/out/reels/', F = '../../video/public/footage/', WEB = '../../app/public/video/'
+// renders get overwritten in place, so ask for a fresh copy each time the page opens (no stale images after a re-render)
+const V = '?v=' + Date.now()
+
+/* ---------- the levers ---------- */
+const LEVERS = [
+  ['Write for one person', 'Hooks name who it’s for: the friend who moved away, the group chat, the coworker who only eats halal. People send what describes someone they know.', 'Every hook passes the test: who would you send this to?'],
+  ['Trial Reels first', 'Instagram can show a reel to non-followers only. We test two hooks per idea there and post only the winner to the grid.', '2 trials a week in the teaser, then on every winner'],
+  ['Collab posts', 'A reel co-posted with a creator lands on both grids and both audiences. NYC micro creators (10K to 50K) get early access and their own join link.', '1 collab a week, 3 on launch day'],
+  ['Comment for a key', 'Comment CITY and we DM the waitlist or invite link. Comments lift the reel, the DM opens a thread we can talk in.', 'Instagram auto-reply on a keyword'],
+  ['Series, not one-offs', 'Named, recurring formats (Job of the Week, The Trailer, Locals Say) give people a reason to follow instead of just watch.', 'Same title card, same day each week'],
+  ['Hand people the tools', 'Every reel ships with a no-music cut, and Photo Booth snaps are 9:16 with the invite link. Players make the next reel.', 'Add Yours sticker every weekend'],
+  ['Reply with video', 'The best comments get a reel back. It reaches the commenter’s friends and proves someone is listening.', 'One video reply a week'],
+  ['Post when it’s live', 'Event reels go up at 7 PM ET, an hour before the night’s Jam, so a send turns into “come now”.', 'Tue to Thu, 11 AM to 6 PM otherwise'],
+]
+document.getElementById('levers').innerHTML = LEVERS.map(([h, p, how], i) => `<div class="card lever"><span class="n">${String(i + 1).padStart(2, '0')}</span><h3>${h}</h3><p>${p}</p><span class="how">${how}</span></div>`).join('')
+
+/* ---------- the reels ---------- */
+// layout: portrait = full-bleed 9:16 (the game fills the frame), window = the game in a box over its own blur
+const LIB = [
+  { id: 'grew-up-tall', title: 'The penguin game grew up', series: 'Nostalgia', layout: 'portrait', why: 'The scroll-stopper, full screen: creator, Liberty Island, the subway, a dance.' },
+  { id: 'pov-morning', title: 'POV: a morning in Manhattan', series: 'Day in the life', layout: 'portrait', why: 'Clock chips from 7:02 AM to a show at 8. The train was not right there. 14 seconds.' },
+  { id: 'this-or-that', title: 'Pick one. Comment it', series: 'This or that', layout: 'portrait', why: 'Two places stacked, an “or” between them. Built to fill the comments.' },
+  { id: 'apartment-tour', title: 'Apartment tour, no broker fee', series: 'Locals say', layout: 'portrait', why: 'A deadpan realtor tour: exposed brick, a spiral staircase, the penthouse view.' },
+  { id: 'tour-tall', title: 'Manhattan in ten seconds', series: 'City list', layout: 'portrait', why: 'Seven landmarks, full screen, one every two beats. Saves and replays.' },
+  { id: 'flash-mob', title: 'Start a flash mob', series: 'Live', layout: 'portrait', why: 'Close on the dancers in Central Park, then a rooftop, then Broadway. Press D anywhere.' },
+  { id: 'jobs-stack', title: 'Five jobs. Zero rent', series: 'Job of the Week', layout: 'portrait', why: 'Two jobs per screen, then the ferry full height. Ends on “which one are you taking?”' },
+  { id: 'halal-trailer', title: 'Halal Rush: the trailer', series: 'The Trailer', layout: 'portrait', file: 'club-nyc-reel-halal-rush-trailer.mp4', alt: 'club-nyc-reel-halal-rush-trailer-hits-only.mp4', why: 'Mock-epic: letterbox, booms, dead air, for a lunch rush. Built to be sent.' },
+  { id: 'grew-up', title: 'The penguin game grew up (window)', series: 'Nostalgia', layout: 'window', why: 'The boxed version. Runs as a Trial Reel against the full-bleed one.' },
+  { id: 'make-you', title: 'Make your New Yorker', series: 'Creator', layout: 'window', why: 'The creator UI is wide, so it stays in its window. Shows how fast you get in.' },
+  { id: 'dance-jam', title: 'When the Dance Jam starts', series: 'Live', layout: 'window', why: 'Times Square art carries the I ♥ NY sign, so it is cropped left. Posted at 7 PM.' },
+  { id: 'moved-away', title: 'For the friend who moved away', series: 'Send this', layout: 'window', why: 'A reel with a recipient built in. Our best guess at a send machine.' },
+  { id: 'first-job', title: 'Five jobs, zero rent (window)', series: 'Job of the Week', layout: 'window', why: 'The boxed jobs cut, for testing against the stacked one.' },
+  { id: 'tour', title: 'Manhattan in ten seconds (window)', series: 'City list', layout: 'window', why: 'The boxed tour, for testing against the full-bleed one.' },
+  { id: 'trailer', title: 'The launch trailer', series: 'Launch', layout: 'wide', file: WEB + 'club-nyc-trailer.mp4', poster: WEB + 'club-nyc-trailer.jpg', why: '43 s, 16:9. Feed video and YouTube on launch day.' },
+  { id: 'hero', title: 'Landmarks loop', series: 'Stories', layout: 'wide', file: WEB + 'hero-loop.mp4', poster: WEB + 'hero-loop.webp', why: 'Silent background for Story text, polls and the countdown sticker.' },
+  { id: 'ferry-trailer', title: 'Ferry Captain: the trailer', series: 'The Trailer', status: 'make', poster: F + 'job-ferry-captain-intro.png', spec: 'EpicReel shots from job-ferry-captain.mp4', why: 'Mock-epic #2. “One captain. One ferry. 400 tourists.” Uses the Epikton track once it’s bought.' },
+  { id: 'players-1', title: 'You all did this', series: 'Player clips', status: 'make', poster: F + 'community-city.png', spec: 'capture.py on the live server, tall crops', why: 'Real players’ clips, cut on the beat, shared with permission.' },
+  { id: 'friendsgiving', title: 'Friendsgiving in the city', series: 'Send this', status: 'make', poster: F + 'crowd-end.png', spec: 'Portrait reel over the apartment and penthouse', why: 'Thanksgiving week: the group chat that never meets, meeting.' },
+  { id: 'recap', title: '30 days in the city', series: 'Recap', status: 'make', poster: F + 'flashmob.png', spec: 'Portrait reel, 32 beats', why: 'The best player clips of the month and real numbers.' },
+]
+LIB.forEach((r) => {
+  r.status = r.status || 'ready'
+  if (r.status !== 'ready') return
+  r.file = r.file || `club-nyc-reel-${r.id}.mp4`
+  if (!r.alt && r.layout !== 'wide') r.alt = `club-nyc-reel-${r.id}-no-music.mp4`
+  r.poster = (r.poster || R + 'posters/' + r.file.replace('.mp4', '.jpg')) + V
+})
+const byId = Object.fromEntries(LIB.map((r) => [r.id, r]))
+const src = (r, f) => (f.startsWith('../') ? f : R + f) + V
+document.getElementById('f-ready').textContent = LIB.filter((r) => r.status === 'ready' && r.layout !== 'wide').length
+
+function media(r, { autoplay = false } = {}) {
+  if (r.status === 'make') return `<img src="${r.poster}" alt=""><div class="todo"><span class="chip make"><i></i>To make</span><b>${r.title}</b><small>${r.spec}</small></div>`
+  return `<video src="${src(r, r.file)}" poster="${r.poster}" muted loop playsinline preload="${autoplay ? 'auto' : 'metadata'}" ${autoplay ? 'autoplay' : ''}></video><button class="sound" aria-label="Sound on">🔈</button>`
+}
+const LAYOUT = { portrait: 'Full-bleed', window: 'Window', wide: '16:9' }
+document.getElementById('lib').innerHTML = LIB.map((r) => `
+  <article class="reel" data-status="${r.status}" data-layout="${r.layout || ''}">
+    <div class="phone ${r.layout === 'wide' ? 'wide' : ''}">${media(r)}</div>
+    <div class="row"><span class="chip ${r.status}"><i></i>${r.status === 'ready' ? LAYOUT[r.layout] : 'To make'}</span><span class="chip">${r.series}</span></div>
+    <h3>${r.title}</h3>
+    <p>${r.why}</p>
+    ${r.alt ? `<span class="files">${r.file}<br>${r.alt}</span>` : ''}
+  </article>`).join('')
+
+// play reels only while they're on screen; the speaker button unmutes one at a time
+const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; e.isIntersecting ? v.play().catch(() => {}) : v.pause() }), { threshold: 0.5 })
+document.querySelectorAll('#lib video').forEach((v) => io.observe(v))
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.sound'); if (!b) return
+  const v = b.parentElement.querySelector('video'), on = v.muted
+  document.querySelectorAll('video').forEach((x) => { x.muted = true }); document.querySelectorAll('.sound').forEach((x) => { x.textContent = '🔈'; x.ariaLabel = 'Sound on' })
+  v.muted = !on; if (on) { b.textContent = '🔊'; b.ariaLabel = 'Sound off'; v.play() }
+})
+document.querySelectorAll('[data-lib]').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-lib]').forEach((x) => x.setAttribute('aria-pressed', x === b))
+  const f = b.dataset.lib
+  document.querySelectorAll('.reel').forEach((a) => { a.hidden = !(f === 'all' || (f === 'make' ? a.dataset.status === 'make' : a.dataset.layout === f && a.dataset.status === 'ready')) })
+}))
+
+/* ---------- image posts ---------- */
+const P = '../../video/out/posts/'
+const POSTS = [
+  { id: 'speak-new-yorker', n: 8, title: 'How to speak New Yorker', why: 'A glossary: bodega, schmear, showtime, stoop, the line, pizza rat. Each word over the room it lives in.' },
+  { id: 'first-day', n: 8, title: 'Your first day in Manhattan', why: 'Six stops with one true thing each (Grand Central’s ceiling is painted backwards).' },
+  { id: 'free-in-club', n: 7, title: 'Things that are free in Club NYC', why: 'Rent, the deck, Broadway, the rink. And the Staten Island Ferry, which is free in both.' },
+  { id: 'which-new-yorker', n: 9, title: 'Which New Yorker are you?', why: 'All 14 signature colours with a personality each. Ends on “comment your colour”.' },
+  { id: 'fold-a-slice', n: 6, title: 'How to eat a slice', why: 'Four steps, no forks. Ends on the Slice Factory job.' },
+  { id: 'city-news', n: 7, title: 'This week in the city', why: 'The in-game paper as a carousel: the bodega cat mayor, pizza rat, the halal line.' },
+]
+const SINGLES = [
+  ['fold-it', 'Fold it. Always fold it.'], ['elevator', 'The elevator is out. Again.'], ['tag-the-line', 'Tag the friend who would wait'],
+  ['pigeon', 'Local resident. Has opinions.'], ['colour-grid', 'Pick your colour'], ['open-date', 'The city opens Nov 17'],
+  ['where-live', 'Where would you live?'], ['now-hiring', 'Now hiring: five jobs'],
+]
+const postById = Object.fromEntries(POSTS.map((p) => [p.id, p]).concat(SINGLES.map(([id, t]) => [id, { id, n: 1, title: t }])))
+const slide = (id, i) => `${P}${id}/${String(i + 1).padStart(2, '0')}.jpg${V}`
+document.getElementById('f-img').textContent = POSTS.reduce((a, p) => a + p.n, 0) + SINGLES.length
+function swipe(p) {
+  const imgs = Array.from({ length: p.n }, (_, i) => `<img src="${slide(p.id, i)}" alt="${p.title}, slide ${i + 1} of ${p.n}" loading="lazy">`).join('')
+  return `<div class="swipe"><div class="track">${imgs}</div>${p.n > 1 ? '<button class="nav l" aria-label="Previous slide">‹</button><button class="nav r" aria-label="Next slide">›</button>' : ''}</div>${p.n > 1 ? `<div class="dots">${'<i></i>'.repeat(p.n)}</div>` : ''}`
+}
+function wireSwipe(root) {
+  root.querySelectorAll('.swipe').forEach((sw) => {
+    const t = sw.querySelector('.track'), dots = sw.nextElementSibling?.classList.contains('dots') ? [...sw.nextElementSibling.children] : []
+    const mark = () => { const i = Math.round(t.scrollLeft / t.clientWidth); dots.forEach((d, k) => d.classList.toggle('on', k === i)) }
+    t.addEventListener('scroll', mark, { passive: true }); mark()
+    sw.querySelector('.nav.l')?.addEventListener('click', () => t.scrollBy({ left: -t.clientWidth, behavior: 'smooth' }))
+    sw.querySelector('.nav.r')?.addEventListener('click', () => t.scrollBy({ left: t.clientWidth, behavior: 'smooth' }))
+  })
+}
+document.getElementById('posts').innerHTML = POSTS.map((p) => `<article class="post">${swipe(p)}<div class="row"><span class="chip ready"><i></i>Carousel · ${p.n} slides</span></div><h3>${p.title}</h3><p>${p.why}</p><span class="files">video/out/posts/${p.id}/</span></article>`).join('')
+document.getElementById('singles').innerHTML = SINGLES.map(([id, t]) => `<figure><img src="${slide(id, 0)}" alt="${t}" loading="lazy"><figcaption>${t}</figcaption></figure>`).join('')
+wireSwipe(document.getElementById('posts'))
+
+/* ---------- the phases ---------- */
+const PHASES = [
+  ['p1', 'Oct 29 to Nov 9', 'Teaser', 'Nostalgia and NYC in-jokes. Grow the account and learn which hooks stop the scroll.', 'Asks for: a follow, and “comment CITY” for the waitlist'],
+  ['p2', 'Nov 10 to Nov 16', 'Founders’ Preview', 'Invite-only groups play. First creator collabs. Real players on screen.', 'Asks for: “get an invite”'],
+  ['p3', 'Nov 17 to Nov 23', 'Launch week', 'A reel a day around that night’s event. Player clips start replacing ours.', 'Asks for: “come tonight at 8”'],
+  ['p4', 'Nov 24 to Nov 27', 'Friends far away', 'Thanksgiving week: the friend who moved, the cousin upstate, the group chat.', 'Asks for: “send this to them”'],
+]
+document.getElementById('phases').innerHTML = PHASES.map(([c, w, h, p, a]) => `<div class="card phase ${c}"><span class="when">${w}</span><h3>${h}</h3><p>${p}</p><span class="ask">${a}</span></div>`).join('')
+
+/* ---------- the 30 days ---------- */
+// fmt: Reel, Trial, Carousel, Single, Collab, Live · reel: an id from LIB · post: a carousel or single · also: extra singles that day
+const D = (date, p, fmt, title, asset, hook, caption, cta, metric, stories, extra = {}) => ({ date, p, fmt, title, ...(postById[asset] && !byId[asset] ? { post: asset } : { reel: asset }), hook, caption, cta, metric, stories, ...extra })
+const TAGS = '#nyc #newyorkcity #cozygames'
+const DAYS = [
+  D('2026-10-29', 'p1', 'Reel', 'The penguin game grew up', 'grew-up-tall', 'POV: the penguin game you played after school grew up', `It moved to Manhattan, takes the subway now and still dances. Comment CITY and we'll send you the waitlist.\n\nNot affiliated with Disney or Club Penguin.\n${TAGS} #nostalgia`, 'Follow + comment CITY', '3 s hold, follows per reach', 'Poll: “Did you have a penguin?” Yes / Obviously'),
+  D('2026-10-30', 'p1', 'Carousel', 'How to speak New Yorker', 'speak-new-yorker', 'How to speak New Yorker', `A glossary for your first week. Which word did we miss? Comment it and it goes in part two.\n${TAGS} #newyorker`, 'Save + comment a word', 'Saves per reach', 'Quiz sticker: “What is a schmear?”'),
+  D('2026-10-31', 'p1', 'Reel', 'Manhattan in ten seconds', 'tour-tall', 'Manhattan in ten seconds', `Grand Central, The Met, Rockefeller Center, the Brooklyn Bridge, Liberty Island, the Empire State Building, Wall Street. Every one is a room you can walk into.\n${TAGS}`, 'Save + comment a place', 'Saves, replays', 'No Halloween content: the game’s party is off', { also: ['where-live'] }),
+  D('2026-11-01', 'p1', 'Single', 'Pick your colour', 'colour-grid', 'Pick your colour', `Your New Yorker wears one of 14 colours so friends can spot you across Times Square. Which one is yours? Comment it.\n${TAGS}`, 'Comment a colour', 'Comments per reach', 'Add Yours: “my colour”'),
+  D('2026-11-02', 'p1', 'Reel', 'Halal Rush: the trailer', 'halal-trailer', 'In a city of 8 million people, one New Yorker had one job', `Lunch. Is. Coming. A Club NYC job, rated E for extra white sauce.\n\nSend this to the friend who would wait in that line.\n${TAGS} #halalcart`, 'Send to a friend', 'Sends per 1,000', 'Repost the “tag the friend” image', { also: ['tag-the-line'] }),
+  D('2026-11-03', 'p1', 'Carousel', 'Your first day in Manhattan', 'first-day', 'Your first day in Manhattan, in six stops', `Six stops, one true thing each. Grand Central’s ceiling really is painted backwards. Save it for your first visit, real or not.\n${TAGS} #nyctravel`, 'Save + send', 'Saves, sends', 'Poll: “Been to Grand Central?”'),
+  D('2026-11-04', 'p1', 'Reel', 'POV: a morning in Manhattan', 'pov-morning', 'POV: a morning in Manhattan', `7:02 AM to 8:00 PM. The train was not right there.\n\nTag the friend who is always late.\n${TAGS} #dayinmylife`, 'Tag a friend', 'Sends, tags', 'Question: “What time do you get coffee?”'),
+  D('2026-11-05', 'p1', 'Trial', 'Window vs full screen', 'grew-up', 'Same hook, in a window', `A Trial Reel (non-followers only): the boxed version of day 1. If full screen holds better at 3 seconds, we stop making window reels.`, 'None (test)', '3 s hold vs day 1', 'Behind the scenes: how we record tall'),
+  D('2026-11-06', 'p1', 'Single', 'Fold it. Always fold it.', 'fold-it', 'Fold it. Always fold it.', `Every New Yorker, at you. Share it with someone who uses a fork.\n${TAGS} #nycpizza`, 'Share to Story', 'Shares, sends', 'Reshare as a Story sticker'),
+  D('2026-11-07', 'p1', 'Reel', 'This or that', 'this-or-that', 'Pick one. Comment it', `Central Park or the High Line. The Met or Broadway. The bridge or the island. Wrong answers only.\n${TAGS}`, 'Comment', 'Comments per reach', 'Poll stickers, one pair each'),
+  D('2026-11-08', 'p1', 'Carousel', 'Which New Yorker are you?', 'which-new-yorker', 'Which New Yorker are you?', `Pick your colour. We already know you're Taxi Yellow.\n${TAGS}`, 'Comment your colour', 'Comments, saves', 'Add Yours: “my colour”'),
+  D('2026-11-09', 'p1', 'Reel', 'Apartment tour, no broker fee', 'apartment-tour', 'Touring apartments in Manhattan', `Exposed brick. A spiral staircase. A view. No broker fee. The elevator is out, though.\n${TAGS} #nycapartment`, 'Send to a roommate', 'Sends per 1,000', 'Monday review in Stories', { also: ['elevator'] }),
+  D('2026-11-10', 'p2', 'Reel', 'The Preview is open', 'trailer', 'The Founders’ Preview is open', `Invite-only, groups of friends first. If you're on the waitlist, check your email tonight. If you're not, comment CITY.\n${TAGS}`, 'Comment CITY', 'Waitlist sign-ups', 'Link sticker to the waitlist, all day'),
+  D('2026-11-11', 'p2', 'Carousel', 'Free in Club NYC', 'free-in-club', 'Things that are free in Club NYC', `And very not free in New York. Except the Staten Island Ferry. New York got that one right.\n${TAGS}`, 'Save + share', 'Shares, saves', 'Quiz: “Is the ferry free?”'),
+  D('2026-11-12', 'p2', 'Collab', 'Creator makes their New Yorker', 'make-you', 'I made myself in Club NYC', `Co-posted with an NYC creator. They make their look, find their colour, react honestly. Our only brief: show the creator and one job. Tagged #ad.`, 'Creator’s join link', 'Reach outside followers', 'Reshare the collab'),
+  D('2026-11-13', 'p2', 'Reel', 'Five jobs. Zero rent', 'jobs-stack', 'Five jobs. Zero rent', `Pizza, bagels, halal, Showtime, the ferry. Pays in coins, which is more than some internships. Comment JOB for an invite.\n${TAGS}`, 'Comment JOB', 'Comments, DMs', 'Repost “Now hiring”', { also: ['now-hiring'] }),
+  D('2026-11-14', 'p2', 'Live', 'Live from the city', 'hero', 'Live: a walk through the city with the founders', `30 minutes on Instagram Live, playing with founders on screen. Viewers pick where we go next.`, 'Come say hi', 'Peak viewers, comments', 'Reminder sticker set 2 days before'),
+  D('2026-11-15', 'p2', 'Single', 'The city opens Nov 17', 'open-date', 'The city opens Nov 17', `Bring the group chat. Turn on the reminder (a real date, not a countdown to nothing).\n${TAGS}`, 'Tap the reminder', 'Reminder sign-ups', 'Countdown sticker + FAQ'),
+  D('2026-11-16', 'p2', 'Reel', 'Ferry Captain: the trailer', 'ferry-trailer', 'One captain. One ferry. 400 tourists', `The Trailer, part two. Tomorrow, the whole city opens.\n${TAGS}`, 'Send to a friend', 'Sends vs Halal Rush', 'The Trailer series title card'),
+  D('2026-11-17', 'p3', 'Reel', 'We’re open', 'grew-up-tall', 'It’s open. Bring your friends', `Club NYC is open. Your friend's invite drops you right next to them. Flash mob in Central Park tonight.\n\nNot affiliated with Disney or Club Penguin.\n${TAGS}`, 'Play now (link in bio)', 'Sign-ups, invites sent', 'Trailer in Stories + link sticker', { launch: true, note: 'Day 1’s reel with an “Open now” end card, co-posted with every seeded creator in the same hour.' }),
+  D('2026-11-18', 'p3', 'Reel', 'Start a flash mob', 'flash-mob', 'Start dancing in Central Park', `Press D anywhere and the locals join in. Tonight at 8, we're starting one in Central Park. Send this to whoever you're bringing.\n${TAGS}`, 'Come tonight at 8', 'Sends, players at 8 PM', 'Live clips, same night'),
+  D('2026-11-19', 'p3', 'Reel', 'You all did this', 'players-1', 'You built this in 48 hours', `Your clips, your looks, your dancing. Tag us with a Photo Booth snap: it could be in the next one.\n${TAGS}`, 'Post a Photo Booth snap', 'Tagged posts', 'Reshare every tagged snap'),
+  D('2026-11-20', 'p3', 'Carousel', 'This week in the city', 'city-news', 'This week in the city', `The Club NYC paper, in five headlines. A new one every week, in the game.\n${TAGS}`, 'Save + follow', 'Saves, follows', 'Poll: “Next mayor?”'),
+  D('2026-11-21', 'p3', 'Reel', 'When the Dance Jam starts', 'dance-jam', 'When the Dance Jam starts', `Saturday night. Nobody can dance. Everybody dances.\n${TAGS}`, 'Come tonight', 'Players at the event', 'Live Story from the Jam'),
+  D('2026-11-22', 'p3', 'Carousel', 'Week one, honestly', null, 'Week one in real numbers', `New Yorkers, Jams, slices folded, stamps earned. Every number from our own dashboard, nothing rounded up. Last slide: what we fix next.`, 'Save + share', 'Shares, saves', 'Question box: “What should we add?”', { still: P + 'free-in-club/01.jpg', todo: true }),
+  D('2026-11-23', 'p3', 'Carousel', 'How to eat a slice', 'fold-a-slice', 'How to eat a slice like a New Yorker', `Four steps, no forks. Then fold them for coins at Slice Factory: this week's top score is in the comments (the real one).\n${TAGS} #nycpizza`, 'Save + beat the score', 'Saves, job plays', 'Leaderboard screenshot'),
+  D('2026-11-24', 'p4', 'Reel', 'Home for the holidays?', 'moved-away', 'For the friend who moved away', `Can't make it home this week? Meet in Central Park instead. Send this to them.\n${TAGS} #thanksgiving`, 'Send to one person', 'Sends per 1,000', 'Question: “Who are you meeting?”'),
+  D('2026-11-25', 'p4', 'Reel', 'Friendsgiving in the city', 'friendsgiving', 'Friendsgiving, but nobody has to cook', `Bring the group chat to Club NYC on Thursday night. One invite link each, everyone lands together.\n${TAGS} #friendsgiving`, 'Invite your group', 'Invites per new player', 'Add Yours: “who’s at your table”'),
+  D('2026-11-26', 'p4', 'Single', 'Thankful for our local resident', 'pigeon', 'Local resident. Has opinions.', `Happy Thanksgiving from the city and its most loyal resident. No ask today. Go eat.`, 'None', 'Replies', 'Reshare players’ posts all day'),
+  D('2026-11-27', 'p4', 'Reel', '30 days in the city', 'recap', '30 days ago this city was empty', `The best clips of the month and the real numbers. In December: The Trailer every Monday, Job of the Week every Thursday, Locals Say on Saturdays.\n${TAGS}`, 'Follow for December', 'Follows per reach', 'Poll: which series first?'),
+]
+
+const FMTS = ['All', 'Reel', 'Carousel', 'Single', 'Trial', 'Collab', 'Live']
+const FCOL = { Reel: '#2a7bd5', Carousel: '#ffc634', Single: '#ff8fae', Trial: '#8e5fd8', Collab: '#3cb371', Live: '#e5483b' }
+document.getElementById('calf').innerHTML = FMTS.map((f, i) => `<button data-fmt="${f}" aria-pressed="${i === 0}">${f}</button>`).join('')
+// the month's mix, as one bar: main posts by format, plus the extra singles
+const count = {}; DAYS.forEach((d) => { count[d.fmt] = (count[d.fmt] || 0) + 1 })
+const extras = DAYS.reduce((a, d) => a + (d.also?.length || 0), 0)
+const portrait = DAYS.filter((d) => byId[d.reel]?.layout === 'portrait' || byId[d.reel]?.status === 'make').length
+document.getElementById('mix').innerHTML = Object.entries(count).map(([f, n]) => `<span style="flex:${n};background:${FCOL[f]}"></span>`).join('')
+document.getElementById('mixkey').innerHTML = Object.entries(count).map(([f, n]) => `<span><i style="background:${FCOL[f]}"></i>${n} ${f}</span>`).join('') + `<span>+ ${extras} extra singles on busy days</span><span><b>${portrait} of ${DAYS.filter((d) => d.reel && byId[d.reel]?.layout !== 'wide').length}</b> video days are full-bleed portrait (the four to make are planned that way)</span>`
+
+const thumb = (d) => d.still || (d.post ? slide(d.post, 0) : byId[d.reel]?.poster)
+const cal = document.getElementById('cal')
+const first = new Date(DAYS[0].date + 'T12:00')
+const lead = (first.getDay() + 6) % 7 // Monday-first grid
+cal.innerHTML = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => `<div class="dow">${d}</div>`).join('') +
+  Array.from({ length: lead }, () => '<div class="day blank"></div>').join('') +
+  DAYS.map((d, i) => {
+    const dt = new Date(d.date + 'T12:00'), t = thumb(d)
+    const ready = d.post ? true : d.reel ? byId[d.reel]?.status === 'ready' : false
+    return `<button class="day ${d.launch ? 'launch' : ''}" data-i="${i}" data-fmt="${d.fmt}" aria-label="${dt.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}: ${d.title}">
+      <span class="bar" style="background:${FCOL[d.fmt]}"></span>
+      <span class="d"><b>${dt.getDate()}</b>${dt.toLocaleDateString('en-US', { month: 'short' })} · Day ${i + 1}</span>
+      <span class="fmt">${d.fmt}${ready ? ' · ready' : ' · to make'}${d.also ? ' · +' + d.also.length : ''}</span>
+      <span class="t">${d.title}</span>
+      ${t ? `<span class="thumb" style="background-image:url('${t}')"></span>` : ''}
+    </button>`
+  }).join('')
+document.querySelectorAll('#calf button').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('#calf button').forEach((x) => x.setAttribute('aria-pressed', x === b))
+  document.querySelectorAll('.day[data-i]').forEach((d) => d.classList.toggle('dim', b.dataset.fmt !== 'All' && d.dataset.fmt !== b.dataset.fmt))
+}))
+
+/* ---------- day dialog ---------- */
+const dlg = document.getElementById('dlg')
+cal.addEventListener('click', (e) => {
+  const el = e.target.closest('.day[data-i]'); if (!el) return
+  const d = DAYS[+el.dataset.i], r = byId[d.reel], p = postById[d.post], dt = new Date(d.date + 'T12:00')
+  const m = document.getElementById('dlg-media')
+  if (p) { m.className = 'feed'; m.innerHTML = swipe(p); wireSwipe(m) }
+  else if (r) { m.className = 'phone' + (r.layout === 'wide' ? ' wide' : ''); m.innerHTML = media(r, { autoplay: true }) }
+  else { m.className = 'feed'; m.innerHTML = `<div class="swipe"><div class="track"><img src="${d.still}" alt=""></div></div>` }
+  document.getElementById('dlg-eye').textContent = `Day ${+el.dataset.i + 1} · ${dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · ${PHASES.find((x) => x[0] === d.p)[2]}`
+  document.getElementById('dlg-title').textContent = d.title
+  const status = p ? `${p.n > 1 ? p.n + ' slides' : 'one image'}, ready` : r ? (r.status === 'ready' ? `${LAYOUT[r.layout]} video, ready` : 'video to make') : 'to make after launch'
+  document.getElementById('dlg-kv').innerHTML = [
+    ['Format', `${d.fmt} · ${status}`],
+    ['Hook', d.hook], ['Ask', d.cta], ['Measure', d.metric], ['Stories', d.stories],
+    d.also ? ['Also post', d.also.map((a) => `<img src="${slide(a, 0)}" alt="${postById[a].title}" style="width:72px;border:2px solid var(--ink);border-radius:8px;vertical-align:middle;margin-right:6px">${postById[a].title}`).join('<br>')] : null,
+    d.note ? ['Note', d.note] : null,
+    r?.file ? ['File', `<span class="files">${r.file.split('/').pop()}${r.alt ? ' · ' + r.alt : ''}</span>`] : p ? ['Files', `<span class="files">video/out/posts/${p.id}/</span>`] : null,
+  ].filter(Boolean).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')
+  document.getElementById('dlg-cap').textContent = d.caption
+  dlg.showModal()
+})
+const closeDlg = () => { dlg.querySelectorAll('video').forEach((v) => v.pause()); dlg.close() }
+document.getElementById('dlg-close').addEventListener('click', closeDlg)
+dlg.addEventListener('click', (e) => { if (e.target === dlg) closeDlg() })
+dlg.addEventListener('close', () => dlg.querySelectorAll('video').forEach((v) => v.pause()))
+document.getElementById('dlg-copy').addEventListener('click', async (e) => {
+  try { await navigator.clipboard.writeText(document.getElementById('dlg-cap').textContent); e.target.textContent = 'Copied' } catch { e.target.textContent = 'Select and copy' }
+  setTimeout(() => { e.target.textContent = 'Copy caption' }, 1600)
+})
+
+/* ---------- the model ---------- */
+const INPUTS = [
+  ['reels', 'Reels a week', 'Main grid posts', 3, 10, 1, 6],
+  ['reach', 'Views per reel, week 1', 'A new account is mostly non-followers', 500, 20000, 500, 3000],
+  ['sends', 'Sends per 1,000 views', 'How often a view becomes a DM', 2, 40, 1, 10],
+  ['sendJoin', '% of sends that join', 'A friend asked them personally', 5, 50, 1, 20],
+  ['viewJoin', '% of other views that join', 'Strangers, no friend attached', 0.1, 2, 0.1, 0.3],
+  ['invites', 'Friends each player brings, per week', 'Invite link, Photo Booth posts', 0, 1.5, 0.05, 0.3],
+  ['followGrow', 'Weekly growth in views per reel', 'More followers, more reach', 0, 60, 5, 20],
+]
+const st = {}
+document.getElementById('inputs').innerHTML = INPUTS.map(([k, l, h, min, max, step, v]) => { st[k] = v; return `<label>${l}<output id="o-${k}">${v}</output><input type="range" id="i-${k}" min="${min}" max="${max}" step="${step}" value="${v}"><span>${h}</span></label>` }).join('')
+const fmt = (n) => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : Math.round(n).toString())
+function model() {
+  const weeks = [], WK = 6
+  let reach = st.reach, players = 0, total = 0
+  for (let w = 0; w < WK; w++) {
+    const views = st.reels * reach
+    const sends = (views * st.sends) / 1000
+    const fromReels = sends * (st.sendJoin / 100) + (views - sends) * (st.viewJoin / 100)
+    const fromFriends = total * st.invites
+    players = fromReels + fromFriends
+    total += players
+    weeks.push({ players, fromFriends })
+    reach *= 1 + st.followGrow / 100
+  }
+  const max = Math.max(...weeks.map((w) => w.players), 1)
+  document.getElementById('bars').innerHTML = weeks.map((w) => `<div><b>${fmt(w.players)}</b><i style="height:${Math.max(2, (w.players / max) * 88)}%"></i></div>`).join('')
+  document.getElementById('blabels').innerHTML = weeks.map((_, i) => `<span>Week ${i + 1}</span>`).join('')
+  const share = weeks[WK - 1].fromFriends / weeks[WK - 1].players
+  document.getElementById('ksay').innerHTML = `About <b>${fmt(total)}</b> New Yorkers after six weeks. By week six, <b>${Math.round(share * 100)}%</b> of new players come from friends rather than reels. ${share > 0.5 ? 'The loop is doing the work now.' : 'Still reach-driven: push the friend numbers.'}`
+}
+INPUTS.forEach(([k]) => document.getElementById('i-' + k).addEventListener('input', (e) => { st[k] = +e.target.value; document.getElementById('o-' + k).textContent = e.target.value; model() }))
+model()
+</script>
+</body>
+</html>

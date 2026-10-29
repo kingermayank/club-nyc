@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import { Hono, type MiddlewareHandler } from 'hono'
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import { z } from 'zod'
@@ -11,23 +11,28 @@ import { referralStats } from './referrals.ts'
 import { kickUser, setLiveMute, warnUser, announce, setMaintenance, maintenanceState, liveSnapshot, profileChanged, walletChanged, presenceOf } from './game/realtime.ts'
 import { listBackups, snapshotNow, backupFile } from './ops.ts'
 import { growth } from './growth.ts'
-import { waitlistOverview, waitlistRows, waitlistCsv, deleteSignup, startLaunchEmail, sendLaunchTest, launchEmailPreview, launchMode } from './waitlist.ts'
+import { hq } from './hq.ts'
+import { waitlistOverview, waitlistRows, waitlistCsv, deleteSignup, startLaunchEmail, sendLaunchTest, launchEmailPreview, launchModeNow } from './waitlist.ts'
 import { createReadStream, statSync } from 'node:fs'
 import { basename } from 'node:path'
 import { Readable } from 'node:stream'
 
 /**
- * The moderator dashboard's API (the page itself is app/public/admin.html).
- * One shared secret (ADMIN_TOKEN) unlocks it; a signed, httpOnly cookie keeps you in for 12 hours.
+ * Launch HQ's API (the page is app/public/hq.html; /admin.html just points there): the go-to-market pages under
+ * /hq and the moderator tools below. One shared key (ADMIN_TOKEN) unlocks it; a signed, httpOnly cookie keeps you in for 30 days.
  */
-export const adminToken = config.adminToken || (config.dev ? randomBytes(9).toString('hex') : '')
-if (!config.adminToken && config.dev) console.log(`[club-nyc] moderator dashboard (dev): /admin.html, token ${adminToken}`)
+// development: an easy key so Launch HQ just opens (production always needs ADMIN_TOKEN)
+export const adminToken = config.adminToken || (config.dev ? 'clubnyc123' : '')
+if (!config.adminToken && config.dev) console.log(`[club-nyc] Launch HQ (dev): /hq.html, key ${adminToken}`)
 else if (!adminToken) console.warn('[club-nyc] ADMIN_TOKEN is not set, so the moderator dashboard is switched off')
 
 const COOKIE = 'club_admin'
-const HOURS = 12
+// stay signed in on this computer for 30 days (the cookie is httpOnly and signed)
+const HOURS = 24 * 30
 const sign = (exp: number) => createHmac('sha256', adminToken).update(`admin:${exp}`).digest('base64url')
 const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b))
+// the key is typed by a person: "Club NYC 123" and "clubnyc123" are the same key
+const typed = (t: string) => t.toLowerCase().replace(/\s+/g, '')
 function sessionOk(v: string | undefined): boolean {
   if (!v || !adminToken) return false
   const [exp, sig] = v.split('.')
@@ -43,7 +48,7 @@ export const admin = new Hono()
 admin.post('/login', async (c) => {
   if (!adminToken) return c.json({ error: 'disabled' }, 404)
   const body = (await c.req.json().catch(() => null)) as { token?: unknown } | null
-  if (!same(String(body?.token ?? ''), adminToken)) return c.json({ error: 'bad-token' }, 401)
+  if (!same(typed(String(body?.token ?? '')), typed(adminToken))) return c.json({ error: 'bad-token' }, 401)
   const exp = Date.now() + HOURS * 3600_000
   setCookie(c, COOKIE, `${exp}.${sign(exp)}`, { httpOnly: true, sameSite: 'Strict', secure: config.secureCookies, path: '/api/admin', maxAge: HOURS * 3600 })
   return c.json({ ok: true })
@@ -55,6 +60,9 @@ admin.post('/logout', (c) => {
 admin.get('/session', (c) => c.json({ ok: sessionOk(getCookie(c, COOKIE)), enabled: !!adminToken }))
 
 admin.use('*', requireAdmin)
+
+// Launch HQ (hq.html): the go-to-market page, same login
+admin.route('/hq', hq)
 
 // ---------- the city at a glance ----------
 const DAY = 86400_000
@@ -319,7 +327,7 @@ admin.get('/waitlist.csv', (c) =>
 // While the city is still in waitlist mode the email would send people to the Coming Soon page, so that needs `force`.
 admin.post('/waitlist/launch-email', async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as { force?: unknown }
-  if (launchMode === 'waitlist' && body.force !== true) return c.json({ ok: false, error: 'still-waitlist' })
+  if (launchModeNow() === 'waitlist' && body.force !== true) return c.json({ ok: false, error: 'still-waitlist' })
   return c.json(startLaunchEmail())
 })
 admin.post('/waitlist/launch-email/test', async (c) => {

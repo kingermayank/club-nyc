@@ -34,6 +34,12 @@
         "tools/qa_stack.sh"
       ],
       "port": 5197
+    },
+    {
+      "name": "repo-files",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8811", "--bind", "127.0.0.1"],
+      "port": 8811
     }
   ]
 }

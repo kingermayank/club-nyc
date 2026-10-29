@@ -25,7 +25,7 @@ Open http://localhost:5173/play (the game; `/` is the landing page) in two diffe
 | **Coins & wardrobe** | Owned by the server (see *The wallet* below): every way to earn coins has a cap, prices are checked, and a doctored save can't change anything. |
 | **Invites** | `/join/<name>` links unfurl with a personal preview, show "<name> invited you" on the front door, make you friends on arrival, place you next to them, pay the friend 50 welcome coins and the inviter 100 once the friend has played 10 minutes (5 a day, 50 total). |
 | **Member numbers** | Every New Yorker gets a number in arrival order, shown on their MetroCard. |
-| **Moderators** | `/admin.html`: city stats, the reports queue, player lookup with 72 h of chat and the coin ledger, warn / mute / suspend / ban / reset name (felt immediately), chat search, crash reports, announcements, maintenance mode, backups. |
+| **Moderators** | Launch HQ (`/hq.html`), The city section: city stats, the reports queue, player lookup with 72 h of chat and the coin ledger, warn / mute / suspend / ban / reset name (felt immediately), chat search, crash reports, announcements, maintenance mode, backups. |
 
 ## Accounts
 

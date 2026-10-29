@@ -254,6 +254,15 @@ const MIGRATIONS = [
      created_at INTEGER NOT NULL
    );
    CREATE INDEX email_logins_email ON email_logins(email, created_at);`,
+  // v13: the waitlist claims a username ("Claim your name"): held for that email until launch, then given to the
+  // account the launch email's "Claim" button signs into. Unique among waitlist rows (any case).
+  `ALTER TABLE waitlist ADD COLUMN name TEXT;
+   ALTER TABLE waitlist ADD COLUMN claimed_at INTEGER;
+   CREATE UNIQUE INDEX waitlist_name ON waitlist(name COLLATE NOCASE) WHERE name IS NOT NULL;`,
+  // v14: Launch HQ's switch (when the city opens, set from the page; what was done at the opening) and the Founder
+  // badge (players who were in before the city opened, and waitlisters who come in afterwards)
+  `CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, at INTEGER NOT NULL);
+   ALTER TABLE users ADD COLUMN founder_at INTEGER;`,
 ]
 
 function migrate() {
@@ -338,6 +347,8 @@ export interface UserRow {
   name_reset: number
   /** total XP (app/src/data/levels.ts turns it into a level and a title) */
   xp: number
+  /** when they got the Founder badge (in before the city opened, or on the waitlist); null for everyone else */
+  founder_at: number | null
 }
 
 export const publicUser = (u: UserRow) => ({
@@ -349,4 +360,5 @@ export const publicUser = (u: UserRow) => ({
   memberSince: new Date(u.created_at).toISOString().slice(0, 10),
   memberNo: u.member_no ?? 0,
   xp: u.xp ?? 0,
+  founder: !!u.founder_at,
 })

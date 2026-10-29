@@ -298,7 +298,6 @@ export const Finale = Interactive.create({ Component: FinaleInner, layout: 'abso
 const EndInner: React.FC<{ url: string }> = ({ url }) => {
   const frame = useCurrentFrame()
   const logo = usePop(0, 10)
-  const line = usePop(2 * BEAT, 12)
   const small = usePop(4 * BEAT + 8, 14)
   return (
     <>
@@ -310,19 +309,6 @@ const EndInner: React.FC<{ url: string }> = ({ url }) => {
           src={staticFile('game/art/ui/logo.png')}
           style={{ width: 600, scale: interpolate(logo, [0, 1], [0.5, 1]), opacity: Math.min(1, logo * 3), filter: 'drop-shadow(0 12px 0 rgba(16,27,63,0.6))' }}
         />
-        <div
-          style={{
-            marginTop: 26,
-            fontFamily: DISPLAY,
-            fontSize: 84,
-            color: '#fff',
-            textShadow: `0 6px 0 ${INK}`,
-            translate: `0 ${interpolate(line, [0, 1], [30, 0])}px`,
-            opacity: Math.min(1, line * 2.5),
-          }}
-        >
-          Play free in your browser
-        </div>
         <div style={{ marginTop: 44 }}>
           <PlayButton at={4 * BEAT} />
         </div>

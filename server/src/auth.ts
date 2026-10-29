@@ -6,6 +6,7 @@ import { config } from './config.ts'
 import { q, tx, type UserRow } from './db.ts'
 import { banOf } from './moderation.ts'
 import { canSendEmail, normalEmail, makeMail, sendEmail, newToken, type EmailContent } from './email.ts'
+import { claimFromLink, founderCheck } from './waitlist.ts'
 
 /**
  * Accounts, low friction first:
@@ -28,6 +29,8 @@ export function createSession(c: Context, userId: string) {
   const now = Date.now()
   q.run('INSERT INTO sessions (id, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)', sha(token), userId, now, now + SESSION_DAYS * DAY)
   setCookie(c, SESSION_COOKIE, token, { httpOnly: true, sameSite: 'Lax', secure: config.secureCookies, path: '/', maxAge: SESSION_DAYS * 86400 })
+  // were they on the waitlist? then this New Yorker is a Founder
+  founderCheck(userId)
 }
 
 /** Look up the user for a raw session token (also used by the WebSocket upgrade). Slides expiry. */
@@ -247,6 +250,9 @@ interface EmailLogin {
 const emailOwner = (email: string) =>
   q.get<UserRow>(`SELECT u.* FROM identities i JOIN users u ON u.id = i.user_id WHERE i.provider = 'email' AND i.subject = ?`, email) ?? null
 
+/** the sign-in email as a new visitor gets it (Launch HQ's email previews) */
+export const signInPreview = (url: string) => signInContent(url, null, null)
+
 function signInContent(url: string, existing: UserRow | null, linking: UserRow | null): EmailContent {
   const name = (u: UserRow | null) => (u?.profile_done && u.name ? u.name : null)
   const after = ['The link works once and expires in 15 minutes. Didn’t ask for it? You can ignore this email: nobody gets in without clicking the link.']
@@ -325,6 +331,24 @@ a { display: inline-flex; align-items: center; justify-content: center; min-heig
 <h1>That Link Has Expired</h1>
 <p>Sign-in links work once, for ${LINK_MINUTES} minutes. You’re still signed in${name ? ` as <b>${name.replace(/[^A-Za-z0-9_]/g, '')}</b>` : ''}, so nothing is lost. To link your email, open your player card and press Link Email again.</p>
 <a href="/play">Back to the City</a></main></body></html>`
+
+// The launch email's "Claim <name>" button: the email reached its owner, so it signs them in like a one-time email
+// link, and the name they saved on the waitlist goes on their New Yorker (if nobody has it). The creator then opens
+// with it filled in. A used or bad link goes to the normal front door, where "Continue with Email" still works.
+auth.get('/claim', (c) => {
+  const claim = claimFromLink(c.req.query('u') ?? '')
+  if (!claim) return c.redirect(`${config.publicUrl}/play?email=expired`)
+  const now = Date.now()
+  const known = emailOwner(claim.email)
+  const userId = known ? known.id : newUser(false)
+  tx(() => {
+    if (!known) q.run('INSERT INTO identities (provider, subject, user_id, email, display, created_at) VALUES (?, ?, ?, ?, ?, ?)', 'email', claim.email, userId, claim.email, null, now)
+    // their saved name, unless this account already has one or someone in the city took it meanwhile
+    if (claim.name && !q.get('SELECT 1 FROM users WHERE name = ? AND id != ?', claim.name, userId)) q.run('UPDATE users SET name = ? WHERE id = ? AND (name IS NULL OR profile_done = 0)', claim.name, userId)
+  })
+  createSession(c, userId)
+  return c.redirect(`${config.publicUrl}/play?login=ok`)
+})
 
 auth.get('/email/verify', (c) => {
   const token = c.req.query('token') ?? ''

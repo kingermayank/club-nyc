@@ -8,6 +8,7 @@ import { awardXp } from './xp.ts'
 import { jobXp } from '../../app/src/data/levels.ts'
 import { config } from './config.ts'
 import { cleanChat } from './game/filter.ts'
+import { nameHeldForOther } from './waitlist.ts'
 import { GAMES, TEAMS, validLook, nameProblem, weekId } from './game/rules.ts'
 import { presenceOf, onlineCount, roomCounts, friendshipChanged, blockChanged, profileChanged, notifyUser, cityPulse, partiesFor, partyOf, stats, walletChanged, kickUser, setLiveMute } from './game/realtime.ts'
 import { ensureWallet, claim, debit, buyItem, buyHome, grantItem, grantCreatorItems, ownedLook, withWallet, payJob, daysThisWeek, daysVisited } from './economy.ts'
@@ -78,7 +79,9 @@ api.get('/name-available', (c) => {
   const name = (c.req.query('name') ?? '').trim()
   const problem = nameProblem(name) ?? (cleanChat(name) !== name ? 'Please pick a different name.' : null)
   if (problem) return c.json({ ok: false, reason: problem })
-  const taken = q.get('SELECT 1 FROM users WHERE name = ?', name)
+  // your own name (claimed from the waitlist) is fine; a name someone saved on the waitlist is taken until they claim it
+  const me = currentUser(c)
+  const taken = !!q.get('SELECT 1 FROM users WHERE name = ? AND id != ?', name, me?.id ?? '') || nameHeldForOther(name, me?.id)
   return c.json({ ok: !taken, reason: taken ? 'That name is taken.' : null })
 })
 
@@ -118,7 +121,7 @@ api.post('/profile', requireUser, async (c) => {
   if (!valid) return c.json({ error: 'look' }, 400)
   const team = TEAMS.includes(body.data.team) ? body.data.team : ''
   const taken = q.get<{ id: string }>('SELECT id FROM users WHERE name = ?', name)
-  if (taken && taken.id !== u.id) return c.json({ error: 'name', reason: 'That name is taken.' }, 409)
+  if ((taken && taken.id !== u.id) || nameHeldForOther(name, u.id)) return c.json({ error: 'name', reason: 'That name is taken.' }, 409)
   let wallet = ensureWallet(u, first ? body.data.local ?? {} : undefined)
   // the creator's freebies (starter outfit + one welcome gift) go straight into the wardrobe
   if (first) wallet = grantCreatorItems(u.id, Object.values(valid.items)) ?? wallet

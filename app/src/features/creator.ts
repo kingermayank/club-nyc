@@ -43,13 +43,15 @@ export interface CreatorOpts {
   tooYoung?: () => void
   /** online: your member number, once the profile is claimed */
   memberNo?: () => number
+  /** a name already on this account (saved on the waitlist and claimed from the launch email): the name screen opens with it */
+  presetName?: string
 }
 
 export function openCreator(done: () => void, opts: CreatorOpts = {}) {
   const openedAt = performance.now()
   track('creator_open')
   let look: Look = structuredClone(PRESETS[Math.floor(Math.random() * PRESETS.length)])
-  let name = ''
+  let name = opts.presetName ?? ''
   let nameErr = ''
   // the birthday and "I agree" (kept if the name screen redraws, e.g. after a taken name)
   let birth: Birth | null = null

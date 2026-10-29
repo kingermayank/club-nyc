@@ -18,7 +18,7 @@ export const config = {
   google: env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET ? { id: env.GOOGLE_CLIENT_ID, secret: env.GOOGLE_CLIENT_SECRET } : null,
   x: env.X_CLIENT_ID ? { id: env.X_CLIENT_ID, secret: env.X_CLIENT_SECRET || null } : null,
   discord: env.DISCORD_CLIENT_ID && env.DISCORD_CLIENT_SECRET ? { id: env.DISCORD_CLIENT_ID, secret: env.DISCORD_CLIENT_SECRET } : null,
-  /** the moderator dashboard (/admin.html) is locked behind this; unset = dashboard off (dev prints a temporary one) */
+  /** Launch HQ (/hq.html, moderation included) is locked behind this; unset = off in production (development uses clubnyc123) */
   adminToken: env.ADMIN_TOKEN ?? '',
   /** shown to banned players for appeals, and on the policy pages */
   contactEmail: env.CONTACT_EMAIL ?? '',

@@ -54,7 +54,7 @@ export type LaunchMode = 'waitlist' | 'open'
 export const GAME_PAGE = /^\/(?:play\/?|play\.html|join\/[^/]+\/?)$/
 
 const SOON_META = {
-  title: 'Club NYC (Coming Soon): Cozy Multiplayer NYC Game in Your Browser',
+  title: 'Club NYC (Coming Soon): A Cozy Multiplayer New York',
   description: 'A cozy online New York is coming soon. Make a New Yorker, explore 20+ places, work silly jobs and hang out with friends. Join the waitlist and we’ll email you the day it opens.',
   social: 'Club NYC (Coming Soon)',
   socialDescription: 'Waddle on over to New York. A cozy online New York opens soon: join the waitlist and we’ll email you the day the doors open.',

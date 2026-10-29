@@ -233,6 +233,8 @@ export async function startGame(host: HTMLElement) {
               claim: (name, look, team, birth) => claimProfile(name, look, team, { birth, consent: POLICY_VERSION }),
               tooYoung: () => void forgetThisVisit(),
               memberNo: () => account.me?.memberNo ?? 0,
+              // claimed from the waitlist: the name they saved is already theirs
+              presetName: account.me && !account.me.profileDone ? account.me.name || undefined : undefined,
             }
           : {},
       ),

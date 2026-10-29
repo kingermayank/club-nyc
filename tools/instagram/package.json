@@ -1,0 +1,14 @@
+{
+  "name": "club-nyc-instagram",
+  "private": true,
+  "description": "The Instagram publisher, run by a Railway cron service with this folder as its root (no dependencies)",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node publish.mjs --live --remote",
+    "dry-run": "node publish.mjs",
+    "sync": "node sync.mjs",
+    "schedule": "node make-schedule.mjs",
+    "connect": "node connect.mjs"
+  }
+}

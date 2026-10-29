@@ -2,16 +2,18 @@ import './waitlist.css'
 
 /**
  * The launch waitlist's email forms (form.wl-form) on the landing page, its sheet and the Coming Soon page.
- *  - POST /api/waitlist { email, source, ref, website }: `source` is where on the site (data-source), `ref` the friend
- *    whose invite link brought you, `website` the honeypot field people never see.
+ *  - "Claim your name" comes first: a username for the city, checked as you type (GET /api/waitlist/name). It's held
+ *    for this email until launch, when the launch email's "Claim" button puts it on their New Yorker.
+ *  - POST /api/waitlist { name, email, source, ref, website }: `source` is where on the site (data-source), `ref` the
+ *    friend whose invite link brought you, `website` the honeypot field people never see.
  *  - Joined: every form on the page turns into "You're on the list!", and this browser remembers it (a flag, never the
  *    address), with "Use a Different Email" to join with another one.
  *  - The honest count (GET /api/waitlist/count) shows only once it's big enough to mean something.
  */
 type Reply =
-  | { ok: true; status: 'added'; confirm: boolean }
-  | { ok: true; status: 'already'; pending: boolean; resent: boolean }
-  | { ok?: false; error: string }
+  | { ok: true; status: 'added'; confirm: boolean; name?: string | null }
+  | { ok: true; status: 'already'; pending: boolean; resent: boolean; name?: string | null }
+  | { ok?: false; error: string; reason?: string }
 
 const JOINED_KEY = 'club-nyc:waitlist'
 const remembered = () => {
@@ -32,6 +34,8 @@ const remember = (on: boolean) => {
 
 /** a quick look before bothering the server (it checks again, properly) */
 const looksLikeEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s)
+/** the city's own name rules (server/src/game/rules.ts nameProblem), so most problems show before any request */
+const nameRule = (s: string) => (s.length < 2 || s.length > 14 ? 'Names are 2 to 14 characters.' : !/^[A-Za-z0-9_]+$/.test(s) ? 'Letters, numbers and _ only.' : null)
 
 const make = <K extends keyof HTMLElementTagNameMap>(tag: K, className = '', text = '') => {
   const e = document.createElement(tag)
@@ -77,14 +81,65 @@ function syncAll() {
       joinedView = null
       remember(false)
       syncAll()
-      f.querySelector<HTMLInputElement>('.wl-input')?.focus()
+      f.querySelector<HTMLInputElement>('.wl-name-input')?.focus()
     })
     f.append(doneBlock(joinedView.title, joinedView.line), again)
   }
 }
 
+/** the "Claim your name" row, added above the email row of every form */
+function nameRow(form: HTMLFormElement) {
+  const row = make('div', 'wl-name')
+  const id = `wl-name-${form.dataset.source || 'page'}`
+  const label = make('label', 'wl-name-label', 'Claim your name')
+  label.htmlFor = id
+  const field = make('div', 'wl-name-field')
+  const input = make('input', 'wl-input wl-name-input')
+  Object.assign(input, { id, type: 'text', name: 'name', autocomplete: 'username', spellcheck: false, maxLength: 14, placeholder: 'Sleepy_Bagel' })
+  input.setAttribute('autocapitalize', 'off')
+  const status = make('span', 'wl-name-status')
+  status.setAttribute('aria-live', 'polite')
+  field.append(input, status)
+  row.append(label, field)
+  form.querySelector('.wl-row')!.before(row)
+  return { input, status }
+}
+
 function wire(form: HTMLFormElement, opts: Options) {
-  const input = form.querySelector<HTMLInputElement>('.wl-input')!
+  const named = nameRow(form)
+  // the name's state: what the server said about exactly this text (checked as you type, after a short pause)
+  let checked: { name: string; ok: boolean; reason: string | null } | null = null
+  let timer = 0
+  let seq = 0
+  const showName = (state: 'idle' | 'checking' | 'ok' | 'bad', text = '') => {
+    named.status.dataset.state = state
+    named.status.textContent = text
+    named.input.setAttribute('aria-invalid', state === 'bad' ? 'true' : 'false')
+  }
+  const checkName = async (value: string) => {
+    const rule = nameRule(value)
+    if (rule) return { name: value, ok: false, reason: rule }
+    const mine = ++seq
+    showName('checking', 'Checking…')
+    const r = await fetch(`/api/waitlist/name?name=${encodeURIComponent(value)}`)
+      .then((x) => x.json() as Promise<{ ok: boolean; reason: string | null }>)
+      .catch(() => ({ ok: true, reason: null }))
+    if (mine !== seq) return null
+    return { name: value, ok: r.ok, reason: r.reason }
+  }
+  named.input.addEventListener('input', () => {
+    clearTimeout(timer)
+    checked = null
+    const value = named.input.value.trim()
+    if (!value) return showName('idle')
+    timer = window.setTimeout(async () => {
+      const r = await checkName(value)
+      if (!r || named.input.value.trim() !== value) return
+      checked = r
+      showName(r.ok ? 'ok' : 'bad', r.ok ? 'Available' : (r.reason ?? 'That name is taken.'))
+    }, 350)
+  })
+  const input = form.querySelector<HTMLInputElement>('.wl-input:not(.wl-name-input)')!
   const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!
   const label = button.querySelector<HTMLElement>('.wl-label') ?? button
   const msg = form.querySelector<HTMLElement>('.wl-msg')!
@@ -97,6 +152,18 @@ function wire(form: HTMLFormElement, opts: Options) {
   input.addEventListener('input', () => msg.textContent && say(''))
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
+    const name = named.input.value.trim()
+    if (!name) {
+      showName('bad', 'Pick a name first: it’s yours on day one.')
+      named.input.focus()
+      return
+    }
+    const nameCheck = checked?.name === name ? checked : await checkName(name)
+    if (nameCheck && !nameCheck.ok) {
+      showName('bad', nameCheck.reason ?? 'That name is taken.')
+      named.input.focus()
+      return
+    }
     const email = input.value.trim()
     if (!email) {
       say('Type your email first, then press Join the Waitlist.')
@@ -118,7 +185,7 @@ function wire(form: HTMLFormElement, opts: Options) {
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source, ref: opts.ref, website: honeypot?.value ?? '' }),
+        body: JSON.stringify({ name, email, source, ref: opts.ref, website: honeypot?.value ?? '' }),
       })
       status = res.status
       reply = (await res.json().catch(() => ({ error: 'oops' }))) as Reply
@@ -129,6 +196,12 @@ function wire(form: HTMLFormElement, opts: Options) {
     label.textContent = idle
     if (!('status' in reply) || !reply.ok) {
       const err = 'error' in reply ? reply.error : ''
+      // the name went to someone else between the check and the click
+      if (err === 'name') {
+        showName('bad', ('reason' in reply && reply.reason) || 'That name is taken.')
+        named.input.focus()
+        return
+      }
       say(
         err === 'bad-email'
           ? 'That email doesn’t look right. Check it and try again.'
@@ -140,10 +213,13 @@ function wire(form: HTMLFormElement, opts: Options) {
       return
     }
     input.value = ''
+    named.input.value = ''
+    showName('idle')
+    const saved = reply.name ? `${reply.name} is yours` : 'You’re on the list'
     if (reply.status === 'added') {
       joinedView = reply.confirm
-        ? { title: 'You’re on the list!', line: 'One more step: check your inbox and confirm your email.' }
-        : { title: 'You’re on the list!', line: 'We’ll email you the day the city opens. Until then, practice your New York walk.' }
+        ? { title: `${saved}!`, line: 'One more step: check your inbox and confirm your email.' }
+        : { title: `${saved}!`, line: 'We’ll email you the day the city opens. Until then, practice your New York walk.' }
       opts.onJoin?.(source)
     } else
       joinedView = reply.pending
@@ -179,7 +255,7 @@ export function waitlistCount(apply: (count: number) => void) {
 
 /** put the cursor in the first visible waitlist field (the "Join the Waitlist" buttons) */
 export function focusWaitlist(form: HTMLFormElement | null) {
-  const input = form?.querySelector<HTMLInputElement>('.wl-input')
+  const input = form?.querySelector<HTMLInputElement>('.wl-name-input')
   if (input && !input.closest('[hidden]')) input.focus({ preventScroll: true })
   else form?.querySelector<HTMLElement>('.wl-done')?.focus({ preventScroll: true })
 }
