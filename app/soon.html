@@ -53,7 +53,7 @@
               <button class="btn btn-play btn-xl" type="submit"><span class="wl-label">Join the Waitlist</span></button>
             </div>
             <p class="wl-msg" aria-live="polite"></p>
-            <p class="wl-fine">No spam, just the day we open. <a href="/privacy.html#waitlist">Privacy</a></p>
+            <p class="wl-fine">You must be 13 or older. We’ll only email you about your spot and the day the doors open, and you can unsubscribe anytime. <a href="/privacy.html#waitlist">Privacy Policy</a></p>
           </div>
           <div class="wl-hp" aria-hidden="true" style="position:absolute;left:-10000px;top:0;width:1px;height:1px;overflow:hidden"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
         </form>
@@ -63,7 +63,7 @@
           <a class="soon-back" href="/">See What’s Coming</a>
         </div>
       </section>
-      <p class="soon-foot">Free <i aria-hidden="true">·</i> Ages 13+ <i aria-hidden="true">·</i> Plays on a computer<br /><a href="/privacy.html">Privacy Policy</a> <i aria-hidden="true">·</i> <a href="/terms.html">Terms of Service</a> <i aria-hidden="true">·</i> <a href="/rules.html">Community Rules</a></p>
+      <p class="soon-foot">Free <i aria-hidden="true">·</i> Ages 13+ <i aria-hidden="true">·</i> Plays on a computer<br /><a href="/privacy.html">Privacy Policy</a> <i aria-hidden="true">·</i> <a href="/terms.html">Terms of Service</a> <i aria-hidden="true">·</i> <a href="/cookies.html">Cookie Policy</a> <i aria-hidden="true">·</i> <a href="/rules.html">Community Rules</a></p>
     </main>
 
     <!-- the video runs longer than 5 seconds, so it can be paused (WCAG 2.2.2) -->
@@ -73,7 +73,8 @@
       <button class="trailer-x" type="button" aria-label="Close the Trailer">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
       </button>
-      <video controls playsinline preload="none" poster="/video/club-nyc-trailer.jpg" src="/video/club-nyc-trailer.mp4" width="1920" height="1080"></video>
+      <video controls playsinline preload="none" poster="/video/club-nyc-trailer.jpg" src="/video/club-nyc-trailer.mp4" width="1920" height="1080" aria-label="Club NYC trailer" aria-describedby="trailer-about"></video>
+      <p class="sr-only" id="trailer-about">Music only, no speech. Three friends in a group chat plan to meet in Times Square, and a yellow cab carries their New Yorkers across the city: Central Park, the Brooklyn Bridge, Liberty Island, the Empire State Building, Grand Central and Rockefeller Center. Then they play together: collecting stamps, posing for group photos, folding slices at the Slice Factory and dancing.</p>
     </dialog>
 
     <script type="module" src="/src/landing/soon.ts"></script>

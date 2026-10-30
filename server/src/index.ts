@@ -95,7 +95,7 @@ if (existsSync(config.staticDir)) {
   const landingHtml = readFileSync(join(root, 'index.html'), 'utf8')
   const landings = { waitlist: fill(absolute(landingForMode(landingHtml, 'waitlist'), abs('/'))), open: fill(absolute(landingForMode(landingHtml, 'open'), abs('/'))) }
   // the policy pages: same fill-in (the company name only once it's really set: they need the legal name)
-  for (const name of ['rules', 'privacy', 'terms']) {
+  for (const name of ['rules', 'privacy', 'terms', 'cookies', 'refunds']) {
     const file = join(root, `${name}.html`)
     if (!existsSync(file)) continue
     const html = fill(readFileSync(file, 'utf8'), true)
@@ -145,7 +145,7 @@ if (existsSync(config.staticDir)) {
     }
   })()
   app.get('/sitemap.xml', (c) => {
-    const urls = ['/', '/rules.html', '/privacy.html', '/terms.html', ...helpUrls]
+    const urls = ['/', '/rules.html', '/privacy.html', '/terms.html', '/cookies.html', '/refunds.html', ...helpUrls]
       .map((p) => {
         const mtime = staticMtime(root, p === '/' ? '/index.html' : p.startsWith('/help') ? `${p}/index.html` : p)
         return `  <url><loc>${abs(p)}</loc>${mtime ? `<lastmod>${new Date(mtime).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`

@@ -50,7 +50,6 @@ function deleteAccount(id: string) {
     q.run('DELETE FROM game_runs WHERE user_id = ?', id)
     q.run('DELETE FROM chat_log WHERE user_id = ?', id)
     q.run('DELETE FROM client_errors WHERE user_id = ?', id)
-    q.run('DELETE FROM events WHERE user_id = ?', id)
     q.run('UPDATE users SET invited_by = NULL WHERE invited_by = ?', id)
     // cascades: identities, sessions, friends, guestbook, likes, scores, ledger, referrals
     q.run('DELETE FROM users WHERE id = ?', id)
@@ -203,11 +202,14 @@ api.post('/client-errors', async (c) => {
   const body = ErrorBody.safeParse(await c.req.json().catch(() => null))
   if (!body.success) return c.json({ ok: false }, 400)
   const u = currentUser(c)
-  q.run('INSERT INTO client_errors (user_id, message, stack, url, ua, at) VALUES (?, ?, ?, ?, ?, ?)', u?.id ?? null, body.data.message, body.data.stack ?? null, body.data.url ?? null, (c.req.header('user-agent') ?? '').slice(0, 200), Date.now())
+  // the page's path only: what follows ? or # can hold a preview code or a sign-in token
+  const url = body.data.url?.split(/[?#]/)[0] || null
+  q.run('INSERT INTO client_errors (user_id, message, stack, url, ua, at) VALUES (?, ?, ?, ?, ?, ?)', u?.id ?? null, body.data.message, body.data.stack ?? null, url, (c.req.header('user-agent') ?? '').slice(0, 200), Date.now())
   return c.json({ ok: true })
 })
 
-// ---------- onboarding funnel events (anonymous per page-load session; a fixed list of names) ----------
+// ---------- onboarding funnel events (anonymous per visit, never tied to an account; a fixed list of names) ----------
+// Pages only send them once the visitor allows analytics in the cookie banner (app/src/consent.ts).
 export const EVENT_NAMES = ['landing_view', 'landing_play', 'landing_discord', 'landing_send', 'landing_trailer', 'creator_open', 'look_preset', 'look_shuffle', 'look_tweak', 'look_colour', 'name_screen', 'name_wheel', 'name_typed', 'creator_done', 'spawned'] as const
 const EventsBody = z.object({
   session: z.string().min(6).max(40),
@@ -216,10 +218,9 @@ const EventsBody = z.object({
 api.post('/events', async (c) => {
   const body = EventsBody.safeParse(await c.req.json().catch(() => null))
   if (!body.success) return c.json({ ok: false }, 400)
-  const u = currentUser(c)
   const now = Date.now()
   tx(() => {
-    for (const e of body.data.events) q.run('INSERT INTO events (name, session, user_id, ms, detail, at) VALUES (?, ?, ?, ?, ?, ?)', e.name, body.data.session, u?.id ?? null, e.ms ?? null, e.detail ?? null, now)
+    for (const e of body.data.events) q.run('INSERT INTO events (name, session, ms, detail, at) VALUES (?, ?, ?, ?, ?)', e.name, body.data.session, e.ms ?? null, e.detail ?? null, now)
   })
   return c.json({ ok: true })
 })

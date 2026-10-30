@@ -264,7 +264,10 @@ mark { background: var(--sun); color: inherit; border-radius: 4px; padding: 0 0.
   font-size: 1.12rem;
   line-height: 1.2;
   text-decoration: none;
-  text-shadow: 0 2px 0 #1b6b2e;
+  /* white letters with an ink outline: on the light green the outline gives the contrast (like the landing page) */
+  -webkit-text-stroke: 0.13em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 var(--ink);
   white-space: nowrap;
   transition: transform 0.1s, filter 0.1s;
 }

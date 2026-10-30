@@ -2,6 +2,8 @@ import './landing.css'
 import { heroVideos, trailerDialog } from './media'
 import { cityStats } from './stats'
 import { waitlistForms, waitlistCount, focusWaitlist } from './waitlist'
+import { cookieBanner } from './cookieBanner'
+import { analyticsAllowed, onConsentChange } from '../consent'
 import { jamState } from '../data/jam'
 
 /**
@@ -21,22 +23,29 @@ import { jamState } from '../data/jam'
 
 // ---------- funnel events (POST /api/events, the same endpoint the game uses) ----------
 type LandingEvent = 'landing_view' | 'landing_play' | 'landing_discord' | 'landing_send' | 'landing_trailer'
+// Only with the visitor's OK (the cookie banner, ../consent.ts): until then events wait here and nothing is stored.
 const SESSION_KEY = 'club-nyc:session'
 const newId = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
 const session = (() => {
   try {
-    const s = sessionStorage.getItem(SESSION_KEY) ?? newId()
-    sessionStorage.setItem(SESSION_KEY, s)
-    return s
+    return sessionStorage.getItem(SESSION_KEY) ?? newId()
   } catch {
     return newId()
   }
 })()
+/** the visit id goes into this tab's storage (where the game picks it up) only once analytics are allowed */
+function keepSession() {
+  try {
+    sessionStorage.setItem(SESSION_KEY, session)
+  } catch {
+    /* private mode */
+  }
+}
 let queue: { name: LandingEvent; detail?: string }[] = []
 let timer = 0
 function flush(keepalive = false) {
   clearTimeout(timer)
-  if (!queue.length) return
+  if (!queue.length || !analyticsAllowed()) return
   const events = queue.slice(0, 20)
   queue = queue.slice(20)
   void fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session, events }), keepalive }).catch(() => {})
@@ -47,6 +56,13 @@ function track(name: LandingEvent, detail?: string) {
   timer = window.setTimeout(() => flush(), 1500)
 }
 addEventListener('pagehide', () => flush(true))
+if (analyticsAllowed()) keepSession()
+onConsentChange((ok) => {
+  if (!ok) return void (queue = [])
+  keepSession()
+  flush()
+})
+cookieBanner()
 
 // ---------- who's here ----------
 /** the game's own phone check (features/desktopOnly.ts): a touch screen with no mouse, phone-sized */

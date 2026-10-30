@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!--
+  CLUB NYC COOKIE POLICY  (served at /cookies.html)
+
+  Placeholders ([CONTACT EMAIL], [COMPANY NAME]) are filled in by the production server, like the other policy
+  pages (see terms.html). Keep the lists below in step with the code: the cookies the server sets (server/src/auth.ts,
+  waitlist.ts, admin.ts), what the game keeps in browser storage (app/src: keys starting "club-nyc:") and the
+  analytics switch (app/src/consent.ts, app/public/legal.js). If anything changes, update the "Last updated" date.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Club NYC Cookie Policy</title>
+<meta name="description" content="The cookies and browser storage Club NYC uses, why, for how long, and how to turn the optional analytics on or off.">
+<meta name="theme-color" content="#78bdf2">
+<link rel="icon" type="image/png" href="/art/icons/taxi.png">
+<link rel="preload" href="/fonts/BurbankSmall-Bold.otf" as="font" type="font/otf" crossorigin>
+<link rel="preload" href="/fonts/BurbankSmall-Medium.otf" as="font" type="font/otf" crossorigin>
+<link rel="stylesheet" href="/legal.css">
+<script src="/legal.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to Content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/art/ui/logo.png" width="900" height="507" alt="Club NYC home"></a>
+    <nav class="policy-nav" aria-label="Club NYC policies">
+      <ul>
+        <li><a href="/rules.html">Rules</a></li>
+        <li><a href="/privacy.html">Privacy</a></li>
+        <li><a href="/terms.html">Terms</a></li>
+        <li><a href="/cookies.html" aria-current="page">Cookies</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="layout">
+
+      <div class="intro">
+        <h1>Club NYC Cookie Policy</h1>
+        <p class="meta">Last updated: <time datetime="2026-10-30">October 30, 2026</time></p>
+        <p class="early-note"><span class="badge">Early access</span> This is a plain-language policy for a game in early access.</p>
+
+        <section class="short-version" aria-labelledby="short-version-title">
+          <h2 id="short-version-title">The Short Version</h2>
+          <ul>
+            <li>Club NYC sets a few cookies of its own, mostly to keep you signed in. No other company sets cookies on our pages.</li>
+            <li>No advertising cookies, no third-party trackers, and nothing that follows you to other websites.</li>
+            <li>One thing is optional: anonymous visit counts. They stay off until you choose <strong>Allow Analytics</strong>, and you can change your mind <a href="#choices">right here</a> at any time.</li>
+          </ul>
+        </section>
+      </div>
+
+      <nav class="toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">On This Page</h2>
+        <ol>
+          <li><a href="#what-they-are">What Cookies and Browser Storage Are</a></li>
+          <li><a href="#cookies-we-use">Cookies We Use</a></li>
+          <li><a href="#storage-we-use">Browser Storage We Use</a></li>
+          <li><a href="#analytics">Anonymous Visit Counts (Optional)</a></li>
+          <li><a href="#choices">Your Choices</a></li>
+          <li><a href="#other-companies">Other Companies</a></li>
+          <li><a href="#changes">Changes to This Policy</a></li>
+          <li><a href="#contact">Contact Us</a></li>
+        </ol>
+      </nav>
+
+      <div class="sections">
+
+        <section id="what-they-are">
+          <h2><span class="num">1</span> What Cookies and Browser Storage Are</h2>
+          <p>A cookie is a small piece of text a website asks your browser to keep and send back on later visits. Browser storage (“local storage” and “session storage”) is similar, but it stays in your browser and isn’t sent to us by itself. Club NYC uses both: cookies for signing in, and browser storage for things like the copy of your game kept on your device.</p>
+          <p>Everything listed here is set by Club NYC itself, on this website. How we handle the information involved is explained in our <a href="/privacy.html">Privacy Policy</a>.</p>
+        </section>
+
+        <section id="cookies-we-use">
+          <h2><span class="num">2</span> Cookies We Use</h2>
+          <p>All of these are <strong>necessary</strong>: Club NYC can’t sign you in or keep your account safe without them, so they don’t need your permission. Scripts on the page can’t read any of them (they’re “httpOnly”).</p>
+          <div class="table-wrap">
+            <table>
+              <caption class="visually-hidden">Cookies Club NYC sets</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Cookie</th>
+                  <th scope="col">What it’s for</th>
+                  <th scope="col">How long it lasts</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>club_sid</code></th>
+                  <td>Keeps you signed in, as a guest or with a linked sign-in. For guests, it’s the only way back into the account.</td>
+                  <td>30 days, renewed as you play</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>oauth_state</code>, <code>oauth_verifier</code></th>
+                  <td>Security checks while you sign in with Google, X or Discord.</td>
+                  <td>10 minutes</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>switch_to</code></th>
+                  <td>Only when you sign in with an account that isn’t the one you’re playing: it remembers which account to switch to while you confirm.</td>
+                  <td>10 minutes</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>club_preview</code></th>
+                  <td>Only for testers we give a preview code to before Club NYC opens: lets that browser into the game early.</td>
+                  <td>90 days</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>club_admin</code></th>
+                  <td>Only for the Club NYC team, when signed in to our moderation tools.</td>
+                  <td>30 days</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="storage-we-use">
+          <h2><span class="num">3</span> Browser Storage We Use</h2>
+          <p>These stay on your device until you clear this site’s data in your browser (or, for the session one, until you close the tab).</p>
+          <div class="table-wrap">
+            <table>
+              <caption class="visually-hidden">What Club NYC keeps in browser storage</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">What it’s for</th>
+                  <th scope="col">Needs your OK?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>club-nyc:v2</code></th>
+                  <td>A copy of your game progress and settings on this device, so the game loads quickly and works if the connection drops.</td>
+                  <td>No, it’s necessary</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>club-nyc:invite</code>, <code>club-nyc:lobby</code></th>
+                  <td>The friend whose invite link brought you here (so you become friends when you make your New Yorker), and the mini-game lobby you’re in (so a reload puts you back).</td>
+                  <td>No, it’s necessary</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>club-nyc:news-press</code>, <code>club-nyc:news-places</code></th>
+                  <td>Which issues of the in-game newspaper you’ve read.</td>
+                  <td>No, it’s necessary</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>club-nyc:waitlist</code></th>
+                  <td>That this browser joined the waitlist (just a yes, never your email address), so we don’t ask again.</td>
+                  <td>No, it’s necessary</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>club-nyc:consent</code></th>
+                  <td>Your answer to the cookie banner, so we don’t ask on every visit. We ask again after a year.</td>
+                  <td>No, it’s necessary</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>club-nyc:session</code> (session storage)</th>
+                  <td>A random visit number for the anonymous visit counts below. Deleted when you close the tab.</td>
+                  <td><strong>Yes</strong>: only after Allow Analytics</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="analytics">
+          <h2><span class="num">4</span> Anonymous Visit Counts (Optional)</h2>
+          <p>If you choose <strong>Allow Analytics</strong>, our website and game tell our own server about a few moments in your visit, so we can see which parts work and which confuse people:</p>
+          <ul>
+            <li>opening the home page (and whether it’s on a phone or a computer, and whether you’ve visited before),</li>
+            <li>clicking Play, Join the Discord, Watch the Trailer or a share button,</li>
+            <li>the steps of making your New Yorker (like choosing a look or a name), and how long it took.</li>
+          </ul>
+          <p>Each moment is recorded with the time and a random visit number. It isn’t linked to your account, your email address or your IP address, and it’s never shared with anyone. We delete these records after 90 days.</p>
+          <p>If you choose <strong>Necessary Only</strong>, or don’t choose, none of this is sent.</p>
+        </section>
+
+        <section id="choices">
+          <h2><span class="num">5</span> Your Choices</h2>
+          <div class="callout choice-box" data-consent-box>
+            <strong class="callout-title">Your Choice in This Browser</strong>
+            <p class="choice-status" data-consent-status aria-live="polite">To change your choice, turn on JavaScript, or clear this site’s data in your browser and the banner will ask again.</p>
+            <div class="choice-actions" data-consent-actions hidden>
+              <button class="choice-btn" type="button" data-analytics="no">Necessary Only</button>
+              <button class="choice-btn" type="button" data-analytics="yes">Allow Analytics</button>
+            </div>
+          </div>
+          <ul>
+            <li><strong>Global Privacy Control.</strong> If your browser sends this signal, we treat it as Necessary Only and don’t show the banner.</li>
+            <li><strong>Your browser’s settings</strong> can block or delete cookies and site data. If you block the necessary ones, you won’t be able to sign in or keep a guest account.</li>
+          </ul>
+        </section>
+
+        <section id="other-companies">
+          <h2><span class="num">6</span> Other Companies</h2>
+          <p>No other company sets cookies or loads trackers on Club NYC’s pages: there are no ads, social media widgets or outside analytics, and our fonts, pictures and videos come from our own website.</p>
+          <p>If you sign in with Google, X or Discord, you’re sent to their website for a moment, where their own cookies and privacy policies apply.</p>
+        </section>
+
+        <section id="changes">
+          <h2><span class="num">7</span> Changes to This Policy</h2>
+          <p>If we change the cookies or storage we use, we’ll update this page and the “Last updated” date. If we ever add something optional, it will stay off until you say yes.</p>
+        </section>
+
+        <section id="contact">
+          <h2><span class="num">8</span> Contact Us</h2>
+          <p>Questions about cookies or your privacy? Email <a href="mailto:[CONTACT EMAIL]">[CONTACT EMAIL]</a>.</p>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav class="footer-nav" aria-label="Footer">
+      <ul>
+        <li><a href="/rules.html">Community Rules</a></li>
+        <li><a href="/privacy.html">Privacy Policy</a></li>
+        <li><a href="/terms.html">Terms of Service</a></li>
+        <li><a href="/cookies.html" aria-current="page">Cookie Policy</a></li>
+        <li><a href="/refunds.html">Refund Policy</a></li>
+        <li><a class="play-btn" href="/play">Back to the Game</a></li>
+      </ul>
+    </nav>
+    <p class="footer-note">Questions? Email <a href="mailto:[CONTACT EMAIL]">[CONTACT EMAIL]</a>.</p>
+    <p class="footer-fine">© 2026 [COMPANY NAME]. Club NYC is a parody game. It isn’t affiliated with Disney, Club Penguin or any real business, organization, sports team or public figure.</p>
+  </div>
+</footer>
+</body>
+</html>

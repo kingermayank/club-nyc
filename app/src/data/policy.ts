@@ -5,7 +5,7 @@
  * Bump POLICY_VERSION (the date of the change) whenever the terms, privacy policy or rules change in a way players
  * should agree to again: everyone is asked once more, the next time they play.
  */
-export const POLICY_VERSION = '2026-10-20'
+export const POLICY_VERSION = '2026-10-30'
 
 /** Club NYC is for ages 13 and up. */
 export const MIN_AGE = 13

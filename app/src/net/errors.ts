@@ -15,7 +15,8 @@ function report(message: string, stack?: string) {
     void fetch('/api/client-errors', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ message: msg, stack: stack?.slice(0, 4000), url: location.pathname + location.search }),
+      // the path only: the query can hold a preview code or a sign-in token
+      body: JSON.stringify({ message: msg, stack: stack?.slice(0, 4000), url: location.pathname }),
       keepalive: true,
       credentials: 'same-origin',
     }).catch(() => {})

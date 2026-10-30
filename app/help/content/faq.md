@@ -134,7 +134,7 @@ Not yourself. Your name is set when you make your New Yorker. If a moderator res
 :::
 
 :::details What information do you collect?
-As little as we can. Guests don't give us an email address. If you sign in with Google, X, Discord or email, we get what we need to sign you in. The [Privacy Policy](/privacy.html) has the details, including how to delete your account.
+As little as we can. Guests don't give us an email address. If you sign in with Google, X, Discord or email, we get what we need to sign you in. We don't use ad trackers, and we only count visits (anonymously) if you allow it in the cookie banner. The [Privacy Policy](/privacy.html) has the details, including how to delete your account, and the [Cookie Policy](/cookies.html) lists every cookie.
 :::
 
 :::details How do I delete my account?

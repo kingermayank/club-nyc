@@ -76,6 +76,8 @@ input, input::placeholder { font-family: var(--field); }
 html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 18px/1.5 var(--body); -webkit-font-smoothing: antialiased; text-wrap: pretty; }
 img { max-width: 100%; height: auto; display: block; }
+/* read by screen readers, not shown */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 /* the illustrated icons come in their own shapes (the sunglasses are twice as wide as tall, the medal is tall and narrow):
    each one fits its box without ever being squashed or stretched */
 img[src*='/art/icons/'] { object-fit: contain; }
@@ -94,7 +96,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
 .btn:active { transform: translateY(3px); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45), 0 2px 0 var(--ink); }
 .btn svg { width: 1.1em; height: 1.1em; flex: none; }
-.btn-play { background: linear-gradient(#8be28b, var(--green)); color: #fff; text-shadow: 0 2px 0 #1b6b2e; }
+/* white letters with an ink outline: on the light green it's the outline that gives the contrast (WCAG counts a thin outline as the letter) */
+.btn-play { background: linear-gradient(#8be28b, var(--green)); color: #fff; -webkit-text-stroke: 0.13em var(--ink); paint-order: stroke fill; text-shadow: 0 2px 0 var(--ink); }
 .btn-ghost { background: linear-gradient(#fff, #dbe9fb); color: var(--ink); }
 .btn-discord { background: linear-gradient(#7983f5, var(--discord)); color: #fff; text-shadow: 0 2px 0 #3c45b5; }
 .btn-xl { min-height: 68px; padding: 0 36px; border-width: 4px; border-radius: 22px; font-size: 30px; box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.45), 0 7px 0 var(--ink); }
@@ -124,7 +127,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .site-header.scrolled .discord-link:hover { background: #eef0ff; }
 
 /* ---------- hero: the city, full bleed (real gameplay, silent) ---------- */
-.hero { position: relative; display: grid; align-items: center; min-height: min(100svh, 880px); margin-top: -72px; padding: 192px 0 120px; overflow: hidden; isolation: isolate; color: #fff; background: var(--night) url('/video/hero-loop.webp') center / cover; }
+/* (one column that never grows past the screen: the name field's natural width used to push the form off a phone) */
+.hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; min-height: min(100svh, 880px); margin-top: -72px; padding: 192px 0 120px; overflow: hidden; isolation: isolate; color: #fff; background: var(--night) url('/video/hero-loop.webp') center / cover; }
 .hero-video { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
 /* dark where the words are, clear where the city is */
 .hero-shade { position: absolute; inset: 0; z-index: -1; background:
@@ -214,7 +218,8 @@ a.tile:hover { translate: 0 -3px; }
 .places-bento .big { grid-column: span 2; grid-row: span 2; }
 .clip video { transition: scale 0.5s; }
 .clip:hover video { scale: 1.05; }
-.clip-text { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 18px 14px; background: linear-gradient(rgba(11, 24, 53, 0), rgba(11, 24, 53, 0.86)); color: #fff; }
+/* the shade is already dark where the words start (44px down), so they read on bright scenes too (the ice rink, the sky) */
+.clip-text { position: absolute; left: 0; right: 0; bottom: 0; padding: 44px 18px 14px; background: linear-gradient(rgba(11, 24, 53, 0), rgba(11, 24, 53, 0.8) 44px, rgba(11, 24, 53, 0.92)); color: #fff; text-shadow: 0 1px 2px rgba(11, 24, 53, 0.6); }
 .clip-text h3 { font-size: 22px; }
 .clip-text p { margin-top: 2px; color: #dbe6ff; font-size: 14px; line-height: 1.4; }
 .big .clip-text h3 { font-size: 34px; }
@@ -236,7 +241,7 @@ a.tile:hover { translate: 0 -3px; }
 /* clip tiles: the video fills the tile, the words sit on a dark fade */
 .f-over { display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 18px; background: var(--night); color: #fff; }
 .f-over video { position: absolute; inset: 0; }
-.f-over::after { content: ''; position: absolute; inset: 40% 0 0; background: linear-gradient(rgba(11, 24, 53, 0), rgba(11, 24, 53, 0.86)); }
+.f-over::after { content: ''; position: absolute; inset: 30% 0 0; background: linear-gradient(rgba(11, 24, 53, 0), rgba(11, 24, 53, 0.82) 50%, rgba(11, 24, 53, 0.92)); }
 .f-over > p, .f-over > h3 { position: relative; z-index: 1; }
 .f-over .t-kicker { color: var(--sun); }
 .f-over h3 { font-size: 22px; line-height: 1.12; }
@@ -289,17 +294,22 @@ a.tile:hover { translate: 0 -3px; }
 
 /* community */
 .community-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 26px; align-items: stretch; }
-.discord-card { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-3); padding: 40px; border: 3px solid var(--ink); border-radius: 26px; background: radial-gradient(circle at 85% 10%, #8c95ff, var(--discord) 60%); color: #fff; box-shadow: 0 6px 0 var(--ink); }
+.discord-card { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: var(--sp-3); padding: 40px; border: 3px solid var(--ink); border-radius: 26px; background: radial-gradient(circle at 85% 10%, #5c66dc, #4752c4 60%); color: #fff; box-shadow: 0 6px 0 var(--ink); }
 .discord-mark { width: 64px; height: 64px; filter: drop-shadow(0 3px 0 rgba(29, 33, 64, 0.35)); }
 .discord-card h2 { font-size: clamp(30px, 3vw, 40px); text-shadow: 0 3px 0 rgba(29, 33, 64, 0.3); }
 .discord-card p { max-width: 30em; color: #eef0ff; font-size: 18.5px; }
-.discord-card .btn { margin-top: var(--sp-3); background: linear-gradient(#fff, #e6e9ff); color: var(--discord); text-shadow: none; }
+.discord-card .btn { margin-top: var(--sp-3); background: linear-gradient(#fff, #e6e9ff); color: #4752c4; text-shadow: none; }
 .discord-card small { color: #dfe3ff; font-size: 14.5px; }
 .side-cards { display: grid; gap: 22px; }
 .side-card { display: flex; gap: 16px; padding: 26px; border: 3px solid var(--ink); border-radius: 22px; background: #fff; box-shadow: 0 5px 0 var(--ink); }
 .side-card img { width: 52px; height: 44px; flex: none; }
 .side-card h3 { font-size: 22px; }
 .side-card p { margin-top: 6px; color: var(--muted); font-size: 16.5px; }
+/* Instagram: the glyph on Instagram's own gradient, and a purple button (white letters stay above 5:1 on it) */
+.insta-mark { display: grid; place-items: center; width: 52px; height: 52px; flex: none; border: 3px solid var(--ink); border-radius: 15px; background: radial-gradient(circle at 25% 105%, #ffd166 0%, #f77737 25%, #e1306c 50%, #c13584 70%, #833ab4 100%); color: #fff; box-shadow: 0 3px 0 var(--ink); }
+.insta-mark svg { width: 30px; height: 30px; }
+.insta-card .btn { margin-top: var(--sp-3); }
+.btn-insta { background: linear-gradient(#a83fb8, #c13584); color: #fff; text-shadow: 0 2px 0 #5c1f6e; }
 
 /* what's new */
 
@@ -319,8 +329,6 @@ a.tile:hover { translate: 0 -3px; }
 .final h2 { font-size: clamp(40px, 5vw, 66px); text-shadow: 0 4px 0 rgba(0, 0, 0, 0.4); }
 .final p { margin-top: var(--sp-3); color: #dbe6ff; font-size: 20px; }
 .final .btn { margin-top: 32px; }
-.final .final-note { margin-top: 22px; color: #b9c8ee; font-size: 16px; }
-.final-note i { font-style: normal; opacity: 0.6; }
 
 /* footer */
 .site-footer { padding: 64px 0 36px; background: var(--ink); color: #dfe4f5; }
@@ -385,7 +393,7 @@ a.tile:hover { translate: 0 -3px; }
   /* the words sit low, over a darker fade; the city shows above them */
   .hero { align-items: end; min-height: 760px; margin-top: -64px; padding: 96px 0 104px; }
   .hero-video { object-position: 40% 50%; }
-  .hero-shade { background: linear-gradient(180deg, rgba(11, 24, 53, 0.6) 0%, rgba(11, 24, 53, 0.1) 24%, rgba(11, 24, 53, 0.86) 56%, rgba(11, 24, 53, 0.97) 100%); }
+  .hero-shade { background: linear-gradient(180deg, rgba(11, 24, 53, 0.6) 0%, rgba(11, 24, 53, 0.45) 24%, rgba(11, 24, 53, 0.86) 52%, rgba(11, 24, 53, 0.97) 100%); }
   .hero h1 { font-size: clamp(34px, calc(11vw - 4px), 44px); }
   .lede { font-size: 18px; }
   .btn-xl { width: 100%; padding: 0 18px; font-size: 24px; }

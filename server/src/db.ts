@@ -263,6 +263,10 @@ const MIGRATIONS = [
   // badge (players who were in before the city opened, and waitlisters who come in afterwards)
   `CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, at INTEGER NOT NULL);
    ALTER TABLE users ADD COLUMN founder_at INTEGER;`,
+  // v15: keep only what's needed. Funnel events are counted per visit, so they no longer name the account; crash
+  // reports keep the page's path but not what followed the ? (it can hold a preview code or a sign-in token)
+  `UPDATE events SET user_id = NULL;
+   UPDATE client_errors SET url = substr(url, 1, instr(url, '?') - 1) WHERE instr(url, '?') > 0;`,
 ]
 
 function migrate() {

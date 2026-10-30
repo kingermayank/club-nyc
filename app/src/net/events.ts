@@ -1,8 +1,10 @@
 import { rest } from './server'
+import { analyticsAllowed } from '../consent'
 
 /**
  * Onboarding funnel events → POST /api/events (server/src/api.ts keeps the allowed names).
  * Anonymous per page load, batched, sent with keepalive when the page hides; silent when there's no server.
+ * Only sent when this browser allowed analytics (the landing page's cookie banner, ../consent.ts); otherwise dropped.
  */
 export type EventName = 'creator_open' | 'look_preset' | 'look_shuffle' | 'look_tweak' | 'look_colour' | 'name_screen' | 'name_wheel' | 'name_typed' | 'creator_done' | 'spawned'
 // (the landing page sends landing_view / landing_play / landing_discord / landing_send itself: src/landing/main.ts)
@@ -35,7 +37,7 @@ function flush(keepalive = false) {
 
 /** record one event; `once` drops repeats in this page load (e.g. "tweaked the look at least once") */
 export function track(name: EventName, o: { ms?: number; detail?: string; once?: boolean } = {}) {
-  if (off) return
+  if (off || !analyticsAllowed()) return
   const key = o.once ? name + ':' + (o.detail ?? '') : ''
   if (key && sent.has(key)) return
   if (key) sent.add(key)

@@ -15,9 +15,9 @@ const ws = config.publicUrl.replace(/^http/, 'ws')
 const CSP = [
   "default-src 'self'",
   "script-src 'self'",
-  // the game sets inline style attributes everywhere; Google Fonts serves the web fonts' CSS
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' data: https://fonts.gstatic.com",
+  // the game sets inline style attributes everywhere; every font is served from our own site
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:",
   // avatars and photo strips are drawn to data:/blob: images
   "img-src 'self' data: blob:",
   "media-src 'self' data: blob:",

@@ -8,6 +8,8 @@ import { q, tx, type UserRow } from './db.ts'
  */
 export const CHAT_KEEP_MS = 72 * 3600_000
 const ERRORS_KEEP_MS = 30 * 86400_000
+/** funnel events: Launch HQ looks back 7 days; 90 leaves room to compare months */
+const EVENTS_KEEP_MS = 90 * 86400_000
 const REPORTS_TO_PAUSE = 3
 const PAUSE_MINUTES = 30
 /** far future = permanent */
@@ -97,8 +99,9 @@ export function dismissReport(id: number, by: string, note = '') {
   q.run(`UPDATE reports SET status = 'dismissed', resolved_at = ?, resolution = ? WHERE id = ?`, Date.now(), `dismissed by ${by}${note ? ': ' + note : ''}`, id)
 }
 
-/** Retention: chat after 72 hours, crash reports after 30 days. */
+/** Retention: chat after 72 hours, crash reports after 30 days, funnel events after 90 days. */
 export function purgeOld() {
   q.run('DELETE FROM chat_log WHERE at < ?', Date.now() - CHAT_KEEP_MS)
   q.run('DELETE FROM client_errors WHERE at < ?', Date.now() - ERRORS_KEEP_MS)
+  q.run('DELETE FROM events WHERE at < ?', Date.now() - EVENTS_KEEP_MS)
 }

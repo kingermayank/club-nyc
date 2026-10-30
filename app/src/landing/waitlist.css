@@ -18,7 +18,9 @@ html:not([data-launch='waitlist']) .when-soon { display: none !important; }
 .wl-name { margin-bottom: 16px; text-align: left; }
 .wl-name-label { display: block; margin: 0 0 8px 4px; color: inherit; font: 19px/1.3 var(--display); }
 .wl-name-field { position: relative; display: flex; }
-.wl-name-field .wl-input { padding-right: 150px; }
+/* (min-width 0: the room kept for the status pill mustn't stop the field shrinking on a small phone; .wl-form in front
+   so this wins over the join sheet's and the Coming Soon card's "flex: none" for their stacked email fields) */
+.wl-form .wl-name-field .wl-input { flex: 1; min-width: 0; padding-right: 150px; }
 .wl-name-status { position: absolute; right: 14px; top: 50%; translate: 0 calc(-50% - 3px); display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 6px; border-radius: 999px; font: 15px/1 var(--display); white-space: nowrap; pointer-events: none; }
 .wl-name-status:empty { display: none; }
 .wl-name-status[data-state='checking'] { background: #eef1f8; color: var(--muted, #5a5e7d); }
@@ -57,6 +59,8 @@ html:not([data-launch='waitlist']) .when-soon { display: none !important; }
 
 /* ---------- the hero, waitlist version ---------- */
 .hero-join { margin-top: 30px; }
+/* the small print stays over the darker side of the hero, a shade brighter, with a soft dark edge against the video */
+.hero-join .wl-fine { max-width: 600px; color: #e3eafb; text-shadow: 0 1px 3px rgba(11, 24, 53, 0.9); }
 /* the hero's email box is 100px wider than the text column above it (big screens; phones stack it full width) */
 @media (min-width: 900px) { .hero-join .wl-form { width: calc(100% + 100px); max-width: none; } }
 .hero-join-more { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 24px; }
@@ -69,6 +73,7 @@ html:not([data-launch='waitlist']) .when-soon { display: none !important; }
 /* ---------- the last call, waitlist version ---------- */
 .final .wl-form { margin: 32px auto 0; text-align: left; }
 .final .wl-form .btn { margin-top: 0; }
+.final .wl-fine { margin-top: 14px; color: #dbe6ff; font-size: 15px; }
 .final .wl-done { max-width: 620px; margin: 32px auto 0; }
 .final .wl-again { display: block; margin: 12px auto 0; }
 
@@ -86,7 +91,7 @@ html:not([data-launch='waitlist']) .when-soon { display: none !important; }
   /* the form makes the hero's words taller than Play Now did: a taller hero keeps the city showing above them, and
      the fade darkens sooner so the headline stays readable */
   html[data-launch='waitlist'] .hero { min-height: 880px; }
-  html[data-launch='waitlist'] .hero-shade { background: linear-gradient(180deg, rgba(11, 24, 53, 0.6) 0%, rgba(11, 24, 53, 0.1) 17%, rgba(11, 24, 53, 0.82) 36%, rgba(11, 24, 53, 0.97) 100%); }
+  html[data-launch='waitlist'] .hero-shade { background: linear-gradient(180deg, rgba(11, 24, 53, 0.6) 0%, rgba(11, 24, 53, 0.38) 17%, rgba(11, 24, 53, 0.82) 36%, rgba(11, 24, 53, 0.97) 100%); }
   .wl-row { flex-direction: column; }
   .wl-input { flex: none; height: 60px; font-size: 19px; }
   .wl-form .btn-xl { width: 100%; min-height: 60px; font-size: 24px; }

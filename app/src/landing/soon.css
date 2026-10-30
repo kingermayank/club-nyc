@@ -1,8 +1,9 @@
 /* The Coming Soon page (app/soon.html): the city playing behind a front-door card, like the game's own front door. */
-.soon-page { position: relative; display: grid; place-items: center; min-height: 100svh; margin: 0; padding: 28px var(--gutter) 36px; overflow-x: hidden; isolation: isolate; background: var(--night) url('/video/hero-loop.webp') center / cover fixed; color: #fff; }
+.soon-page { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; min-height: 100svh; margin: 0; padding: 28px var(--gutter) 36px; overflow-x: hidden; isolation: isolate; background: var(--night) url('/video/hero-loop.webp') center / cover fixed; color: #fff; }
 .soon-video { position: fixed; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
 .soon-shade { position: fixed; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 45%, rgba(11, 24, 53, 0.5), rgba(11, 24, 53, 0.86) 75%); }
-.soon-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; width: min(560px, 100%); }
+/* (the page's one column never grows past the screen, so the card fits a 320px phone instead of being cut off) */
+.soon-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; width: min(560px, 100%); min-width: 0; }
 /* (logo.png's artwork sits 59/900 right of the image's middle: nudge it back so it's centred over the card) */
 .soon-logo img { width: 150px; translate: calc(150px * -29.5 / 900) 0; filter: drop-shadow(0 3px 0 rgba(11, 24, 53, 0.45)); }
 .soon-card { width: 100%; padding: 32px 34px 28px; border: 5px solid var(--ink); border-radius: 30px; background: var(--paper); color: var(--ink); text-align: center; box-shadow: 0 7px 0 var(--ink), 0 30px 60px rgba(0, 0, 0, 0.45); animation: soon-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1); }

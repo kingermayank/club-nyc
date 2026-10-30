@@ -551,7 +551,12 @@ async def run(base):
         # and the Coming Soon page that stands in for /play before launch
         for w, h, mobile in [(1280, 800, False), (390, 844, True)]:
             for path, tag in (('/', 'landing'), ('/?launch=waitlist', 'waitlist landing'), ('/soon.html', 'coming soon')):
-                lp = await (await b.new_context(viewport={'width': w, 'height': h}, device_scale_factor=2, is_mobile=mobile, has_touch=mobile)).new_page()
+                lctx = await b.new_context(viewport={'width': w, 'height': h}, device_scale_factor=2, is_mobile=mobile, has_touch=mobile)
+                # the cookie banner is answered first (it floats over whatever is under it, by design): this measures the page.
+                # The banner itself is checked on the first landing screen, where it shows unanswered.
+                if not (tag == 'landing' and w == 1280):
+                    await lctx.add_init_script("try { localStorage.setItem('club-nyc:consent', JSON.stringify({ v: 1, analytics: false, at: Date.now() })) } catch {}")
+                lp = await lctx.new_page()
                 await lp.goto(base + path, wait_until='networkidle')
                 await lp.evaluate('document.fonts.ready')
                 total = await lp.evaluate('document.documentElement.scrollHeight')

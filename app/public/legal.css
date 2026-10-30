@@ -499,6 +499,25 @@ section:target .num {
 }
 .callout:target { outline: 3px solid var(--blue-dark); outline-offset: 4px; }
 
+/* Cookie Policy: this browser's analytics choice (legal.js). Both buttons look the same: no is as easy as yes. */
+.choice-status { margin: 0 0 0.85rem; }
+.choice-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.choice-actions[hidden] { display: none; }
+.choice-btn {
+  min-height: 44px;
+  padding: 0 1.1rem;
+  background: var(--white);
+  border: var(--outline);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 var(--ink);
+  color: var(--ink);
+  font: 1.05rem/1.2 var(--display);
+  cursor: pointer;
+}
+.choice-btn:hover { background: var(--sun-tint); }
+.choice-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
+.choice-btn[aria-pressed="true"] { background: var(--sun); }
+
 /* plain-language legal statements that need to stand out (Terms) */
 .legal-box {
   margin: 1.25rem 0;

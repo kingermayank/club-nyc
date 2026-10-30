@@ -2,6 +2,12 @@
 /* An in-world object: literal px sizes on purpose (like the subway map and the billboards).
    Type is the classic newspaper pair: Times New Roman for headlines and body (a system font, nothing to download),
    a plain grotesque for kickers and section heads, and the blackletter masthead. */
+/* the masthead's blackletter, served from our own site (no third-party font requests; licence: /fonts/UnifrakturMaguntia-OFL.txt) */
+@font-face {
+  font-family: 'UnifrakturMaguntia';
+  src: url('/fonts/UnifrakturMaguntia.woff2') format('woff2');
+  font-display: swap;
+}
 .newspaper {
   --np-serif: 'Times New Roman', Times, 'Liberation Serif', 'Nimbus Roman', serif;
   --np-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;

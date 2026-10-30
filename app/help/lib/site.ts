@@ -360,9 +360,10 @@ export function renderPage(template: string, site: Site, page: Page, o: RenderPa
       <a href="/rules.html">Community Rules</a>
       <a href="/privacy.html">Privacy Policy</a>
       <a href="/terms.html">Terms of Service</a>
+      <a href="/cookies.html">Cookie Policy</a>
       <a href="/discord" rel="noopener">Discord</a>
     </nav>
-    <p>Club NYC is an independent game, not affiliated with or endorsed by the City of New York, the MTA or any brand parodied in it.</p>
+    <p>Club NYC is an independent game, not affiliated with or endorsed by Disney, Club Penguin, the City of New York, the MTA or any brand parodied in it.</p>
   </div>
 </footer>`
   // (replacer functions: a "$&" or "$'" in the text must stay text)
