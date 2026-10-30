@@ -4,7 +4,7 @@ import type { MiddlewareHandler } from 'hono'
 import { config } from './config.ts'
 
 /**
- * Production response headers for the site (the API sets its own).
+ * Production response headers for the site (the API's are apiHeaders, below).
  *  - Security: a Content-Security-Policy that only runs our own scripts (defence in depth: player names and
  *    chat are escaped everywhere, and even if one slipped through, injected markup couldn't run code),
  *    no framing (clickjacking), no MIME sniffing, a strict referrer, HTTPS-only once deployed.
@@ -40,7 +40,10 @@ export const siteHeaders: MiddlewareHandler = async (c, next) => {
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   h.set('X-Frame-Options', 'DENY')
   h.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()')
-  if (HTTPS) h.set('Strict-Transport-Security', 'max-age=15552000')
+  // pages we open in new tabs (the Help Center, a posted reel) can't reach back into this one, and other sites' windows can't either
+  h.set('Cross-Origin-Opener-Policy', 'same-origin')
+  // a year, subdomains included (www and the mail. sending domain are HTTPS-only or not web at all)
+  if (HTTPS) h.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   // pages: "/", "/join/<name>", "/admin.html"… (a 304 has no content type, so look at the path too)
   const page = (h.get('content-type') ?? '').startsWith('text/html') || /\.html$/.test(c.req.path) || !/\.[a-z0-9]+$/i.test(c.req.path)
   if (page) {
@@ -50,6 +53,20 @@ export const siteHeaders: MiddlewareHandler = async (c, next) => {
     // Vite's /assets/ files have a content hash in the name: they never change
     h.set('Cache-Control', c.req.path.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'public, max-age=3600')
   }
+}
+
+/**
+ * The API's answers: JSON about a player is never stored by a browser or proxy (a shared computer, a cache in between),
+ * and is never read as anything but its own type. A route that picks its own caching (Launch HQ's videos) keeps it.
+ * Only reads get "no-store": browsers never cache a POST's answer anyway, and Chrome holds a no-store answer open
+ * until the page reads it, so a fire-and-forget POST (the landing page's /api/events) would never finish.
+ */
+export const apiHeaders: MiddlewareHandler = async (c, next) => {
+  await next()
+  const h = c.res.headers
+  h.set('X-Content-Type-Options', 'nosniff')
+  h.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  if ((c.req.method === 'GET' || c.req.method === 'HEAD') && !h.has('Cache-Control')) h.set('Cache-Control', 'no-store')
 }
 
 /** The modification time of a file under `root`, or null (missing, a directory, or a path that tries to escape). */

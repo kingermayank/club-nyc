@@ -20,11 +20,13 @@ import { q, db } from './db.ts'
 import { installGracefulShutdown, startBackups, healthReport } from './ops.ts'
 import { rateLimit, byPlayer } from './limits.ts'
 import { purgeOld } from './moderation.ts'
-import { siteHeaders, staticMtime } from './headers.ts'
+import { apiHeaders, siteHeaders, staticMtime } from './headers.ts'
 import { fillPlaceholders, discordTarget, discordInvite, landingForMode } from './landing.ts'
 import { waitlist, launch, launchGate, launchModeNow, playGate } from './waitlist.ts'
 
 const app = new Hono()
+// every API answer: never cached, never sniffed (registered first so it wraps all of /api, errors included)
+app.use('/api/*', apiHeaders)
 // no request body the game sends comes near this (a cloud save is ~20 KB); bigger ones are refused before
 // they're read into memory, so a few huge uploads can't balloon the server's RAM
 app.use('/api/*', bodyLimit({ maxSize: 512 * 1024, onError: (c) => c.json({ error: 'too-big' }, 413) }))

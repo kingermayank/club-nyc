@@ -24,11 +24,19 @@ import { Readable } from 'node:stream'
 // a value pasted into Railway often keeps what was around it: "ADMIN_TOKEN=" in front, or quotes
 const pasted = (t: string) => t.trim().replace(/^ADMIN_TOKEN\s*=\s*/i, '').replace(/^(["'`“‘])(.*)["'`”’]$/s, '$2').trim()
 // development: an easy key so Launch HQ just opens (production always needs ADMIN_TOKEN)
-export const adminToken = pasted(config.adminToken) || (config.dev ? 'clubnyc123' : '')
+const DEV_KEY = 'clubnyc123'
+// the key is typed by a person: "Club NYC 123" and "clubnyc123" are the same key, and so are curly and straight quotes
+const typed = (t: string) => t.normalize('NFKC').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').toLowerCase().replace(/\s+/g, '')
+// production never accepts the development key (it's written in this file), even when ADMIN_TOKEN is set to it
+const devKeyInProduction = !config.dev && typed(pasted(config.adminToken)) === DEV_KEY
+export const adminToken = devKeyInProduction ? '' : pasted(config.adminToken) || (config.dev ? DEV_KEY : '')
 if (!config.adminToken && config.dev) console.log(`[club-nyc] Launch HQ (dev): /hq.html, key ${adminToken}`)
+else if (devKeyInProduction) console.error('[config] WARNING: ADMIN_TOKEN is the development key, so Launch HQ is switched off. Set a long random password.')
 else if (!adminToken) console.warn('[club-nyc] ADMIN_TOKEN is not set, so the moderator dashboard is switched off')
-// never the key itself, only whether it was cleaned up
+// never the key itself, only whether it was cleaned up, and whether it's long enough to survive guessing
 if (config.adminToken && adminToken !== config.adminToken.trim()) console.warn('[club-nyc] ADMIN_TOKEN had quotes or "ADMIN_TOKEN=" pasted in; Launch HQ uses the password without them')
+if (!config.dev && adminToken && typed(adminToken).length < 16)
+  console.error(`[config] WARNING: ADMIN_TOKEN is ${typed(adminToken).length} characters (spaces and capitals don't count). Use 16 or more random characters: it's the only lock on Launch HQ.`)
 
 const COOKIE = 'club_admin'
 // stay signed in on this computer for 30 days (the cookie is httpOnly and signed)
@@ -37,8 +45,11 @@ const sign = (exp: number) => createHmac('sha256', adminToken).update(`admin:${e
 // compare hashes so any two strings compare safely (accents and emoji included)
 const digest = (s: string) => createHash('sha256').update(s).digest()
 const same = (a: string, b: string) => timingSafeEqual(digest(a), digest(b))
-// the key is typed by a person: "Club NYC 123" and "clubnyc123" are the same key, and so are curly and straight quotes
-const typed = (t: string) => t.normalize('NFKC').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').toLowerCase().replace(/\s+/g, '')
+// wrong passwords from everywhere at once (a guesser spread over many addresses gets past the per-address limit in
+// index.ts): after 30 in 15 minutes, nobody can try until the oldest ages out. Signed-in moderators aren't affected.
+const MISS_LIMIT = 30
+const MISS_WINDOW = 15 * 60_000
+const misses: number[] = []
 function sessionOk(v: string | undefined): boolean {
   if (!v || !adminToken) return false
   const [exp, sig] = v.split('.')
@@ -53,8 +64,14 @@ export const admin = new Hono()
 
 admin.post('/login', async (c) => {
   if (!adminToken) return c.json({ error: 'disabled' }, 404)
+  const now = Date.now()
+  while (misses.length && misses[0] < now - MISS_WINDOW) misses.shift()
+  if (misses.length >= MISS_LIMIT) return c.json({ error: 'slow-down' }, 429)
   const body = (await c.req.json().catch(() => null)) as { token?: unknown } | null
-  if (!same(typed(String(body?.token ?? '')), typed(adminToken))) return c.json({ error: 'bad-token' }, 401)
+  if (!same(typed(String(body?.token ?? '')), typed(adminToken))) {
+    misses.push(now)
+    return c.json({ error: 'bad-token' }, 401)
+  }
   const exp = Date.now() + HOURS * 3600_000
   setCookie(c, COOKIE, `${exp}.${sign(exp)}`, { httpOnly: true, sameSite: 'Strict', secure: config.secureCookies, path: '/api/admin', maxAge: HOURS * 3600 })
   return c.json({ ok: true })
