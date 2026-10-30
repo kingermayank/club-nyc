@@ -59,6 +59,23 @@ const Panel: React.FC<{ src: string; pos?: string; style?: React.CSSProperties }
   </div>
 )
 
+/** a picture with its label pill in the corner: the real photo (paper pill, and its credit) or the game (Taxi Yellow) */
+const Framed: React.FC<{ src: string; x: number; y: number; w: number; h: number; label: string; club?: boolean; pos?: string; credit?: string; tilt?: number }> = ({ src, x, y, w, h, label, club, pos, credit, tilt }) => (
+  <>
+    <Card src={src} w={w} h={h} x={x} y={y} pos={pos} tilt={tilt} />
+    <div style={{ position: 'absolute', left: x + 26, top: y + 26, rotate: `${tilt ?? 0}deg` }}>
+      <Pill size={30} bg={club ? TAXI : PAPER}>{label}</Pill>
+    </div>
+    {credit ? (
+      <div style={{ position: 'absolute', left: x + 30, width: w - 60, top: y + h - 46, textAlign: 'right', fontFamily: BODY, fontSize: 19, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)', opacity: 0.9 }}>{credit}</div>
+    ) : null}
+  </>
+)
+/** the coin on the seam between two pictures */
+const Coin: React.FC<{ x: number; y: number; text?: string }> = ({ x, y, text = 'vs' }) => (
+  <div style={{ position: 'absolute', left: x - 62, top: y - 62, width: 124, height: 124, borderRadius: '50%', background: TAXI, border: `7px solid ${INK}`, boxShadow: `0 8px 0 ${INK}`, display: 'grid', placeItems: 'center', fontFamily: DISPLAY, fontSize: 50, color: INK, paddingBottom: 6 }}>{text}</div>
+)
+
 function SlideView({ s, index, count }: { s: Slide; index: number; count: number }) {
   switch (s.kind) {
     case 'cover':
@@ -277,6 +294,76 @@ function SlideView({ s, index, count }: { s: Slide; index: number; count: number
             ))}
           </div>
         </Meme>
+      )
+    case 'split':
+      return (
+        <AbsoluteFill style={{ background: s.bg }}>
+          <Framed src={s.real} x={70} y={70} w={455} h={640} label={s.realLabel ?? 'Real'} pos={s.realPos} tilt={-2} />
+          <Framed src={s.club} x={555} y={70} w={455} h={640} label="Club NYC" club pos={s.clubPos} tilt={2} />
+          <Coin x={540} y={390} />
+          <div style={{ position: 'absolute', left: 70, right: 70, top: 790, display: 'flex', flexDirection: 'column', gap: 22 }}>
+            <Title size={s.title.length > 26 ? 92 : 108} color={on(s.bg)}>{s.title}</Title>
+            {s.kicker ? <Body size={40} color={on(s.bg)} style={{ opacity: 0.85 }}>{s.kicker}</Body> : null}
+          </div>
+          <Pill size={34} style={{ position: 'absolute', right: 52, bottom: 50, background: s.bg === TAXI ? PAPER : TAXI, color: INK }}>Swipe ›</Pill>
+          <Img src={art('logo-trim.png')} style={{ position: 'absolute', left: 70, bottom: 50, width: LOGO }} />
+        </AbsoluteFill>
+      )
+    case 'real':
+      return (
+        <AbsoluteFill style={{ background: PAPER }}>
+          <div style={{ position: 'absolute', left: 70, right: 70, top: 56, height: 220, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 14 }}>
+            <Pill size={28} bg={BLUE} style={{ alignSelf: 'flex-start' }}>{s.place}</Pill>
+            <Title size={s.tell.length > 50 ? 56 : 64}>{s.tell}</Title>
+          </div>
+          <Framed src={s.real} x={70} y={306} w={940} h={372} label={s.label ?? 'Real New York'} pos={s.realPos} credit={s.credit} />
+          <Framed src={s.club} x={70} y={712} w={940} h={372} label={s.clubLabel ?? 'Club NYC'} club pos={s.clubPos} />
+          <Coin x={540} y={695} />
+          <Chrome index={index} count={count} />
+        </AbsoluteFill>
+      )
+    case 'listing':
+      return (
+        <AbsoluteFill style={{ background: PAPER }}>
+          <div style={{ position: 'absolute', left: 70, right: 70, top: 58, display: 'flex', alignItems: 'center', gap: 18 }}>
+            <Pill size={30} bg={BLUE}>StreetCheesy</Pill>
+            <Body size={30} style={{ opacity: 0.7 }}>The city’s most honest listings app</Body>
+          </div>
+          <Card src={s.art} w={940} h={440} x={70} y={130} />
+          {/* the price sits on the photo's bottom edge, what it takes to earn it beside it */}
+          <div style={{ position: 'absolute', left: 100, top: 528, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <Pill size={48} bg={TAXI}>{s.price}</Pill>
+            {s.earn ? <Pill size={28} bg={GREEN}>{s.earn}</Pill> : null}
+          </div>
+          {/* everything here ends above the corner logo (top at 1112) */}
+          <div style={{ position: 'absolute', left: 70, right: 70, top: 640, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <Title size={s.name.length > 20 ? 66 : 78}>{s.name}</Title>
+            <Body size={36} style={{ opacity: 0.75, marginTop: -6 }}>{s.hood}</Body>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 4 }}>
+              {s.perks.map((p) => <Pill key={p} size={26}>{p}</Pill>)}
+            </div>
+            <Body size={32} style={{ marginTop: 6 }}><b style={{ fontFamily: DISPLAY, fontWeight: 400 }}>Fine print:</b> {s.fine}</Body>
+          </div>
+          <Chrome index={index} count={count} />
+        </AbsoluteFill>
+      )
+    case 'diary':
+      return (
+        <AbsoluteFill style={{ background: PAPER }}>
+          <Card src={s.art} w={940} h={420} x={70} y={70} pos={s.pos} />
+          <Pill size={34} bg={TAXI} style={{ position: 'absolute', left: 100, top: 445 }}>{s.day}</Pill>
+          <Title size={70} style={{ position: 'absolute', left: 70, right: 70, top: 545 }}>{s.title}</Title>
+          <div style={{ position: 'absolute', left: 70, right: 70, top: 650, display: 'flex', flexDirection: 'column' }}>
+            {s.rows.map(([label, amt]) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: 18, padding: '14px 0', borderBottom: `4px dashed rgba(29,33,64,0.18)` }}>
+                <Body size={38} style={{ flex: 1, lineHeight: 1.2 }}>{label}</Body>
+                <span style={{ fontFamily: DISPLAY, fontSize: 46, color: amt.startsWith('+') ? GREEN : amt.startsWith('−') ? '#c2372f' : INK, whiteSpace: 'nowrap' }}>{amt}</span>
+              </div>
+            ))}
+          </div>
+          {s.note ? <Body size={32} style={{ position: 'absolute', left: 400, right: 70, bottom: 120, opacity: 0.75, textAlign: 'right' }}>{s.note}</Body> : null}
+          <Chrome index={index} count={count} />
+        </AbsoluteFill>
       )
     case 'end':
       return (

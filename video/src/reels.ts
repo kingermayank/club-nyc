@@ -22,10 +22,14 @@ export interface ReelShot {
   place?: string
   /** portrait reels only. tall: one full-height crop of the 16:9 clip, centred on `cx` (0 to 1 across the width) and
    *  panning to `pan` if given; stack: two clips, one above the other (`b` is the lower one) */
-  mode?: 'tall' | 'stack'
+  /** real: the photo above the game clip; photo: the photo alone, full frame (grey when `mono`), no clip */
+  mode?: 'tall' | 'stack' | 'real' | 'photo'
   cx?: number
   pan?: number
   b?: { src: string; at?: number; cx?: number; place?: string }
+  /** real: a public-domain or CC0 photo (public/posts/real) above the game clip, `label` on it ("Real New York" unless
+   *  set, a year say) and its `credit` in small type; `pos` aims the photo's crop */
+  photo?: { src: string; pos?: string; label?: string; credit: string; mono?: boolean }
   /** a small chip under the hook, like a clock time in a day-in-the-life reel */
   chip?: string
 }
@@ -232,6 +236,67 @@ export const REELS: Record<string, ReelDef> = {
     sfx: [{ beat: 0, kind: 'pop' }, { beat: 3, kind: 'whoosh' }, { beat: 6, kind: 'pop' }, { beat: 9, kind: 'whoosh' }, { beat: 12, kind: 'pop' }, { beat: 14, kind: 'pop' }],
   },
   // the nostalgia hook, full bleed
+  // the story pass (docs/marketing/story-research.md): a real photo above the same place in the game. Photos are public
+  // domain or CC0 (public/posts/real/credits.json); every Club NYC line is something the game really does
+  'real-vs-club': {
+    id: 'real-vs-club',
+    layout: 'portrait',
+    shots: [
+      { mode: 'real', src: 'tall-central-park.mp4', at: 0.3, beats: 3, cx: 0.5, hook: 'Real New York vs *Club NYC*', photo: { src: 'real/bow-bridge.jpg', pos: '50% 62%', credit: 'Photo: Pierre Blaché · CC0' } },
+      { mode: 'real', src: 'tall-grand-central.mp4', at: 0.3, beats: 3, cx: 0.5, hook: 'Meet me at *the clock*', photo: { src: 'real/grand-central-wide.jpg', pos: '50% 58%', credit: 'Photo: D. Benjamin Miller · CC0' } },
+      { mode: 'real', src: 'tall-brooklyn-bridge.mp4', at: 0.3, beats: 3, cx: 0.36, hook: 'Brooklyn? *Coming soon*', photo: { src: 'real/brooklyn-bridge.jpg', pos: '50% 60%', credit: 'Photo: Matthew Henry · CC0' } },
+      { mode: 'real', src: 'tall-apartment.mp4', at: 0.3, beats: 3, cx: 0.5, hook: 'Rent: *0 coins*', photo: { src: 'real/fire-escapes.jpg', pos: '50% 40%', credit: 'Photo: Carol M. Highsmith · Library of Congress' } },
+      { beats: 4 },
+    ],
+    end: { title: 'Only one has free rent', line: 'Opens Nov 17' },
+    sfx: [{ beat: 0, kind: 'pop' }, { beat: 3, kind: 'whoosh' }, { beat: 6, kind: 'pop' }, { beat: 9, kind: 'coin' }, { beat: 12, kind: 'stamp' }],
+  },
+  'then-and-now': {
+    id: 'then-and-now',
+    layout: 'portrait',
+    shots: [
+      { mode: 'real', src: 'tall-grand-central.mp4', at: 0.3, beats: 3, cx: 0.5, place: 'Club NYC, 2026', hook: 'Same city, *85 years apart*', photo: { src: 'real/grand-central-1941-crop.jpg', pos: '50% 42%', label: 'Grand Central, 1941', credit: 'Photo: John Collier Jr. · Library of Congress' } },
+      { mode: 'real', src: 'tall-central-park.mp4', at: 0.3, beats: 3, cx: 0.5, place: 'Club NYC, 2026', hook: 'Still the best *curve* in the park', photo: { src: 'real/bow-bridge-1870-crop.jpg', pos: '50% 50%', label: 'Bow Bridge, 1800s', credit: 'Photo: W. M. Chase · public domain' } },
+      { mode: 'real', src: 'job-ferry-captain.mp4', at: 2.4, beats: 3, cx: 0.45, place: 'Club NYC, 2026', hook: 'Free since 1997. *Ours, you drive*', photo: { src: 'real/ferry-1973.jpg', pos: '50% 62%', label: 'The ferry, 1973', credit: 'Photo: Wil Blanche · National Archives' } },
+      { mode: 'real', src: 'hero-times-square.mp4', at: 0.3, beats: 3, cx: 0.3, place: 'Club NYC, 2026', hook: 'Some of the *pigeons* still work here', photo: { src: 'real/pigeons-1943-crop.jpg', pos: '50% 66%', label: 'Pigeons, 1943', credit: 'Photo: John Vachon · Library of Congress' } },
+      { beats: 4 },
+    ],
+    end: { title: 'The good parts stay', line: 'Link in bio' },
+    sfx: [{ beat: 0, kind: 'pop' }, { beat: 3, kind: 'whoosh' }, { beat: 6, kind: 'pop' }, { beat: 9, kind: 'whoosh' }, { beat: 12, kind: 'stamp' }],
+  },
+  // the story film: the penguin generation grew up into an expensive, scattered, lonely city (real photos, in grey),
+  // then the cut to the game in colour. The rent line is StreetEasy's Manhattan median asking rent, Sept 2026
+  'move-to-ny': {
+    id: 'move-to-ny',
+    layout: 'portrait',
+    beats: 32,
+    shots: [
+      { mode: 'tall', src: 'creator.mp4', at: 0.3, beats: 3, cx: 0.15, hook: 'Remember the *penguin* game?', zoom: [1.02, 1.06] },
+      { mode: 'tall', src: 'crowd.mp4', at: 5.6, beats: 3, cx: 0.5, hook: 'After school, *everyone* was there.' },
+      { mode: 'photo', beats: 4, hook: 'Then we grew up. Rent got *weird*.', chip: 'Manhattan median: $4,995 a month', photo: { src: 'real/fire-escapes.jpg', pos: '50% 50%', mono: true, credit: 'Photo: Carol M. Highsmith · Library of Congress' } },
+      { mode: 'photo', beats: 3, hook: 'Friends moved to *other cities*.', photo: { src: 'real/brooklyn-bridge.jpg', pos: '50% 50%', mono: true, credit: 'Photo: Matthew Henry · CC0' } },
+      { mode: 'photo', beats: 3, hook: '8 million neighbors. *No plans*.', photo: { src: 'real/grand-central-1941-crop.jpg', pos: '25% 50%', mono: true, credit: 'Photo: John Collier Jr., 1941 · Library of Congress' } },
+      { mode: 'tall', src: 'tall-grand-central.mp4', at: 0.3, beats: 3, cx: 0.5, hook: 'So we built the city *back*.' },
+      { mode: 'tall', src: 'tall-apartment.mp4', at: 0.3, beats: 2, cx: 0.5, hook: 'Rent: *0 coins*.' },
+      { mode: 'tall', src: 'jam.mp4', at: 5.5, beats: 3, cx: 0.48, hook: 'Your friends: *one link* away.' },
+      { mode: 'tall', src: 'party.mp4', at: 1.2, beats: 4, cx: 0.5, hook: 'Move to New York. *Bring everyone*.' },
+      { beats: 4 },
+    ],
+    end: { title: 'Same crew. Bigger city.', line: 'Opens Nov 17 · Link in bio' },
+    sfx: [
+      { beat: 0, kind: 'pop' },
+      { beat: 3, kind: 'pop' },
+      { beat: 6, kind: 'thud' },
+      { beat: 10, kind: 'thud' },
+      { beat: 13, kind: 'thud' },
+      { beat: 15, kind: 'riser' },
+      { beat: 16, kind: 'crash' },
+      { beat: 19, kind: 'coin' },
+      { beat: 21, kind: 'pop' },
+      { beat: 24, kind: 'whoosh' },
+      { beat: 28, kind: 'stamp' },
+    ],
+  },
   'grew-up-tall': {
     id: 'grew-up-tall',
     layout: 'portrait',

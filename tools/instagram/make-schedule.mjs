@@ -21,10 +21,15 @@ const ASSETS = {
   'jobs-stack': REEL('club-nyc-reel-jobs-stack.mp4'), 'flash-mob': REEL('club-nyc-reel-flash-mob.mp4'),
   'dance-jam': REEL('club-nyc-reel-dance-jam.mp4'), 'moved-away': REEL('club-nyc-reel-moved-away.mp4'),
   trailer: { kind: 'reel', files: ['video/out/club-nyc-trailer.mp4'] },
+  // the story pass (docs/marketing/story-research.md); the carousels of the same names are in POSTS
+  'move-to-ny': REEL('club-nyc-reel-move-to-ny.mp4'), 'real-vs-club-reel': REEL('club-nyc-reel-real-vs-club.mp4'),
+  'then-and-now-reel': REEL('club-nyc-reel-then-and-now.mp4'),
 }
-const POSTS = { 'speak-new-yorker': 8, 'first-day': 8, 'free-in-club': 7, 'which-new-yorker': 9, 'fold-a-slice': 6, 'city-news': 7 }
+const POSTS = { 'speak-new-yorker': 8, 'first-day': 8, 'free-in-club': 7, 'which-new-yorker': 9, 'fold-a-slice': 6, 'city-news': 7,
+  'real-vs-club': 9, 'then-and-now': 6, streetcheesy: 5, 'money-diary': 7 }
 const SINGLES = ['fold-it', 'elevator', 'tag-the-line', 'pigeon', 'colour-grid', 'open-date', 'where-live', 'now-hiring',
-  'meme-pizza-rat', 'meme-pictured', 'meme-starter', 'meme-train', 'meme-tier', 'meme-bodega-cat', 'meme-walk', 'meme-weekend', 'meme-group-chat', 'meme-radiator']
+  'meme-pizza-rat', 'meme-pictured', 'meme-starter', 'meme-train', 'meme-tier', 'meme-bodega-cat', 'meme-walk', 'meme-weekend', 'meme-group-chat', 'meme-radiator',
+  'meme-40x', 'meme-pizza-principle']
 function asset(id) {
   if (ASSETS[id]) return ASSETS[id]
   if (POSTS[id]) return { kind: 'carousel', files: Array.from({ length: POSTS[id] }, (_, i) => `video/out/posts/${id}/${String(i + 1).padStart(2, '0')}.jpg`) }

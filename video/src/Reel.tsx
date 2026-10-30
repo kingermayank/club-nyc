@@ -74,6 +74,36 @@ export const Crop: React.FC<{ src: string; at?: number; w: number; h: number; cx
 const PortraitShot: React.FC<{ shot: ReelShot; len: number }> = ({ shot, len }) => {
   const zoom = shot.zoom ?? [1, 1.06]
   const land = usePop(0, 14)
+  if (shot.mode === 'photo' && shot.photo) {
+    return (
+      <AbsoluteFill style={{ background: INK }}>
+        <div style={{ position: 'absolute', inset: 0, filter: shot.photo.mono ? 'grayscale(1) contrast(1.08) brightness(0.82)' : undefined }}>
+          <Still src={shot.photo.src} pos={shot.photo.pos} len={len} />
+        </div>
+        <AbsoluteFill style={{ background: `linear-gradient(rgba(16,27,63,0.72), rgba(16,27,63,0) 40%, rgba(16,27,63,0) 70%, rgba(16,27,63,0.5))` }} />
+        <div style={{ position: 'absolute', right: 40, top: 1240, maxWidth: 420, textAlign: 'right', fontFamily: DISPLAY, fontSize: 21, lineHeight: 1.2, color: '#fff', opacity: 0.8, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>{shot.photo.credit}</div>
+      </AbsoluteFill>
+    )
+  }
+  if (shot.mode === 'real' && shot.photo) {
+    const H = (REEL_H - 20) / 2
+    return (
+      <AbsoluteFill style={{ background: INK }}>
+        <div style={{ position: 'absolute', left: 0, top: 0, width: REEL_W, height: H, overflow: 'hidden' }}>
+          <Still src={shot.photo.src} pos={shot.photo.pos} len={len} />
+          {/* in the corner, clear of the coin on the seam (it spans the middle 160 px) */}
+          <div style={{ position: 'absolute', right: 26, bottom: 16, maxWidth: 380, textAlign: 'right', fontFamily: DISPLAY, fontSize: 21, lineHeight: 1.2, color: '#fff', opacity: 0.85, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>{shot.photo.credit}</div>
+        </div>
+        <div style={{ position: 'absolute', left: 0, top: H + 20, width: REEL_W, height: H, overflow: 'hidden', translate: `${interpolate(land, [0, 1], [REEL_W, 0])}px 0` }}>
+          <Crop src={shot.src!} at={shot.at} w={REEL_W} h={H} cx={shot.cx ?? 0.5} pan={shot.pan} zoom={zoom} len={len} />
+        </div>
+        <AbsoluteFill style={{ background: `linear-gradient(rgba(16,27,63,0.7), rgba(16,27,63,0) 30%)` }} />
+        <div style={{ position: 'absolute', left: REEL_W / 2 - 80, top: H + 10 - 80, width: 160, height: 160, borderRadius: '50%', background: YELLOW, border: `8px solid ${INK}`, boxShadow: `0 10px 0 ${INK}`, display: 'grid', placeItems: 'center', fontFamily: DISPLAY, fontSize: 64, color: INK, scale: land }}>vs</div>
+        <Tag text={shot.photo.label ?? 'Real New York'} y={H - 150} />
+        <Tag text={shot.place ?? 'Club NYC'} y={REEL_H - 420} delay={4} tone="sun" />
+      </AbsoluteFill>
+    )
+  }
   if (shot.mode === 'stack' && shot.b) {
     const H = (REEL_H - 20) / 2
     return (
@@ -103,13 +133,19 @@ const PortraitShot: React.FC<{ shot: ReelShot; len: number }> = ({ shot, len }) 
 }
 
 /** a place plate at height `y`, popping in just after the cut */
-const Tag: React.FC<{ text: string; y: number; delay?: number }> = ({ text, y, delay = 0 }) => {
+const Tag: React.FC<{ text: string; y: number; delay?: number; tone?: 'sun' }> = ({ text, y, delay = 0, tone }) => {
   const p = usePop(5 + delay)
   return (
     <div style={{ position: 'absolute', left: 0, right: 0, top: y, display: 'flex', justifyContent: 'center', opacity: interpolate(p, [0, 0.3], [0, 1], clamp), scale: interpolate(p, [0, 1], [0.6, 1]) }}>
-      <Plate size={58}>{text}</Plate>
+      <Plate size={58} tone={tone}>{text}</Plate>
     </div>
   )
+}
+
+/** a photo filling its panel, pushing in slowly (the real-New-York half of a `real` shot) */
+const Still: React.FC<{ src: string; pos?: string; len: number }> = ({ src, pos = '50% 50%', len }) => {
+  const frame = useCurrentFrame()
+  return <Img src={staticFile(`posts/${src}`)} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: pos, scale: interpolate(frame, [0, len], [1.04, 1.12], clamp), transformOrigin: pos }} />
 }
 
 /** a white chip with a clock time (or any short label), under the hook */
@@ -224,7 +260,7 @@ export const Reel: React.FC<{ id: string; audio: 'music' | 'sfx' }> = ({ id, aud
         at += len
         return (
           <Sequence key={i} from={from} durationInFrames={len} name={s.hook ?? 'End card'}>
-            {s.src && reel.layout === 'portrait' ? (
+            {(s.src || s.photo) && reel.layout === 'portrait' ? (
               <>
                 <PortraitShot shot={s} len={len} />
                 {s.hook ? <Hook text={s.hook} /> : null}

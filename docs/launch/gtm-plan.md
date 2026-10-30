@@ -47,7 +47,11 @@ The full opening-day runbook is in Launch HQ → Launch.
 `tools/instagram/plan.mjs` has all 120 posts, and Launch HQ → Content lets you approve them. There are no AI or real people in it yet; the Bea host reels are parked.
 
 - **Two slots:** **12:00 ET** for reach (mostly reels that find new people), **19:00 ET** for community (carousels, singles, and event reels an hour before the evening’s event).
-- **15 recurring series**, so a new post is a data entry rather than a new edit:
+- **The story behind them** (Oct 30 research, `docs/marketing/story-research.md`): then a safe place with friends, now a scattered crew in an expensive city, here the same crew in a bigger city. **Same crew. Bigger city.**
+- **18 recurring series**, so a new post is a data entry rather than a new edit:
+  - Same crew. Bigger city. (the story film)
+  - Real New York vs Club NYC, and New York then and now (public-domain and CC0 photos next to the game)
+  - Money diary
   - The penguin game grew up
   - Manhattan in ten seconds
   - POV: a day in Manhattan
@@ -64,7 +68,7 @@ The full opening-day runbook is in Launch HQ → Launch.
   - Behind the city
   - You built this (player clips, after launch, with permission)
 - **Mix over 60 days:** about 55% reels, 30% carousels, 15% singles. Every reel is full-screen portrait or a stacked “this or that”, except the window-versus-portrait trial.
-- **What’s ready:** 26 posts are already rendered (24 of them before launch). 93 are “to make”, each with a production note; that’s about 12 a week.
+- **What’s ready:** 45 posts are rendered (30 of them before launch). 74 are “to make”, each with a production note; that’s about 9 a week.
 - **The weekly batch:** Monday, review last week. Anything at twice the median sends gets two new versions; anything under the median twice is retired. Tuesday, I render the week (reels from `reels.ts`, carousels from `posts.ts`). Wednesday, you approve in Launch HQ.
 - **New footage needed:** tall clips of Battery Park, One World Trade and the rink at night; the three multiplayer games (bike dash, Rush Hour Run, Carb-Jitsu); and after launch, real players’ clips (with permission).
 - **Kept out:** real store names, the I ♥ NY sign, sponsor names (the bike game is “the Bike Dash” in posts), a named real parade, fake scarcity, rounded-up numbers and em dashes.

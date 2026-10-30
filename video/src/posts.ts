@@ -26,6 +26,16 @@ export type Slide =
   | { kind: 'starter'; title: string; items: [string, string, string][] }
   /** rows from S down: [tier, colour, [icon, label][]] */
   | { kind: 'tier'; title: string; rows: [string, string, [string, string][]][] }
+  // real New York next to ours: public-domain or CC0 photos only (public/posts/real, credits.json), no faces, no brands
+  /** a cover: the real photo and the Club NYC art side by side */
+  | { kind: 'split'; bg: string; title: string; kicker?: string; real: string; club: string; realPos?: string; clubPos?: string; realLabel?: string }
+  /** the real photo over its Club NYC version, the tell above them. `label` replaces "Real New York" (a year, say) */
+  | { kind: 'real'; place: string; tell: string; real: string; club: string; credit: string; realPos?: string; clubPos?: string; label?: string; clubLabel?: string }
+  /** a StreetCheesy listing (the game's own listings app, app/src/data/homes.ts): the home, its price in coins, the perks
+   *  and the fine print, plus `earn`: what that costs in shifts */
+  | { kind: 'listing'; name: string; hood: string; price: string; earn?: string; art: string; perks: string[]; fine: string }
+  /** a money-diary day: what came in and went out, in coins (real game prices and shift pay inside the server caps) */
+  | { kind: 'diary'; day: string; title: string; rows: [string, string][]; note?: string; art: string; pos?: string }
 
 export interface PostDef {
   id: string
@@ -96,7 +106,7 @@ export const POSTS: PostDef[] = [
       { kind: 'compare', title: 'The observation deck', nyc: 'A ticket', club: 'Walk right in', art: 'empire-deck.jpg' },
       { kind: 'compare', title: 'A Broadway show', nyc: 'A ticket', club: 'Front row', art: 'broadway.jpg' },
       { kind: 'compare', title: 'Skating at the rink', nyc: 'A rink fee', club: 'Free skate', art: 'rink.jpg' },
-      { kind: 'compare', title: 'The Staten Island Ferry', nyc: 'Free', club: 'Free', art: 'captain.jpg', note: 'New York got this one right.' },
+      { kind: 'compare', title: 'The Statue’s crown', nyc: 'Book months ahead', club: 'Climb right up', art: 'liberty-island-v2.jpg', note: 'Real crown tickets sell out months ahead. Ours never do.' },
       END('Come see the rest'),
     ],
   },
@@ -163,4 +173,66 @@ export const POSTS: PostDef[] = [
   { id: 'meme-weekend', title: 'Weekend plans', type: 'single', slides: [{ kind: 'versus', title: 'My weekend', left: ['The plan', 'the-met.jpg', '#8a5cd6'], right: ['What happened', 'halal-line.jpg', '#ffc634'], note: 'Got in a line. Ate. Went home. Perfect weekend.' }] },
   { id: 'meme-group-chat', title: 'The group chat', type: 'single', slides: [{ kind: 'caption', lines: ['The group chat: “we should all hang out more”', 'The group chat, for the next six months:'], art: 'empire-deck.jpg' }] },
   { id: 'meme-radiator', title: 'The radiator', type: 'single', slides: [{ kind: 'caption', lines: ['Me: “Is the heat coming on soon?”', 'The radiator, in October:'], art: 'apartment.jpg', pos: '30% 60%' }] },
+  // ---------------------------------------------------------------- the story pass (docs/marketing/story-research.md)
+  // real New York next to ours: every Club NYC side is something you can really do in the game (rooms.ts, homes.ts)
+  {
+    id: 'real-vs-club',
+    title: 'Real New York vs Club NYC',
+    type: 'carousel',
+    slides: [
+      { kind: 'split', bg: '#ffc634', title: 'Real New York vs Club NYC', kicker: 'How to tell which one you’re standing in. Swipe', real: 'real/grand-central-wide.jpg', realPos: '50% 50%', club: 'grand-central.jpg', clubPos: '50% 50%' },
+      { kind: 'real', place: 'Bow Bridge · Central Park', tell: 'Only one lets you propose to the bridge. It says yes.', real: 'real/bow-bridge.jpg', realPos: '50% 62%', club: 'central-park.jpg', clubPos: '50% 14%', credit: 'Photo: Pierre Blaché · CC0' },
+      { kind: 'real', place: 'Grand Central · Main Concourse', tell: '“Meet me at the clock.” Ours has a button for it.', real: 'real/grand-central-wide.jpg', realPos: '50% 58%', club: 'grand-central.jpg', clubPos: '50% 62%', credit: 'Photo: D. Benjamin Miller · CC0' },
+      { kind: 'real', place: 'Brooklyn Bridge · Promenade', tell: 'Real: walk to Brooklyn. Ours: Brooklyn is “coming soon.”', real: 'real/brooklyn-bridge.jpg', realPos: '50% 62%', club: 'bb-crop.jpg', clubPos: '50% 40%', credit: 'Photo: Matthew Henry · CC0' },
+      { kind: 'real', place: 'Liberty Island', tell: 'Real crown tickets sell out months ahead. Ours is a button.', real: 'real/liberty.jpg', realPos: '50% 55%', club: 'liberty-island-v2.jpg', clubPos: '50% 35%', credit: 'Photo: Carol M. Highsmith · Library of Congress' },
+      { kind: 'real', place: 'The ferry', tell: 'Real: the Staten Island Ferry is free. Ours: you captain it.', real: 'real/ferry.jpg', realPos: '50% 55%', club: 'captain.jpg', credit: 'Photo: Carol M. Highsmith · Library of Congress' },
+      { kind: 'real', place: 'A walk-up · Manhattan', tell: 'Real: $4,995 a month. Ours: free, with a pigeon roommate.', real: 'real/fire-escapes.jpg', realPos: '50% 40%', club: 'apartment.jpg', clubPos: '50% 30%', credit: 'Photo: Carol M. Highsmith · Library of Congress' },
+      { kind: 'real', place: 'The 86th floor', tell: 'Same view. Only ours has a blimp that won’t wave back.', real: 'real/esb-night.jpg', realPos: '50% 45%', club: 'empire-deck.jpg', clubPos: '50% 30%', credit: 'Photo: Doorknob747 · CC0' },
+      END('Only one of them has free rent', 'Opens Nov 17 · Link in bio'),
+    ],
+  },
+  // public-domain New York (Library of Congress, National Archives) next to the same place in the game
+  {
+    id: 'then-and-now',
+    title: 'New York, then. Club NYC, now.',
+    type: 'carousel',
+    slides: [
+      { kind: 'split', bg: '#2d3352', title: 'New York, then. Club NYC, now.', kicker: 'Same city, about a century apart. Swipe', real: 'real/grand-central-1941-crop.jpg', realPos: '45% 40%', realLabel: '1941', club: 'grand-central.jpg', clubPos: '42% 50%' },
+      { kind: 'real', place: 'Grand Central', label: '1941', clubLabel: 'Club NYC, 2026', tell: '85 years later, it’s still where New York meets up.', real: 'real/grand-central-1941-crop.jpg', realPos: '50% 42%', club: 'grand-central.jpg', clubPos: '50% 62%', credit: 'Photo: John Collier Jr., 1941 · Library of Congress' },
+      { kind: 'real', place: 'Bow Bridge · Central Park', label: '1800s', clubLabel: 'Club NYC, 2026', tell: 'Finished in 1862. Still the best curve in the park.', real: 'real/bow-bridge-1870-crop.jpg', realPos: '50% 50%', club: 'central-park.jpg', clubPos: '50% 14%', credit: 'Photo: W. M. Chase · public domain' },
+      { kind: 'real', place: 'The ferry', label: '1973', clubLabel: 'Club NYC, 2026', tell: 'It had a fare in 1973. Free since 1997. Ours, you drive.', real: 'real/ferry-1973.jpg', realPos: '50% 62%', club: 'captain.jpg', credit: 'Photo: Wil Blanche, 1973 · National Archives' },
+      { kind: 'real', place: 'Pigeons', label: '1943', clubLabel: 'Club NYC, 2026', tell: 'Pigeons, 1943. Pretty sure a few still work here.', real: 'real/pigeons-1943-crop.jpg', realPos: '50% 66%', club: 'ts-left.jpg', clubPos: '50% 78%', credit: 'Photo: John Vachon, 1943 · Library of Congress' },
+      END('The city keeps changing. The good parts stay.'),
+    ],
+  },
+  // StreetCheesy, the game's listings app: prices, perks and fine print exactly as homes.ts has them
+  {
+    id: 'streetcheesy',
+    title: 'Apartment hunting in Club NYC',
+    type: 'carousel',
+    slides: [
+      { kind: 'cover', bg: '#3d72d9', title: 'Apartment hunting in Club NYC', kicker: 'No broker. No guarantor. No 40x rule. Swipe', art: 'loft.jpg' },
+      { kind: 'listing', name: '5th-Floor Walk-Up', hood: 'East Village', price: 'Free', earn: 'Yours on day one', art: 'apartment.jpg', perks: ['Bodega downstairs', 'Fire-escape “balcony”', 'Steps = free gym'], fine: 'No elevator. No dishwasher. No regrets.' },
+      { kind: 'listing', name: 'Cast-Iron Loft', hood: 'SoHo · Greene St', price: '1,500 coins, once', earn: 'About 10 perfect pizza shifts', art: 'loft.jpg', perks: ['14-ft ceilings', 'Cobblestone views', 'Room for a LOT of furniture'], fine: 'Freight elevator operated by a man named Sal. Be nice to Sal.' },
+      { kind: 'listing', name: 'Billionaires’ Row Penthouse', hood: '57th Street · 90-something floors up', price: '4,000 coins, once', earn: '25 perfect pizza shifts', art: 'penthouse.jpg', perks: ['Party terrace', 'Whole-park views', 'Your own DJ booth'], fine: 'Ears pop in the elevator. Neighbors are mostly in Monaco.' },
+      END('No monthly rent. Anywhere.', 'Opens Nov 17 · Link in bio'),
+    ],
+  },
+  // a money diary: real shop prices, shift pay under the server's caps (server/src/game/rules.ts), 50 starting coins
+  {
+    id: 'money-diary',
+    title: 'A week in Club NYC on a pizza folder’s salary',
+    type: 'carousel',
+    slides: [
+      { kind: 'cover', bg: '#2f9e55', title: 'Money diary: a week in Club NYC', kicker: 'On a pizza folder’s salary. Rent: 0. Swipe', art: 'game-slice.jpg' },
+      { kind: 'diary', day: 'Monday', title: 'First shift', rows: [['Slice Factory, one good shift', '+138'], ['Soft pretzel on the Met steps', '−2'], ['Rent', '0']], note: 'Balance: 186', art: 'game-slice.jpg' },
+      { kind: 'diary', day: 'Tuesday', title: 'The lunch rush', rows: [['Halal Rush, the lunch shift', '+104'], ['A halal plate, after', '−6'], ['Tipped the subway busker', '−1']], note: 'Balance: 283', art: 'halal-line.jpg' },
+      { kind: 'diary', day: 'Wednesday', title: 'Self-care', rows: [['A rowboat on The Lake', '−3'], ['Hot cocoa at the boathouse', '−3'], ['Proposed to Bow Bridge', '0']], note: 'It said yes. Balance: 277', art: 'central-park.jpg', pos: '50% 20%' },
+      { kind: 'diary', day: 'Thursday', title: 'Before 9 AM', rows: [['Bagel Counters, the early shift', '+196'], ['A Big Apple Beanie', '−10'], ['A coin in the fountain', '−1']], note: 'Balance: 462', art: 'show-bagels.jpg' },
+      { kind: 'diary', day: 'Friday', title: 'Big night out', rows: [['Captained the ferry', '+150'], ['Danced at the Times Square Dance Jam', '+20'], ['Tacos at Chelsea Market', '−3']], note: 'Balance: 629', art: 'captain.jpg' },
+      END('Saved 579 coins. The loft is 1,500.', 'Two more weeks · Link in bio'),
+    ],
+  },
+  { id: 'meme-40x', title: 'The 40x rule', type: 'single', slides: [{ kind: 'caption', lines: ['Landlords in New York: “You need to earn 40 times the rent.”', 'Landlords in Club NYC: “It’s free. The stairs are the gym.”'], art: 'apartment.jpg', pos: '50% 55%' }] },
+  { id: 'meme-pizza-principle', title: 'The Pizza Principle', type: 'single', slides: [{ kind: 'caption', lines: ['The Pizza Principle: a slice costs what the subway costs.', 'Now: the slice is $3.81. The subway is $3.', 'Club NYC: they pay you to fold them.'], art: 'game-slice.jpg' }] },
 ]

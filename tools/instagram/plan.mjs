@@ -35,10 +35,13 @@ export const SERIES = {
   LAUNCH: { name: 'Launch', format: 'Reel', tags: '#launch #nyc', cta: 'Link in bio.', why: 'The doors opening' },
   HOL: { name: 'Winter in the city', format: 'Reel', tags: '#winter #nyc', cta: 'Bring the people you’re home with.', why: 'Seasonal, without seasonal art we don’t have' },
   MEME: { name: 'Memes', format: 'Single', tags: '#nycmemes #newyorkcity', cta: 'Send this to someone who gets it.', why: 'Sends: a meme in our own art gets forwarded more than anything polished' },
+  REAL: { name: 'Real New York vs Club NYC', format: 'Carousel', tags: '#nyc #newyorkcity', cta: 'Which one would you rather live in? Comment it.', why: 'A real photo (public domain or CC0), then ours, then the one thing only ours does. Every Club NYC line is true in the game' },
+  STORY: { name: 'Same crew. Bigger city.', format: 'Reel', tags: '#nyc #nostalgia', cta: 'Send it to the friend you miss.', why: 'The why behind the game: then a safe place with friends, now a scattered crew in an expensive city, here the same crew in a bigger city' },
+  MONEY: { name: 'Money diary', format: 'Carousel', tags: '#moneydiary #nyc', cta: 'What would you buy first? Comment it.', why: 'A native NYC format, honest about every price in the game' },
   NEWS: { name: 'New in the city', format: 'Carousel', tags: '#update #cozygames', cta: 'Link in bio.', why: 'Every feature that ships gets a post' },
 }
 
-// [date, slot, series, title, hook, asset]
+// [date, slot, series, title, hook, asset, format?] (format only when it isn't the series' own)
 const rows = [
   // ---- teaser
   ['2026-10-29', 'A', 'GRW', 'The penguin game grew up', 'POV: the penguin game you played after school grew up', 'grew-up-tall'],
@@ -47,10 +50,10 @@ const rows = [
   ['2026-10-30', 'B', 'LOCAL', 'Fold it. Always fold it.', 'Fold it. Always fold it.', 'fold-it'],
   ['2026-10-31', 'A', 'TOT', 'Pick one. Comment it', 'Central Park or the High Line?', 'this-or-that'],
   ['2026-10-31', 'B', 'QUIZ', 'Pick your colour', 'Your New Yorker wears one of 14 colours', 'colour-grid'],
-  ['2026-11-01', 'A', 'POV', 'A morning in Manhattan', 'POV: a morning in Manhattan', 'pov-morning'],
+  ['2026-11-01', 'A', 'STORY', 'Same crew. Bigger city.', 'Remember the penguin game? After school, everyone was there', 'move-to-ny'],
   ['2026-11-01', 'B', 'GUIDE', 'Your first day in Manhattan', 'Your first day in Manhattan, in six stops', 'first-day'],
   ['2026-11-02', 'A', 'TRL', 'Halal Rush: the trailer', 'In a city of 8 million people, one New Yorker had one job', 'halal-trailer'],
-  ['2026-11-02', 'B', 'LOCAL', 'Tag the friend who’d wait in this line', 'Tag the friend who would wait in this line', 'tag-the-line'],
+  ['2026-11-02', 'B', 'REAL', 'Real New York vs Club NYC', 'How to tell which one you’re standing in', 'real-vs-club'],
   ['2026-11-03', 'A', 'APT', 'Apartment tour, no broker fee', 'Touring apartments in Manhattan. No broker fee', 'apartment-tour'],
   ['2026-11-03', 'B', 'MEME', 'What I pictured vs what I got', 'Moving to New York: what I pictured, what I got', 'meme-pictured'],
   ['2026-11-04', 'A', 'GRW', 'Trial: the window version', 'Same hook, in a window (Trial Reel: full screen vs window)', 'grew-up'],
@@ -63,21 +66,21 @@ const rows = [
   ['2026-11-07', 'B', 'TIMES', 'This week in the city #1', 'This week in the city', 'city-news'],
   ['2026-11-08', 'A', 'META', 'How we drew Manhattan', 'We drew Manhattan. With help', 'make:bts-drawing | reel: raw art → room in game, 3 rooms; says AI-assisted in line one'],
   ['2026-11-08', 'B', 'LOCAL', 'Local resident. Has opinions.', 'Local resident. Has opinions.', 'pigeon'],
-  ['2026-11-09', 'A', 'TOUR', 'Downtown in ten seconds', 'Downtown in ten seconds', 'make:tour-downtown | portrait reel: wall-street, battery-park, liberty, brooklyn-bridge, one-world-trade (capture tall: battery-park, one-world-trade)'],
+  ['2026-11-09', 'A', 'REAL', 'Real New York vs Club NYC: the reel', 'Real New York vs Club NYC', 'real-vs-club-reel', 'Reel'],
   ['2026-11-09', 'B', 'GUIDE', 'How to eat a slice', 'How to eat a slice like a New Yorker', 'fold-a-slice'],
   // ---- founders' preview
   ['2026-11-10', 'A', 'LAUNCH', 'The Founders’ Preview is open', 'The Founders’ Preview is open', 'make:trailer-tall | the launch trailer recut 9:16 (stack/tall crops of its shots), end card "Preview open"'],
   ['2026-11-10', 'B', 'QUIZ', 'Where would you live?', 'Where would you live? Comment your neighbourhood', 'where-live'],
   ['2026-11-11', 'A', 'TRL', 'Ferry Captain: the trailer', 'One captain. One ferry. 400 tourists', 'make:epic-ferry | EpicReel shots from job-ferry-captain.mp4'],
   ['2026-11-11', 'B', 'GLOS', 'How to speak New Yorker, part 2', 'Part 2: schlep, regular coffee, the stoop, a BEC', 'make:speak-2 | posts.ts glossary, 6 words'],
-  ['2026-11-12', 'A', 'POV', 'POV: your first night out', 'POV: your first night out in Manhattan', 'make:pov-night | tall clips: broadway, penthouse, sky-deck, empire-deck (sunset art)'],
+  ['2026-11-12', 'A', 'POV', 'A morning in Manhattan', 'POV: a morning in Manhattan', 'pov-morning'],
   ['2026-11-12', 'B', 'MEME', 'The new New Yorker starter pack', 'The new New Yorker starter pack', 'meme-starter'],
-  ['2026-11-13', 'A', 'TOT', 'This or that: food edition', 'Pizza or bagels? Halal or coffee?', 'make:tot-food | stack: game-slice/bagel, halal/coffee tall clips'],
-  ['2026-11-13', 'B', 'GUIDE', 'Subway etiquette', 'Subway etiquette, a short guide', 'make:subway-rules | carousel over subway art'],
+  ['2026-11-13', 'A', 'REAL', 'New York, then. Club NYC, now', 'Same city, 85 years apart', 'then-and-now-reel', 'Reel'],
+  ['2026-11-13', 'B', 'MEME', 'The 40x rule', 'Landlords in New York vs landlords in Club NYC', 'meme-40x'],
   ['2026-11-14', 'A', 'MOB', 'Live: walk the city with the founders', 'Live tonight: a walk through the city', 'manual:live | Instagram Live (not in the API)'],
   ['2026-11-14', 'B', 'TIMES', 'This week in the city #2', 'This week in the city', 'make:news-2 | posts.ts news, 5 headlines from the preview'],
   ['2026-11-15', 'A', 'LAUNCH', 'The city opens Nov 17', 'The city opens Tuesday, Nov 17', 'open-date'],
-  ['2026-11-15', 'B', 'GUIDE', '20 places, one map', '20+ places you can walk into', 'make:places-map | carousel: map then 8 rooms'],
+  ['2026-11-15', 'B', 'APT', 'Apartment hunting in Club NYC', 'No broker. No guarantor. No 40x rule', 'streetcheesy', 'Carousel'],
   ['2026-11-16', 'A', 'TRL', 'Bagel Counter: the trailer', 'They said it couldn’t be done. Before 9 AM', 'make:epic-bagel | EpicReel from job-bagel-counters.mp4'],
   ['2026-11-16', 'B', 'QUIZ', 'Pick your first job', 'Pick your first job', 'make:quiz-job | carousel, 5 jobs'],
   // ---- launch week
@@ -107,11 +110,11 @@ const rows = [
   ['2026-11-28', 'A', 'TOT', 'This or that: views', 'Observation deck or the sky deck?', 'make:tot-views | stack: empire-deck, sky-deck, penthouse, brooklyn-bridge'],
   ['2026-11-28', 'B', 'TIMES', 'This week in the city #4', 'This week in the city', 'make:news-4'],
   ['2026-11-29', 'A', 'META', 'How the bagel game works', 'How we made a bagel counter fun (we think)', 'make:bts-bagel | screen recording + reel frame'],
-  ['2026-11-29', 'B', 'GLOS', 'How to speak New Yorker, part 3', 'Part 3: the words your super uses', 'make:speak-3'],
+  ['2026-11-29', 'B', 'MONEY', 'A week on a pizza folder’s salary', 'Money diary: a week in Club NYC', 'money-diary'],
   ['2026-11-30', 'A', 'TRL', 'The Bike Dash: the trailer', 'One bike. One High Line. No brakes (there are brakes)', 'make:epic-bike | capture the bike dash mini-game (no sponsor names on screen)'],
   ['2026-11-30', 'B', 'MEME', 'Tell me you’re a New Yorker', '“It’s only 30 blocks. We can walk”', 'meme-walk'],
   ['2026-12-01', 'A', 'UGC', 'Your New Yorkers this week', 'Your New Yorkers this week', 'make:ugc-looks | creator stills shared with permission'],
-  ['2026-12-01', 'B', 'GUIDE', 'Five things to do on a Tuesday night', 'Five things to do on a Tuesday night in Club NYC', 'make:guide-tuesday'],
+  ['2026-12-01', 'B', 'LOCAL', 'Tag the friend who’d wait in this line', 'Tag the friend who would wait in this line', 'tag-the-line'],
   ['2026-12-02', 'A', 'APT', 'Loft or penthouse?', 'Loft or penthouse? Wrong answers only', 'make:apt-stack | stack: loft vs penthouse'],
   ['2026-12-02', 'B', 'MEME', 'The radiator, in October', 'Is the heat coming on soon? The radiator:', 'meme-radiator'],
   ['2026-12-03', 'A', 'JOB', 'Job of the Week: Ferry Captain', 'Job of the Week: Ferry Captain', 'make:job-ferry'],
@@ -128,7 +131,7 @@ const rows = [
   ['2026-12-08', 'A', 'TRL', 'Rush Hour Run: the trailer', 'Three lanes. One train. Rush hour', 'make:epic-runner | capture Rush Hour Run'],
   ['2026-12-08', 'B', 'MEME', 'Arriving now', 'The sign says “arriving now.” The train, four minutes later', 'meme-train'],
   ['2026-12-09', 'A', 'TOT', 'This or that: winter', 'Hot chocolate or the rink?', 'make:tot-winter'],
-  ['2026-12-09', 'B', 'GLOS', 'How to speak New Yorker, part 4', 'Part 4: winter words', 'make:speak-4'],
+  ['2026-12-09', 'B', 'REAL', 'New York, then. Club NYC, now', 'Grand Central, 1941. Still where New York meets up', 'then-and-now'],
   ['2026-12-10', 'A', 'JOB', 'Job of the Week: Bagel Counter', 'Job of the Week: Bagel Counter', 'make:job-bagel'],
   ['2026-12-10', 'B', 'BOARD', 'Bagel Counter leaderboard', 'This week’s fastest bagel counters', 'make:board-bagel'],
   ['2026-12-11', 'A', 'UGC', 'Best apartments this month', 'Your best apartments this month', 'make:ugc-apts'],
@@ -152,7 +155,7 @@ const rows = [
   ['2026-12-20', 'A', 'UGC', 'Your best photos this month', 'Your best Photo Booth snaps this month', 'make:ugc-photos'],
   ['2026-12-20', 'B', 'GUIDE', 'How to throw an apartment party', 'How to throw an apartment party', 'make:guide-party'],
   ['2026-12-21', 'A', 'POV', 'POV: the shortest day of the year', 'POV: it’s dark at 4:30', 'make:pov-shortest'],
-  ['2026-12-21', 'B', 'LOCAL', 'It’s 4:30 PM and it’s dark', 'It’s 4:30 PM and it’s dark. We’re fine', 'make:single-dark'],
+  ['2026-12-21', 'B', 'MEME', 'The Pizza Principle', 'The slice now costs more than the subway', 'meme-pizza-principle'],
   ['2026-12-22', 'A', 'MOB', 'The last Dance Jam before the holidays', 'The last Dance Jam before the holidays', 'make:mob-holiday'],
   ['2026-12-22', 'B', 'GLOS', 'Holiday words, New York edition', 'Holiday words, New York edition', 'make:speak-5'],
   ['2026-12-23', 'A', 'GRW', 'For the friend who’s home for the holidays', 'For the friend who’s home for the holidays', 'make:moved-away-holiday | moved-away recut, new hook'],
@@ -173,10 +176,20 @@ const WRITTEN = {
   'halal-trailer': `Lunch. Is. Coming. A Club NYC job, rated E for extra white sauce.\n\nSend this to the friend who would wait in that line.`,
   'pov-morning': `7:02 AM to 8:00 PM. The train was not right there.\n\nTag the friend who is always late.`,
   'apartment-tour': `Exposed brick. A spiral staircase. A view. No broker fee. The elevator is out, though.`,
-  'free-in-club': `And very not free in New York. Except the Staten Island Ferry. New York got that one right.`,
+  'free-in-club': `And very not free in New York: the rent, the view, the show, the rink and the crown. The radiator still clanks, though.`,
+  // the story pass: every number has its source in the caption, every Club NYC line is true in the game
+  'move-to-ny': `Remember the penguin game? After school, everyone was there. Then we grew up, rent got weird and our friends moved to other cities. So we built the city back: rent is 0 coins and your friends are one link away. Same crew. Bigger city. Opens Nov 17.\n\nSend it to the friend you miss.\n\nRent: StreetEasy's Manhattan median asking rent, September 2026. Photos: Library of Congress and CC0. Not affiliated with Disney or Club Penguin.`,
+  'real-vs-club': `Real New York vs Club NYC: how to tell which one you're standing in. Only one lets you propose to Bow Bridge (it says yes), and only one has free rent.\n\nManhattan's median asking rent was $4,995 in September (StreetEasy). Ours is 0 coins. Photos are public domain or CC0, credited on each slide.`,
+  'real-vs-club-reel': `Real New York vs Club NYC. Meet me at the clock. Brooklyn is coming soon. Only one has free rent. Opens Nov 17.\n\nPhotos: public domain and CC0, credited on screen.`,
+  'then-and-now-reel': `New York, then. Club NYC, now. Grand Central in 1941, Bow Bridge in the 1800s, the ferry in 1973 and some very senior pigeons. The city keeps changing. The good parts stay.\n\nPhotos: Library of Congress and National Archives, public domain.`,
+  'then-and-now': `Grand Central, 1941. Bow Bridge, 1800s. The ferry, 1973 (free since 1997). Pigeons, 1943, some possibly still on shift. New York keeps changing; we built the parts that should stay.\n\nPhotos: Library of Congress and National Archives, public domain.`,
+  streetcheesy: `Apartment hunting in Club NYC: no broker, no guarantor, no 40x rule. The East Village walk-up is free. The SoHo loft is 1,500 coins, once. The penthouse is 4,000, once. No monthly rent anywhere.\n\nIn New York, landlords usually want a yearly income of 40 times the monthly rent: at September's median of $4,150, that's $166,000 (StreetEasy).`,
+  'money-diary': `A week in Club NYC on a pizza folder's salary: 608 coins earned, 29 spent, 0 on rent. The loft is two weeks away.\n\nEvery price is the real price in the game, and every shift is under the real pay cap.`,
+  'meme-40x': `The 40x rule: New York landlords usually want a yearly income of 40 times the monthly rent. At September's median rent ($4,150, StreetEasy), that's $166,000 a year. In Club NYC the walk-up is free. The stairs are the gym.`,
+  'meme-pizza-principle': `The Pizza Principle said a slice would always cost what the subway does. Now the median plain slice is $3.81 and the fare is $3 (Gothamist, Dec 2025; MTA, Jan 2026). In Club NYC, they pay you to fold them.`,
 }
 
-export const POSTS = rows.map(([date, slot, series, title, hook, asset]) => {
+export const POSTS = rows.map(([date, slot, series, title, hook, asset, fmt]) => {
   const s = SERIES[series]
   const make = asset.startsWith('make:') ? asset.slice(5) : null
   const manual = asset.startsWith('manual:') ? asset.slice(7) : null
@@ -184,5 +197,5 @@ export const POSTS = rows.map(([date, slot, series, title, hook, asset]) => {
   const note = (make ?? manual ?? '').split(' | ')[1] ?? ''
   const phase = PHASES.find((p) => date >= p.from && date <= p.to)?.id ?? 'winter'
   const caption = `${WRITTEN[id] ?? `${hook}. ${s.cta}`}\n\n${s.tags} #clubnyc`
-  return { date, slot, time: slot === 'A' ? '12:00' : '19:00', series, seriesName: s.name, format: series === 'GRW' && title.startsWith('Trial') ? 'Trial' : s.format, title, hook, asset: id, make: !!make, manual: manual ? note || 'manual' : null, note, phase, caption }
+  return { date, slot, time: slot === 'A' ? '12:00' : '19:00', series, seriesName: s.name, format: series === 'GRW' && title.startsWith('Trial') ? 'Trial' : fmt ?? s.format, title, hook, asset: id, make: !!make, manual: manual ? note || 'manual' : null, note, phase, caption }
 })
