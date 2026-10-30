@@ -29,6 +29,17 @@ const CSP = [
   "form-action 'self'",
   "frame-ancestors 'none'",
 ].join('; ')
+// Launch HQ previews posts straight from the private social bucket (a short-lived signed link per file), so that
+// page alone may load pictures and videos from the bucket's own address
+const bucketHost = (() => {
+  const e = process.env
+  try {
+    return e.SOCIAL_S3_ENDPOINT && e.SOCIAL_S3_BUCKET ? `https://${e.SOCIAL_S3_BUCKET}.${new URL(e.SOCIAL_S3_ENDPOINT).host}` : ''
+  } catch {
+    return ''
+  }
+})()
+const HQ_CSP = bucketHost ? CSP.replace("img-src 'self'", `img-src 'self' ${bucketHost}`).replace("media-src 'self'", `media-src 'self' ${bucketHost}`) : CSP
 
 const HTTPS = config.publicUrl.startsWith('https://')
 
@@ -47,7 +58,7 @@ export const siteHeaders: MiddlewareHandler = async (c, next) => {
   // pages: "/", "/join/<name>", "/admin.html"… (a 304 has no content type, so look at the path too)
   const page = (h.get('content-type') ?? '').startsWith('text/html') || /\.html$/.test(c.req.path) || !/\.[a-z0-9]+$/i.test(c.req.path)
   if (page) {
-    h.set('Content-Security-Policy', CSP)
+    h.set('Content-Security-Policy', c.req.path === '/hq.html' ? HQ_CSP : CSP)
     h.set('Cache-Control', 'no-cache')
   } else if (c.res.status === 200 || c.res.status === 304) {
     // Vite's /assets/ files have a content hash in the name: they never change

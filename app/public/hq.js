@@ -435,12 +435,58 @@ async function drawPlaybook() {
   const pb = await hq('/playbook')
   if (contentView !== 'playbook') return
   $('#c-list').innerHTML = `<div class="stack playbook">
+    <div class="card story"><div class="row"><h3>The story: ${esc(pb.story.line)}</h3><span style="flex:1"></span><a class="btn small ghost" href="${esc(pb.story.report)}" target="_blank" rel="noopener">Story Report</a></div>
+      <div class="grid g3" style="margin-top:12px">${pb.story.beats.map(([h, t]) => `<div class="beat"><b>${esc(h)}</b><p>${esc(t)}</p></div>`).join('')}</div>
+      <p class="muted" style="margin:12px 0 0">${esc(pb.story.who)}</p></div>
+    <div class="card"><h3>Reach adds. Sends multiply.</h3><p class="muted">Instagram shows a reel to people who don’t follow us mostly on how long they watch and how often they send it in a DM. A send is the only view that arrives with a friend attached.</p>
+      <div class="engine">${pb.engine.map((s, i) => `<span>${i + 1}. ${esc(s)}</span>`).join('')}</div></div>
+    <div class="card"><h3>Play with the numbers</h3><p class="muted">A rough model, not a forecast: when do sends and invites start to matter more than reach? The defaults are cautious guesses for a new account.</p>
+      <div class="model"><div class="inputs" id="pb-inputs"></div><div><div class="bars tall" id="pb-bars"></div><div class="pb-axis" id="pb-axis"></div><p id="pb-say" style="margin:12px 0 0"></p></div></div></div>
+    <div class="grid g2">
+      <div class="card"><h3>What we watch, every Monday</h3><div class="scroll-x"><table style="margin-top:10px"><thead><tr><th>Signal</th><th>Why</th><th>Bar</th></tr></thead><tbody>${pb.watch.map(([s, w, b]) => `<tr><td>${esc(s)}</td><td>${esc(w)}</td><td><b>${esc(b)}</b></td></tr>`).join('')}</tbody></table></div></div>
+      <div class="card"><h3>Double down, or drop it</h3><ul class="rules">${pb.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></div>
+    </div>
+    <div class="card"><h3>Making them</h3>${pb.making.map(([h, p], i) => `<div class="lever"><span class="k">${String(i + 1).padStart(2, '0')}</span><b>${esc(h)}</b><div style="font-size:13.5px">${esc(p)}</div></div>`).join('')}</div>
     <div class="card"><h3>Five phases, five asks</h3><div class="timeline" style="margin-top:12px">${pb.phases.map((p) => `<div class="phase"><div class="when">${esc(p.when)}</div><h3>${esc(p.name)}</h3><p style="margin:6px 0 0;font-size:13px">${esc(p.ask)}</p></div>`).join('')}</div></div>
     <div class="grid g2">
       <div class="card"><h3>How the account grows</h3><p class="muted">Reach brings people in; sends multiply them. Every post is built to be sent to someone.</p>${pb.levers.map(([h, p, how], i) => `<div class="lever"><span class="k">${String(i + 1).padStart(2, '0')}</span><b>${esc(h)}</b><div style="font-size:13.5px">${esc(p)}</div><span>${esc(how)}</span></div>`).join('')}</div>
       <div class="card"><h3>Every week</h3><table style="margin-top:10px"><tbody>${pb.loop.map(([d, t]) => `<tr><td style="white-space:nowrap"><b>${esc(d)}</b></td><td>${esc(t)}</td></tr>`).join('')}</tbody></table></div>
     </div>
   </div>`
+  growthModel()
+}
+// six weeks of new players: from reels (sends join far more often than strangers) plus friends brought by everyone so far
+const MODEL = [
+  ['reels', 'Reels a week', 3, 10, 1, 6],
+  ['reach', 'Views per reel, week 1', 500, 20000, 500, 3000],
+  ['sends', 'Sends per 1,000 views', 2, 40, 1, 10],
+  ['sendJoin', '% of sends that join', 5, 50, 1, 20],
+  ['viewJoin', '% of other views that join', 0.1, 2, 0.1, 0.3],
+  ['invites', 'Friends each player brings a week', 0, 1.5, 0.05, 0.3],
+  ['grow', 'Weekly growth in views per reel (%)', 0, 60, 5, 20],
+]
+function growthModel() {
+  const st = Object.fromEntries(MODEL.map(([k, , , , , v]) => [k, v]))
+  $('#pb-inputs').innerHTML = MODEL.map(([k, l, min, max, step, v]) => `<label><span>${esc(l)}</span><output id="pb-o-${k}">${v}</output><input type="range" data-m="${k}" min="${min}" max="${max}" step="${step}" value="${v}"></label>`).join('')
+  const draw = () => {
+    const weeks = []
+    let reach = st.reach, total = 0
+    for (let w = 0; w < 6; w++) {
+      const views = st.reels * reach, sends = (views * st.sends) / 1000
+      const fromFriends = total * st.invites
+      const players = sends * (st.sendJoin / 100) + (views - sends) * (st.viewJoin / 100) + fromFriends
+      total += players
+      weeks.push({ players, fromFriends })
+      reach *= 1 + st.grow / 100
+    }
+    const max = Math.max(1, ...weeks.map((w) => w.players))
+    $('#pb-bars').innerHTML = weeks.map((w) => `<i style="height:${Math.max(2, (w.players / max) * 100)}%" title="${fmt(Math.round(w.players))} new"></i>`).join('')
+    $('#pb-axis').innerHTML = weeks.map((w, i) => `<span><b>${fmt(Math.round(w.players))}</b>Week ${i + 1}</span>`).join('')
+    const share = weeks[5].fromFriends / weeks[5].players
+    $('#pb-say').innerHTML = `About <b>${fmt(Math.round(total))}</b> New Yorkers after six weeks. In week six, <b>${Math.round(share * 100)}%</b> of new players come from friends rather than reels. ${share > 0.5 ? 'The loop is doing the work now.' : 'Still reach-driven: push the friend numbers.'}`
+  }
+  $$('[data-m]').forEach((r) => (r.oninput = () => { st[r.dataset.m] = +r.value; $('#pb-o-' + r.dataset.m).textContent = r.value; draw() }))
+  draw()
 }
 
 // ---------- controls: the city right now ----------

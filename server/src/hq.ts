@@ -99,8 +99,22 @@ function thumbOf(files: string[]): string | null {
   const poster = f.replace('/reels/', '/reels/posters/').replace(/\.mp4$/, '.jpg')
   return poster !== f && MEDIA.test(poster) && (bucket() || existsSync(join(REPO, poster))) ? poster : null
 }
-/** every rendered post, scheduled or not: the schedule's assets, plus (in development) anything else in the render folder */
-function library(posts: Post[]) {
+/** every rendered file: in development the render folder itself, in production the index sync.mjs leaves in the bucket */
+async function rendered(): Promise<string[]> {
+  if (bucket()) {
+    const idx = await s3('GET', 'media/library.json').catch(() => null)
+    return idx ? (JSON.parse(idx) as { files: string[] }).files.filter((f) => MEDIA.test(f)) : []
+  }
+  const out = join(REPO, 'video/out')
+  const reels = join(out, 'reels'), stills = join(out, 'posts')
+  const files: string[] = []
+  if (existsSync(reels)) for (const f of readdirSync(reels)) if (f.endsWith('.mp4')) files.push(`video/out/reels/${f}`)
+  if (existsSync(stills)) for (const d of readdirSync(stills)) if (statSync(join(stills, d)).isDirectory())
+    for (const f of readdirSync(join(stills, d))) if (/^\d{2}\.jpg$/.test(f)) files.push(`video/out/posts/${d}/${f}`)
+  return files
+}
+/** every rendered post, scheduled or not: the schedule's assets, plus every draft that isn't on the calendar */
+async function library(posts: Post[]) {
   const items = new Map<string, { id: string; kind: string; files: string[]; thumb: string | null; uses: string[] }>()
   for (const p of posts) {
     if (!p.files.length || !p.kind) continue
@@ -109,16 +123,16 @@ function library(posts: Post[]) {
     items.set(p.asset, it)
   }
   const used = new Set([...items.values()].flatMap((i) => i.files))
-  const out = join(REPO, 'video/out')
-  const reels = join(out, 'reels'), stills = join(out, 'posts')
-  if (existsSync(reels)) for (const f of readdirSync(reels).sort()) {
-    const rel = `video/out/reels/${f}`
-    if (!f.endsWith('.mp4') || /-(no-music|hits-only)\.mp4$/.test(f) || used.has(rel)) continue
+  const all = (await rendered()).sort()
+  for (const rel of all.filter((f) => /^video\/out\/reels\/[\w.-]+\.mp4$/.test(f))) {
+    const f = rel.slice('video/out/reels/'.length)
+    if (/-(no-music|hits-only)\.mp4$/.test(f) || used.has(rel)) continue
     items.set(f, { id: f.replace(/^club-nyc-(reel-)?|\.mp4$/g, ''), kind: 'reel', files: [rel], thumb: thumbOf([rel]), uses: [] })
   }
-  if (existsSync(stills)) for (const d of readdirSync(stills).sort()) {
-    const files = existsSync(join(stills, d)) && statSync(join(stills, d)).isDirectory() ? readdirSync(join(stills, d)).filter((f) => /^\d{2}\.jpg$/.test(f)).sort().map((f) => `video/out/posts/${d}/${f}`) : []
-    if (!files.length || files.every((f) => used.has(f))) continue
+  const dirs = new Map<string, string[]>()
+  for (const rel of all) { const m = /^video\/out\/posts\/([\w-]+)\//.exec(rel); if (m) dirs.set(m[1], [...(dirs.get(m[1]) ?? []), rel]) }
+  for (const [d, files] of dirs) {
+    if (files.every((f) => used.has(f))) continue
     items.set(`posts:${d}`, { id: d, kind: files.length > 1 ? 'carousel' : 'image', files, thumb: files[0], uses: [] })
   }
   return [...items.values()]
@@ -288,6 +302,40 @@ const PLAYBOOK = {
     ['Hand people the tools', 'Every reel has a no-music cut, and Photo Booth snaps are 9:16 with the invite link. Players make the next reel.', 'Add Yours sticker every weekend'],
     ['Post when it’s live', 'Event reels go up at 19:00 ET, an hour before the night’s Jam, so a send turns into “come now”.', 'Tue to Thu, 11:00 to 18:00 otherwise'],
   ],
+  // the story every post tells (docs/marketing/story-research.md; the full report is the Story Report doc)
+  story: {
+    line: 'Same crew. Bigger city.',
+    beats: [
+      ['Then', 'After school, everyone was online in one safe, silly place.'],
+      ['Now', 'We grew up. Rent got weird, friends moved to other cities, the group chat says “we should hang out”.'],
+      ['Here', 'That place grew up and moved to New York. The apartment is free, the job is folding pizza, the crew is one link away.'],
+    ],
+    who: 'For 21 to 32: the grown-up penguin, the almost-New Yorker, the long-distance crew. Celebrate, don’t mourn. Rent jokes aim at the city, never at newcomers or natives.',
+    report: 'https://claude.ai/artifact/JPBEKcsDcMtXNBX2MjzVL5',
+  },
+  // the growth loop: each turn brings new people
+  engine: ['A reel goes up', 'Someone sends it', 'Their friend lands next to them', 'They play a job', 'Photo Booth snap, posted'],
+  watch: [
+    ['Still watching at 3 s', 'Did the hook stop the scroll?', '60%+'],
+    ['Sends per 1,000 views', 'The spread. Our main number', 'Beat our median'],
+    ['Average % watched', 'Loops count, so short wins', '70%+'],
+    ['Follows per 1,000 reached', 'Did non-followers want more?', 'Beat our median'],
+    ['Join clicks, then sign-ups', 'Each reel’s own link', 'Weekly'],
+    ['Friends per new player', 'Invites accepted, in game', 'Above 1 by week 4'],
+  ],
+  rules: [
+    'Any reel at twice our median sends gets two new versions that week: a new hook, then a new place or job in the same format.',
+    'Every new hook runs first as a Trial Reel (non-followers only). The winner goes to the grid.',
+    'Under the median twice in a row: retired.',
+    'The best comment of the week becomes next week’s reel, and we reply to it with the video.',
+    'We never round up, and never post a player count we can’t show.',
+  ],
+  making: [
+    ['Look', 'Burbank only: Bold for hooks and plates, Medium for small print. Hooks in white with an ink outline, one word in Taxi Yellow, seven words or fewer. Hook in the top third; the bottom fifth and right edge belong to Instagram’s buttons. End card: the logo on Club Blue, the line on a Taxi Yellow button.'],
+    ['Sound and timing', '100 BPM: a beat is 0.6 s (18 frames), a reel is 16 or 32 beats. The master track is our own tune, so it’s always safe; each reel also has a no-music cut for trending sounds added in the app. Licensed songs never go in our files.'],
+    ['Real photos', 'Only in Real New York vs Club NYC and then-and-now: public domain or CC0, credited on the image. No identifiable people, store names, I ♥ NY, subway signs or Twin Towers.'],
+    ['Lines we don’t cross', 'No “Club Penguin” on screen or in the account name; in a caption only, with “not affiliated with Disney or Club Penguin”. Real gameplay only, and every Club NYC claim true in the game. No real store names, no fake scarcity, no countdowns to nothing, no em dashes. Creators tag #ad.'],
+  ],
   loop: [
     ['Monday', 'Read last week: anything at twice the median sends gets two new versions; anything under the median twice is retired.'],
     ['Tuesday', 'Claude renders the week: reels, carousels, singles and memes.'],
@@ -429,7 +477,7 @@ hq.get('/people', (c) => {
 hq.get('/library', async (c) => {
   const { schedule, published } = await readSchedule().catch(() => ({ schedule: null, published: {} as Published }))
   const posts = schedule?.posts ?? []
-  return c.json({ source: contentSource(), items: library(posts), posts: posts.map(({ key, date, time, title, approved, manual }) => ({ key, date, time, title, approved, manual, posted: !!published[key] })) })
+  return c.json({ source: contentSource(), items: await library(posts), posts: posts.map(({ key, date, time, title, approved, manual }) => ({ key, date, time, title, approved, manual, posted: !!published[key] })) })
 })
 
 // the header's live strip, refreshed every half minute: cheap counts only
