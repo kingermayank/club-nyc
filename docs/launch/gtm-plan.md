@@ -1,6 +1,6 @@
 # Club NYC go-to-market plan
 
-Written Oct 29, 2026 for a **Tuesday, Nov 17, 10:00 ET** opening. Launch HQ (`/hq.html`, the **Team** link in the landing page's footer) is the one control panel: Today, Launch (the open switch, the launch email, the checklist), Content (calendar, feed, library, films, playbook), Emails, People, Safety and Controls. It shows all of this live: what needs you, the countdown and readiness checks, the content calendar with approvals, every email with a preview, and the film storyboards. This builds on `launch-campaign.md` (press, creators, channels) and `growth-playbook.md` (why people share); it doesn't repeat them.
+Written Oct 29, 2026 for a **Tuesday, Nov 17, 10:00 ET** opening. Launch HQ (`/hq.html`, the **Launch HQ** link in the landing page's footer) is the one control panel: Today, Launch (the open switch, the launch email, the checklist), Content (calendar, feed, library, films, playbook), Emails, People, Safety and Controls. It shows all of this live: what needs you, the countdown and readiness checks, the content calendar with approvals, every email with a preview, and the film storyboards. This builds on `launch-campaign.md` (press, creators, channels) and `growth-playbook.md` (why people share); it doesn't repeat them.
 
 ## 1. The shape of it
 

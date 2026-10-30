@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto'
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 import { Hono, type MiddlewareHandler } from 'hono'
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import { z } from 'zod'
@@ -21,18 +21,24 @@ import { Readable } from 'node:stream'
  * Launch HQ's API (the page is app/public/hq.html; /admin.html just points there): the go-to-market pages under
  * /hq and the moderator tools below. One shared key (ADMIN_TOKEN) unlocks it; a signed, httpOnly cookie keeps you in for 30 days.
  */
+// a value pasted into Railway often keeps what was around it: "ADMIN_TOKEN=" in front, or quotes
+const pasted = (t: string) => t.trim().replace(/^ADMIN_TOKEN\s*=\s*/i, '').replace(/^(["'`“‘])(.*)["'`”’]$/s, '$2').trim()
 // development: an easy key so Launch HQ just opens (production always needs ADMIN_TOKEN)
-export const adminToken = config.adminToken || (config.dev ? 'clubnyc123' : '')
+export const adminToken = pasted(config.adminToken) || (config.dev ? 'clubnyc123' : '')
 if (!config.adminToken && config.dev) console.log(`[club-nyc] Launch HQ (dev): /hq.html, key ${adminToken}`)
 else if (!adminToken) console.warn('[club-nyc] ADMIN_TOKEN is not set, so the moderator dashboard is switched off')
+// never the key itself, only whether it was cleaned up
+if (config.adminToken && adminToken !== config.adminToken.trim()) console.warn('[club-nyc] ADMIN_TOKEN had quotes or "ADMIN_TOKEN=" pasted in; Launch HQ uses the password without them')
 
 const COOKIE = 'club_admin'
 // stay signed in on this computer for 30 days (the cookie is httpOnly and signed)
 const HOURS = 24 * 30
 const sign = (exp: number) => createHmac('sha256', adminToken).update(`admin:${exp}`).digest('base64url')
-const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b))
-// the key is typed by a person: "Club NYC 123" and "clubnyc123" are the same key
-const typed = (t: string) => t.toLowerCase().replace(/\s+/g, '')
+// compare hashes so any two strings compare safely (accents and emoji included)
+const digest = (s: string) => createHash('sha256').update(s).digest()
+const same = (a: string, b: string) => timingSafeEqual(digest(a), digest(b))
+// the key is typed by a person: "Club NYC 123" and "clubnyc123" are the same key, and so are curly and straight quotes
+const typed = (t: string) => t.normalize('NFKC').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').toLowerCase().replace(/\s+/g, '')
 function sessionOk(v: string | undefined): boolean {
   if (!v || !adminToken) return false
   const [exp, sig] = v.split('.')
