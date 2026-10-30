@@ -18,7 +18,7 @@ it in that company's console and make a new one.
 
 Your web address matters everywhere below. Locally it's `http://localhost:5173` (or `5174`, if another project
 already uses 5173: then also set `PUBLIC_URL=http://localhost:5174` in `server/.env`). Live, it's your
-`PUBLIC_URL`, for example `https://play.clubnyc.com`. The sign-in buttons always come back to `PUBLIC_URL`.
+`PUBLIC_URL`, for example `https://playclubnyc.com`. The sign-in buttons always come back to `PUBLIC_URL`.
 
 ---
 
@@ -31,7 +31,7 @@ addresses (without a confirmation email) and "Continue with Email" is hidden.
 **You'll create:** a Resend account, a sending domain, and an API key.
 
 1. Sign up at [resend.com](https://resend.com).
-2. **Domains → Add Domain.** Use a subdomain of your site, for example `mail.clubnyc.com` (Resend recommends a
+2. **Domains → Add Domain.** Use a subdomain of your site, for example `mail.playclubnyc.com` (Resend recommends a
    subdomain, so your main domain's reputation is separate). Pick the region closest to your players
    (North Virginia, `us-east-1`, for the US).
 3. Resend shows DNS records to add at your DNS provider. Copy them exactly:
@@ -50,7 +50,7 @@ addresses (without a confirmation email) and "Continue with Email" is hidden.
 
 ```bash
 RESEND_API_KEY=re_...                                  # the key from step 6
-EMAIL_FROM=Club NYC <hello@mail.clubnyc.com>           # any address on the verified domain
+EMAIL_FROM=Club NYC <hello@mail.playclubnyc.com>           # any address on the verified domain
 EMAIL_REPLY_TO=you@yourdomain.com                      # optional: where replies go (defaults to CONTACT_EMAIL)
 ```
 
@@ -86,7 +86,7 @@ an OAuth client.
    - App logo: optional (adding one means Google reviews it).
    - App domain: home page `https://<your domain>/`, privacy policy `https://<your domain>/privacy.html`, terms of
      service `https://<your domain>/terms.html`.
-   - Authorized domains: your domain (for example `clubnyc.com`).
+   - Authorized domains: your domain (for example `playclubnyc.com`).
    - Developer contact: your email.
 4. **Audience:** user type **External**. While it's in **Testing**, only the test users you list can sign in. Add
    yourself as a test user now; press **Publish app** (status **In production**) before launch.

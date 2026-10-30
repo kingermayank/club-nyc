@@ -25,6 +25,13 @@ import { fillPlaceholders, discordTarget, discordInvite, landingForMode } from '
 import { waitlist, launch, launchGate, launchModeNow, playGate } from './waitlist.ts'
 
 const app = new Hono()
+// www.<our address> is the same site: send it to the one address, so there's one set of cookies and one link to share
+const wwwHost = `www.${new URL(config.publicUrl).host}`
+app.use('*', async (c, next) => {
+  if (c.req.header('host') !== wwwHost) return next()
+  const { pathname, search } = new URL(c.req.url)
+  return c.redirect(`${config.publicUrl}${pathname}${search}`, c.req.method === 'GET' || c.req.method === 'HEAD' ? 301 : 308)
+})
 // every API answer: never cached, never sniffed (registered first so it wraps all of /api, errors included)
 app.use('/api/*', apiHeaders)
 // no request body the game sends comes near this (a cloud save is ~20 KB); bigger ones are refused before

@@ -47,7 +47,7 @@ One bar is 4 beats = 2.4 s. Messages and words appear on the beat.
   but the marketing shows flash mobs instead.
 - **"Early access" on the end card**, matching the landing page.
 - **No em dashes** in on-screen text.
-- **The web address is a prop.** Once the domain is live: `npm --prefix video run render -- --url=clubnyc.com`.
+- **The web address is a prop.** Once the domain is live: `npm --prefix video run render -- --url=playclubnyc.com`.
 - **The music is original.** It borrows Club Penguin's mood (bouncy, cheerful, cartoony), never its melodies. The
   real "Empire State of Mind" (Jay-Z and Alicia Keys), or any other commercial song, would need a sync licence. A
   licensed track can replace `video/public/audio/trailer.wav`; the cuts are on a 100 BPM grid, so a song at another

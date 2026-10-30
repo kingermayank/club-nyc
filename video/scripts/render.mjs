@@ -2,7 +2,7 @@
 //   video/out/            masters (best quality, git-ignored): upload these to YouTube, X, TikTok…
 //   app/public/video/     the web copies the landing page serves (smaller, start playing sooner)
 // usage: npm run render                       (the end card shows no web address)
-//        npm run render -- --url=clubnyc.com    (the end card shows it)
+//        npm run render -- --url=playclubnyc.com    (the end card shows it)
 //        npm run render -- --only=hero          (or --only=trailer, --only=cards: the link-preview images, --only=reels)
 //        reels need their soundtrack first: .venv/bin/python video/capture/music.py --reel=<id>
 import { execFileSync } from 'node:child_process'

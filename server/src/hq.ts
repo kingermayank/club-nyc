@@ -188,7 +188,7 @@ const TIMELINE = [
 const RUNBOOK = [
   { at: 'L-1, evening', step: 'Set LAUNCH_AT on Railway; check this page shows the countdown and every check is green' },
   { at: 'L, 09:30 ET', step: 'Take a backup and download it; open this page, the moderator dashboard and Railway logs side by side' },
-  { at: 'L, 10:00 ET', step: 'The city opens by itself. Open club-nyc.com in a private window: the landing page says Play Now' },
+  { at: 'L, 10:00 ET', step: 'The city opens by itself. Open playclubnyc.com in a private window: the landing page says Play Now' },
   { at: 'L, 10:05 ET', step: 'Start the launch email from the Waitlist tab (batches of 100, safe to re-run). Watch for bounces' },
   { at: 'L, 12:00 ET', step: 'Launch reel goes out (approved in Content); creators co-post in the same hour' },
   { at: 'L, all day', step: 'Watch: players online, sign-ups, crash reports, open reports. Moderators on chat' },
@@ -386,7 +386,7 @@ hq.get('/playbook', (c) => c.json(PLAYBOOK))
 
 // People: how many New Yorkers, and every place an email address comes in (no deep analytics: counts only)
 const COLLECT = [
-  { key: 'hero', label: 'Landing page, top form', how: 'The first thing on club-nyc.com: a name and an email, before launch' },
+  { key: 'hero', label: 'Landing page, top form', how: 'The first thing on playclubnyc.com: a name and an email, before launch' },
   { key: 'sheet', label: 'Join the Waitlist pop-up', how: 'The header and footer buttons on the landing page open it' },
   { key: 'final', label: 'Landing page, bottom form', how: 'The last section of the landing page' },
   { key: 'soon', label: 'Coming Soon page', how: 'Anyone who opens /play before launch' },

@@ -33,7 +33,7 @@ players ──https──▶ Railway edge ──▶ one "club-nyc" service (buil
 
 - A **Railway account** on the **Hobby plan** ($5/month, which includes $5 of usage). The Free plan's limits (0.5 GB memory and volume, $1/month of usage) are too small to keep a game online all month.
 - A **GitHub account** (recommended: Railway then redeploys every time you push). Or the Railway command-line tool (see [2B](#2b-with-the-railway-cli)).
-- **Access to your domain's DNS** if you want your own address (for example `play.clubnyc.com`). You can launch on a free `….up.railway.app` address first.
+- **Access to your domain's DNS** if you want your own address (for example `playclubnyc.com`). You can launch on a free `….up.railway.app` address first.
 - **Access to the Google / X / Discord developer consoles** if you want those sign-in buttons. Guests can play without them.
 
 ---
@@ -180,7 +180,7 @@ Save it in your password manager too. It's the password for the moderator dashbo
 | `DISCORD_INVITE_URL` | a never-expiring `https://discord.gg/…` invite | Where the landing page's Discord buttons go (through `/discord`, so you can change it here without touching the site). Until it's set, those buttons say the Discord opens soon. In Discord: server menu → Invite People → Edit invite link → Expire after: **Never**. |
 | `LAUNCH_MODE` | `waitlist` until launch day, then `open` | **Unset means `waitlist`.** Waitlist: the landing page's buttons become "Join the Waitlist" and `/play` and invite links show a Coming Soon page with the same form. Open: everyone can play. See [Launch day](#launch-day-open-the-city). |
 | `PREVIEW_CODE` | a long random string (`openssl rand -hex 12`) | Testers open `/play?preview=<code>` once per browser to play while the city is in waitlist mode (`/play?preview=off` turns it off again). Change it to lock every tester out. |
-| `RESEND_API_KEY`, `EMAIL_FROM` | from [Resend](https://resend.com), and an address on your verified sending domain, e.g. `Club NYC <hello@mail.clubnyc.com>` | All email: waitlist confirmations, the launch email and "Continue with Email" sign-in links. Without them nothing is emailed: the waitlist still takes addresses (with no confirmation step) and the email sign-in button is hidden. Setup: [sign-in-setup.md](sign-in-setup.md#email-sign-in-links-the-waitlist-the-launch-email). |
+| `RESEND_API_KEY`, `EMAIL_FROM` | from [Resend](https://resend.com), and an address on your verified sending domain, e.g. `Club NYC <hello@mail.playclubnyc.com>` | All email: waitlist confirmations, the launch email and "Continue with Email" sign-in links. Without them nothing is emailed: the waitlist still takes addresses (with no confirmation step) and the email sign-in button is hidden. Setup: [sign-in-setup.md](sign-in-setup.md#email-sign-in-links-the-waitlist-the-launch-email). |
 | `EMAIL_REPLY_TO` | an inbox you read | Optional. Where replies to those emails go (default: `CONTACT_EMAIL`). |
 | `WAITLIST_CONFIRM` | `true` (default) or `false` | Optional. `false` skips the confirmation email (single opt-in). |
 | `WAITLIST_PUBLIC_MIN` | `100` (default) | Optional. The landing page shows how many people are in line only from this many. |
@@ -247,10 +247,10 @@ There's nothing to set under Build: Railway builds the `Dockerfile` automaticall
 
 ## 8. Use your own domain
 
-1. Service → **Settings** → **Public Networking** → **+ Custom Domain** → type e.g. `play.clubnyc.com`. A subdomain like `play.` is easiest. A bare `clubnyc.com` needs a DNS provider that supports "CNAME flattening" or "ALIAS" records (Cloudflare does).
+1. Service → **Settings** → **Public Networking** → **+ Custom Domain** → type e.g. `playclubnyc.com`, then `www.playclubnyc.com` (the server sends www to the bare address). A domain bought in Railway (workspace → **Domains**) gets its records added by Railway itself; anywhere else, a bare domain needs a DNS provider that supports "CNAME flattening" or "ALIAS" records (Cloudflare does). The Hobby plan allows two custom domains per service.
 2. Railway shows **two records**, a `CNAME` and a `TXT`. Add **both** at your DNS provider exactly as shown. Without the TXT record the domain won't verify, and visitors get a 404. On Cloudflare, set the record to **DNS only** (grey cloud) so Railway can issue the certificate and players' IPs reach the server unchanged.
 3. Wait for the green check next to the domain. It usually takes minutes; Railway allows up to 72 hours for DNS. The HTTPS certificate is automatic.
-4. Change `PUBLIC_URL` to `https://play.clubnyc.com` → **Deploy**.
+4. Change `PUBLIC_URL` to `https://playclubnyc.com` → **Deploy**.
 5. Update the sign-in redirect addresses ([step 9](#9-point-google--x--discord-sign-in-at-the-new-address)).
 6. From now on, share only this address. Sign-in started on the old `….up.railway.app` address would fail, because sign-in always comes back to `PUBLIC_URL`.
 
