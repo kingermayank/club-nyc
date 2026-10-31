@@ -196,6 +196,7 @@ export const POSTS = rows.map(([date, slot, series, title, hook, asset, fmt]) =>
   const id = (make ?? manual ?? asset).split(' | ')[0]
   const note = (make ?? manual ?? '').split(' | ')[1] ?? ''
   const phase = PHASES.find((p) => date >= p.from && date <= p.to)?.id ?? 'winter'
-  const caption = `${WRITTEN[id] ?? `${hook}. ${s.cta}`}\n\n${s.tags} #clubnyc`
+  // a hook that already ends in . ? or ! doesn't get another full stop
+  const caption = `${WRITTEN[id] ?? `${hook}${/[.?!]$/.test(hook) ? '' : '.'} ${s.cta}`}\n\n${s.tags} #clubnyc`
   return { date, slot, time: slot === 'A' ? '12:00' : '19:00', series, seriesName: s.name, format: series === 'GRW' && title.startsWith('Trial') ? 'Trial' : fmt ?? s.format, title, hook, asset: id, make: !!make, manual: manual ? note || 'manual' : null, note, phase, caption }
 })

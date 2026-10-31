@@ -4,6 +4,7 @@
 //   node tools/instagram/publish.mjs --live       posts every APPROVED entry whose time has come and that isn't posted yet
 //   ... --only=<key>    just that entry          ... --now     ignore the times (still only approved ones)
 //   ... --remote        read the schedule and the record from the bucket (what the Railway cron runs)
+//   ... --from=<date>   skip posts dated before it     ... --grace=<hours>  skip posts more than that late (missed, not posted late)
 // Media: with the bucket set up (SOCIAL_S3_* in .env, filled by tools/instagram/sync.mjs) Instagram fetches every file
 // from a temporary bucket link. Without it, reels upload straight from disk (Meta's resumable upload, open to
 // Facebook-login apps) and images need a public address, SOCIAL_MEDIA_BASE (<base>/<post>/<nn>.jpg).
@@ -26,6 +27,8 @@ const LIVE = !!arg('live')
 const NOW = !!arg('now')
 const ONLY = arg('only')
 const REMOTE = !!arg('remote')
+const FROM = arg('from')
+const GRACE = arg('grace') ? Number(arg('grace')) * 3600_000 : Infinity
 const BUCKET = s3.configured()
 
 const schedule = REMOTE ? JSON.parse((await s3.getText('schedule.json')) ?? 'null') : JSON.parse(readFileSync(join(HERE, 'schedule.json'), 'utf8'))
@@ -33,6 +36,8 @@ if (!schedule) throw new Error('no schedule.json in the bucket yet: run node too
 const LOG = join(HERE, 'published.json')
 const published = REMOTE ? JSON.parse((await s3.getText('published.json')) ?? '{}') : existsSync(LOG) ? JSON.parse(readFileSync(LOG, 'utf8')) : {}
 const saveLog = async () => {
+  // re-read the bucket's record first: another publisher (the Mac, the cron) may have posted since this one started
+  if (REMOTE) Object.assign(published, { ...JSON.parse((await s3.getText('published.json')) ?? '{}'), ...published })
   const text = JSON.stringify(published, null, 1) + '\n'
   if (REMOTE) await s3.put('published.json', text, 'application/json')
   else writeFileSync(LOG, text)
@@ -101,8 +106,10 @@ async function postImages(p) {
 /** the post's time as a real instant: wall-clock time in New York, whatever the machine's zone */
 function due(p) {
   const guess = new Date(`${p.date}T${p.time}:00Z`)
-  const ny = new Date(guess.toLocaleString('en-US', { timeZone: schedule.timezone }))
-  return new Date(guess.getTime() + (guess.getTime() - ny.getTime()))
+  // New York's wall clock at that instant, read as if it were UTC (parsing a locale string would use this machine's zone)
+  const part = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: schedule.timezone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(guess).map((x) => [x.type, x.value]))
+  const ny = Date.UTC(+part.year, +part.month - 1, +part.day, +part.hour, +part.minute)
+  return new Date(guess.getTime() + (guess.getTime() - ny))
 }
 async function problems(p) {
   const out = []
@@ -138,16 +145,18 @@ const now = new Date()
 let failed = 0
 for (const p of schedule.posts) {
   if (ONLY && p.key !== ONLY) continue
+  if (FROM && p.date < FROM) continue
   const when = due(p)
   const tag = `day ${String(p.day).padStart(2)} ${p.date} ${p.time} ${p.format.padEnd(8)} ${p.title}`
   if (published[p.key]) { console.log(`  posted   ${tag} → ${published[p.key].permalink}`); continue }
   if (p.manual) { console.log(`  manual   ${tag} (${p.manual})`); continue }
   const issues = await problems(p)
   const isDue = NOW || when <= now
-  const state = issues.length ? 'PROBLEM' : !p.approved ? 'waiting' : !isDue ? 'queued' : LIVE ? 'POSTING' : 'would post'
-  console.log(`  ${state.padEnd(8)} ${tag}${issues.length ? ' · ' + issues.join('; ') : !p.approved ? ' (not approved)' : !isDue ? ` (at ${when.toISOString()})` : ''}`)
+  const missed = !NOW && now - when > GRACE
+  const state = issues.length ? 'PROBLEM' : !p.approved ? 'waiting' : !isDue ? 'queued' : missed ? 'missed' : LIVE ? 'POSTING' : 'would post'
+  console.log(`  ${state.padEnd(8)} ${tag}${issues.length ? ' · ' + issues.join('; ') : !p.approved ? ' (not approved)' : !isDue ? ` (at ${when.toISOString()})` : missed ? ' (past its time: post it by hand, or move it)' : ''}`)
   if (issues.length) failed++
-  if (!LIVE || issues.length || !p.approved || !isDue) continue
+  if (!LIVE || issues.length || !p.approved || !isDue || missed) continue
   try {
     const container = p.kind === 'reel' ? await postReel(p) : await postImages(p)
     const { id } = await graph('POST', `/${ig}/media_publish`, { creation_id: container })

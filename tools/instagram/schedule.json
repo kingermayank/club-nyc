@@ -23,7 +23,7 @@
    "caption": "It moved to Manhattan, takes the subway now and still dances. Claim your name before someone else does: link in bio.\n\nNot affiliated with Disney or Club Penguin.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-10-29-B-speak-new-yorker",
@@ -52,7 +52,7 @@
    "caption": "How to speak New Yorker. Which word did we miss?\n\n#newyorker #nycslang #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-10-30-A-tour-tall",
@@ -74,7 +74,7 @@
    "caption": "Manhattan in ten seconds. Which one first? Comment it.\n\n#nyc #manhattan #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-10-30-B-fold-it",
@@ -93,10 +93,10 @@
    "files": [
     "video/out/posts/fold-it/01.jpg"
    ],
-   "caption": "Fold it. Always fold it.. Send it to someone who says this.\n\n#nyc #newyorkers #clubnyc",
+   "caption": "Fold it. Always fold it. Send it to someone who says this.\n\n#nyc #newyorkers #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-10-31-A-this-or-that",
@@ -115,10 +115,10 @@
    "files": [
     "video/out/reels/club-nyc-reel-this-or-that.mp4"
    ],
-   "caption": "Central Park or the High Line?. Pick one. Comment it.\n\n#thisorthat #nyc #clubnyc",
+   "caption": "Central Park or the High Line? Pick one. Comment it.\n\n#thisorthat #nyc #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-10-31-B-colour-grid",
@@ -140,7 +140,7 @@
    "caption": "Your New Yorker wears one of 14 colours. Comment yours.\n\n#quiz #nyc #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-01-A-move-to-ny",
@@ -162,7 +162,7 @@
    "caption": "Remember the penguin game? After school, everyone was there. Then we grew up, rent got weird and our friends moved to other cities. So we built the city back: rent is 0 coins and your friends are one link away. Same crew. Bigger city. Opens Nov 17.\n\nSend it to the friend you miss.\n\nRent: StreetEasy's Manhattan median asking rent, September 2026. Photos: Library of Congress and CC0. Not affiliated with Disney or Club Penguin.\n\n#nyc #nostalgia #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-01-B-first-day",
@@ -191,7 +191,7 @@
    "caption": "Your first day in Manhattan, in six stops. Save it for your first visit (real or not).\n\n#nycguide #manhattan #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-02-A-halal-trailer",
@@ -213,7 +213,7 @@
    "caption": "Lunch. Is. Coming. A Club NYC job, rated E for extra white sauce.\n\nSend this to the friend who would wait in that line.\n\n#trailer #nyc #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-02-B-real-vs-club",
@@ -243,7 +243,7 @@
    "caption": "Real New York vs Club NYC: how to tell which one you're standing in. Only one lets you propose to Bow Bridge (it says yes), and only one has free rent.\n\nManhattan's median asking rent was $4,995 in September (StreetEasy). Ours is 0 coins. Photos are public domain or CC0, credited on each slide.\n\n#nyc #newyorkcity #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-03-A-apartment-tour",
@@ -265,7 +265,7 @@
    "caption": "Exposed brick. A spiral staircase. A view. No broker fee. The elevator is out, though.\n\n#apartmenttour #nycapartment #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-03-B-meme-pictured",
@@ -287,7 +287,7 @@
    "caption": "Moving to New York: what I pictured, what I got. Send this to someone who gets it.\n\n#nycmemes #newyorkcity #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-04-A-grew-up",
@@ -309,7 +309,7 @@
    "caption": "Same hook, in a window (Trial Reel: full screen vs window). Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": true,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-04-B-which-new-yorker",
@@ -339,7 +339,7 @@
    "caption": "Which New Yorker are you? Pick your colour. Comment yours.\n\n#quiz #nyc #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-05-A-jobs-stack",
@@ -361,7 +361,7 @@
    "caption": "Five jobs. Zero rent. Think you can beat it? Link in bio.\n\n#nycjobs #cozygames #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-05-B-now-hiring",
@@ -383,7 +383,7 @@
    "caption": "Now hiring: five jobs, no interview. Send it to someone who says this.\n\n#nyc #newyorkers #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-06-A-flash-mob",
@@ -405,7 +405,7 @@
    "caption": "Start dancing in Central Park. Tonight at 8. Bring someone.\n\n#flashmob #nyc #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-06-B-free-in-club",
@@ -433,7 +433,7 @@
    "caption": "And very not free in New York: the rent, the view, the show, the rink and the crown. The radiator still clanks, though.\n\n#nycguide #manhattan #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-07-A-moved-away",
@@ -455,7 +455,7 @@
    "caption": "For the friend who moved away. Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-07-B-city-news",
@@ -483,7 +483,7 @@
    "caption": "This week in the city. A new paper every week, in the game.\n\n#nyc #news #clubnyc",
    "trial": false,
    "manual": null,
-   "approved": false
+   "approved": true
   },
   {
    "key": "2026-11-08-A-bts-drawing",
@@ -522,7 +522,7 @@
    "files": [
     "video/out/posts/pigeon/01.jpg"
    ],
-   "caption": "Local resident. Has opinions.. Send it to someone who says this.\n\n#nyc #newyorkers #clubnyc",
+   "caption": "Local resident. Has opinions. Send it to someone who says this.\n\n#nyc #newyorkers #clubnyc",
    "trial": false,
    "manual": null,
    "approved": false
@@ -1133,7 +1133,7 @@
    "asset": "epic-showtime",
    "kind": null,
    "files": [],
-   "caption": "What time is it?. Send this to the friend who’d take this job.\n\n#trailer #nyc #clubnyc",
+   "caption": "What time is it? Send this to the friend who’d take this job.\n\n#trailer #nyc #clubnyc",
    "trial": false,
    "manual": "to make: EpicReel from job-showtime.mp4",
    "approved": false
@@ -1177,7 +1177,7 @@
    "files": [
     "video/out/reels/club-nyc-reel-moved-away.mp4"
    ],
-   "caption": "Can’t make it home this week?. Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
+   "caption": "Can’t make it home this week? Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": null,
    "approved": false
@@ -1337,7 +1337,7 @@
    "asset": "tot-views",
    "kind": null,
    "files": [],
-   "caption": "Observation deck or the sky deck?. Pick one. Comment it.\n\n#thisorthat #nyc #clubnyc",
+   "caption": "Observation deck or the sky deck? Pick one. Comment it.\n\n#thisorthat #nyc #clubnyc",
    "trial": false,
    "manual": "to make: stack: empire-deck, sky-deck, penthouse, brooklyn-bridge",
    "approved": false
@@ -1795,7 +1795,7 @@
    "asset": "tot-winter",
    "kind": null,
    "files": [],
-   "caption": "Hot chocolate or the rink?. Pick one. Comment it.\n\n#thisorthat #nyc #clubnyc",
+   "caption": "Hot chocolate or the rink? Pick one. Comment it.\n\n#thisorthat #nyc #clubnyc",
    "trial": false,
    "manual": "to make: tot-winter",
    "approved": false
@@ -1922,7 +1922,7 @@
    "asset": "grew-up-v3",
    "kind": null,
    "files": [],
-   "caption": "Remember waddling around after school?. Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
+   "caption": "Remember waddling around after school? Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": "to make: new hook over grew-up-tall shots",
    "approved": false
@@ -1942,7 +1942,7 @@
    "asset": "quiz-holiday",
    "kind": null,
    "files": [],
-   "caption": "What’s your New York holiday move?. Comment yours.\n\n#quiz #nyc #clubnyc",
+   "caption": "What’s your New York holiday move? Comment yours.\n\n#quiz #nyc #clubnyc",
    "trial": false,
    "manual": "to make: quiz-holiday",
    "approved": false
@@ -2106,7 +2106,7 @@
    "files": [
     "video/out/posts/elevator/01.jpg"
    ],
-   "caption": "The elevator is out. Again.. Send it to someone who says this.\n\n#nyc #newyorkers #clubnyc",
+   "caption": "The elevator is out. Again. Send it to someone who says this.\n\n#nyc #newyorkers #clubnyc",
    "trial": false,
    "manual": null,
    "approved": false
