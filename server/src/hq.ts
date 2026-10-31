@@ -23,6 +23,7 @@ import { JOURNEYS, journeyEmail } from './journeys.ts'
 import { launchModeNow, launchState, opensAt, setOpening, waitlistOverview } from './waitlist.ts'
 import { signV4 } from './ops.ts'
 import { liveSnapshot } from './game/realtime.ts'
+import { FOUNDER } from './founder.ts'
 
 export const hq = new Hono()
 const env = process.env
@@ -431,6 +432,8 @@ hq.post('/content/approve', async (c) => {
 
 hq.get('/video', (c) => c.json({ storyboards: STORYBOARDS }))
 hq.get('/playbook', (c) => c.json(PLAYBOOK))
+// Mayank's own LinkedIn and X posts, with each attachment's poster frame for the preview
+hq.get('/founder', (c) => c.json({ ...FOUNDER, posts: FOUNDER.posts.map((p) => ({ ...p, media: p.media.map((m) => ({ ...m, thumb: thumbOf([m.file]) })) })) }))
 
 // People: how many New Yorkers, and every place an email address comes in (no deep analytics: counts only)
 const COLLECT = [

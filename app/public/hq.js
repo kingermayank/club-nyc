@@ -299,7 +299,7 @@ async function launch() {
 
 // ---------- content: the calendar, the grid, everything rendered, the films and the playbook ----------
 let shown = []
-const VIEWS = { list: 'Calendar', feed: 'Feed', library: 'Library', films: 'Films', playbook: 'Playbook' }
+const VIEWS = { list: 'Calendar', feed: 'Feed', library: 'Library', films: 'Films', founder: 'Founder posts', playbook: 'Playbook' }
 let contentView = VIEWS[store.get('hq.contentView')] ? store.get('hq.contentView') : 'list'
 async function content() {
   const d = await loadContent(true)
@@ -343,7 +343,7 @@ function drawContent() {
   contentBadge()
   if (contentView === 'feed') return drawPhone()
   if (posty) return drawPosts()
-  ;({ library: drawLibrary, films: drawFilms, playbook: drawPlaybook })[contentView]()
+  ;({ library: drawLibrary, films: drawFilms, founder: drawFounder, playbook: drawPlaybook })[contentView]()
 }
 function drawPosts() {
   const d = contentData
@@ -498,6 +498,42 @@ function drawPhone() {
   $$('[data-ig-day]').forEach((b) => (b.onclick = () => setDay(days.includes(b.dataset.igDay) ? b.dataset.igDay : days.filter((d) => d <= b.dataset.igDay).pop() ?? days[0])))
   $('#ig-make').onchange = (e) => { phoneMake = e.target.checked; store.set('hq.phoneMake', phoneMake ? '1' : ''); drawPhone() }
   $('#ig-dots').onchange = (e) => { phoneDots = e.target.checked; store.set('hq.phoneDots', phoneDots ? '1' : ''); drawPhone() }
+}
+
+// ---------- founder posts: Mayank's own LinkedIn and X posts, to copy and post by hand ----------
+let founderNet = store.get('hq.founderNet') === 'x' ? 'x' : 'linkedin'
+const NET = { linkedin: 'LinkedIn', x: 'X' }
+// X counts every link as 23 characters and most emoji as 2
+const xLen = (t) => [...t.replace(/https?:\/\/\S+|playclubnyc\.com/g, 'x'.repeat(23))].reduce((n, ch) => n + (ch.codePointAt(0) > 0x2000 ? 2 : 1), 0)
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); toast('Copied') } catch { toast('Couldn’t copy: select the text instead') }
+}
+async function drawFounder() {
+  const f = await hq('/founder')
+  if (contentView !== 'founder') return
+  const posts = f.posts.filter((p) => p.network === founderNet)
+  const att = (p) => p.media.map((m, k) => `<button class="f-att" data-att="${esc(p.id)}:${k}"><span class="pic ${m.file.endsWith('.mp4') ? 'reel' : ''}">${still({ thumb: m.thumb, files: [m.file] })}</span><small>${esc(m.label)}</small></button>`).join('')
+  const body = (p) => p.thread
+    ? p.thread.map((t, k) => { const n = xLen(t); return `<div class="tweet"><div class="tw-top"><b>${k + 1}/${p.thread.length}</b><span class="${n > 280 ? 'over' : ''}">${n} / 280</span><button class="btn small ghost" data-copy="${esc(p.id)}:${k}">Copy</button></div><div class="f-text">${esc(t)}</div></div>` }).join('')
+    : `<div class="f-text">${esc(p.text)}</div><div class="row" style="margin-top:10px"><span class="muted" style="font-size:12.5px">${p.text.length.toLocaleString()} / 3,000 characters</span><span style="flex:1"></span><button class="btn small" data-copy="${esc(p.id)}">Copy post</button></div>`
+  $('#c-list').innerHTML = `<div class="stack founder">
+    <div class="card"><div class="row" style="flex-wrap:wrap;gap:12px"><div style="flex:1;min-width:260px"><h3>Your posts, in your voice</h3><p class="muted" style="margin:4px 0 0">${esc(f.intro)}</p></div>
+      <div class="seg" role="group" aria-label="Network">${Object.entries(NET).map(([k, v]) => `<button data-net="${k}" aria-pressed="${founderNet === k}">${v}</button>`).join('')}</div></div>
+      <details class="more" style="margin-top:12px"><summary><h3 style="font-size:15px">Which trailer goes where</h3></summary><ul class="rules">${f.trailer.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></details></div>
+    ${posts.map((p) => `<div class="card f-post">
+      <div class="f-head"><span class="f-n">${p.n}</span><div><h3>${esc(p.title)}</h3><div class="muted" style="font-size:13px">${esc(p.when)} · ${esc(p.goal)}</div></div></div>
+      <div class="f-grid"><div>${body(p)}</div>
+        <div class="f-side"><b class="lab">Attach</b><div class="f-atts">${att(p)}</div>
+          <p class="f-tip"><b>Tip</b> ${esc(p.tip)}</p>${p.check ? `<p class="f-check"><b>Check before posting</b> ${esc(p.check)}</p>` : ''}</div></div>
+    </div>`).join('')}
+  </div>`
+  $$('[data-net]').forEach((b) => (b.onclick = () => { founderNet = b.dataset.net; store.set('hq.founderNet', founderNet); drawFounder() }))
+  $$('[data-copy]').forEach((b) => (b.onclick = () => { const [id, k] = b.dataset.copy.split(':'); const p = f.posts.find((x) => x.id === id); copyText(k == null ? p.text : p.thread[Number(k)]) }))
+  $$('[data-att]').forEach((b) => (b.onclick = () => {
+    const [id, k] = b.dataset.att.split(':'); const p = f.posts.find((x) => x.id === id)
+    const items = p.media.map((m) => ({ name: m.label, kind: m.file.endsWith('.mp4') ? 'reel' : 'image', files: [m.file], thumb: m.thumb, uses: [] }))
+    openViewer(items, Number(k))
+  }))
 }
 
 // ---------- films and the playbook (Content views) ----------

@@ -73,6 +73,8 @@ The full opening-day runbook is in Launch HQ → Launch.
 - **New footage needed:** tall clips of Battery Park, One World Trade and the rink at night; the three multiplayer games (bike dash, Rush Hour Run, Carb-Jitsu); and after launch, real players’ clips (with permission).
 - **Kept out:** real store names, the I ♥ NY sign, sponsor names (the bike game is “the Bike Dash” in posts), a named real parade, fake scarcity, rounded-up numbers and em dashes.
 
+**Founder posts** (Launch HQ → Content → Founder posts, from `server/src/founder.ts`): five LinkedIn posts and five X threads in Mayank's voice, posted by hand from his own accounts. Waitlist (Oct 30), how it's built (Nov 3), the launch control room (Nov 6), the load test (Nov 12), and opening day (Nov 17). Each one lists what to attach and what to check before posting. The story film goes with the waitlist posts and the trailer with opening day.
+
 ## 5. The films
 
 Storyboards are in Launch HQ → Films.

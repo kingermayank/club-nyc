@@ -303,7 +303,27 @@
   .ig-check input { width: 18px; height: 18px; accent-color: var(--blue); }
   .ig-side .rules { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; } .ig-side .rules li { margin-bottom: 7px; }
   @media (max-width: 900px) { .ig-wrap { grid-template-columns: 1fr; justify-items: center; } .iphone { position: static; width: min(360px, 100%); } }
-  .playbook .card { min-width: 0; } .playbook .scroll-x { overflow-x: auto; }
+  .playbook .card { min-width: 0; }
+  /* founder posts */
+  .founder .f-head { display: flex; align-items: center; gap: 14px; }
+  .founder .f-n { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border: 2.5px solid var(--ink); border-radius: 50%; background: var(--taxi); font: 700 20px/1 Burbank, system-ui; padding-top: 2px; }
+  .founder .f-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; margin-top: 14px; }
+  .founder .f-text { white-space: pre-wrap; font-size: 14.5px; line-height: 1.5; padding: 14px 16px; border: 2px solid var(--line); border-radius: 14px; background: var(--soft); }
+  .founder .tweet + .tweet { margin-top: 12px; }
+  .founder .tw-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 13px; }
+  .founder .tw-top span { flex: 1; color: var(--muted); } .founder .tw-top span.over { color: var(--red); font-weight: 700; }
+  .founder .lab { display: block; margin-bottom: 8px; font: 700 13px Burbank, system-ui; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .founder .f-atts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .founder .f-att { display: flex; flex-direction: column; gap: 5px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .founder .f-att .pic { position: relative; display: block; aspect-ratio: 4 / 5; border-radius: 10px; background: #2b3157; overflow: hidden; border: 2px solid var(--ink); }
+  .founder .f-att .pic img, .founder .f-att .pic video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .founder .f-att small { font-size: 12px; line-height: 1.3; }
+  .founder .f-tip, .founder .f-check { margin: 14px 0 0; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.45; }
+  .founder .f-tip { background: #e3effc; } .founder .f-check { background: #fff1c9; border: 2px solid var(--taxi); }
+  .founder .f-tip b, .founder .f-check b { display: block; font: 700 13px Burbank, system-ui; }
+  .founder .rules { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; } .founder .rules li { margin-bottom: 6px; }
+  @media (max-width: 1100px) { .founder .f-grid { grid-template-columns: 1fr; } .founder .f-card { min-width: 0; } }
+  .founder .card { min-width: 0; } .playbook .scroll-x { overflow-x: auto; }
   @media (max-width: 1100px) { .playbook .model { grid-template-columns: 1fr; } }
   @media (max-width: 700px) { .playbook .story .g3 { grid-template-columns: 1fr; } }
 
