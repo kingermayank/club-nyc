@@ -1,7 +1,7 @@
 {
   "name": "club-nyc-instagram",
   "private": true,
-  "description": "The Instagram publisher, run by a Railway cron service with this folder as its root (no dependencies)",
+  "description": "The Instagram publisher: the instagram-publisher Railway cron service builds this folder (its own railway.json, every 10 minutes). No dependencies",
   "type": "module",
   "engines": { "node": ">=24" },
   "scripts": {
