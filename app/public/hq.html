@@ -257,6 +257,52 @@
   .playbook .bars.tall { height: 220px; gap: 10px; }
   .playbook .pb-axis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 6px; text-align: center; color: var(--muted); font-size: 11.5px; line-height: 1.25; }
   .playbook .pb-axis b { display: block; color: var(--ink); font-size: 13px; }
+  /* the feed: our Instagram profile on an iPhone (Instagram's own look inside the phone, so system type there) */
+  .ig-wrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: start; }
+  .iphone { width: 360px; aspect-ratio: 390 / 844; padding: 11px; border-radius: 58px; background: #15171c; box-shadow: 0 0 0 2px #3a3d45, 0 6px 0 var(--ink), 0 18px 40px rgba(29, 33, 64, .25); position: sticky; top: calc(var(--top) + 16px); }
+  .iphone-screen { position: relative; display: flex; flex-direction: column; height: 100%; border-radius: 47px; background: #fff; color: #000; overflow: hidden; font: 400 13px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; }
+  .ig-status { position: relative; display: flex; align-items: center; justify-content: space-between; height: 46px; padding: 6px 30px 0 34px; font-size: 14.5px; flex: none; }
+  .ig-status .island { position: absolute; left: 50%; top: 10px; width: 104px; height: 30px; margin-left: -52px; border-radius: 20px; background: #000; }
+  .ig-status .sig { display: flex; align-items: flex-end; gap: 2px; height: 11px; }
+  .ig-status .sig i { width: 3px; background: #000; border-radius: 1px; } .ig-status .sig i:nth-child(1) { height: 4px; } .ig-status .sig i:nth-child(2) { height: 6px; } .ig-status .sig i:nth-child(3) { height: 8px; } .ig-status .sig i:nth-child(4) { height: 11px; }
+  .ig-scroll { flex: 1; overflow-y: auto; scrollbar-width: none; } .ig-scroll::-webkit-scrollbar { display: none; }
+  .ig-top { display: flex; align-items: center; justify-content: space-between; padding: 4px 14px 8px; }
+  .ig-top b { display: inline-flex; align-items: center; gap: 3px; font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+  .ig-top span { display: inline-flex; gap: 18px; }
+  .ig-head { display: grid; grid-template-columns: 78px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 22px; align-items: center; padding: 4px 14px 0; }
+  .ig-avatar { grid-row: span 2; width: 78px; height: 78px; display: grid; place-items: center; border-radius: 50%; background: var(--blue); overflow: hidden; }
+  .ig-avatar img { width: 86%; height: auto; }
+  .ig-name { font-size: 14px; font-weight: 600; align-self: end; }
+  .ig-stats { display: flex; gap: 18px; align-self: start; margin-top: 4px; }
+  .ig-stats span { display: flex; flex-direction: column; font-size: 13px; } .ig-stats b { font-size: 15.5px; font-weight: 700; line-height: 1.2; }
+  .ig-bio { padding: 10px 14px 0; font-size: 13px; line-height: 1.35; }
+  .ig-bio .cat { color: #737373; } .ig-bio a { color: #00376b; font-weight: 600; }
+  .ig-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 12px 14px 0; }
+  .ig-btns span { padding: 7px 0; border-radius: 8px; background: #efefef; text-align: center; font-size: 13px; font-weight: 600; }
+  .ig-hl { display: flex; gap: 14px; padding: 14px 14px 4px; overflow: hidden; }
+  .ig-hl div { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 62px; flex: none; }
+  .ig-hl span { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; border: 1px solid #dbdbdb; background: #fafafa; box-shadow: inset 0 0 0 3px #fff; }
+  .ig-hl img { width: 30px; height: 30px; object-fit: contain; }
+  .ig-hl small { font-size: 11.5px; }
+  .ig-tabs { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 10px; border-bottom: 1px solid #dbdbdb; }
+  .ig-tabs span { display: grid; place-items: center; padding: 9px 0; color: #8e8e8e; } .ig-tabs span.on { color: #000; box-shadow: inset 0 -1.5px 0 #000; }
+  .ig-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5px; }
+  .ig-tile { position: relative; display: block; aspect-ratio: 3 / 4; padding: 0; border: 0; background: #1d2140; overflow: hidden; cursor: pointer; }
+  .ig-tile img, .ig-tile video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .ig-tile .k { position: absolute; top: 5px; right: 5px; color: #fff; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .55)); line-height: 0; }
+  .ig-tile .dot { position: absolute; right: 6px; bottom: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--taxi); box-shadow: 0 0 0 1.5px var(--ink); }
+  .ig-tile:hover::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .18); }
+  .ig-tile.todo { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 8px; background: repeating-linear-gradient(135deg, #f4f1e8 0 8px, #ebe6d8 8px 16px); color: var(--ink); text-align: center; font: 600 11px/1.25 -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
+  .ig-tile.todo i { font-style: normal; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .ig-empty { grid-column: 1 / -1; padding: 40px 0; text-align: center; color: #737373; }
+  .ig-nav { display: flex; align-items: center; justify-content: space-around; height: 64px; padding-bottom: 14px; border-top: 1px solid #efefef; background: #fff; flex: none; }
+  .ig-nav .me { width: 26px; height: 26px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 1.5px #fff, 0 0 0 2.5px #000; display: grid; place-items: center; overflow: hidden; }
+  .ig-nav .me img { width: 90%; }
+  .ig-side input[type=range] { width: 100%; accent-color: var(--blue); }
+  .ig-check { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 14px; cursor: pointer; }
+  .ig-check input { width: 18px; height: 18px; accent-color: var(--blue); }
+  .ig-side .rules { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; } .ig-side .rules li { margin-bottom: 7px; }
+  @media (max-width: 900px) { .ig-wrap { grid-template-columns: 1fr; justify-items: center; } .iphone { position: static; width: min(360px, 100%); } }
   .playbook .card { min-width: 0; } .playbook .scroll-x { overflow-x: auto; }
   @media (max-width: 1100px) { .playbook .model { grid-template-columns: 1fr; } }
   @media (max-width: 700px) { .playbook .story .g3 { grid-template-columns: 1fr; } }

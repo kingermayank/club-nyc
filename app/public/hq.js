@@ -339,8 +339,9 @@ async function content() {
 }
 function drawContent() {
   const posty = contentView === 'list' || contentView === 'feed'
-  $('.post-filters').hidden = !posty; $('#approve-week').hidden = !posty
+  $('.post-filters').hidden = contentView !== 'list'; $('#approve-week').hidden = contentView !== 'list'
   contentBadge()
+  if (contentView === 'feed') return drawPhone()
   if (posty) return drawPosts()
   ;({ library: drawLibrary, films: drawFilms, playbook: drawPlaybook })[contentView]()
 }
@@ -350,12 +351,7 @@ function drawPosts() {
   shown = d.posts.filter((p) => (!f.status || status(p) === f.status) && (!f.series || p.seriesName === f.series) && (!f.format || p.format === f.format) && (!f.q || (p.title + p.hook).toLowerCase().includes(f.q)))
   const list = $('#c-list')
   if (!shown.length) { list.innerHTML = '<p class="muted">Nothing matches.</p>'; return }
-  if (contentView === 'feed') {
-    // the profile grid as it will look with what's made so far: newest top left
-    const order = shown.map((p, i) => i).filter((i) => shown[i].files.length).reverse()
-    const toMake = shown.filter((p) => status(p) === 'make').length
-    list.innerHTML = `<p class="muted" style="margin:0 0 10px">The profile grid with everything that’s made, newest top left. Click a post to see it full size.${toMake ? ` ${toMake} post${toMake === 1 ? '' : 's'} still to make ${toMake === 1 ? 'isn’t' : 'aren’t'} shown.` : ''}</p><div class="feed">${order.map((i) => { const p = shown[i]; const st = status(p); return `<button class="tile-post" data-open="${i}" aria-label="${esc(p.title)}"><span class="pic ${p.kind === 'reel' ? 'reel' : ''}">${still(p)}</span><span class="cap"><b class="${st === 'approved' || st === 'posted' ? 'ok' : ''}">${shortDay(p.date)} · ${esc(p.time)}</b><span>${kindLabel(p)}</span></span></button>` }).join('') || '<p class="muted">Nothing made in this selection yet.</p>'}</div>`
-  } else {
+  {
     const weeks = new Map()
     shown.forEach((p, i) => { const w = `Week ${Math.floor((p.day - 1) / 7) + 1}`; if (!weeks.has(w)) weeks.set(w, []); weeks.get(w).push([p, i]) })
     list.innerHTML = [...weeks].map(([w, ps]) => `<div class="week"><h3>${w} · ${dayName(ps[0][0].date)} to ${dayName(ps[ps.length - 1][0].date)}</h3>${ps.map(([p, i]) => {
@@ -418,6 +414,90 @@ async function emails() {
   const show = (id) => { $$('.email').forEach((x) => x.classList.toggle('on', x.dataset.email === id)); $('#email-frame').src = '/api/admin/hq/emails/' + encodeURIComponent(id) }
   $$('.email').forEach((x) => (x.onclick = () => show(x.dataset.email)))
   show(all[0].id)
+}
+
+// ---------- the feed: our Instagram profile on an iPhone, as it will look on a given day ----------
+// Instagram's profile grid shows every post as a 3:4 tile, newest top left: a 4:5 post loses a sliver at each side,
+// a reel's cover loses its top and bottom. The tiles here are cut the same way.
+const IG = {
+  handle: 'play.clubnyc', name: 'Club NYC', category: 'Video game',
+  bio: ['Same crew. Bigger city.', 'A cozy New York to play in with your friends.', 'Opens Nov 17 at 10:00 ET'], link: 'playclubnyc.com',
+  highlights: [['Jobs', 'pizza'], ['Homes', 'home'], ['Events', 'disco-ball'], ['The map', 'globe'], ['Ask us', 'chat']],
+}
+let phoneDay = store.get('hq.phoneDay') || null
+let phoneMake = store.get('hq.phoneMake') === '1'
+let phoneDots = store.get('hq.phoneDots') === '1'
+const svg = (d, w = 24) => `<svg viewBox="0 0 24 24" width="${w}" height="${w}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`
+const ICON = {
+  grid: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
+  reels: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 8h18M8 3l3 5M14 3l3 5"/><path d="M10 11.5v5l4.5-2.5z" fill="currentColor" stroke="none"/>',
+  tagged: '<path d="M5 3h14v14l-3 4H8l-3-4z"/><circle cx="12" cy="9" r="2.5"/><path d="M8 15c1-2 7-2 8 0"/>',
+  home: '<path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/>', search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  add: '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/>', menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  carousel: '<rect x="7" y="7" width="13" height="13" rx="2" fill="currentColor"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/>',
+  reel: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 8h18M8 3l3 5M14 3l3 5"/><path d="M10 11.5v5l4.5-2.5z" fill="currentColor" stroke="none"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+}
+function drawPhone() {
+  const posts = contentData.posts
+  const days = [...new Set(posts.map((p) => p.date))].sort()
+  if (!days.length) { $('#c-list').innerHTML = '<p class="muted">No posts yet.</p>'; return }
+  if (!days.includes(phoneDay)) phoneDay = days[days.length - 1]
+  // what's up by the end of that day: made posts, plus (if asked) the ones still to make as placeholders
+  const upTo = posts.filter((p) => p.date <= phoneDay && (p.files.length || (phoneMake && status(p) === 'make')))
+    .sort((a, b) => (a.date + a.time < b.date + b.time ? 1 : -1))
+  const made = upTo.filter((p) => p.files.length)
+  const reels = made.filter((p) => p.kind === 'reel')
+  const launch = days.find((d) => d >= '2026-11-17') ?? days[days.length - 1]
+  const tile = (p, i) => {
+    const st = status(p)
+    if (!p.files.length) return `<button class="ig-tile todo" data-ig="${i}" title="${esc(p.title)}"><span>${esc(p.title)}</span><i>To make</i></button>`
+    return `<button class="ig-tile ${p.kind === 'reel' ? 'is-reel' : ''}" data-ig="${i}" title="${esc(`${p.title} · ${shortDay(p.date)} ${p.time}`)}">${still(p)}${p.kind === 'reel' ? `<b class="k">${svg(ICON.reel, 15)}</b>` : p.kind === 'carousel' ? `<b class="k">${svg(ICON.carousel, 15)}</b>` : ''}${phoneDots && st !== 'approved' && st !== 'posted' ? '<s class="dot" title="Not approved yet"></s>' : ''}</button>`
+  }
+  $('#c-list').innerHTML = `<div class="ig-wrap">
+    <div class="iphone"><div class="iphone-screen">
+      <div class="ig-status"><b>9:41</b><span class="island"></span><span class="sig"><i></i><i></i><i></i><i></i></span></div>
+      <div class="ig-scroll">
+        <div class="ig-top"><b>${esc(IG.handle)} ${svg(ICON.chevron, 14)}</b><span>${svg(ICON.add, 22)}${svg(ICON.menu, 22)}</span></div>
+        <div class="ig-head">
+          <div class="ig-avatar"><img src="/art/ui/logo.png" alt=""></div>
+          <div class="ig-name">${esc(IG.name)}</div>
+          <div class="ig-stats"><span><b>${made.length}</b>posts</span><span><b>&ndash;</b>followers</span><span><b>&ndash;</b>following</span></div>
+        </div>
+        <div class="ig-bio"><span class="cat">${esc(IG.category)}</span>${IG.bio.map((l) => `<div>${esc(l)}</div>`).join('')}<a>${esc(IG.link)}</a></div>
+        <div class="ig-btns"><span>Edit profile</span><span>Share profile</span></div>
+        <div class="ig-hl">${IG.highlights.map(([t, ic]) => `<div><span><img src="/art/icons/e/${ic}.png" alt=""></span><small>${esc(t)}</small></div>`).join('')}</div>
+        <div class="ig-tabs"><span class="on">${svg(ICON.grid, 22)}</span><span>${svg(ICON.reels, 22)}</span><span>${svg(ICON.tagged, 22)}</span></div>
+        <div class="ig-grid">${upTo.map(tile).join('') || '<p class="ig-empty">Nothing posted yet</p>'}</div>
+      </div>
+      <div class="ig-nav">${svg(ICON.home)}${svg(ICON.search)}${svg(ICON.add)}${svg(ICON.reels)}<span class="me"><img src="/art/ui/logo.png" alt=""></span></div>
+    </div></div>
+    <div class="ig-side card">
+      <h3>The grid on ${esc(dayName(phoneDay))}</h3>
+      <p class="muted" style="margin:4px 0 12px">${made.length} post${made.length === 1 ? '' : 's'} up by the end of the day (${reels.length} reel${reels.length === 1 ? '' : 's'}), newest top left. Click a tile to see it full size.</p>
+      <input type="range" id="ig-day" min="0" max="${days.length - 1}" value="${days.indexOf(phoneDay)}" aria-label="Day">
+      <div class="bars-axis"><span>${esc(shortDay(days[0]))}</span><span>${esc(shortDay(days[days.length - 1]))}</span></div>
+      <div class="row" style="margin-top:12px;flex-wrap:wrap;gap:8px">
+        <button class="btn small ghost" data-ig-day="${esc(nyToday())}">Today</button>
+        <button class="btn small ghost" data-ig-day="${esc(launch)}">Launch day</button>
+        <button class="btn small ghost" data-ig-day="${esc(days[days.length - 1])}">All 60 days</button>
+      </div>
+      <label class="ig-check"><input type="checkbox" id="ig-make" ${phoneMake ? 'checked' : ''}> Show posts still to make, as placeholders</label>
+      <label class="ig-check"><input type="checkbox" id="ig-dots" ${phoneDots ? 'checked' : ''}> Mark posts that aren’t approved yet</label>
+      <h3 style="margin-top:18px">How Instagram cuts the grid</h3>
+      <ul class="rules">
+        <li>Every tile is 3:4, a little taller than wide.</li>
+        <li>Carousels and singles (4:5) lose a thin strip at each side. Keep words away from the left and right edges of the first slide.</li>
+        <li>Reels lose the top and bottom of the frame on the grid: the hook in the top third may be cut. When posting, pick a cover frame with the subject in the middle.</li>
+      </ul>
+    </div>
+  </div>`
+  $$('[data-ig]').forEach((el) => (el.onclick = () => openViewer(upTo, Number(el.dataset.ig))))
+  const setDay = (d) => { phoneDay = d; store.set('hq.phoneDay', d); drawPhone() }
+  $('#ig-day').oninput = (e) => setDay(days[Number(e.target.value)])
+  $$('[data-ig-day]').forEach((b) => (b.onclick = () => setDay(days.includes(b.dataset.igDay) ? b.dataset.igDay : days.filter((d) => d <= b.dataset.igDay).pop() ?? days[0])))
+  $('#ig-make').onchange = (e) => { phoneMake = e.target.checked; store.set('hq.phoneMake', phoneMake ? '1' : ''); drawPhone() }
+  $('#ig-dots').onchange = (e) => { phoneDots = e.target.checked; store.set('hq.phoneDots', phoneDots ? '1' : ''); drawPhone() }
 }
 
 // ---------- films and the playbook (Content views) ----------
