@@ -8,8 +8,8 @@ import { config } from './config.ts'
  *  - Security: a Content-Security-Policy that only runs our own scripts (defence in depth: player names and
  *    chat are escaped everywhere, and even if one slipped through, injected markup couldn't run code),
  *    no framing (clickjacking), no MIME sniffing, a strict referrer, HTTPS-only once deployed.
- *  - Caching: hashed build files forever, the art for an hour (then a cheap 304), HTML always re-checked
- *    so a deploy reaches everyone on their next visit.
+ *  - Caching: hashed build files forever, the art for an hour (then a cheap 304), HTML and plain-named
+ *    scripts always re-checked so a deploy reaches everyone on their next visit.
  */
 const ws = config.publicUrl.replace(/^http/, 'ws')
 const CSP = [
@@ -61,8 +61,9 @@ export const siteHeaders: MiddlewareHandler = async (c, next) => {
     h.set('Content-Security-Policy', c.req.path === '/hq.html' ? HQ_CSP : CSP)
     h.set('Cache-Control', 'no-cache')
   } else if (c.res.status === 200 || c.res.status === 304) {
-    // Vite's /assets/ files have a content hash in the name: they never change
-    h.set('Cache-Control', c.req.path.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'public, max-age=3600')
+    // Vite's /assets/ files have a content hash in the name: they never change. Scripts and styles with a plain
+    // name (/hq.js, /legal.js) change with every deploy, so they're re-checked each time (a cheap 304) like pages
+    h.set('Cache-Control', c.req.path.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : /\.(?:js|css)$/.test(c.req.path) ? 'no-cache' : 'public, max-age=3600')
   }
 }
 
