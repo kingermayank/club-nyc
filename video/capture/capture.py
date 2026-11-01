@@ -203,12 +203,15 @@ async def map_scene(b):
 
 PLACES = [('central-park', (300, 470), (640, 480)), ('brooklyn-bridge', (260, 470), (700, 470)), ('liberty-island', (300, 480), (650, 470)),
           ('grand-central', (330, 480), (660, 470)), ('the-met', (300, 480), (640, 470)), ('chinatown', (300, 480), (650, 480)),
-          ('rockefeller', (330, 480), (650, 470)), ('high-line', (300, 470), (640, 470)), ('soho', (300, 480), (650, 480))]
+          ('rockefeller', (330, 480), (650, 470)), ('high-line', (300, 470), (640, 470)), ('soho', (300, 480), (650, 480)),
+          ('sky-deck', (300, 470), (650, 470)), ('empire-deck', (300, 480), (650, 480)), ('chelsea-market', (300, 480), (650, 470)),
+          ('battery-park', (300, 470), (650, 470))]
 
 
 async def places(b):
     c, pg = await seeded(b)
-    for room, a, z in PLACES:
+    only = [r for r in os.environ.get('PLACES_ONLY', '').split(',') if r]
+    for room, a, z in [p for p in PLACES if not only or p[0] in only]:
         try:
             await goto(pg, room)
             await walk(pg, *a)

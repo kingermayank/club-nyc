@@ -306,7 +306,7 @@
    "files": [
     "video/out/reels/club-nyc-reel-grew-up.mp4"
    ],
-   "caption": "Same hook, in a window (Trial Reel: full screen vs window). Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
+   "caption": "Same hook, in a window (Trial Reel: full screen vs window). Join the waitlist: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": true,
    "manual": null,
    "approved": true
@@ -452,7 +452,7 @@
    "files": [
     "video/out/reels/club-nyc-reel-moved-away.mp4"
    ],
-   "caption": "For the friend who moved away. Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
+   "caption": "For the friend who moved away. Join the waitlist: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": null,
    "approved": true
@@ -1177,7 +1177,7 @@
    "files": [
     "video/out/reels/club-nyc-reel-moved-away.mp4"
    ],
-   "caption": "Can’t make it home this week? Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
+   "caption": "Can’t make it home this week? Move in free: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": null,
    "approved": false
@@ -1922,7 +1922,7 @@
    "asset": "grew-up-v3",
    "kind": null,
    "files": [],
-   "caption": "Remember waddling around after school? Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
+   "caption": "Remember waddling around after school? Move in free: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": "to make: new hook over grew-up-tall shots",
    "approved": false
@@ -2370,7 +2370,7 @@
    "asset": "moved-away-holiday",
    "kind": null,
    "files": [],
-   "caption": "For the friend who’s home for the holidays. Claim your name: link in bio.\n\n#nostalgia #nyc #clubnyc",
+   "caption": "For the friend who’s home for the holidays. Move in free: link in bio.\n\n#nostalgia #nyc #clubnyc",
    "trial": false,
    "manual": "to make: moved-away recut, new hook",
    "approved": false

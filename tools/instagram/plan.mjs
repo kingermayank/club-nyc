@@ -7,7 +7,7 @@
 // asset: an id the publisher knows (already rendered), or 'make:<id>' with a production note (what to build it from).
 
 export const PHASES = [
-  { id: 'teaser', name: 'Teaser', from: '2026-10-29', to: '2026-11-09', ask: 'Follow, and claim your name on the waitlist' },
+  { id: 'teaser', name: 'Teaser', from: '2026-10-29', to: '2026-11-09', ask: 'Follow, and join the waitlist' },
   { id: 'preview', name: 'Founders’ Preview', from: '2026-11-10', to: '2026-11-16', ask: 'Get an invite; see real players' },
   { id: 'launch', name: 'Launch week', from: '2026-11-17', to: '2026-11-23', ask: 'Come tonight, bring your friends' },
   { id: 'settle', name: 'First weeks', from: '2026-11-24', to: '2026-12-06', ask: 'Come back for this week’s thing' },
@@ -15,7 +15,7 @@ export const PHASES = [
 ]
 
 export const SERIES = {
-  GRW: { name: 'The penguin game grew up', format: 'Reel', tags: '#nostalgia #nyc', cta: 'Claim your name: link in bio.', why: 'The scroll-stopper for anyone who grew up on penguin chat' },
+  GRW: { name: 'The penguin game grew up', format: 'Reel', tags: '#nostalgia #nyc', cta: 'Join the waitlist: link in bio.', why: 'The scroll-stopper for anyone who grew up on penguin chat' },
   TOUR: { name: 'Manhattan in ten seconds', format: 'Reel', tags: '#nyc #manhattan', cta: 'Which one first? Comment it.', why: 'Saves and replays; shows the size of the city' },
   POV: { name: 'POV: a day in Manhattan', format: 'Reel', tags: '#dayinmylife #nyc', cta: 'Tag the friend this is.', why: 'The most native reel format there is' },
   TOT: { name: 'This or that', format: 'Reel', tags: '#thisorthat #nyc', cta: 'Pick one. Comment it.', why: 'Comment bait that’s actually fun' },

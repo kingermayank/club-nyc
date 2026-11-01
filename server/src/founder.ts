@@ -39,7 +39,7 @@ export const FOUNDER: { intro: string; trailer: string[]; posts: FounderPost[] }
     // ---------- LinkedIn ----------
     {
       id: 'li-waitlist', network: 'linkedin', n: 1, title: 'The waitlist is open', when: 'Fri Oct 30, 9:00 ET',
-      goal: 'Sign-ups: claim a name before the city opens',
+      goal: 'Sign-ups: join the waitlist before the city opens',
       text: `I built a city.
 
 Not a real one. New York rent is already doing enough.
@@ -50,7 +50,7 @@ Why? Because the group chat says “we should all hang out more” about once a 
 
 The city opens on Tuesday, November 17 at 10:00 ET.
 
-Until then you can claim your name, so nobody else gets it. Bring your group chat.
+Until then you can join the waitlist, and we'll email you the day it opens. Bring your group chat.
 
 The link is in the first comment.
 
@@ -169,7 +169,7 @@ Not affiliated with Disney or Club Penguin.
 
 so i built us a free one
 
-Club NYC opens nov 17. claim your name before someone else does 👇`,
+Club NYC opens nov 17. get on the waitlist 👇`,
         `you make a new yorker, get a job folding pizza, and move into an apartment on day one
 
 rent: 0 coins

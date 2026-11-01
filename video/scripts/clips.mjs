@@ -15,7 +15,8 @@ const out = resolve(here, lab ? '../../app/lab/clips' : '../../app/public/video/
 const python = resolve(here, '../../.venv/bin/python')
 mkdirSync(out, { recursive: true })
 
-const PLACES = ['central-park', 'brooklyn-bridge', 'liberty-island', 'grand-central', 'the-met', 'chinatown', 'rockefeller', 'high-line', 'soho']
+const PLACES = ['central-park', 'brooklyn-bridge', 'liberty-island', 'grand-central', 'the-met', 'chinatown', 'rockefeller', 'high-line', 'soho',
+  'sky-deck', 'empire-deck', 'chelsea-market', 'battery-park']
 // name, footage file, start (s), length (s), width, and an optional framing: a zoom (framed on the bottom-left, like
 // the Dance Jam) or an ffmpeg crop (w:h:x:y)
 const SITE = [

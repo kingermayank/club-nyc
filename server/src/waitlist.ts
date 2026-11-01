@@ -245,7 +245,7 @@ function launchContent(id: number, name: string | null = null): EmailContent {
     features: COMING,
     after: ['Club NYC is made for a computer. Reading this on your phone? Open it on your laptop later.'],
     unsubscribeUrl: unsubUrl(id),
-    reason: 'You’re getting this because you joined the Club NYC waitlist. If you don’t claim your name, we’ll send one reminder, then nothing else unless you ask.',
+    reason: name ? 'You’re getting this because you joined the Club NYC waitlist. If you don’t claim your name, we’ll send one reminder, then nothing else unless you ask.' : 'You’re getting this because you joined the Club NYC waitlist. If you don’t come in, we’ll send one reminder, then nothing else unless you ask.',
   }
 }
 /** for looking at the emails without sending them (a preview script renders these to HTML) */

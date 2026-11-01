@@ -189,14 +189,14 @@ async function checks(): Promise<Check[]> {
 
 /** the go-to-market, phase by phase (dates for a Tuesday Nov 17 opening; docs/launch/gtm-plan.md) */
 const TIMELINE = [
-  { at: '2026-10-29', label: 'L-19', title: 'Teaser starts', items: ['Two posts a day begin (the 60-day plan)', 'Landing page asks people to claim a name', 'Bio, profile picture, link in bio'] },
+  { at: '2026-10-29', label: 'L-19', title: 'Teaser starts', items: ['Two posts a day begin (the 60-day plan)', 'Landing page asks for an email', 'Bio, profile picture, link in bio'] },
   { at: '2026-11-03', label: 'L-14', title: 'Email goes live', items: ['DNS verified, Resend connected, test emails to you', 'Wire the confirmed / reminder emails', 'Seed the first creators (no scripts, #ad)'] },
   { at: '2026-11-07', label: 'L-10', title: 'Trailer day', items: ['Teaser film on Instagram, TikTok, YouTube Shorts', '“First look” email to opted-in waitlisters', 'Press list from launch-campaign.md gets the trailer'] },
   { at: '2026-11-10', label: 'L-7', title: 'Founders’ Preview', items: ['PREVIEW_CODE on; invites in waves (earliest, then inviters)', 'Collect the first real player clips (with permission)', 'Watch the crash reports and the creator funnel'] },
   { at: '2026-11-14', label: 'L-3', title: 'Dress rehearsal', items: ['Load test against Railway; freeze features', 'Resend Pro if the list is past 90 people', 'Instagram Live walkthrough'] },
   { at: '2026-11-16', label: 'L-1', title: 'Set the clock', items: ['LAUNCH_AT=2026-11-17T10:00:00-05:00', 'Approve launch-week posts', 'Final backup, download it'] },
-  { at: '2026-11-17', label: 'L', title: 'Opening day', items: ['10:00 ET the city opens by itself', '10:05 start the launch email (claim your name)', '12:00 launch reel + creator co-posts · 20:00 Opening Night Dance Jam'] },
-  { at: '2026-11-20', label: 'L+3', title: 'One reminder', items: ['“Your name is still waiting” to those who haven’t claimed', 'Player clips reel, Job of the Week begins'] },
+  { at: '2026-11-17', label: 'L', title: 'Opening day', items: ['10:00 ET the city opens by itself', '10:05 start the launch email (one click in)', '12:00 launch reel + creator co-posts · 20:00 Opening Night Dance Jam'] },
+  { at: '2026-11-20', label: 'L+3', title: 'One reminder', items: ['“Your spot is still here” to those who haven’t come in', 'Player clips reel, Job of the Week begins'] },
   { at: '2026-11-24', label: 'L+7', title: 'Week one, honestly', items: ['Real numbers post', 'First Club NYC Times to subscribers', 'Unclaimed names released'] },
   { at: '2026-12-17', label: 'L+30', title: 'One month', items: ['Retro: what to double down on', 'Plan the next 60 days from what worked'] },
 ]
@@ -215,16 +215,16 @@ const RUNBOOK = [
 const STORYBOARDS = [
   {
     id: 'teaser', name: 'Teaser: “Someone’s moving in”', length: '15 s', formats: '9:16 and 16:9', when: 'L-10 (Nov 7), pinned until launch',
-    idea: 'The city before anyone’s in it. Empty rooms at dawn, one New Yorker walks in, the logo builds itself. Ends on the one action: claim your name.',
+    idea: 'The city before anyone’s in it. Empty rooms at dawn, one New Yorker walks in, the logo builds itself. Ends on the one action: join the waitlist.',
     music: 'Sidewalk Shuffle’s intro, slowed, marimba alone; the logo’s taxi honk as the only hit',
     shots: [
       { t: '0.0–2.0', art: '/art/rooms/grand-central.jpg', shot: 'Grand Central, empty, slow push in. Only the clock ticks.', text: '' },
       { t: '2.0–4.0', art: '/art/rooms/central-park.jpg', shot: 'Central Park lawn at dawn, a pigeon lands. Still empty.', text: 'Manhattan.' },
       { t: '4.0–6.5', art: '/art/rooms/liberty-island-v2.jpg', shot: 'Liberty Island: one New Yorker walks into frame (tall crop, they cross the middle third).', text: 'Someone’s moving in.' },
       { t: '6.5–9.0', art: '/art/rooms/apartment.jpg', shot: 'An apartment door swings open. Empty room, one radiator. A rug drops in.', text: '' },
-      { t: '9.0–11.0', art: '/art/rooms/broadway.jpg', shot: 'Quick cuts on the beat: a MetroCard flips, a name tag pops: “Taxi_Tina”.', text: 'Your name’s waiting.' },
+      { t: '9.0–11.0', art: '/art/rooms/broadway.jpg', shot: 'Quick cuts on the beat: a MetroCard flips, a name tag pops: “Taxi_Tina”.', text: 'Your apartment’s waiting.' },
       { t: '11.0–14.0', art: '/art/ui/logo.png', shot: 'The animated logo builds itself (Launch HQ’s logoMotion intro): sticker, CLUB, NYC, tower, taxi, sparkles. Honk.', text: '' },
-      { t: '14.0–15.0', art: '/art/ui/logo.png', shot: 'End card on Club Blue.', text: 'Claim your name · Link in bio' },
+      { t: '14.0–15.0', art: '/art/ui/logo.png', shot: 'End card on Club Blue.', text: 'Join the waitlist · Link in bio' },
     ],
   },
   {
@@ -287,7 +287,7 @@ const TASKS: { when: string; what: string; why: string; owner: 'you' | 'claude' 
 // the Instagram playbook (was docs/marketing/instagram-30-day-plan.html): how the calendar is meant to grow the account
 const PLAYBOOK = {
   phases: [
-    { name: 'Teaser', when: 'Oct 29 to Nov 9', ask: 'Follow, and claim your name on the waitlist' },
+    { name: 'Teaser', when: 'Oct 29 to Nov 9', ask: 'Follow, and join the waitlist' },
     { name: 'Founders’ Preview', when: 'Nov 10 to 16', ask: 'Get an invite; see real players' },
     { name: 'Launch week', when: 'Nov 17 to 23', ask: 'Come tonight, bring your friends' },
     { name: 'First weeks', when: 'Nov 24 to Dec 6', ask: 'Come back for this week’s thing' },

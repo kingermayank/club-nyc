@@ -234,7 +234,7 @@ async function launch() {
   const areas = [...new Set(l.checks.map((c) => c.area))]
   const job = st.job
   const plan = st.opensAt && !open ? `Opens by itself ${nyDate(st.opensAt)} ET${st.by === 'env' ? ' (LAUNCH_AT)' : ''}.` : !open ? 'No opening time set: open it now, or pick a time.' : st.openedAt ? `Open since ${nyDate(st.openedAt)} ET.` : 'Open.'
-  const emailLine = !st.email.canSend ? 'Email is off on this server (RESEND_API_KEY), so nobody would get it' : `<b>${fmt(st.eligible)}</b> confirmed ${st.eligible === 1 ? 'person' : 'people'} on the waitlist get “The city is open”, with a button that signs them in with their saved name${st.eligible > 90 ? '. Resend’s free plan sends 100 a day: upgrade first' : ''}`
+  const emailLine = !st.email.canSend ? 'Email is off on this server (RESEND_API_KEY), so nobody would get it' : `<b>${fmt(st.eligible)}</b> confirmed ${st.eligible === 1 ? 'person' : 'people'} on the waitlist get “The city is open”, with a button that signs them in (they pick a name when they make their New Yorker)${st.eligible > 90 ? '. Resend’s free plan sends 100 a day: upgrade first' : ''}`
   const localTime = (t) => { const d = new Date(t - new Date(t).getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16) }
   $('[data-panel=launch]').innerHTML = `
     <div class="head"><div><h2>Launch</h2><p class="muted">The switch from waitlist to open, the launch email, and what still needs doing.</p></div></div>

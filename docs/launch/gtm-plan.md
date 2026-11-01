@@ -6,7 +6,7 @@ Written Oct 29, 2026 for a **Tuesday, Nov 17, 10:00 ET** opening. Launch HQ (`/h
 
 | When | Phase | What the world sees | The ask |
 |---|---|---|---|
-| Oct 29 to Nov 9 | Teaser | Two posts a day; landing page asks people to **claim a name** | Follow, claim your name |
+| Oct 29 to Nov 9 | Teaser | Two posts a day; landing page asks for an **email** (names are picked in the city) | Follow, join the waitlist |
 | Nov 10 to 16 | Founders’ Preview | Real players on screen; the trailer; creators start | Get an invite |
 | Nov 17 to 23 | Launch week | The city opens at 10:00 ET by itself; a reel a day around that night’s event | Come tonight, bring friends |
 | Nov 24 to Dec 6 | First weeks | Job of the Week, leaderboards, week-one numbers | Come back for this week’s thing |
@@ -31,7 +31,7 @@ The full opening-day runbook is in Launch HQ → Launch.
 
 18 emails in 6 journeys, all written in the live emails’ design (`server/src/journeys.ts`), previewable in Launch HQ → Emails. Three are live today; the rest are written and ready to wire. Nothing is in Resend yet, by design.
 
-1. **Waitlist:** Your name is saved (live) → You’re in line + bring a friend (on confirm) → First look: the trailer (opt-in) → Founders’ Preview invite (opt-in, in waves) → The city is open: claim your name (live) → Your name is still waiting (L+3, once).
+1. **Waitlist:** Confirm your spot (live) → You’re in line + bring a friend (on confirm) → First look: the trailer (opt-in) → Founders’ Preview invite (opt-in, in waves) → The city is open (live) → Your spot is still here (L+3, once). Since Nov 1 the waitlist asks only for an email; names are picked when people make their New Yorker.
 2. **New New Yorker:** Welcome, with three things to do (10 min after making a New Yorker, if they have an email) → “Your building misses you” (day 3, only if they haven’t come back) → Your first week (day 7, only if they came back).
 3. **Friends:** Your friend moved in (someone joined from your link) → a friend request is waiting (planned).
 4. **Win back:** New in the city (day 14 away) → last one from us (day 30, then silence).
@@ -79,7 +79,7 @@ The full opening-day runbook is in Launch HQ → Launch.
 
 Storyboards are in Launch HQ → Films.
 
-- **Teaser, “Someone’s moving in”** (15 s, both shapes, L-10): empty rooms at dawn, one New Yorker walks in, the animated logo builds itself; it ends on “Claim your name.”
+- **Teaser, “Someone’s moving in”** (15 s, both shapes, L-10): empty rooms at dawn, one New Yorker walks in, the animated logo builds itself; it ends on “Join the waitlist.”
 - **Launch film, “One link. Everyone’s there.”** (60 s, plus 30 s and 15 s cuts): a group chat sends a link, you land next to your friend, then the core loop on the beat (work, live, fall over, dance), with the drop on the 8 PM Times Square Dance Jam. Gameplay starts in the first second.
 - **Bumper, “Lunch. Is. Coming.”** (6 s): from the Halal Rush trailer, for people who never knew the penguin game.
 
