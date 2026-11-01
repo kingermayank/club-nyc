@@ -21,7 +21,10 @@ if (existsSync(join(ROOT, '.env'))) process.loadEnvFile(join(ROOT, '.env'))
 const s3 = await import('./s3.mjs')
 const V = 'v23.0'
 const GRAPH = `https://graph.facebook.com/${V}`
-const { META_PAGE_TOKEN: token, IG_USER_ID: ig, IG_USERNAME: username, SOCIAL_MEDIA_BASE: mediaBase } = process.env
+const { IG_USER_ID: ig, IG_USERNAME: username, SOCIAL_MEDIA_BASE: mediaBase } = process.env
+// a token pasted into Railway often brings what was around it: "META_PAGE_TOKEN=" in front, quotes, or the next line
+// of the .env. Keep just the token (they never contain spaces)
+const token = (process.env.META_PAGE_TOKEN ?? '').trim().replace(/^META_PAGE_TOKEN\s*=\s*/i, '').replace(/^["'`]/, '').split(/[\s"'`]/)[0]
 const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}`))?.split('=')[1] ?? (process.argv.includes(`--${k}`) ? true : undefined)
 const LIVE = !!arg('live')
 const NOW = !!arg('now')
@@ -56,7 +59,9 @@ async function graph(method, path, params = {}) {
   for (const [k, v] of Object.entries({ ...params, access_token: token })) (method === 'GET' ? url.searchParams : body).set(k, typeof v === 'string' ? v : JSON.stringify(v))
   const res = await fetch(url, method === 'GET' ? {} : { method, body })
   const json = await res.json()
-  if (json.error) throw new Error(`${path}: ${json.error.error_user_msg || json.error.message} (code ${json.error.code}${json.error.error_subcode ? '/' + json.error.error_subcode : ''})`)
+  // Meta repeats a bad token in its error message: never let it reach a log
+  const hide = (m) => String(m ?? '').split(token).join('[token]').replace(/\bEAA[A-Za-z0-9]{20,}/g, '[token]')
+  if (json.error) throw new Error(`${path}: ${hide(json.error.error_user_msg || json.error.message)} (code ${json.error.code}${json.error.error_subcode ? '/' + json.error.error_subcode : ''})`)
   return json
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
