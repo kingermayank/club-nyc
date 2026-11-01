@@ -30,6 +30,12 @@ const REMOTE = !!arg('remote')
 const FROM = arg('from')
 const GRACE = arg('grace') ? Number(arg('grace')) * 3600_000 : Infinity
 const BUCKET = s3.configured()
+// not connected yet: say so and stop cleanly (a failed run on the Railway cron is a "crashed deployment" email
+// every 10 minutes). A real failure, like an expired token or a post Instagram refuses, still exits with an error.
+if (!token || !ig) {
+  console.log('Instagram isn’t connected here: set META_PAGE_TOKEN and IG_USER_ID (on Railway: the instagram-publisher service’s Variables). Nothing posted.')
+  process.exit(0)
+}
 
 const schedule = REMOTE ? JSON.parse((await s3.getText('schedule.json')) ?? 'null') : JSON.parse(readFileSync(join(HERE, 'schedule.json'), 'utf8'))
 if (!schedule) throw new Error('no schedule.json in the bucket yet: run node tools/instagram/sync.mjs on the Mac')
