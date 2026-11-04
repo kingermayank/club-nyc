@@ -26,10 +26,11 @@ const ASSETS = {
   'then-and-now-reel': REEL('club-nyc-reel-then-and-now.mp4'),
 }
 const POSTS = { 'speak-new-yorker': 8, 'first-day': 8, 'free-in-club': 7, 'which-new-yorker': 9, 'fold-a-slice': 6, 'city-news': 7,
-  'real-vs-club': 9, 'then-and-now': 6, streetcheesy: 5, 'money-diary': 7 }
+  'real-vs-club': 9, 'then-and-now': 6, streetcheesy: 5, 'money-diary': 7,
+  'pick-job': 7, 'first-hour': 7, 'subway-rules': 7, 'speak-2': 7, 'best-views': 7, 'city-news-2': 7, 'gc-secrets': 5, 'free-real': 7, stamps: 7 }
 const SINGLES = ['fold-it', 'elevator', 'tag-the-line', 'pigeon', 'colour-grid', 'open-date', 'where-live', 'now-hiring',
   'meme-pizza-rat', 'meme-pictured', 'meme-starter', 'meme-train', 'meme-tier', 'meme-bodega-cat', 'meme-walk', 'meme-weekend', 'meme-group-chat', 'meme-radiator',
-  'meme-40x', 'meme-pizza-principle']
+  'meme-40x', 'meme-pizza-principle', 'meme-cozy', 'quote-train', 'pick-carb', 'pick-home']
 function asset(id) {
   if (ASSETS[id]) return ASSETS[id]
   if (POSTS[id]) return { kind: 'carousel', files: Array.from({ length: POSTS[id] }, (_, i) => `video/out/posts/${id}/${String(i + 1).padStart(2, '0')}.jpg`) }
@@ -64,7 +65,7 @@ const posts = PLAN.map((d, i) => {
   }
 })
 // keep what was already decided
-for (const p of posts) if (old[p.key]) Object.assign(p, { approved: old[p.key].approved, time: old[p.key].time, caption: old[p.key].caption })
+for (const p of posts) if (old[p.key]) Object.assign(p, { approved: old[p.key].approved, date: old[p.key].date, time: old[p.key].time, caption: old[p.key].caption })
 
 
 writeFileSync(OUT, JSON.stringify({

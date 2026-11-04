@@ -46,7 +46,8 @@ The full opening-day runbook is in Launch HQ → Launch.
 
 `tools/instagram/plan.mjs` has all 120 posts, and Launch HQ → Content lets you approve them. There are no AI or real people in it yet; the Bea host reels are parked.
 
-- **Two slots:** **12:00 ET** for reach (mostly reels that find new people), **19:00 ET** for community (carousels, singles, and event reels an hour before the evening’s event).
+- **Nov 4 change (the user's call):** no reels for now. Nov 5 to 9 is 7 images and carousels a day (35 posts: 8, 10, 12, 14, 16, 19 and 21 ET). Reels later in the calendar stay unapproved, so they don't post.
+- **Two slots (the original plan):** **12:00 ET** for reach (mostly reels that find new people), **19:00 ET** for community (carousels, singles, and event reels an hour before the evening’s event).
 - **The story behind them** (Oct 30 research, `docs/marketing/story-research.md`): then a safe place with friends, now a scattered crew in an expensive city, here the same crew in a bigger city. **Same crew. Bigger city.**
 - **18 recurring series**, so a new post is a data entry rather than a new edit:
   - Same crew. Bigger city. (the story film)

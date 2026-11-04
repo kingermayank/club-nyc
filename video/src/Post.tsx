@@ -179,7 +179,7 @@ function SlideView({ s, index, count }: { s: Slide; index: number; count: number
             <span style={{ fontFamily: DISPLAY, fontSize: 52, color: INK }}>The Club NYC Times</span>
             <span style={{ fontFamily: BODY, fontSize: 30, color: INK, opacity: 0.7 }}>Late edition</span>
           </div>
-          <Title size={88} style={{ position: 'absolute', left: 70, right: 70, top: 170 }}>{s.headline}</Title>
+          <Title size={s.headline.length > 60 ? 62 : s.headline.length > 40 ? 74 : 88} style={{ position: 'absolute', left: 70, right: 70, top: 160, height: 225, display: 'flex', alignItems: 'center' }}>{s.headline}</Title>
           <Card src={s.art} w={940} h={520} x={70} y={400} pos="50% 40%" />
           <Body size={44} style={{ position: 'absolute', left: 70, right: 70, top: 955 }}>{s.deck}</Body>
           <Chrome index={index} count={count} />
