@@ -176,6 +176,12 @@ for (const p of schedule.posts) {
     await saveLog()
     console.log(`           posted → ${permalink}`)
   } catch (e) {
+    // Instagram only allows Trial Reels above a follower count. That isn't a fault: skip it (never post it as a normal
+    // reel, it's a test cut) and it can go out once the account qualifies, inside --grace
+    if (p.trial && /\/2207081\)/.test(e.message)) {
+      console.log('           skipped: this account is still too small for Trial Reels')
+      continue
+    }
     failed++
     console.log(`           FAILED: ${e.message}`)
   }
