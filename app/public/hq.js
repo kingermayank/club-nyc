@@ -306,7 +306,7 @@ async function content() {
   const panel = $('[data-panel=content]')
   const series = [...new Set(d.posts.map((p) => p.seriesName))].sort()
   panel.innerHTML = `
-    <div class="head"><div><h2>Content</h2><p class="muted">Instagram: images and carousels only for now, 7 a day through Nov 9 (8, 10, 12, 2, 4, 7 and 9 New York time). Click any post to watch it or swipe through it. Nothing goes out until it’s approved.</p></div></div>
+    <div class="head"><div><h2>Content</h2><p class="muted">Instagram: images and carousels only for now, 3 a day through Nov 14 (12, 4 and 7 New York time). Click any post to watch it or swipe through it. Nothing goes out until it’s approved.</p></div></div>
     ${d.posts.length ? '' : `<div class="card" style="margin-bottom:16px"><h3>No schedule here</h3><p class="muted" style="margin:4px 0 0">${esc(d.error ?? 'Launch HQ can’t see the Instagram schedule: set SOCIAL_S3_* on this service (see the Launch checks).')}</p></div>`}
     <div class="card">
       <div class="filters" style="margin:0">

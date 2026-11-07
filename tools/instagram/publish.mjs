@@ -42,6 +42,13 @@ if (!token || !ig) {
 
 const schedule = REMOTE ? JSON.parse((await s3.getText('schedule.json')) ?? 'null') : JSON.parse(readFileSync(join(HERE, 'schedule.json'), 'utf8'))
 if (!schedule) throw new Error('no schedule.json in the bucket yet: run node tools/instagram/sync.mjs on the Mac')
+// set when Instagram refuses a post as restricted (see below): no live runs until it passes
+const HOLD_HOURS = 6
+const hold = REMOTE ? JSON.parse((await s3.getText('hold.json')) ?? 'null') : null
+if (LIVE && hold?.until > new Date().toISOString()) {
+  console.log(`Holding: Instagram restricted this account, no posts until ${hold.until}. Nothing posted.`)
+  process.exit(0)
+}
 const LOG = join(HERE, 'published.json')
 const published = REMOTE ? JSON.parse((await s3.getText('published.json')) ?? '{}') : existsSync(LOG) ? JSON.parse(readFileSync(LOG, 'utf8')) : {}
 const saveLog = async () => {
@@ -78,6 +85,15 @@ async function ready(id, label) {
 }
 
 const common = (p) => ({ caption: p.caption, ...(schedule.aiLabel ? { is_ai_generated: 'true' } : {}) })
+
+/** this post if it's already on the account: Instagram can publish and still answer with an error */
+// (only since its time: some later posts share a caption with earlier ones)
+const liveCopy = async (p) => ((await graph('GET', `/${ig}/media`, { fields: 'id,caption,permalink,timestamp', limit: '25' })).data ?? []).find((m) => m.caption === p.caption && new Date(m.timestamp) >= due(p))
+const record = async (p, { id, permalink }) => {
+  published[p.key] = { id, permalink, at: new Date().toISOString() }
+  await saveLog()
+  console.log(`           posted → ${permalink}`)
+}
 
 async function postReel(p) {
   const file = join(ROOT, p.files[0])
@@ -169,13 +185,25 @@ for (const p of schedule.posts) {
   if (issues.length) failed++
   if (!LIVE || issues.length || !p.approved || !isDue || missed) continue
   try {
+    // an earlier run may have got it out without knowing: never post it twice
+    const already = await liveCopy(p)
+    if (already) { await record(p, already); continue }
     const container = p.kind === 'reel' ? await postReel(p) : await postImages(p)
     const { id } = await graph('POST', `/${ig}/media_publish`, { creation_id: container })
     const { permalink } = await graph('GET', `/${id}`, { fields: 'permalink' })
-    published[p.key] = { id, permalink, at: new Date().toISOString() }
-    await saveLog()
-    console.log(`           posted → ${permalink}`)
+    await record(p, { id, permalink })
   } catch (e) {
+    // Instagram's spam protection. It can arrive with the post already live, so look before calling it a failure. If
+    // it really was refused, leave the account alone for a while: retrying every 10 minutes only makes a block worse
+    if (/\/2207051\)/.test(e.message)) {
+      await sleep(15000)
+      const live = await liveCopy(p).catch(() => null)
+      if (live) { console.log('           Instagram sent a restriction notice, but the post is live'); await record(p, live); continue }
+      const until = new Date(Date.now() + HOLD_HOURS * 3600_000).toISOString()
+      if (REMOTE) await s3.put('hold.json', JSON.stringify({ until, reason: e.message }) + '\n', 'application/json')
+      console.log(`           Instagram is restricting this account: not posting again until ${until}`)
+      break
+    }
     // Instagram only allows Trial Reels above a follower count. That isn't a fault: skip it (never post it as a normal
     // reel, it's a test cut) and it can go out once the account qualifies, inside --grace
     if (p.trial && /\/2207081\)/.test(e.message)) {

@@ -6,6 +6,8 @@
 // (carousels, singles, event reels an hour before the evening's event).
 // The image push (Nov 5 to 9, the user's call): no reels, 7 images and carousels a day. Slots C 08:00, D 10:00, A 12:00, E 14:00,
 // F 16:00, B 19:00, G 21:00. Reels later in the calendar stay unapproved, so they don't post.
+// Instagram's spam protection answered day two, so the rows from Nov 6 G on run at 3 a day, Nov 7 to 14: their new dates
+// and times are in schedule.json (make-schedule.mjs keeps those by key), and their keys keep the old date.
 // asset: an id the publisher knows (already rendered), or 'make:<id>' with a production note (what to build it from).
 
 export const PHASES = [
