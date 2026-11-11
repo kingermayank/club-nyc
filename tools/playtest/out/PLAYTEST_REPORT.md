@@ -1,5 +1,5 @@
 # Club NYC Playtest Report
-*Generated: 2026-11-11 20:19:55*
+*Generated: 2026-11-11 20:22:07*
 
 ## Executive Summary
 
@@ -10,9 +10,9 @@ This report captures autonomous playtest sessions simulating first-time and retu
 
 #### ⏱️ Key Timings
 
-- **Total duration**: 20.0s
-- **Time to first interaction**: 2.0s
-- **Dead time** (gaps > 5s): 15.0s
+- **Total duration**: 20.2s
+- **Time to first interaction**: 2.1s
+- **Dead time** (gaps > 5s): 15.1s
 
 #### 🗺️ Discovery
 
@@ -29,9 +29,9 @@ This report captures autonomous playtest sessions simulating first-time and retu
 
 - **Console errors**: 2
   - `Failed to load resource: the server responded with a status of 500 (Internal Server Error)`
-  - `Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848`
+  - `Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts`
 - **Stuck states**: 1
-  - At **initial_load** (20.0s): Game failed to load within timeout
+  - At **initial_load** (20.2s): Game failed to load within timeout
 - **Confusing moments**: 0
 
 #### 🔄 Retention Signals
@@ -61,7 +61,7 @@ This report captures autonomous playtest sessions simulating first-time and retu
 
 - **Console errors**: 4
   - `Failed to load resource: the server responded with a status of 500 (Internal Server Error)`
-  - `Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848`
+  - `Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts`
   - `Failed to load resource: the server responded with a status of 500 (Internal Server Error)`
   - ...and 1 more
 - **Stuck states**: 0
@@ -95,7 +95,7 @@ This report captures autonomous playtest sessions simulating first-time and retu
 
 - **Console errors**: 2
   - `Failed to load resource: the server responded with a status of 500 (Internal Server Error)`
-  - `Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848`
+  - `Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts`
 - **Stuck states**: 0
 - **Confusing moments**: 0
 
@@ -141,11 +141,11 @@ Screenshots are saved in `tools/playtest/out/screenshots/`
 
 | Time | Event | Details |
 |------|-------|----------|
-| 0.4s | console_error | Failed to load resource: the server responded with  |
-| 0.4s | page_error | Failed to fetch dynamically imported module: http:  |
-| 2.0s | screenshot | 01-loading  |
-| 5.0s | onboarding_started | False Skipped or already complete |
-| 20.0s | game_load_failed | True  |
+| 0.5s | console_error | Failed to load resource: the server responded with  |
+| 0.5s | page_error | Failed to fetch dynamically imported module: http:  |
+| 2.1s | screenshot | 01-loading  |
+| 5.1s | onboarding_started | False Skipped or already complete |
+| 20.2s | game_load_failed | True  |
 
 ### Session 2: returning
 

@@ -1,8 +1,8 @@
 {
   "session_type": "returning",
-  "start_time": 1794428384.4301898,
-  "end_time": 1794428395.4411547,
-  "duration_seconds": 11.01096487045288,
+  "start_time": 1794428516.5326502,
+  "end_time": 1794428527.498201,
+  "duration_seconds": 10.965550661087036,
   "time_to_first_fun": null,
   "time_to_first_click": null,
   "time_to_enter_game": null,
@@ -13,7 +13,7 @@
   "nyc_references_seen": [],
   "console_errors": [
     "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848"
+    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts"
   ],
   "stuck_states": [],
   "confusing_moments": [],
@@ -24,22 +24,22 @@
     {
       "name": "console_error",
       "value": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-      "timestamp": 0.42204928398132324,
+      "timestamp": 0.35426807403564453,
       "notes": ""
     },
     {
       "name": "page_error",
-      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848",
-      "timestamp": 0.4369187355041504,
+      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts",
+      "timestamp": 0.36737775802612305,
       "notes": ""
     },
     {
       "name": "coverage_failed",
       "value": "Game did not load",
-      "timestamp": 11.010935068130493,
+      "timestamp": 10.965524435043335,
       "notes": ""
     }
   ],
-  "dead_time_seconds": 10.574016332626343,
+  "dead_time_seconds": 10.598146677017212,
   "loading_time_seconds": 0.0
 }

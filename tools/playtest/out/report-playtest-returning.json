@@ -1,8 +1,8 @@
 {
   "session_type": "returning",
-  "start_time": 1794428372.7863297,
-  "end_time": 1794428384.4114444,
-  "duration_seconds": 11.625114679336548,
+  "start_time": 1794428504.912247,
+  "end_time": 1794428516.4953818,
+  "duration_seconds": 11.583134889602661,
   "time_to_first_fun": null,
   "time_to_first_click": null,
   "time_to_enter_game": null,
@@ -13,9 +13,9 @@
   "nyc_references_seen": [],
   "console_errors": [
     "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848",
+    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts",
     "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848"
+    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts"
   ],
   "stuck_states": [],
   "confusing_moments": [],
@@ -26,25 +26,25 @@
     {
       "name": "console_error",
       "value": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-      "timestamp": 0.39394068717956543,
+      "timestamp": 0.39006567001342773,
       "notes": ""
     },
     {
       "name": "page_error",
-      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848",
-      "timestamp": 0.41564321517944336,
+      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts",
+      "timestamp": 0.40451598167419434,
       "notes": ""
     },
     {
       "name": "console_error",
       "value": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-      "timestamp": 1.042236566543579,
+      "timestamp": 1.0228536128997803,
       "notes": ""
     },
     {
       "name": "page_error",
-      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848",
-      "timestamp": 1.043980598449707,
+      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts",
+      "timestamp": 1.0234789848327637,
       "notes": ""
     }
   ],

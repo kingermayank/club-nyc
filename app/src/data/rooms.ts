@@ -282,7 +282,7 @@ export const ROOMS: Record<string, RoomDef> = {
     chatter: [
       'They spelled my name "Jimothy". My name is James.',
       'Venti Pumpkin Spice Duckaccino, please!',
-      'Is it fall? It's always Pumpkin Spice season at Starducks.',
+      'Is it fall? It\'s always Pumpkin Spice season at Starducks.'
     ],
     objects: {
       counter: {

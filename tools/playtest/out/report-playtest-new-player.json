@@ -1,10 +1,10 @@
 {
   "session_type": "first_time",
-  "start_time": 1794428352.7174752,
-  "end_time": 1794428372.7467618,
-  "duration_seconds": 20.0292866230011,
+  "start_time": 1794428484.7149255,
+  "end_time": 1794428504.879429,
+  "duration_seconds": 20.164503574371338,
   "time_to_first_fun": null,
-  "time_to_first_click": 2.012603282928467,
+  "time_to_first_click": 2.095073699951172,
   "time_to_enter_game": null,
   "places_discovered": [],
   "features_discovered": [],
@@ -13,12 +13,12 @@
   "nyc_references_seen": [],
   "console_errors": [
     "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848"
+    "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts"
   ],
   "stuck_states": [
     {
       "location": "initial_load",
-      "timestamp": 20.029268264770508,
+      "timestamp": 20.164493322372437,
       "description": "Game failed to load within timeout"
     }
   ],
@@ -30,34 +30,34 @@
     {
       "name": "console_error",
       "value": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
-      "timestamp": 0.40993261337280273,
+      "timestamp": 0.45764851570129395,
       "notes": ""
     },
     {
       "name": "page_error",
-      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts?t=1794428346848",
-      "timestamp": 0.42365407943725586,
+      "value": "Failed to fetch dynamically imported module: http://localhost:5173/src/game.ts",
+      "timestamp": 0.4580047130584717,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "01-loading",
-      "timestamp": 2.0125858783721924,
+      "timestamp": 2.095054864883423,
       "notes": ""
     },
     {
       "name": "onboarding_started",
       "value": false,
-      "timestamp": 5.013850688934326,
+      "timestamp": 5.096589088439941,
       "notes": "Skipped or already complete"
     },
     {
       "name": "game_load_failed",
       "value": true,
-      "timestamp": 20.02919578552246,
+      "timestamp": 20.16443657875061,
       "notes": ""
     }
   ],
-  "dead_time_seconds": 15.015345096588135,
+  "dead_time_seconds": 15.067847490310669,
   "loading_time_seconds": 0.0
 }
