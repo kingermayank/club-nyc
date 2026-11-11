@@ -718,6 +718,65 @@ class PlaytestBot:
             await self.browser.close()
 
 
+def calculate_score(report: Dict[str, Any]) -> Dict[str, Any]:
+    """Calculate a comparable score from a report"""
+    score = {
+        'version': 1,
+        'timestamp': report['end_time'],
+        'session_type': report['session_type'],
+        
+        # Key metrics (lower is better for times, higher for discoveries)
+        'time_to_first_fun_seconds': report.get('time_to_first_fun', 999),
+        'time_to_enter_game_seconds': report.get('time_to_enter_game', 999),
+        
+        'places_discovered_count': len(report.get('places_discovered', [])),
+        'features_discovered_count': len(report.get('features_discovered', [])),
+        'mini_games_attempted_count': len(report.get('mini_games_attempted', [])),
+        
+        'nyc_references_count': len(report.get('nyc_references_seen', [])),
+        'nyc_jokes_count': len(report.get('nyc_jokes_seen', [])),
+        
+        'console_errors_count': len(report.get('console_errors', [])),
+        'stuck_states_count': len(report.get('stuck_states', [])),
+        'confusing_moments_count': len(report.get('confusing_moments', [])),
+        
+        'rewards_earned_count': len(report.get('rewards_earned', [])),
+        'unfinished_goals_count': len(report.get('unfinished_goals', [])),
+        
+        # Composite score (0-100, higher is better)
+        'overall_score': 0.0
+    }
+    
+    # Calculate overall score
+    # Start at 100, deduct for problems, add for successes
+    overall = 100.0
+    
+    # Penalize slow onboarding (target <30s)
+    if score['time_to_first_fun_seconds'] > 30:
+        overall -= min(20, (score['time_to_first_fun_seconds'] - 30) * 0.5)
+    
+    # Reward discovery
+    overall += score['places_discovered_count'] * 2
+    overall += score['features_discovered_count'] * 3
+    overall += score['mini_games_attempted_count'] * 5
+    
+    # Reward NYC culture
+    overall += score['nyc_references_count'] * 1
+    overall += score['nyc_jokes_count'] * 3
+    
+    # Penalize problems
+    overall -= score['console_errors_count'] * 10
+    overall -= score['stuck_states_count'] * 15
+    overall -= score['confusing_moments_count'] * 5
+    
+    # Reward retention signals
+    overall += score['unfinished_goals_count'] * 2
+    
+    score['overall_score'] = max(0, min(100, overall))
+    
+    return score
+
+
 async def main():
     """Run both first-time and returning player sessions"""
     
@@ -741,10 +800,40 @@ async def main():
     
     # Generate summary
     from report_generator import generate_summary_report
-    generate_summary_report([report1, report2])
+    summary_path = generate_summary_report([report1, report2])
+    
+    # Calculate and save scores
+    score1 = calculate_score(report1)
+    score2 = calculate_score(report2)
+    
+    # Save latest.json for comparison
+    latest = {
+        'generated_at': time.time(),
+        'first_time_score': score1,
+        'returning_score': score2,
+        'combined_score': (score1['overall_score'] + score2['overall_score']) / 2
+    }
+    
+    latest_path = OUT / 'latest.json'
+    with open(latest_path, 'w') as f:
+        json.dump(latest, f, indent=2)
+    
+    print(f"\n📊 Scores saved to: {latest_path}")
+    print(f"   First-time score: {score1['overall_score']:.1f}/100")
+    print(f"   Returning score: {score2['overall_score']:.1f}/100")
+    print(f"   Combined score: {latest['combined_score']:.1f}/100")
     
     print("\n✅ Playtest complete! Check tools/playtest/out/ for results.")
+    
+    # Exit with non-zero if scores are low (below 60)
+    if latest['combined_score'] < 60:
+        print(f"\n⚠️  Warning: Combined score {latest['combined_score']:.1f} is below threshold (60)")
+        return 1
+    
+    return 0
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    exit_code = asyncio.run(main())
+    import sys
+    sys.exit(exit_code)

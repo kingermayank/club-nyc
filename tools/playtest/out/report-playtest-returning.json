@@ -1,0 +1,161 @@
+{
+  "session_type": "returning",
+  "start_time": 1794425377.323549,
+  "end_time": 1794425406.3452268,
+  "duration_seconds": 29.02167773246765,
+  "time_to_first_fun": 9.374914407730103,
+  "time_to_first_click": null,
+  "time_to_enter_game": null,
+  "places_discovered": [],
+  "features_discovered": [
+    "daily_quests",
+    "mini_game_slice-factory",
+    "mini_game_halal-rush",
+    "mini_game_ferry-captain",
+    "daily_bonus",
+    "leaderboards",
+    "team_system"
+  ],
+  "mini_games_attempted": [
+    "Slice Factory",
+    "Halal Rush",
+    "Ferry Captain"
+  ],
+  "nyc_jokes_seen": [],
+  "nyc_references_seen": [],
+  "console_errors": [],
+  "stuck_states": [],
+  "confusing_moments": [
+    {
+      "timestamp": 19.12133002281189,
+      "issue": "Could not start Halal Rush",
+      "context": "No start button found"
+    },
+    {
+      "timestamp": 25.129876136779785,
+      "issue": "Could not start Ferry Captain",
+      "context": "No start button found"
+    }
+  ],
+  "rewards_earned": [],
+  "unfinished_goals": [
+    "Complete daily quests"
+  ],
+  "social_connections": 0,
+  "timeline": [
+    {
+      "name": "returning_player_loaded",
+      "value": true,
+      "timestamp": 4.284416675567627,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "01-returning-spawn",
+      "timestamp": 4.961223602294922,
+      "notes": ""
+    },
+    {
+      "name": "checking",
+      "value": "daily_quests",
+      "timestamp": 4.96124792098999,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "daily-quests",
+      "timestamp": 5.664308786392212,
+      "notes": ""
+    },
+    {
+      "name": "exploration_phase",
+      "value": "mini_games",
+      "timestamp": 5.664339780807495,
+      "notes": ""
+    },
+    {
+      "name": "trying_game",
+      "value": "Slice Factory",
+      "timestamp": 5.664343357086182,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-slice-factory-intro",
+      "timestamp": 9.37486219406128,
+      "notes": ""
+    },
+    {
+      "name": "fun_moment",
+      "value": "Slice Factory",
+      "timestamp": 9.374916553497314,
+      "notes": "First mini-game discovered"
+    },
+    {
+      "name": "game_started",
+      "value": "Slice Factory",
+      "timestamp": 9.38291883468628,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-slice-factory-playing",
+      "timestamp": 13.054131507873535,
+      "notes": ""
+    },
+    {
+      "name": "trying_game",
+      "value": "Halal Rush",
+      "timestamp": 15.408515214920044,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-halal-rush-intro",
+      "timestamp": 19.117637157440186,
+      "notes": ""
+    },
+    {
+      "name": "trying_game",
+      "value": "Ferry Captain",
+      "timestamp": 21.441242456436157,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-ferry-captain-intro",
+      "timestamp": 25.125754833221436,
+      "notes": ""
+    },
+    {
+      "name": "checking",
+      "value": "retention_features",
+      "timestamp": 27.855200052261353,
+      "notes": ""
+    },
+    {
+      "name": "js_error",
+      "value": "Page.evaluate: TypeError: window.clubNyc?.api?.openCommunity is not a function\n    at eval (eval at evaluate (:370:30), <anonymous>:1:22)\n    at eval (<anonymous>)\n    at UtilityScript.evaluate (<anonymous>:370:30)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "timestamp": 27.86170268058777,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "leaderboards",
+      "timestamp": 29.01909351348877,
+      "notes": ""
+    },
+    {
+      "name": "retention_features",
+      "value": [
+        "daily_bonus",
+        "leaderboards",
+        "team_system"
+      ],
+      "timestamp": 29.021610021591187,
+      "notes": ""
+    }
+  ],
+  "dead_time_seconds": 0,
+  "loading_time_seconds": 0.0
+}

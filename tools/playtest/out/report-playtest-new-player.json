@@ -1,0 +1,440 @@
+{
+  "session_type": "first_time",
+  "start_time": 1794425307.9471045,
+  "end_time": 1794425377.2531636,
+  "duration_seconds": 69.30605912208557,
+  "time_to_first_fun": 16.665600061416626,
+  "time_to_first_click": 2.3881378173828125,
+  "time_to_enter_game": 16.031580448150635,
+  "places_discovered": [
+    "times-square",
+    "central-park",
+    "broadway",
+    "empire-deck",
+    "subway",
+    "apartment"
+  ],
+  "features_discovered": [
+    "mini_game_slice-factory",
+    "mini_game_halal-rush",
+    "mini_game_ferry-captain",
+    "apartment"
+  ],
+  "mini_games_attempted": [
+    "Slice Factory",
+    "Halal Rush",
+    "Ferry Captain"
+  ],
+  "nyc_jokes_seen": [],
+  "nyc_references_seen": [
+    "subway",
+    "times square",
+    "central park",
+    "chinatown",
+    "broadway",
+    "empire state",
+    "metrocard",
+    "manhattan",
+    "pizza"
+  ],
+  "console_errors": [],
+  "stuck_states": [],
+  "confusing_moments": [
+    {
+      "timestamp": 22.823349714279175,
+      "issue": "No quest system visible",
+      "context": "First-time player needs guidance"
+    },
+    {
+      "timestamp": 58.28249144554138,
+      "issue": "Could not start Halal Rush",
+      "context": "No start button found"
+    },
+    {
+      "timestamp": 64.15971231460571,
+      "issue": "Could not start Ferry Captain",
+      "context": "No start button found"
+    }
+  ],
+  "rewards_earned": [],
+  "unfinished_goals": [
+    "Decorate your apartment"
+  ],
+  "social_connections": 0,
+  "timeline": [
+    {
+      "name": "screenshot",
+      "value": "01-loading",
+      "timestamp": 2.388120174407959,
+      "notes": ""
+    },
+    {
+      "name": "onboarding_started",
+      "value": true,
+      "timestamp": 2.416348457336426,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "02-onboarding-start",
+      "timestamp": 3.0713601112365723,
+      "notes": ""
+    },
+    {
+      "name": "onboarding_step",
+      "value": "welcome",
+      "timestamp": 3.071383237838745,
+      "notes": "Welcome screen"
+    },
+    {
+      "name": "screenshot",
+      "value": "onboarding-1-welcome",
+      "timestamp": 4.533359050750732,
+      "notes": ""
+    },
+    {
+      "name": "onboarding_step",
+      "value": "look",
+      "timestamp": 4.533418416976929,
+      "notes": "Choose look"
+    },
+    {
+      "name": "screenshot",
+      "value": "onboarding-2-look",
+      "timestamp": 6.2959208488464355,
+      "notes": ""
+    },
+    {
+      "name": "onboarding_step",
+      "value": "style",
+      "timestamp": 6.295989751815796,
+      "notes": "Choose style"
+    },
+    {
+      "name": "screenshot",
+      "value": "onboarding-3-style",
+      "timestamp": 8.065730810165405,
+      "notes": ""
+    },
+    {
+      "name": "onboarding_step",
+      "value": "name",
+      "timestamp": 8.065753698348999,
+      "notes": "Enter name"
+    },
+    {
+      "name": "screenshot",
+      "value": "onboarding-4-name",
+      "timestamp": 9.826632261276245,
+      "notes": ""
+    },
+    {
+      "name": "onboarding_step",
+      "value": "team",
+      "timestamp": 9.826677083969116,
+      "notes": "Choose team"
+    },
+    {
+      "name": "screenshot",
+      "value": "onboarding-5-team",
+      "timestamp": 11.574284553527832,
+      "notes": ""
+    },
+    {
+      "name": "onboarding_step",
+      "value": "metrocard",
+      "timestamp": 11.574310302734375,
+      "notes": "Get MetroCard"
+    },
+    {
+      "name": "screenshot",
+      "value": "onboarding-6-metrocard",
+      "timestamp": 13.0255708694458,
+      "notes": ""
+    },
+    {
+      "name": "entered_game",
+      "value": true,
+      "timestamp": 16.03158402442932,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "03-first-spawn",
+      "timestamp": 16.66557288169861,
+      "notes": ""
+    },
+    {
+      "name": "first_fun_moment",
+      "value": "spawned in game world",
+      "timestamp": 16.665601015090942,
+      "notes": ""
+    },
+    {
+      "name": "exploration_phase",
+      "value": "starting_area",
+      "timestamp": 16.665629863739014,
+      "notes": ""
+    },
+    {
+      "name": "spawn_room",
+      "value": "times-square",
+      "timestamp": 16.667336225509644,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "04-first-walk",
+      "timestamp": 19.31066870689392,
+      "notes": ""
+    },
+    {
+      "name": "first_walk",
+      "value": true,
+      "timestamp": 19.310694932937622,
+      "notes": ""
+    },
+    {
+      "name": "hotspots_found",
+      "value": 14,
+      "timestamp": 19.313767433166504,
+      "notes": "Found 14 interactive objects"
+    },
+    {
+      "name": "clicked_hotspot",
+      "value": "subway",
+      "timestamp": 19.313791751861572,
+      "notes": null
+    },
+    {
+      "name": "clicked_hotspot",
+      "value": "pigeon-3",
+      "timestamp": 19.815743684768677,
+      "notes": null
+    },
+    {
+      "name": "clicked_hotspot",
+      "value": "pigeon-2",
+      "timestamp": 20.31778907775879,
+      "notes": null
+    },
+    {
+      "name": "checking",
+      "value": "quest_system",
+      "timestamp": 20.820087432861328,
+      "notes": ""
+    },
+    {
+      "name": "exploration_phase",
+      "value": "manhattan",
+      "timestamp": 22.823366403579712,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "times-square",
+      "timestamp": 25.113715171813965,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "subway",
+      "timestamp": 25.117688179016113,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "times square",
+      "timestamp": 25.117700576782227,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "place-times-square",
+      "timestamp": 25.76814293861389,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "central-park",
+      "timestamp": 29.555787801742554,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "central park",
+      "timestamp": 29.558310747146606,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "chinatown",
+      "timestamp": 29.558330059051514,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "place-central-park",
+      "timestamp": 30.197465896606445,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "broadway",
+      "timestamp": 33.975966930389404,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "broadway",
+      "timestamp": 33.98474645614624,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "place-broadway",
+      "timestamp": 34.64704465866089,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "empire-deck",
+      "timestamp": 38.422024726867676,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "empire state",
+      "timestamp": 38.42458629608154,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "place-empire-deck",
+      "timestamp": 39.058849573135376,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "subway",
+      "timestamp": 42.840580224990845,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "metrocard",
+      "timestamp": 42.84360718727112,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "place-subway",
+      "timestamp": 43.48425054550171,
+      "notes": ""
+    },
+    {
+      "name": "exploration_phase",
+      "value": "mini_games",
+      "timestamp": 44.99130082130432,
+      "notes": ""
+    },
+    {
+      "name": "trying_game",
+      "value": "Slice Factory",
+      "timestamp": 44.99133253097534,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-slice-factory-intro",
+      "timestamp": 48.742891788482666,
+      "notes": ""
+    },
+    {
+      "name": "fun_moment",
+      "value": "Slice Factory",
+      "timestamp": 48.74295473098755,
+      "notes": "First mini-game discovered"
+    },
+    {
+      "name": "game_started",
+      "value": "Slice Factory",
+      "timestamp": 48.75068974494934,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-slice-factory-playing",
+      "timestamp": 52.41795563697815,
+      "notes": ""
+    },
+    {
+      "name": "trying_game",
+      "value": "Halal Rush",
+      "timestamp": 54.598236083984375,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-halal-rush-intro",
+      "timestamp": 58.27936100959778,
+      "notes": ""
+    },
+    {
+      "name": "trying_game",
+      "value": "Ferry Captain",
+      "timestamp": 60.4478702545166,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-ferry-captain-intro",
+      "timestamp": 64.15652203559875,
+      "notes": ""
+    },
+    {
+      "name": "exploration_phase",
+      "value": "social_features",
+      "timestamp": 66.3502311706543,
+      "notes": ""
+    },
+    {
+      "name": "npcs_found",
+      "value": 3,
+      "timestamp": 66.35944557189941,
+      "notes": "3 city residents visible"
+    },
+    {
+      "name": "exploration_phase",
+      "value": "apartment",
+      "timestamp": 66.35948300361633,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "apartment",
+      "timestamp": 68.64275860786438,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "manhattan",
+      "timestamp": 68.64706444740295,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "pizza",
+      "timestamp": 68.64708042144775,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "apartment-home",
+      "timestamp": 69.30400156974792,
+      "notes": ""
+    }
+  ],
+  "dead_time_seconds": 0,
+  "loading_time_seconds": 0.0
+}

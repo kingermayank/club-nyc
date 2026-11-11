@@ -1,0 +1,40 @@
+{
+  "generated_at": 1794425406.393657,
+  "first_time_score": {
+    "version": 1,
+    "timestamp": 1794425377.2531636,
+    "session_type": "first_time",
+    "time_to_first_fun_seconds": 16.665600061416626,
+    "time_to_enter_game_seconds": 16.031580448150635,
+    "places_discovered_count": 6,
+    "features_discovered_count": 4,
+    "mini_games_attempted_count": 3,
+    "nyc_references_count": 9,
+    "nyc_jokes_count": 0,
+    "console_errors_count": 0,
+    "stuck_states_count": 0,
+    "confusing_moments_count": 3,
+    "rewards_earned_count": 0,
+    "unfinished_goals_count": 1,
+    "overall_score": 100
+  },
+  "returning_score": {
+    "version": 1,
+    "timestamp": 1794425406.3452268,
+    "session_type": "returning",
+    "time_to_first_fun_seconds": 9.374914407730103,
+    "time_to_enter_game_seconds": null,
+    "places_discovered_count": 0,
+    "features_discovered_count": 7,
+    "mini_games_attempted_count": 3,
+    "nyc_references_count": 0,
+    "nyc_jokes_count": 0,
+    "console_errors_count": 0,
+    "stuck_states_count": 0,
+    "confusing_moments_count": 2,
+    "rewards_earned_count": 0,
+    "unfinished_goals_count": 1,
+    "overall_score": 100
+  },
+  "combined_score": 100.0
+}
