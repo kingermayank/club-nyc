@@ -212,14 +212,14 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'times-square', name: 'Times Square', area: 'Crossroads of the World', bg: 'times-square-v2', npcs: 5, mapSpot: 'times-square',
     chatter: [
       'Too many people! TOO MANY PEOPLE!',
-      'Is that Elmo? I'm not making eye contact.',
-      'Times Square: Where tourists come to stand still on the sidewalk.',
+      'Is that Elmo? I\'m not making eye contact.',
+      'Times Square: Where tourists come to stand still on the sidewalk.'
     ],
     objects: {
       broadway: exit('Broadway Theater', 'broadway'),
       souvenirs: exit('I ♥ NY Souvenirs', 'iloveny'),
       starducks: exit('Starducks Coffee', 'starducks'),
-      bodega: exit('Papi's Deli & Grocery', 'bodega'),
+      bodega: exit('Papi\'s Deli & Grocery', 'bodega'),
       'red-steps': { label: 'The Red Steps', sit: true },
       hotdog: { label: 'Hot Dog Cart', act: hotdogCart },
       taxi: { label: 'Hail a Taxi', act: taxi, instant: true },
