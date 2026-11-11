@@ -3,6 +3,16 @@ import type { CardAction, Pic, PicCardOpts } from '../features/infocard'
 import { bump, save } from '../state'
 import { ITEM } from '../avatar/items'
 import { WELCOME_GIFTS } from './economy'
+import {
+  bodegaCat,
+  pizzaRatSighting,
+  pigeonSwarm,
+  costumeCharacter,
+  taxiSplash,
+  manholeVent,
+  subwayRat,
+  timesSquareOverwhelm,
+} from './nyc-humor-lane4'
 
 // ---------- little helpers for room actions ----------
 /** Buy (or re-equip) a hand-held treat and hold it right away. */
@@ -200,17 +210,30 @@ const libertyPedestal = card({
 export const ROOMS: Record<string, RoomDef> = {
   'times-square': {
     id: 'times-square', name: 'Times Square', area: 'Crossroads of the World', bg: 'times-square-v2', npcs: 5, mapSpot: 'times-square',
+    chatter: [
+      'Too many people! TOO MANY PEOPLE!',
+      'Is that Elmo? I'm not making eye contact.',
+      'Times Square: Where tourists come to stand still on the sidewalk.',
+    ],
     objects: {
       broadway: exit('Broadway Theater', 'broadway'),
       souvenirs: exit('I ♥ NY Souvenirs', 'iloveny'),
+      starducks: exit('Starducks Coffee', 'starducks'),
+      bodega: exit('Papi's Deli & Grocery', 'bodega'),
       'red-steps': { label: 'The Red Steps', sit: true },
       hotdog: { label: 'Hot Dog Cart', act: hotdogCart },
       taxi: { label: 'Hail a Taxi', act: taxi, instant: true },
       subway: exit('Subway · Times Sq–42 St', 'subway'),
       'exit-left': exit('To Rockefeller Center', 'rockefeller'),
       'exit-right': exit('42nd St → Grand Central', 'grand-central'),
-      'pigeon-1': look('Pigeon', coo), 'pigeon-2': look('Pigeon', coo), 'pigeon-3': look('Pigeon', coo),
+      'pigeon-1': look('Pigeon', coo), 
+      'pigeon-2': look('Pigeon', coo), 
+      'pigeon-3': look('Pigeon', coo),
+      'pigeon-swarm': look('Pigeons!', pigeonSwarm),
+      'elmo': look('Costume Character', costumeCharacter),
+      'puddle': look('Suspicious Puddle', taxiSplash),
     },
+    onEnter: timesSquareOverwhelm,
   },
 
   broadway: {
@@ -250,6 +273,90 @@ export const ROOMS: Record<string, RoomDef> = {
         actions: () => [{ label: 'Pose Under the Neon', note: 'photo booth · friends nearby squeeze in', primary: true, act: photoBooth('I ♥ NY') }],
       })),
       door: exit('Exit to Times Square', 'times-square'),
+    },
+  },
+
+  // LANE 4: NYC Humor - Starducks Coffee (Starbucks parody)
+  starducks: {
+    id: 'starducks', name: 'Starducks Coffee', area: 'Times Square · Ducking Good Coffee', bg: 'coffee', indoor: true, npcs: 2, mapSpot: 'times-square',
+    chatter: [
+      'They spelled my name "Jimothy". My name is James.',
+      'Venti Pumpkin Spice Duckaccino, please!',
+      'Is it fall? It's always Pumpkin Spice season at Starducks.',
+    ],
+    objects: {
+      counter: {
+        label: 'Order Coffee',
+        act: async (g) => {
+          const name = baristaName(g.save.name)
+          const v = await g.choose(
+            '☕ Starducks Coffee',
+            `"Welcome to Starducks! Can I get a name for your order?"`,
+            [
+              { label: `"${g.save.name}"`, value: 'order' },
+              { label: 'Just Browsing', value: 'no' },
+            ]
+          )
+          if (v === 'order' && (await g.buy('coffee', 3))) {
+            g.wear('coffee')
+            g.say(`They wrote "${name}" on my cup. Classic Starducks. ☕`)
+            g.confetti(8)
+            if (!g.flags.starducksCoffee) {
+              g.flags.starducksCoffee = true
+              g.stamp('starducks-regular')
+            }
+          }
+        },
+      },
+      menu: look('Menu Board', card({
+        title: 'Starducks Menu', kicker: 'Ducking Good Coffee', pic: pic('coffee', 'menu'),
+        text: 'Signature drinks: Pumpkin Spice Duckaccino, Venti Cold Brew, Caramel Quacchiato, and the Frappaduckino. Every cup comes with your name, creatively reinterpreted.',
+        joke: 'They will spell your name wrong. It's tradition.',
+      })),
+      sign: look('Starducks Sign', say('The green duck logo. Unmistakable. 🦆☕')),
+      'mobile-pickup': look('Mobile Order Pickup', say('12 drinks waiting. All with different wrong names. ☕')),
+      exit: exit('Exit to Times Square', 'times-square'),
+    },
+  },
+
+  // LANE 4: NYC Humor - Papi's Bodega (with bodega cat!)
+  bodega: {
+    id: 'bodega', name: 'Papi's Deli & Grocery', area: '24 Hours · Times Square', bg: 'bodega-v2', indoor: true, npcs: 1, mapSpot: 'times-square',
+    chatter: [
+      'The bodega cat is the real owner.',
+      'Bacon egg and cheese on a roll, please!',
+      'Does anyone actually know what SPK means?',
+    ],
+    objects: {
+      'bodega-cat': look('Bodega Cat 🐈', bodegaCat),
+      counter: {
+        label: 'Order a Sandwich',
+        act: async (g) => {
+          const v = await g.choose(
+            '🥪 Papi's Deli & Grocery',
+            '"What can I get you? Bacon egg and cheese? Chopped cheese? Everything bagel?"',
+            [
+              { label: 'Chopped Cheese (4)', value: 'chopped' },
+              { label: 'Bacon Egg & Cheese (3)', value: 'bec' },
+              { label: 'Just Browsing', value: 'no' },
+            ]
+          )
+          if (v === 'chopped') {
+            g.say('Chopped cheese, SPK, toasted. NYC in a sandwich. 🥪')
+            g.confetti(6)
+            g.give(1)
+          } else if (v === 'bec') {
+            g.say('Bacon egg and cheese. The official breakfast of New York. 🥪')
+            g.confetti(6)
+            g.give(1)
+          }
+        },
+      },
+      'atm': look('ATM', say('$3 fee. Ouch. But it's 3 AM and I need cash. 💸')),
+      'coffee-station': look('Coffee Station', say('Blue Greek cup. "WE ARE HAPPY TO SERVE YOU" ☕')),
+      fridge: look('Drinks Fridge', say('Every kind of iced tea. Snapple, Arizona, Honest Tea. 99¢ each.')),
+      snacks: look('Snack Aisle', say('The bodega cat is sleeping ON the chips. Don't disturb.')),
+      exit: exit('Exit to Times Square', 'times-square'),
     },
   },
 
@@ -526,7 +633,13 @@ export const ROOMS: Record<string, RoomDef> = {
 
   subway: {
     id: 'subway', name: 'Subway Station', area: 'Times Sq–42 St', bg: 'subway', indoor: true, npcs: 3, mapSpot: 'times-square',
-    chatter: ['Showtime! Showtime!', 'Is the express running?', 'Stand clear of the closing doors, please.'],
+    chatter: [
+      'Showtime! Showtime!', 
+      'Is the express running?', 
+      'Stand clear of the closing doors, please.',
+      'Did you see that rat? WITH A SLICE?!',
+      'The L train is delayed. Water main break. Again.',
+    ],
     objects: {
       train: {
         label: 'Board the Train',
@@ -550,7 +663,9 @@ export const ROOMS: Record<string, RoomDef> = {
           g.say('A coin for the music. 🎸')
         },
       },
-      rat: look('???', (g) => { g.sfx.squawk(); g.say('PIZZA RAT. A legend. Bigger in person.'); g.stamp('pizza-rat') }),
+      'pizza-rat': look('Pizza Rat!', pizzaRatSighting),
+      'subway-rat-1': look('Subway Rat', subwayRat),
+      'subway-rat-2': look('Another Rat', subwayRat),
       trash: look('Trash Can', card({
         title: 'Trash Can', kicker: 'Times Sq–42 St', pic: pic('subway', 'trash'),
         text: 'In 2011 the subway tried taking trash cans out of some stations to cut down on trash and rats. People kept dropping trash anyway, and the cans came back.',

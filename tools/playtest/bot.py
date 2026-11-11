@@ -242,14 +242,21 @@ class PlaytestBot:
                 # NOTE: Starducks, NYKE, etc. from brief-nyc-culture.md are NOT implemented yet!
                 # These patterns match what's ACTUALLY in the game as of Nov 2026
                 joke_patterns = [
-                    # Parody brands that DON'T exist yet (from design docs):
-                    ('starducks', 'Starducks Coffee (Starbucks parody) [PLANNED]'),
+                    # LANE 4 additions - now implemented:
+                    ('starducks', 'Starducks Coffee (Starbucks parody)'),
+                    ('bodega cat', 'Bodega Cat (NYC icon)'),
+                    ('pizza rat', 'Pizza Rat (NYC meme)'),
+                    ("papi's deli", "Papi's Deli & Grocery (bodega)"),
+                    ('ducking good coffee', 'Starducks tagline'),
+                    ('duckaccino', 'Starducks drink'),
+                    ('quacchiato', 'Starducks drink'),
+                    ('frappaduckino', 'Starducks drink'),
+                    
+                    # Parody brands still not implemented:
                     ('nyke', 'NYKE "Just Do NY" (Nike parody) [PLANNED]'),
                     ('vuittown', 'Louis Vuittown (Louis Vuitton parody) [PLANNED]'),
                     ('snacks fifth avenue', 'Snacks Fifth Avenue (Saks parody) [PLANNED]'),
                     ('just do ny', 'NYKE slogan [PLANNED]'),
-                    ('bodega cat', 'Bodega cat (NYC icon) [PLANNED]'),
-                    ('pizza rat', 'Pizza rat (NYC meme) [PLANNED]'),
                     
                     # What actually exists:
                     ("ralph's coffee", "Ralph's Coffee (real Ralph Lauren café, misspelled cup names)"),
