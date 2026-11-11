@@ -1,0 +1,51 @@
+{
+  "room": "iloveny",
+  "title": null,
+  "hotspots": [
+    {
+      "id": "counter",
+      "label": null
+    },
+    {
+      "id": "postcards",
+      "label": null
+    },
+    {
+      "id": "mirror",
+      "label": null
+    },
+    {
+      "id": "caps",
+      "label": null
+    },
+    {
+      "id": "taxis",
+      "label": null
+    },
+    {
+      "id": "crowns",
+      "label": null
+    },
+    {
+      "id": "neon",
+      "label": null
+    },
+    {
+      "id": "globes",
+      "label": null
+    },
+    {
+      "id": "booth",
+      "label": null
+    },
+    {
+      "id": "tees",
+      "label": null
+    },
+    {
+      "id": "door",
+      "label": null
+    }
+  ],
+  "npcs": 0
+}

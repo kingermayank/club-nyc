@@ -1,0 +1,523 @@
+{
+  "session_type": "returning",
+  "start_time": 1794427317.4317698,
+  "end_time": 1794427441.1176286,
+  "duration_seconds": 123.68585872650146,
+  "time_to_first_fun": 83.26683926582336,
+  "time_to_first_click": null,
+  "time_to_enter_game": null,
+  "places_discovered": [
+    "times-square",
+    "broadway",
+    "iloveny",
+    "rockefeller",
+    "fifth-ave",
+    "toy-palace",
+    "maison-malle",
+    "central-park",
+    "the-met",
+    "empire-deck",
+    "grand-central",
+    "subway",
+    "soho",
+    "thread",
+    "sneaker-vault",
+    "coffee",
+    "chinatown",
+    "pizza",
+    "brooklyn-bridge",
+    "battery-park",
+    "liberty-island",
+    "high-line",
+    "chelsea-market",
+    "apartment"
+  ],
+  "features_discovered": [
+    "mini_game_slice-factory",
+    "mini_game_halal-rush",
+    "mini_game_ferry-captain",
+    "mini_game_bagel-counters",
+    "mini_game_showtime"
+  ],
+  "mini_games_attempted": [
+    "Slice Factory",
+    "Halal Rush",
+    "Ferry Captain",
+    "Bagel Counters",
+    "Showtime!"
+  ],
+  "nyc_jokes_seen": [
+    {
+      "joke": "THREAD (Supreme parody)",
+      "location": "the-met",
+      "screenshot": "playtest-coverage-joke-1-thread.png",
+      "timestamp": 28.78575325012207
+    }
+  ],
+  "nyc_references_seen": [
+    "subway",
+    "times square",
+    "brooklyn",
+    "manhattan",
+    "pizza",
+    "halal",
+    "broadway",
+    "taxi",
+    "rockefeller",
+    "fifth avenue",
+    "central park",
+    "chinatown",
+    "bagel",
+    "the met",
+    "empire state",
+    "grand central",
+    "bodega",
+    "soho",
+    "ferry",
+    "liberty",
+    "chelsea",
+    "high line"
+  ],
+  "console_errors": [],
+  "stuck_states": [],
+  "confusing_moments": [],
+  "rewards_earned": [],
+  "unfinished_goals": [],
+  "social_connections": 0,
+  "timeline": [
+    {
+      "name": "coverage_started",
+      "value": true,
+      "timestamp": 1.4599089622497559,
+      "notes": ""
+    },
+    {
+      "name": "rooms_to_visit",
+      "value": 24,
+      "timestamp": 1.463757038116455,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "times-square",
+      "timestamp": 3.751325845718384,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "subway",
+      "timestamp": 3.7589457035064697,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "times square",
+      "timestamp": 3.758967876434326,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "brooklyn",
+      "timestamp": 3.7589938640594482,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "manhattan",
+      "timestamp": 3.7589972019195557,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "pizza",
+      "timestamp": 3.7589995861053467,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "halal",
+      "timestamp": 3.759007692337036,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "broadway",
+      "timestamp": 6.843580007553101,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "broadway",
+      "timestamp": 6.848628759384155,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "iloveny",
+      "timestamp": 9.924506902694702,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "rockefeller",
+      "timestamp": 13.00800609588623,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "taxi",
+      "timestamp": 13.015068054199219,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "rockefeller",
+      "timestamp": 13.015093326568604,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "fifth-ave",
+      "timestamp": 16.09268283843994,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "fifth avenue",
+      "timestamp": 16.097573041915894,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "toy-palace",
+      "timestamp": 19.17370629310608,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "maison-malle",
+      "timestamp": 22.255680322647095,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "central-park",
+      "timestamp": 25.342883586883545,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "central park",
+      "timestamp": 25.348601818084717,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "chinatown",
+      "timestamp": 25.348631143569946,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "the-met",
+      "timestamp": 28.42716383934021,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "bagel",
+      "timestamp": 28.43213987350464,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "the met",
+      "timestamp": 28.4321711063385,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "joke-1-thread",
+      "timestamp": 28.78572678565979,
+      "notes": ""
+    },
+    {
+      "name": "nyc_joke",
+      "value": "THREAD (Supreme parody)",
+      "timestamp": 28.78575897216797,
+      "notes": "at the-met"
+    },
+    {
+      "name": "visited_room",
+      "value": "empire-deck",
+      "timestamp": 31.866501331329346,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "empire state",
+      "timestamp": 31.873920440673828,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "grand-central",
+      "timestamp": 34.95399618148804,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "grand central",
+      "timestamp": 34.95906209945679,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "subway",
+      "timestamp": 38.040584564208984,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "soho",
+      "timestamp": 41.12489891052246,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "bodega",
+      "timestamp": 41.12986779212952,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "soho",
+      "timestamp": 41.129889488220215,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "thread",
+      "timestamp": 44.20633602142334,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "sneaker-vault",
+      "timestamp": 47.28696966171265,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "coffee",
+      "timestamp": 50.37094712257385,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "chinatown",
+      "timestamp": 53.4536919593811,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "pizza",
+      "timestamp": 56.53507399559021,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "brooklyn-bridge",
+      "timestamp": 59.61408877372742,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "ferry",
+      "timestamp": 59.620771646499634,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "battery-park",
+      "timestamp": 62.69506311416626,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "liberty-island",
+      "timestamp": 65.7788097858429,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "liberty",
+      "timestamp": 65.78414392471313,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "high-line",
+      "timestamp": 68.86153221130371,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "chelsea",
+      "timestamp": 68.86711168289185,
+      "notes": ""
+    },
+    {
+      "name": "nyc_reference",
+      "value": "high line",
+      "timestamp": 68.86712169647217,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "chelsea-market",
+      "timestamp": 71.94360828399658,
+      "notes": ""
+    },
+    {
+      "name": "visited_room",
+      "value": "apartment",
+      "timestamp": 75.02867650985718,
+      "notes": ""
+    },
+    {
+      "name": "exploration_phase",
+      "value": "mini_games",
+      "timestamp": 75.8389105796814,
+      "notes": ""
+    },
+    {
+      "name": "attempting_game",
+      "value": "Slice Factory",
+      "timestamp": 75.83892941474915,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-slice-factory-intro",
+      "timestamp": 79.57220554351807,
+      "notes": ""
+    },
+    {
+      "name": "game_started_successfully",
+      "value": "Slice Factory",
+      "timestamp": 82.58555030822754,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-slice-factory-playing",
+      "timestamp": 83.26680946350098,
+      "notes": ""
+    },
+    {
+      "name": "fun_moment",
+      "value": "Slice Factory",
+      "timestamp": 83.26684308052063,
+      "notes": "First mini-game started"
+    },
+    {
+      "name": "attempting_game",
+      "value": "Halal Rush",
+      "timestamp": 85.44859576225281,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-halal-rush-intro",
+      "timestamp": 89.16942286491394,
+      "notes": ""
+    },
+    {
+      "name": "game_started_successfully",
+      "value": "Halal Rush",
+      "timestamp": 92.18404746055603,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-halal-rush-playing",
+      "timestamp": 92.84260630607605,
+      "notes": ""
+    },
+    {
+      "name": "attempting_game",
+      "value": "Ferry Captain",
+      "timestamp": 95.00394463539124,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-ferry-captain-intro",
+      "timestamp": 98.72002935409546,
+      "notes": ""
+    },
+    {
+      "name": "game_started_successfully",
+      "value": "Ferry Captain",
+      "timestamp": 101.73491859436035,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-ferry-captain-playing",
+      "timestamp": 102.38829565048218,
+      "notes": ""
+    },
+    {
+      "name": "attempting_game",
+      "value": "Bagel Counters",
+      "timestamp": 104.53238725662231,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-bagel-counters-intro",
+      "timestamp": 108.26310133934021,
+      "notes": ""
+    },
+    {
+      "name": "game_started_successfully",
+      "value": "Bagel Counters",
+      "timestamp": 111.2749412059784,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-bagel-counters-playing",
+      "timestamp": 111.94952058792114,
+      "notes": ""
+    },
+    {
+      "name": "attempting_game",
+      "value": "Showtime!",
+      "timestamp": 114.10308122634888,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-showtime-intro",
+      "timestamp": 117.8416428565979,
+      "notes": ""
+    },
+    {
+      "name": "game_started_successfully",
+      "value": "Showtime!",
+      "timestamp": 120.85787677764893,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-showtime-playing",
+      "timestamp": 121.53589987754822,
+      "notes": ""
+    }
+  ],
+  "dead_time_seconds": 0,
+  "loading_time_seconds": 0.0
+}

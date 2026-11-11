@@ -1,0 +1,59 @@
+{
+  "room": "broadway",
+  "title": null,
+  "hotspots": [
+    {
+      "id": "seats-right",
+      "label": null
+    },
+    {
+      "id": "seats-left",
+      "label": null
+    },
+    {
+      "id": "chandelier",
+      "label": null
+    },
+    {
+      "id": "exit",
+      "label": null
+    },
+    {
+      "id": "box-left",
+      "label": null
+    },
+    {
+      "id": "box-right",
+      "label": null
+    },
+    {
+      "id": "curtain",
+      "label": null
+    },
+    {
+      "id": "stage",
+      "label": null
+    },
+    {
+      "id": "seat-1",
+      "label": null
+    },
+    {
+      "id": "seat-4",
+      "label": null
+    },
+    {
+      "id": "seat-2",
+      "label": null
+    },
+    {
+      "id": "seat-5",
+      "label": null
+    },
+    {
+      "id": "seat-3",
+      "label": null
+    }
+  ],
+  "npcs": 1
+}

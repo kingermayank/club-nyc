@@ -1,0 +1,47 @@
+{
+  "room": "subway",
+  "title": null,
+  "hotspots": [
+    {
+      "id": "rat",
+      "label": null
+    },
+    {
+      "id": "guitar-case",
+      "label": null
+    },
+    {
+      "id": "bench",
+      "label": null
+    },
+    {
+      "id": "trash",
+      "label": null
+    },
+    {
+      "id": "sign",
+      "label": null
+    },
+    {
+      "id": "map-poster",
+      "label": null
+    },
+    {
+      "id": "turnstiles",
+      "label": null
+    },
+    {
+      "id": "train",
+      "label": null
+    },
+    {
+      "id": "bench-1",
+      "label": null
+    },
+    {
+      "id": "bench-2",
+      "label": null
+    }
+  ],
+  "npcs": 1
+}

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "playtest": "cd .. && python3 tools/playtest/bot.py"
   },
   "devDependencies": {
     "typescript": "~6.0.2",
