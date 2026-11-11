@@ -528,7 +528,18 @@ export const ROOMS: Record<string, RoomDef> = {
         actions: (g) => [{ label: 'Row Around the Lake (3)', primary: true, act: () => fun((m) => m.rowboat(g)) }],
       })),
       'duck-1': look('Duck', (g) => { g.sfx.quack(); g.say('Quack yourself.') }), 'duck-2': look('Duck', (g) => { g.sfx.quack(); g.say('This duck has seen things.') }), 'duck-3': look('Duck', (g) => { g.sfx.quack(); g.say('A duck in Central Park. Truly the most New York duck.') }),
-      'squirrel-1': look('Squirrel', (g) => fun((m) => m.squirrel(g))), 'squirrel-2': look('Squirrel', (g) => fun((m) => m.squirrel(g))),
+      'squirrel-1': look('Aggressive Squirrel', (g) => {
+        const visits = (g.flags.squirrelEncounters ?? 0) + 1
+        g.flags.squirrelEncounters = visits
+        if (visits === 1) {
+          g.say('This squirrel has NO fear. It wants my pretzel. 🐿️')
+        } else if (visits === 2) {
+          g.say('The squirrel is back. Making eye contact. Asserting dominance. 🐿️')
+        } else {
+          g.say('WE'VE BEEN OVER THIS, SQUIRREL. NO MEANS NO. 🐿️')
+        }
+      }), 
+      'squirrel-2': look('Squirrel', (g) => fun((m) => m.squirrel(g))),
       bridge: look('Bow Bridge', card({
         title: 'Bow Bridge', kicker: 'Central Park · 1862', pic: view('central-park', [345, 80, 330, 175]),
         text: 'A cast-iron bridge over The Lake, finished in 1862 and designed by Calvert Vaux and Jacob Wrey Mould. It’s named for its shape: a curve like an archer’s bow.',
