@@ -1,38 +1,35 @@
 {
   "session_type": "returning",
-  "start_time": 1794425885.8350034,
-  "end_time": 1794425916.5772014,
-  "duration_seconds": 30.74219799041748,
-  "time_to_first_fun": 12.62960410118103,
+  "start_time": 1794427261.1546724,
+  "end_time": 1794427317.4007957,
+  "duration_seconds": 56.24612331390381,
+  "time_to_first_fun": 12.750548839569092,
   "time_to_first_click": null,
   "time_to_enter_game": null,
   "places_discovered": [],
   "features_discovered": [
     "daily_quests",
     "mini_game_slice-factory",
+    "mini_game_halal-rush",
+    "mini_game_ferry-captain",
+    "mini_game_bagel-counters",
+    "mini_game_showtime",
     "daily_bonus",
     "leaderboards",
     "team_system"
   ],
   "mini_games_attempted": [
-    "Slice Factory"
+    "Slice Factory",
+    "Halal Rush",
+    "Ferry Captain",
+    "Bagel Counters",
+    "Showtime!"
   ],
   "nyc_jokes_seen": [],
   "nyc_references_seen": [],
   "console_errors": [],
   "stuck_states": [],
-  "confusing_moments": [
-    {
-      "timestamp": 18.470174074172974,
-      "issue": "Could not find start button for Halal Rush",
-      "context": "Harness may need updated selectors"
-    },
-    {
-      "timestamp": 25.79862332344055,
-      "issue": "Could not find start button for Ferry Captain",
-      "context": "Harness may need updated selectors"
-    }
-  ],
+  "confusing_moments": [],
   "rewards_earned": [],
   "unfinished_goals": [
     "Complete daily quests"
@@ -42,115 +39,175 @@
     {
       "name": "returning_player_loaded",
       "value": true,
-      "timestamp": 3.855574369430542,
+      "timestamp": 3.9716880321502686,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "01-returning-spawn",
-      "timestamp": 4.527649641036987,
+      "timestamp": 4.659832954406738,
       "notes": ""
     },
     {
       "name": "checking",
       "value": "daily_quests",
-      "timestamp": 4.527679443359375,
+      "timestamp": 4.65985894203186,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "daily-quests",
-      "timestamp": 5.2278876304626465,
+      "timestamp": 5.35025954246521,
       "notes": ""
     },
     {
       "name": "exploration_phase",
       "value": "mini_games",
-      "timestamp": 5.227934837341309,
+      "timestamp": 5.350287199020386,
       "notes": ""
     },
     {
       "name": "attempting_game",
       "value": "Slice Factory",
-      "timestamp": 5.227942943572998,
+      "timestamp": 5.35029149055481,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "game-slice-factory-intro",
-      "timestamp": 8.942355394363403,
+      "timestamp": 9.074891090393066,
       "notes": ""
     },
     {
       "name": "game_started_successfully",
       "value": "Slice Factory",
-      "timestamp": 11.95628309249878,
+      "timestamp": 12.087403535842896,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "game-slice-factory-playing",
-      "timestamp": 12.629539966583252,
+      "timestamp": 12.75050687789917,
       "notes": ""
     },
     {
       "name": "fun_moment",
       "value": "Slice Factory",
-      "timestamp": 12.629609107971191,
+      "timestamp": 12.750551223754883,
       "notes": "First mini-game started"
     },
     {
       "name": "attempting_game",
       "value": "Halal Rush",
-      "timestamp": 14.790983200073242,
+      "timestamp": 14.914529800415039,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "game-halal-rush-intro",
-      "timestamp": 18.466548204421997,
+      "timestamp": 18.597856998443604,
       "notes": ""
     },
     {
-      "name": "game_no_start_button",
+      "name": "game_started_successfully",
       "value": "Halal Rush",
-      "timestamp": 18.470162630081177,
-      "notes": "No start button found"
+      "timestamp": 21.620460987091064,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-halal-rush-playing",
+      "timestamp": 22.25961995124817,
+      "notes": ""
     },
     {
       "name": "attempting_game",
       "value": "Ferry Captain",
-      "timestamp": 22.087946891784668,
+      "timestamp": 24.765547275543213,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "game-ferry-captain-intro",
-      "timestamp": 25.79550051689148,
+      "timestamp": 28.457977294921875,
       "notes": ""
     },
     {
-      "name": "game_no_start_button",
+      "name": "game_started_successfully",
       "value": "Ferry Captain",
-      "timestamp": 25.79861044883728,
-      "notes": "No start button found"
+      "timestamp": 31.475285291671753,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-ferry-captain-playing",
+      "timestamp": 32.08901882171631,
+      "notes": ""
+    },
+    {
+      "name": "attempting_game",
+      "value": "Bagel Counters",
+      "timestamp": 34.625343561172485,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-bagel-counters-intro",
+      "timestamp": 38.329593658447266,
+      "notes": ""
+    },
+    {
+      "name": "game_started_successfully",
+      "value": "Bagel Counters",
+      "timestamp": 41.341601610183716,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-bagel-counters-playing",
+      "timestamp": 42.01245880126953,
+      "notes": ""
+    },
+    {
+      "name": "attempting_game",
+      "value": "Showtime!",
+      "timestamp": 44.21802854537964,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-showtime-intro",
+      "timestamp": 47.965080976486206,
+      "notes": ""
+    },
+    {
+      "name": "game_started_successfully",
+      "value": "Showtime!",
+      "timestamp": 50.983463525772095,
+      "notes": ""
+    },
+    {
+      "name": "screenshot",
+      "value": "game-showtime-playing",
+      "timestamp": 51.6856472492218,
+      "notes": ""
     },
     {
       "name": "checking",
       "value": "retention_features",
-      "timestamp": 29.570528984069824,
+      "timestamp": 55.05592179298401,
       "notes": ""
     },
     {
       "name": "js_error",
       "value": "Page.evaluate: TypeError: window.clubNyc?.api?.openCommunity is not a function\n    at eval (eval at evaluate (:370:30), <anonymous>:1:22)\n    at eval (<anonymous>)\n    at UtilityScript.evaluate (<anonymous>:370:30)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
-      "timestamp": 29.576982975006104,
+      "timestamp": 55.06356120109558,
       "notes": ""
     },
     {
       "name": "screenshot",
       "value": "leaderboards",
-      "timestamp": 30.739310264587402,
+      "timestamp": 56.23855423927307,
       "notes": ""
     },
     {
@@ -160,7 +217,7 @@
         "leaderboards",
         "team_system"
       ],
-      "timestamp": 30.742149353027344,
+      "timestamp": 56.24605083465576,
       "notes": ""
     }
   ],

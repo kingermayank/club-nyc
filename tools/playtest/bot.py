@@ -38,7 +38,7 @@ class Metric:
 @dataclass
 class PlaytestReport:
     """Complete playtest report"""
-    session_type: str  # 'first_time' or 'returning'
+    session_type: str  # 'first_time', 'returning', or 'coverage'
     start_time: float
     end_time: float
     duration_seconds: float
@@ -54,7 +54,7 @@ class PlaytestReport:
     mini_games_attempted: List[str] = None
     
     # NYC culture metrics
-    nyc_jokes_seen: List[str] = None
+    nyc_jokes_seen: List[Dict] = None  # Now list of dicts with {joke, location, screenshot, timestamp}
     nyc_references_seen: List[str] = None
     
     # Problems
@@ -195,7 +195,7 @@ class PlaytestBot:
             self.log_metric('js_error', str(e))
             return None
     
-    async def scan_for_nyc_content(self):
+    async def scan_for_nyc_content(self, context: str = 'unknown'):
         """Scan visible page content for NYC references and jokes"""
         try:
             result = await self.js_eval("""
@@ -217,15 +217,20 @@ class PlaytestBot:
                         (el.innerText || el.textContent || el.alt || el.title || '').toLowerCase()
                     ).join(' ');
                     
+                    // Get current room
+                    const room = window.clubNyc?.world?.room?.id || 'unknown';
+                    
                     return {
                         bodyText: text,
-                        visibleText: allText
+                        visibleText: allText,
+                        currentRoom: room
                     };
                 }
             """)
             
             if result:
                 all_text = result.get('visibleText', '') + ' ' + result.get('bodyText', '')
+                current_room = result.get('currentRoom', context)
                 
                 # Check for NYC references
                 for keyword in self.nyc_keywords:
@@ -234,23 +239,47 @@ class PlaytestBot:
                         self.log_metric('nyc_reference', keyword)
                 
                 # Check for explicit parody/joke brands (case-insensitive)
-                # These are considered "jokes" because they're parodies
+                # NOTE: Starducks, NYKE, etc. from brief-nyc-culture.md are NOT implemented yet!
+                # These patterns match what's ACTUALLY in the game as of Nov 2026
                 joke_patterns = [
-                    ('starducks', 'Starducks Coffee (Starbucks parody)'),
-                    ('nyke', 'NYKE "Just Do NY" (Nike parody)'),
-                    ('vuittown', 'Louis Vuittown (Louis Vuitton parody)'),
-                    ('snacks fifth avenue', 'Snacks Fifth Avenue (Saks parody)'),
-                    ('just do ny', 'NYKE slogan parody'),
-                    ('bodega cat', 'Bodega cat (NYC icon)'),
-                    ('pizza rat', 'Pizza rat (NYC meme)'),
-                    ('i ♥ ny', 'I ♥ NY (tourist parody)'),
-                    ('halal bros', 'Halal Bros (Halal Guys parody)'),
+                    # Parody brands that DON'T exist yet (from design docs):
+                    ('starducks', 'Starducks Coffee (Starbucks parody) [PLANNED]'),
+                    ('nyke', 'NYKE "Just Do NY" (Nike parody) [PLANNED]'),
+                    ('vuittown', 'Louis Vuittown (Louis Vuitton parody) [PLANNED]'),
+                    ('snacks fifth avenue', 'Snacks Fifth Avenue (Saks parody) [PLANNED]'),
+                    ('just do ny', 'NYKE slogan [PLANNED]'),
+                    ('bodega cat', 'Bodega cat (NYC icon) [PLANNED]'),
+                    ('pizza rat', 'Pizza rat (NYC meme) [PLANNED]'),
+                    
+                    # What actually exists:
+                    ("ralph's coffee", "Ralph's Coffee (real Ralph Lauren café, misspelled cup names)"),
+                    ('i ♥ ny', 'I ♥ NY Souvenirs (tourist icon)'),
+                    ('thread', 'THREAD (Supreme parody)'),
+                    ('sneaker vault', 'Sneaker Vault (Nike Store reference)'),
+                    ('toy palace', 'Toy Palace (FAO Schwarz reference)'),
+                    ('maison malle', 'Maison Malle (Louis Vuitton reference)'),
+                    ('halal bros', 'Halal Bros food cart'),
+                    ('99¢ slice', '99¢ Slice pizza'),
                 ]
                 
+                # Track jokes already seen (by description only, not location)
+                seen_jokes = [j['joke'] for j in self.report.nyc_jokes_seen]
+                
                 for pattern, description in joke_patterns:
-                    if pattern in all_text and description not in self.report.nyc_jokes_seen:
-                        self.report.nyc_jokes_seen.append(description)
-                        self.log_metric('nyc_joke', description)
+                    if pattern in all_text and description not in seen_jokes:
+                        # Take screenshot of the joke
+                        screenshot_name = f'joke-{len(self.report.nyc_jokes_seen)+1}-{pattern.replace(" ", "-")}'
+                        screenshot_path = await self.screenshot(screenshot_name, delay_ms=200)
+                        
+                        # Record joke with full context (use the actual filename)
+                        joke_entry = {
+                            'joke': description,
+                            'location': current_room,
+                            'screenshot': f'{self.profile}-{screenshot_name}.png',
+                            'timestamp': self.elapsed()
+                        }
+                        self.report.nyc_jokes_seen.append(joke_entry)
+                        self.log_metric('nyc_joke', description, f'at {current_room}')
         except Exception as e:
             pass
     
@@ -509,7 +538,7 @@ class PlaytestBot:
             except Exception as e:
                 self.log_metric('navigation_error', place, str(e))
     
-    async def _try_mini_games(self):
+    async def _try_mini_games(self, limit=None):
         """Attempt to play mini-games"""
         self.log_metric('exploration_phase', 'mini_games')
         
@@ -521,7 +550,9 @@ class PlaytestBot:
             ('showtime', 'Showtime!')
         ]
         
-        for game_id, game_name in games[:3]:  # Try first 3 games
+        games_to_try = games if limit is None else games[:limit]
+        
+        for game_id, game_name in games_to_try:
             try:
                 self.log_metric('attempting_game', game_name)
                 
@@ -531,31 +562,70 @@ class PlaytestBot:
                 await self.page.wait_for_timeout(2500)
                 await self.screenshot(f'game-{game_id}-intro')
                 
-                # Try to start the game
-                game_state_before = await self.js_eval("""
-                    () => {
-                        const btn = [...document.querySelectorAll('button')]
-                            .find(b => /start|play|go|let/i.test(b.textContent || ''));
+                # Try to start the game - use game-specific selectors
+                game_state_before = await self.js_eval(f"""
+                    () => {{
+                        // Game-specific button selectors
+                        const gameButtons = {{
+                            'slice-factory': '.slice-factory-go, button.go',
+                            'halal-rush': '.halal-rush-go',
+                            'ferry-captain': '.ferry-captain-go',
+                            'bagel-counters': '.bagel-counters-start',
+                            'showtime': '.showtime-go'
+                        }};
                         
-                        // Check if we're in a game interface (look for game-specific elements)
-                        const hasGameUI = !!document.querySelector('.game-stage, .game-canvas, canvas, .belt, .customers');
+                        const gameId = '{game_id}';
+                        let btn = null;
                         
-                        return {
+                        // Try game-specific selector first
+                        if (gameButtons[gameId]) {{
+                            btn = document.querySelector(gameButtons[gameId]);
+                        }}
+                        
+                        // Fallback to generic search
+                        if (!btn) {{
+                            btn = [...document.querySelectorAll('button')]
+                                .find(b => /start|play|go|let|cast off/i.test(b.textContent || ''));
+                        }}
+                        
+                        // Check if we're in a game interface
+                        const hasGameUI = !!document.querySelector('.game-stage, .game-canvas, canvas, .belt, .customers, .ferry-wheel, .bagel-stage, .showtime-stage');
+                        
+                        return {{
                             hasButton: !!btn,
                             buttonText: btn ? btn.textContent.trim() : null,
+                            buttonSelector: btn ? btn.className : null,
                             hasGameUI: hasGameUI
-                        };
-                    }
+                        }};
+                    }}
                 """)
                 
                 # Click start button if found
                 if game_state_before and game_state_before.get('hasButton'):
-                    await self.js_eval("""
-                        () => {
-                            const btn = [...document.querySelectorAll('button')]
-                                .find(b => /start|play|go|let/i.test(b.textContent || ''));
+                    await self.js_eval(f"""
+                        () => {{
+                            const gameButtons = {{
+                                'slice-factory': '.slice-factory-go, button.go',
+                                'halal-rush': '.halal-rush-go',
+                                'ferry-captain': '.ferry-captain-go',
+                                'bagel-counters': '.bagel-counters-start',
+                                'showtime': '.showtime-go'
+                            }};
+                            
+                            const gameId = '{game_id}';
+                            let btn = null;
+                            
+                            if (gameButtons[gameId]) {{
+                                btn = document.querySelector(gameButtons[gameId]);
+                            }}
+                            
+                            if (!btn) {{
+                                btn = [...document.querySelectorAll('button')]
+                                    .find(b => /start|play|go|let|cast off/i.test(b.textContent || ''));
+                            }}
+                            
                             if (btn) btn.click();
-                        }
+                        }}
                     """)
                     await self.page.wait_for_timeout(3000)
                     
@@ -670,6 +740,57 @@ class PlaytestBot:
             
         except Exception as e:
             self.log_metric('apartment_error', str(e))
+    
+    async def run_coverage_session(self):
+        """Comprehensive coverage session: visit ALL rooms and try ALL games"""
+        print(f"\n{'='*60}")
+        print(f"COVERAGE SESSION: {self.profile}")
+        print(f"Goal: Visit every room and try every mini-game")
+        print(f"{'='*60}\n")
+        
+        await self.page.goto(f'{self.base_url}/play?profile={self.profile}&offline=1',
+                            wait_until='networkidle')
+        
+        if await self.wait_for_game_ready():
+            self.log_metric('coverage_started', True)
+            
+            # Get all rooms from the game
+            all_rooms = await self.js_eval("""
+                () => {
+                    // Try to get room list from game
+                    if (window.clubNyc?.ROOMS) {
+                        return Object.keys(window.clubNyc.ROOMS);
+                    }
+                    return null;
+                }
+            """)
+            
+            if not all_rooms:
+                # Fallback to known rooms
+                all_rooms = [
+                    'times-square', 'broadway', 'iloveny', 'rockefeller', 'fifth-ave',
+                    'toy-palace', 'maison-malle', 'central-park', 'the-met', 'empire-deck',
+                    'grand-central', 'subway', 'soho', 'thread', 'sneaker-vault', 'coffee',
+                    'chinatown', 'pizza', 'brooklyn-bridge', 'battery-park', 'liberty-island',
+                    'high-line', 'chelsea-market', 'apartment'
+                ]
+            
+            self.log_metric('rooms_to_visit', len(all_rooms))
+            
+            # Visit every room
+            for room in all_rooms:
+                try:
+                    await self.goto_room(room)
+                    await self.scan_for_nyc_content(room)
+                    await self.page.wait_for_timeout(800)
+                except Exception as e:
+                    self.log_metric('room_visit_failed', room, str(e))
+            
+            # Try ALL mini-games
+            await self._try_mini_games(limit=None)  # No limit, try all 5
+            
+        else:
+            self.log_metric('coverage_failed', 'Game did not load')
     
     async def run_returning_session(self):
         """Simulate a returning player session"""
@@ -812,7 +933,14 @@ def calculate_score(report: Dict[str, Any]) -> Dict[str, Any]:
     features = len(report.get('features_discovered', []))
     games = len(report.get('mini_games_attempted', []))
     nyc_refs = len(report.get('nyc_references_seen', []))
-    nyc_jokes = len(report.get('nyc_jokes_seen', []))
+    
+    # NYC jokes can be list of strings (old format) or list of dicts (new format)
+    jokes_data = report.get('nyc_jokes_seen', [])
+    if jokes_data and isinstance(jokes_data[0], dict):
+        nyc_jokes = len(jokes_data)  # New format: list of dicts
+    else:
+        nyc_jokes = len(jokes_data)  # Old format: list of strings
+    
     errors = len(report.get('console_errors', []))
     stuck = len(report.get('stuck_states', []))
     confusing = len(report.get('confusing_moments', []))
@@ -932,9 +1060,9 @@ def calculate_score(report: Dict[str, Any]) -> Dict[str, Any]:
 
 
 async def main():
-    """Run both first-time and returning player sessions"""
+    """Run first-time, returning, and coverage sessions"""
     
-    # First-time player
+    # First-time player (measures what new players actually see)
     bot1 = PlaytestBot('playtest-new-player', 'http://localhost:5173')
     await bot1.init()
     try:
@@ -952,20 +1080,36 @@ async def main():
         report2 = await bot2.finalize_report()
         await bot2.close()
     
+    # Coverage session (visits ALL rooms and tries ALL games)
+    bot3 = PlaytestBot('playtest-coverage', 'http://localhost:5173')
+    await bot3.init()
+    try:
+        await bot3.run_coverage_session()
+    finally:
+        report3 = await bot3.finalize_report()
+        await bot3.close()
+    
     # Generate summary
     from report_generator import generate_summary_report
-    summary_path = generate_summary_report([report1, report2])
+    summary_path = generate_summary_report([report1, report2, report3])
     
     # Calculate and save scores
     score1 = calculate_score(report1)
     score2 = calculate_score(report2)
+    score3 = calculate_score(report3)  # Coverage session
+    
+    # Combined score uses first-time + returning (not coverage)
+    # Coverage is for discovering content, not measuring UX
+    combined_score = (score1['overall_score'] + score2['overall_score']) / 2
     
     # Save latest.json for comparison
     latest = {
         'generated_at': time.time(),
         'first_time_score': score1,
         'returning_score': score2,
-        'combined_score': (score1['overall_score'] + score2['overall_score']) / 2
+        'coverage_score': score3,
+        'combined_score': combined_score,
+        'notes': 'Combined score is average of first_time and returning only. Coverage session is for content discovery.'
     }
     
     latest_path = OUT / 'latest.json'
@@ -975,13 +1119,21 @@ async def main():
     print(f"\n📊 Scores saved to: {latest_path}")
     print(f"   First-time score: {score1['overall_score']:.1f}/100")
     print(f"   Returning score: {score2['overall_score']:.1f}/100")
-    print(f"   Combined score: {latest['combined_score']:.1f}/100")
+    print(f"   Coverage score: {score3['overall_score']:.1f}/100 (FYI only)")
+    print(f"   Combined score: {combined_score:.1f}/100")
+    
+    print(f"\n🗽 NYC Jokes found:")
+    print(f"   First-time: {len(report1.get('nyc_jokes_seen', []))} jokes")
+    print(f"   Coverage: {len(report3.get('nyc_jokes_seen', []))} jokes")
+    if report3.get('nyc_jokes_seen'):
+        for joke in report3['nyc_jokes_seen']:
+            print(f"      - {joke['joke']} (at {joke['location']})")
     
     print("\n✅ Playtest complete! Check tools/playtest/out/ for results.")
     
     # Exit with non-zero if scores are low (below 60)
-    if latest['combined_score'] < 60:
-        print(f"\n⚠️  Warning: Combined score {latest['combined_score']:.1f} is below threshold (60)")
+    if combined_score < 60:
+        print(f"\n⚠️  Warning: Combined score {combined_score:.1f} is below threshold (60)")
         return 1
     
     return 0
