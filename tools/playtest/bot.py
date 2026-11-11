@@ -198,21 +198,59 @@ class PlaytestBot:
     async def scan_for_nyc_content(self):
         """Scan visible page content for NYC references and jokes"""
         try:
-            text_content = await self.js_eval("""
+            result = await self.js_eval("""
                 () => {
                     const getText = (el) => {
                         if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return '';
                         return el.innerText || el.textContent || '';
                     };
-                    return getText(document.body).toLowerCase();
+                    
+                    const text = getText(document.body).toLowerCase();
+                    
+                    // Also check for visible images/signs with parody brands
+                    const visibleElements = Array.from(document.querySelectorAll('*')).filter(el => {
+                        const style = window.getComputedStyle(el);
+                        return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+                    });
+                    
+                    const allText = visibleElements.map(el => 
+                        (el.innerText || el.textContent || el.alt || el.title || '').toLowerCase()
+                    ).join(' ');
+                    
+                    return {
+                        bodyText: text,
+                        visibleText: allText
+                    };
                 }
             """)
             
-            if text_content:
+            if result:
+                all_text = result.get('visibleText', '') + ' ' + result.get('bodyText', '')
+                
+                # Check for NYC references
                 for keyword in self.nyc_keywords:
-                    if keyword in text_content and keyword not in self.report.nyc_references_seen:
+                    if keyword in all_text and keyword not in self.report.nyc_references_seen:
                         self.report.nyc_references_seen.append(keyword)
                         self.log_metric('nyc_reference', keyword)
+                
+                # Check for explicit parody/joke brands (case-insensitive)
+                # These are considered "jokes" because they're parodies
+                joke_patterns = [
+                    ('starducks', 'Starducks Coffee (Starbucks parody)'),
+                    ('nyke', 'NYKE "Just Do NY" (Nike parody)'),
+                    ('vuittown', 'Louis Vuittown (Louis Vuitton parody)'),
+                    ('snacks fifth avenue', 'Snacks Fifth Avenue (Saks parody)'),
+                    ('just do ny', 'NYKE slogan parody'),
+                    ('bodega cat', 'Bodega cat (NYC icon)'),
+                    ('pizza rat', 'Pizza rat (NYC meme)'),
+                    ('i ♥ ny', 'I ♥ NY (tourist parody)'),
+                    ('halal bros', 'Halal Bros (Halal Guys parody)'),
+                ]
+                
+                for pattern, description in joke_patterns:
+                    if pattern in all_text and description not in self.report.nyc_jokes_seen:
+                        self.report.nyc_jokes_seen.append(description)
+                        self.log_metric('nyc_joke', description)
         except Exception as e:
             pass
     
@@ -485,7 +523,7 @@ class PlaytestBot:
         
         for game_id, game_name in games[:3]:  # Try first 3 games
             try:
-                self.log_metric('trying_game', game_name)
+                self.log_metric('attempting_game', game_name)
                 
                 # Navigate to game page
                 await self.page.goto(f'{self.base_url}/play?game={game_id}&profile={self.profile}',
@@ -493,39 +531,85 @@ class PlaytestBot:
                 await self.page.wait_for_timeout(2500)
                 await self.screenshot(f'game-{game_id}-intro')
                 
-                self.report.mini_games_attempted.append(game_name)
-                self.report.features_discovered.append(f'mini_game_{game_id}')
-                
-                # Mark this as a fun moment if it's the first
-                if self.report.time_to_first_fun is None or len(self.report.mini_games_attempted) == 1:
-                    self.report.time_to_first_fun = min(
-                        self.report.time_to_first_fun or float('inf'),
-                        self.elapsed()
-                    )
-                    self.log_metric('fun_moment', game_name, 'First mini-game discovered')
-                
                 # Try to start the game
-                started = await self.js_eval("""
+                game_state_before = await self.js_eval("""
                     () => {
                         const btn = [...document.querySelectorAll('button')]
                             .find(b => /start|play|go|let/i.test(b.textContent || ''));
-                        if (btn) {
-                            btn.click();
-                            return btn.textContent.trim();
-                        }
-                        return null;
+                        
+                        // Check if we're in a game interface (look for game-specific elements)
+                        const hasGameUI = !!document.querySelector('.game-stage, .game-canvas, canvas, .belt, .customers');
+                        
+                        return {
+                            hasButton: !!btn,
+                            buttonText: btn ? btn.textContent.trim() : null,
+                            hasGameUI: hasGameUI
+                        };
                     }
                 """)
                 
-                if started:
-                    self.log_metric('game_started', game_name)
+                # Click start button if found
+                if game_state_before and game_state_before.get('hasButton'):
+                    await self.js_eval("""
+                        () => {
+                            const btn = [...document.querySelectorAll('button')]
+                                .find(b => /start|play|go|let/i.test(b.textContent || ''));
+                            if (btn) btn.click();
+                        }
+                    """)
                     await self.page.wait_for_timeout(3000)
-                    await self.screenshot(f'game-{game_id}-playing')
+                    
+                    # Verify game actually started
+                    game_state_after = await self.js_eval("""
+                        () => {
+                            // Check if gameplay elements appeared
+                            const hasGameUI = !!document.querySelector('.game-stage, .game-canvas, canvas, .belt, .customers');
+                            const hasStartButton = !![...document.querySelectorAll('button')]
+                                .find(b => /start|play|go|let/i.test(b.textContent || ''));
+                            
+                            return {
+                                hasGameUI: hasGameUI,
+                                hasStartButton: hasStartButton
+                            };
+                        }
+                    """)
+                    
+                    # Game successfully started if:
+                    # - Start button is gone OR
+                    # - Game UI elements appeared
+                    game_started = (
+                        (game_state_after and game_state_after.get('hasGameUI')) or
+                        (game_state_after and not game_state_after.get('hasStartButton'))
+                    )
+                    
+                    if game_started:
+                        self.log_metric('game_started_successfully', game_name)
+                        self.report.mini_games_attempted.append(game_name)
+                        self.report.features_discovered.append(f'mini_game_{game_id}')
+                        await self.screenshot(f'game-{game_id}-playing')
+                        
+                        # Mark as fun moment
+                        if self.report.time_to_first_fun is None or len(self.report.mini_games_attempted) == 1:
+                            self.report.time_to_first_fun = min(
+                                self.report.time_to_first_fun or float('inf'),
+                                self.elapsed()
+                            )
+                            self.log_metric('fun_moment', game_name, 'First mini-game started')
+                    else:
+                        # Button clicked but game didn't start - likely a bug
+                        self.log_metric('game_start_failed', game_name, 'Button clicked but game UI did not appear')
+                        self.report.confusing_moments.append({
+                            'timestamp': self.elapsed(),
+                            'issue': f'Could not start {game_name}',
+                            'context': 'Start button clicked but game did not launch (possible bug)'
+                        })
                 else:
+                    # No start button found - harness issue or different UI
+                    self.log_metric('game_no_start_button', game_name, 'No start button found')
                     self.report.confusing_moments.append({
                         'timestamp': self.elapsed(),
-                        'issue': f'Could not start {game_name}',
-                        'context': 'No start button found'
+                        'issue': f'Could not find start button for {game_name}',
+                        'context': 'Harness may need updated selectors'
                     })
                 
                 # Return to main game
@@ -720,59 +804,129 @@ class PlaytestBot:
 
 def calculate_score(report: Dict[str, Any]) -> Dict[str, Any]:
     """Calculate a comparable score from a report"""
+    
+    # Raw metrics
+    time_to_fun = report.get('time_to_first_fun', 999)
+    time_to_enter = report.get('time_to_enter_game', 999)
+    places = len(report.get('places_discovered', []))
+    features = len(report.get('features_discovered', []))
+    games = len(report.get('mini_games_attempted', []))
+    nyc_refs = len(report.get('nyc_references_seen', []))
+    nyc_jokes = len(report.get('nyc_jokes_seen', []))
+    errors = len(report.get('console_errors', []))
+    stuck = len(report.get('stuck_states', []))
+    confusing = len(report.get('confusing_moments', []))
+    goals = len(report.get('unfinished_goals', []))
+    
+    # Calculate category scores (0-100 each)
+    
+    # 1. Onboarding (based on time to first fun)
+    # A: <20s, B: 20-40s, C: 40-80s, D: >80s
+    if time_to_fun < 20:
+        onboarding_score = 100
+    elif time_to_fun < 40:
+        onboarding_score = 80 - ((time_to_fun - 20) * 1.5)  # 100->70
+    elif time_to_fun < 80:
+        onboarding_score = 70 - ((time_to_fun - 40) * 1.0)  # 70->30
+    else:
+        onboarding_score = max(0, 30 - ((time_to_fun - 80) * 0.5))
+    
+    # 2. Discovery (places + features + games)
+    # A: 15+, B: 10-14, C: 5-9, D: <5
+    discovery_total = places + features + games
+    if discovery_total >= 15:
+        discovery_score = 100
+    elif discovery_total >= 10:
+        discovery_score = 70 + (discovery_total - 10) * 6  # 70->100
+    elif discovery_total >= 5:
+        discovery_score = 30 + (discovery_total - 5) * 8  # 30->70
+    else:
+        discovery_score = discovery_total * 6  # 0->30
+    
+    # 3. NYC Culture (references + jokes weighted heavily)
+    # A: 8+ jokes OR 20+ refs, B: 5+ jokes OR 15+ refs, C: 2+ jokes OR 10+ refs, D: <2 jokes
+    culture_from_jokes = nyc_jokes * 12.5  # Each joke worth 12.5 points (8 jokes = 100)
+    culture_from_refs = nyc_refs * 5  # Each ref worth 5 points (20 refs = 100)
+    nyc_culture_score = min(100, culture_from_jokes + culture_from_refs * 0.3)  # Jokes count 3x more
+    
+    # 4. Stability (errors and stuck states)
+    # A: 0 errors/stuck, B: 1-2 minor issues, C: 3-5, D: 6+
+    stability_problems = errors * 2 + stuck * 3 + confusing
+    stability_score = max(0, 100 - (stability_problems * 10))
+    
+    # 5. Retention (unfinished goals and rewards)
+    # A: 5+ goals, B: 3-4, C: 1-2, D: 0
+    if goals >= 5:
+        retention_score = 100
+    elif goals >= 3:
+        retention_score = 70 + (goals - 3) * 15  # 70->100
+    elif goals >= 1:
+        retention_score = 30 + (goals - 1) * 20  # 30->70
+    else:
+        retention_score = 0
+    
+    # Overall score: weighted average of categories
+    # Weights reflect importance for Club NYC
+    weights = {
+        'onboarding': 0.20,   # Fast entry is important
+        'discovery': 0.20,     # Finding content matters
+        'nyc_culture': 0.30,   # THIS IS THE HOOK - highest weight
+        'stability': 0.15,     # Must work properly
+        'retention': 0.15      # Reasons to return
+    }
+    
+    overall_score = (
+        onboarding_score * weights['onboarding'] +
+        discovery_score * weights['discovery'] +
+        nyc_culture_score * weights['nyc_culture'] +
+        stability_score * weights['stability'] +
+        retention_score * weights['retention']
+    )
+    
+    # Letter grades
+    def letter_grade(score):
+        if score >= 90: return 'A'
+        elif score >= 80: return 'B'
+        elif score >= 70: return 'C'
+        elif score >= 60: return 'D'
+        else: return 'F'
+    
     score = {
-        'version': 1,
+        'version': 2,  # Updated scoring version
         'timestamp': report['end_time'],
         'session_type': report['session_type'],
         
-        # Key metrics (lower is better for times, higher for discoveries)
-        'time_to_first_fun_seconds': report.get('time_to_first_fun', 999),
-        'time_to_enter_game_seconds': report.get('time_to_enter_game', 999),
-        
-        'places_discovered_count': len(report.get('places_discovered', [])),
-        'features_discovered_count': len(report.get('features_discovered', [])),
-        'mini_games_attempted_count': len(report.get('mini_games_attempted', [])),
-        
-        'nyc_references_count': len(report.get('nyc_references_seen', [])),
-        'nyc_jokes_count': len(report.get('nyc_jokes_seen', [])),
-        
-        'console_errors_count': len(report.get('console_errors', [])),
-        'stuck_states_count': len(report.get('stuck_states', [])),
-        'confusing_moments_count': len(report.get('confusing_moments', [])),
-        
+        # Raw metrics
+        'time_to_first_fun_seconds': time_to_fun,
+        'time_to_enter_game_seconds': time_to_enter,
+        'places_discovered_count': places,
+        'features_discovered_count': features,
+        'mini_games_attempted_count': games,
+        'nyc_references_count': nyc_refs,
+        'nyc_jokes_count': nyc_jokes,
+        'console_errors_count': errors,
+        'stuck_states_count': stuck,
+        'confusing_moments_count': confusing,
         'rewards_earned_count': len(report.get('rewards_earned', [])),
-        'unfinished_goals_count': len(report.get('unfinished_goals', [])),
+        'unfinished_goals_count': goals,
         
-        # Composite score (0-100, higher is better)
-        'overall_score': 0.0
+        # Category scores
+        'onboarding_score': round(onboarding_score, 1),
+        'discovery_score': round(discovery_score, 1),
+        'nyc_culture_score': round(nyc_culture_score, 1),
+        'stability_score': round(stability_score, 1),
+        'retention_score': round(retention_score, 1),
+        
+        # Letter grades
+        'onboarding_grade': letter_grade(onboarding_score),
+        'discovery_grade': letter_grade(discovery_score),
+        'nyc_culture_grade': letter_grade(nyc_culture_score),
+        'stability_grade': letter_grade(stability_score),
+        'retention_grade': letter_grade(retention_score),
+        
+        # Overall
+        'overall_score': round(overall_score, 1)
     }
-    
-    # Calculate overall score
-    # Start at 100, deduct for problems, add for successes
-    overall = 100.0
-    
-    # Penalize slow onboarding (target <30s)
-    if score['time_to_first_fun_seconds'] > 30:
-        overall -= min(20, (score['time_to_first_fun_seconds'] - 30) * 0.5)
-    
-    # Reward discovery
-    overall += score['places_discovered_count'] * 2
-    overall += score['features_discovered_count'] * 3
-    overall += score['mini_games_attempted_count'] * 5
-    
-    # Reward NYC culture
-    overall += score['nyc_references_count'] * 1
-    overall += score['nyc_jokes_count'] * 3
-    
-    # Penalize problems
-    overall -= score['console_errors_count'] * 10
-    overall -= score['stuck_states_count'] * 15
-    overall -= score['confusing_moments_count'] * 5
-    
-    # Reward retention signals
-    overall += score['unfinished_goals_count'] * 2
-    
-    score['overall_score'] = max(0, min(100, overall))
     
     return score
 
