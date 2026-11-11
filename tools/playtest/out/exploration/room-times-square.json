@@ -1,0 +1,63 @@
+{
+  "room": "times-square",
+  "title": null,
+  "hotspots": [
+    {
+      "id": "subway",
+      "label": null
+    },
+    {
+      "id": "pigeon-3",
+      "label": null
+    },
+    {
+      "id": "pigeon-2",
+      "label": null
+    },
+    {
+      "id": "exit-right",
+      "label": null
+    },
+    {
+      "id": "hotdog",
+      "label": null
+    },
+    {
+      "id": "pigeon-1",
+      "label": null
+    },
+    {
+      "id": "taxi",
+      "label": null
+    },
+    {
+      "id": "exit-left",
+      "label": null
+    },
+    {
+      "id": "red-steps",
+      "label": null
+    },
+    {
+      "id": "broadway",
+      "label": null
+    },
+    {
+      "id": "souvenirs",
+      "label": null
+    },
+    {
+      "id": "steps-1",
+      "label": null
+    },
+    {
+      "id": "steps-2",
+      "label": null
+    },
+    {
+      "id": "steps-3",
+      "label": null
+    }
+  ],
+  "npcs": 5
+}

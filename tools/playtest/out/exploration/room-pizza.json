@@ -1,0 +1,79 @@
+{
+  "room": "pizza",
+  "title": null,
+  "hotspots": [
+    {
+      "id": "table-3",
+      "label": null
+    },
+    {
+      "id": "table-4",
+      "label": null
+    },
+    {
+      "id": "table-2",
+      "label": null
+    },
+    {
+      "id": "table-1",
+      "label": null
+    },
+    {
+      "id": "counter",
+      "label": null
+    },
+    {
+      "id": "boxes",
+      "label": null
+    },
+    {
+      "id": "neon",
+      "label": null
+    },
+    {
+      "id": "photos-left",
+      "label": null
+    },
+    {
+      "id": "door",
+      "label": null
+    },
+    {
+      "id": "photos-right",
+      "label": null
+    },
+    {
+      "id": "menu",
+      "label": null
+    },
+    {
+      "id": "oven",
+      "label": null
+    },
+    {
+      "id": "soda",
+      "label": null
+    },
+    {
+      "id": "window",
+      "label": null
+    },
+    {
+      "id": "table-1-a",
+      "label": null
+    },
+    {
+      "id": "table-4-a",
+      "label": null
+    },
+    {
+      "id": "table-3-b",
+      "label": null
+    },
+    {
+      "id": "table-4-b",
+      "label": null
+    }
+  ],
+  "npcs": 1
+}

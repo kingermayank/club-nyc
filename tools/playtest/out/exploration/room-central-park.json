@@ -1,0 +1,71 @@
+{
+  "room": "central-park",
+  "title": null,
+  "hotspots": [
+    {
+      "id": "bench-1",
+      "label": null
+    },
+    {
+      "id": "squirrel-2",
+      "label": null
+    },
+    {
+      "id": "pretzels",
+      "label": null
+    },
+    {
+      "id": "bench-2",
+      "label": null
+    },
+    {
+      "id": "carriage",
+      "label": null
+    },
+    {
+      "id": "duck-3",
+      "label": null
+    },
+    {
+      "id": "duck-2",
+      "label": null
+    },
+    {
+      "id": "duck-1",
+      "label": null
+    },
+    {
+      "id": "squirrel-1",
+      "label": null
+    },
+    {
+      "id": "exit-left",
+      "label": null
+    },
+    {
+      "id": "exit-right",
+      "label": null
+    },
+    {
+      "id": "rowboat",
+      "label": null
+    },
+    {
+      "id": "bridge",
+      "label": null
+    },
+    {
+      "id": "boathouse",
+      "label": null
+    },
+    {
+      "id": "bench-2",
+      "label": null
+    },
+    {
+      "id": "bench-1",
+      "label": null
+    }
+  ],
+  "npcs": 4
+}

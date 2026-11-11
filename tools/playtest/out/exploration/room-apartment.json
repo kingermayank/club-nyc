@@ -1,0 +1,31 @@
+{
+  "room": "apartment",
+  "title": null,
+  "hotspots": [
+    {
+      "id": "radiator",
+      "label": null
+    },
+    {
+      "id": "stove",
+      "label": null
+    },
+    {
+      "id": "fridge",
+      "label": null
+    },
+    {
+      "id": "door",
+      "label": null
+    },
+    {
+      "id": "kitchen",
+      "label": null
+    },
+    {
+      "id": "window",
+      "label": null
+    }
+  ],
+  "npcs": 0
+}
