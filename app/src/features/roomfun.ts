@@ -58,30 +58,138 @@ export function squirrel(g: Game) {
   } else g.say(pick(['That squirrel is eyeing my hands. Nothing there, buddy.', 'Central Park squirrels fear nothing. This one fears nothing in particular.', 'It’s burying an acorn. It will never find it again. Relatable.']))
 }
 
-/** Rockefeller: a lap around the ice (click anywhere to stop). */
-export function skateLap(g: Game) {
-  const ice = world.geo?.ice
-  if (!ice || world.room.id !== 'rockefeller') return
+let rinkBusy = false
+
+function rinkRing(ice: Pt[]): Pt[] {
   const cx = ice.reduce((s, p) => s + p[0], 0) / ice.length
   const cy = ice.reduce((s, p) => s + p[1], 0) / ice.length
-  const step = Math.max(1, Math.floor(ice.length / 8))
+  const step = Math.max(1, Math.floor(ice.length / 10))
   const ring: Pt[] = []
-  for (let i = 0; i < ice.length; i += step) ring.push([cx + (ice[i][0] - cx) * 0.74, cy + (ice[i][1] - cy) * 0.62])
-  // start from the point nearest you, go all the way round
+  for (let i = 0; i < ice.length; i += step) ring.push([cx + (ice[i][0] - cx) * 0.7, cy + (ice[i][1] - cy) * 0.58])
+  return ring
+}
+
+function laceUp(g: Game): boolean {
+  if (save.look.items.feet === 'skates') return true
+  if (g.owns('skates')) {
+    g.wear('skates')
+    g.say('Laced up. Time to look graceful.')
+    return true
+  }
+  return false
+}
+
+/** Click the rink: step onto the ice (no info card). */
+export function stepOntoIce(g: Game) {
+  const ice = world.geo?.ice
+  if (!ice || world.room.id !== 'rockefeller') return
+  if (world.player.skating) {
+    g.say(pick(['Already on the ice. Pick a direction.', 'You’re on it. Glide anywhere.']))
+    return
+  }
+  laceUp(g)
+  const cx = ice.reduce((s, p) => s + p[0], 0) / ice.length
+  const cy = ice.reduce((s, p) => s + p[1], 0) / ice.length
+  walkTo([500, 470], () => {
+    walkTo([cx, cy], () => {
+      if (world.player.skating) g.say(pick(['On the ice. Click anywhere to glide.', 'Blades down. Don’t look at Prometheus — he judges.']))
+    })
+  })
+}
+
+/** A show-off spin on the ice (falls over in sneakers, on purpose). */
+export function skateSpin(g: Game) {
+  if (world.room.id !== 'rockefeller') return
+  const ice = world.geo?.ice
+  if (!ice) return
+  const onIce = world.player.skating
+  if (!onIce) {
+    // Get onto the ice first, then spin — no more “dance in place” from the card.
+    const gate: Pt = [500, 470]
+    walkTo(gate, () => {
+      walkTo(rinkRing(ice)[0], () => skateSpin(g))
+    })
+    return
+  }
+  if (save.look.items.feet !== 'skates') {
+    world.player.emote('sit', 2)
+    sfx.whoosh()
+    return g.say(pick(['Spin… sit. Classic sneaker technique.', 'That was a sit-spin. Emphasis on sit.']))
+  }
+  g.emote('dance', 2.4)
+  sfx.whoosh()
+  setTimeout(() => g.say(pick(['Triple axel! (It was a single. Don’t tell anyone.)', 'Prometheus just nodded. Or the wind.', 'A spin! Or a very slow fall. Same thing.'])), 500)
+}
+
+/**
+ * Rockefeller: a real held lap around the ice.
+ * Ice is now walkable (nav extras + gate bridge), so the skate pose / speed engage.
+ */
+export function skateLap(g: Game) {
+  const ice = world.geo?.ice
+  if (!ice || world.room.id !== 'rockefeller' || rinkBusy) return
+  rinkBusy = true
+  const release = hold()
+  const laced = laceUp(g)
+  if (!laced) g.say(pick(['Skating in sneakers. Bold choice.', 'No skates? The ice has notes.']))
+
+  const ring = rinkRing(ice)
   const p = world.player.pos
   const k = ring.reduce((b, q, i) => (Math.hypot(q[0] - p[0], q[1] - p[1]) < Math.hypot(ring[b][0] - p[0], ring[b][1] - p[1]) ? i : b), 0)
   const path = [...ring.slice(k), ...ring.slice(0, k), ring[k]]
-  if (save.look.items.feet !== 'skates') g.say('Skating in sneakers. Bold choice.')
+
+  const hud = el(
+    'div',
+    'scene-card rink-lap',
+    `<div class="sc-inner">
+      <div class="rl-emoji">⛸️</div>
+      <div class="sc-text">Skating a lap…</div>
+      <small>Under Prometheus. Try not to wave at the tourists.</small>
+      <button class="btn small ghost rl-stop" type="button">Step Off</button>
+    </div>`,
+  )
+  stage.root.append(hud)
+  let stopped = false
+  const stop = (quit: boolean) => {
+    if (stopped) return
+    stopped = true
+    rinkBusy = false
+    world.player.path = []
+    hud.classList.add('out')
+    setTimeout(() => hud.remove(), 500)
+    release()
+    if (quit) g.say(pick(['Cut short. The wall looked friendly.', 'Early exit. Graceful-ish.']))
+  }
+  hud.querySelector<HTMLButtonElement>('.rl-stop')!.onclick = () => stop(true)
+
   let i = 0
+  const mid = Math.floor(path.length / 2)
   const next = () => {
-    if (world.room.id !== 'rockefeller') return
+    if (stopped) return
+    if (world.room.id !== 'rockefeller') return stop(true)
     if (i >= path.length) {
-      g.emote('dance', 2)
-      return g.say(pick(['Triple axel! (It was a single. Don’t tell anyone.)', 'Nailed the landing. Mostly.', 'One lap. My legs say that was ten.']))
+      g.emote('cheer', 2)
+      g.confetti(18)
+      sfx.stamp()
+      g.say(pick(['One clean lap. Prometheus is proud.', 'Nailed the landing. Mostly.', 'Legs: “that was ten.” Me: “that was one.”']))
+      // Rink Rat stamps on first ice contact; lap just celebrates.
+      return stop(false)
+    }
+    if (i === mid) {
+      if (laced && Math.random() < 0.55) {
+        g.emote('dance', 1.6)
+        g.say(pick(['Show-off spin mid-lap.', 'Arms out. Very Olympic.']))
+      } else if (!laced && Math.random() < 0.7) {
+        world.player.emote('sit', 1.4)
+        g.say(pick(['Wobble. The tourists clap anyway.', 'Sneaker brake engaged.']))
+      }
     }
     walkTo(path[i++], next)
   }
-  next()
+  // Enter via the gate if you're still on the plaza, then start the ring.
+  const gate: Pt = [500, 470]
+  if (!world.player.skating) walkTo(gate, next)
+  else next()
 }
 
 /** the giant floor piano (from the Fifth Avenue toy-store days): walk it from end to end. */

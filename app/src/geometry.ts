@@ -52,14 +52,19 @@ export class NavGrid {
   readonly h: number
   private open: Uint8Array
 
-  constructor(walk: Pt[], holes: Pt[][] = [], width = 1000, height = 565) {
+  /**
+   * `extras` are additional walkable polygons (e.g. Rockefeller ice) that sit
+   * outside the main plaza walk mesh but should still be pathable.
+   */
+  constructor(walk: Pt[], holes: Pt[][] = [], width = 1000, height = 565, extras: Pt[][] = []) {
     this.w = Math.ceil(width / CELL)
     this.h = Math.ceil(height / CELL)
     this.open = new Uint8Array(this.w * this.h)
     for (let gy = 0; gy < this.h; gy++)
       for (let gx = 0; gx < this.w; gx++) {
         const p: Pt = [(gx + 0.5) * CELL, (gy + 0.5) * CELL]
-        if (inPoly(p, walk) && !holes.some((h) => inPoly(p, h))) this.open[gy * this.w + gx] = 1
+        const onWalk = inPoly(p, walk) || extras.some((poly) => inPoly(p, poly))
+        if (onWalk && !holes.some((h) => inPoly(p, h))) this.open[gy * this.w + gx] = 1
       }
   }
 
