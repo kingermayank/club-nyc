@@ -6,3 +6,26 @@
 .cc-count small { font: var(--fs-sm) var(--display); opacity: 0.75; }
 .cc-line { margin-top: var(--sp-2); font-size: var(--fs-lg); max-width: 420px; }
 .rowboat-ride { background: radial-gradient(circle at 50% 60%, rgba(111, 182, 255, 0.5), rgba(14, 45, 80, 0.8)); }
+
+/* Rockefeller lap: a light HUD while you actually skate in-world (not a replace-the-scene card). */
+.rink-lap {
+  background: transparent;
+  pointer-events: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 72px;
+}
+.rink-lap .sc-inner {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 360px;
+  padding: 14px 18px 16px;
+  background: linear-gradient(180deg, rgba(232, 246, 255, 0.94), rgba(255, 255, 255, 0.92));
+  border: 1px solid rgba(40, 90, 140, 0.18);
+  box-shadow: 0 10px 28px rgba(20, 50, 80, 0.18);
+  text-align: center;
+}
+.rink-lap .rl-emoji { font-size: 28px; line-height: 1; margin-bottom: 4px; }
+.rink-lap .sc-text { font: var(--fs-xl) var(--display); color: var(--ink, #1a2a3a); }
+.rink-lap small { display: block; margin-top: 4px; opacity: 0.75; }
+.rink-lap .rl-stop { margin-top: 10px; }

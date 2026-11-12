@@ -11,6 +11,8 @@ export interface Geo {
   zones?: Record<string, Rect | Pt[]>
   screens?: Record<string, Pt[]>
   ice?: Pt[]
+  /** Short walkable bridges that connect plaza walk meshes to ice / other extras. */
+  bridges?: Pt[][]
   piano?: { corners: Pt[]; whiteKeys: number }
   cutouts: Record<string, { rect: [number, number, number, number]; at?: Pt; fg?: boolean; base?: number }>
 }

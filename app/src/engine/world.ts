@@ -198,7 +198,13 @@ function buildRoom(from?: string) {
   if (!geo) {
     console.warn('no geo for room', room.id)
     world.nav = new NavGrid([[0, 300], [1000, 300], [1000, 548], [0, 548]])
-  } else world.nav = new NavGrid(geo.walk, geo.holes ?? [])
+  } else {
+    // Ice (and similar extras) lives outside the plaza walk mesh but must be
+    // pathable so skating / rink laps can actually reach the ice. Bridges fill
+    // small art gaps (e.g. the Rockefeller rink gate railing void).
+    const extras = [...(geo.ice ? [geo.ice] : []), ...(geo.bridges ?? [])]
+    world.nav = new NavGrid(geo.walk, geo.holes ?? [], 1000, 565, extras)
+  }
 
   // cutouts (pixel-traced objects)
   const standing: { rect: Rect; z: number }[] = []
@@ -448,7 +454,16 @@ function npcThink(a: Actor, dt: number) {
   }
   if (a.seat) a.standUp()
   if (r < 0.48) {
-    a.path = nav.path(a.pos, nav.randomPoint())
+    // At Rockefeller, locals often cut across the ice — the rink should feel busy, not empty.
+    let dest = nav.randomPoint()
+    const ice = world.room.id === 'rockefeller' ? world.geo?.ice : undefined
+    if (ice && Math.random() < 0.55) {
+      const i = Math.floor(Math.random() * ice.length)
+      const cx = ice.reduce((s, p) => s + p[0], 0) / ice.length
+      const cy = ice.reduce((s, p) => s + p[1], 0) / ice.length
+      dest = nav.nearest([cx + (ice[i][0] - cx) * 0.65, cy + (ice[i][1] - cy) * 0.55])
+    }
+    a.path = nav.path(a.pos, dest)
     a.next = 2 + Math.random() * 4
   } else if (r < 0.64 && world.seats.some(seatFree)) {
     const s = pick(world.seats.filter(seatFree))

@@ -163,13 +163,13 @@ const ownSkates = (g: Game): CardAction =>
     : { label: 'Rent Skates', note: '15 coins', act: () => g.catalog('rink') }
 const rinkCard = card({
   title: 'The Rink', kicker: 'Rockefeller Center · Since 1936', pic: view('rockefeller', [112, 290, 776, 220]),
-  text: 'The rink opened on Christmas Day 1936 and holds about 150 skaters at a time: you can lap it in under a minute. Walk onto the ice to skate. In November the giant Christmas tree goes up right behind Prometheus.',
+  text: 'Walk onto the ice to glide — or take a full lap under Prometheus. Skates help. Sneakers… make a statement.',
   joke: 'Coming soon: the tree. Coming every day: someone doing the splits by accident.',
   facts: ['Opened 1936', 'About 150 skaters', 'Tree arrives in November'],
   actions: (g) => [
-    { label: 'Skate a Lap', primary: true, act: () => fun((m) => m.skateLap(g)) },
+    { label: 'Skate a Lap', primary: true, note: 'on the ice', act: () => fun((m) => m.skateLap(g)) },
+    { label: 'Do a Spin', note: 'show off', act: () => fun((m) => m.skateSpin(g)) },
     ownSkates(g),
-    { label: 'Do a Spin', act: () => (g.emote('dance', 2), g.say('A spin! Or a very slow fall. Same thing.')) },
   ],
 })
 const halal = async (g: Game) => {
@@ -257,7 +257,9 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'rockefeller', name: 'Rockefeller Center', area: 'Midtown · The Rink', bg: 'rockefeller', npcs: 4, mapSpot: 'rockefeller',
     chatter: ['Do I look graceful? I feel graceful.', 'Who’s doing a triple axel?', 'The tree goes up in November!'],
     objects: {
-      rink: look('The Rink', rinkCard),
+      // Clicking the rink used to open a history card; now it puts you on the ice.
+      // Facts / rentals / lap+spin live on the booth and the rink-gate zone.
+      rink: { label: 'The Rink · Step On', act: (g) => fun((m) => m.stepOntoIce(g)) },
       statue: look('Prometheus', card({
         title: 'Prometheus', kicker: 'Rockefeller Center · 1934', pic: pic('rockefeller', 'statue'),
         text: 'Paul Manship’s gilded bronze Prometheus has flown over the rink since 1934: 18 feet tall, 8 tons, bringing fire to humanity like in the Greek myth. The ring around him shows the 12 signs of the zodiac, and a fountain splashes underneath.',
@@ -270,9 +272,14 @@ export const ROOMS: Record<string, RoomDef> = {
       })),
       'skate-rental': { label: 'Skate Rentals', act: card({
         title: 'Skate Rentals', kicker: 'The Rink', pic: pic('rockefeller', 'skate-rental'),
-        text: 'Skating here is a New York tradition: the rink usually opens in October and stays open into spring. Rent skates, then walk onto the ice to glide.',
+        text: 'Rent a pair, lace up, then hit the ice. The lap starts at the gate under Prometheus.',
         joke: 'Falling is free. Getting back up is extra.',
-        actions: (g) => [{ ...ownSkates(g), primary: true }, { label: 'Skate a Lap', act: () => fun((m) => m.skateLap(g)) }],
+        actions: (g) => [
+          { ...ownSkates(g), primary: true },
+          { label: 'Skate a Lap', note: 'on the ice', act: () => fun((m) => m.skateLap(g)) },
+          { label: 'Do a Spin', act: () => fun((m) => m.skateSpin(g)) },
+          { label: 'Rink History', note: 'since 1936', act: () => rinkCard(g) },
+        ],
       }) },
       'tv-studio': { label: 'TV Studio · Wave on Air!', act: (g) => import('../features/extras').then((m) => m.onAir(g)) },
       flags: look('The Flags', flagsCard),
