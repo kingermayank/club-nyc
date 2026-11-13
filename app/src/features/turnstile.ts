@@ -55,8 +55,11 @@ const SCREEN_MATRIX = quadMatrix(160, 68, [[397, 221], [475, 219], [398, 256], [
 const TAP: Pt = [748, 352]
 
 let lastIn = 0
-/** swiped in a minute ago: going back down doesn't cost another swipe */
-export const swipedRecently = () => Date.now() - lastIn < 90_000
+/** swiped in (or just stepped off a train) a few minutes ago: going back down to catch a train doesn't cost another
+ *  swipe. You swipe when you enter the subway, never when you're boarding or transferring. */
+export const swipedRecently = () => Date.now() - lastIn < 5 * 60_000
+/** you're in the system: stepping off a train counts, so heading back down for the next one is a free transfer */
+export const markInSystem = () => void (lastIn = Date.now())
 
 export interface SwipeOpts {
   /** the station you're walking into: its name and line bullets (HTML), on the sign hanging over the turnstiles */
@@ -74,23 +77,18 @@ type Verdict = 'go' | 'again' | 'fast' | 'slow'
 /** contactless waves, for the tap reader */
 const WAVES = `<svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M12 13a10 10 0 0 1 0 14"/><path d="M18 9a16 16 0 0 1 0 22"/><path d="M24 5a22 22 0 0 1 0 30"/></g></svg>`
 /**
- * Your hand, first person: the thumb on the card's face, the index finger hooked round its right edge, the palm and
- * wrist under it, and your jacket sleeve running off the bottom of the screen (so it reads as your arm, not a cut-off
- * hand). Drawn here, not painted, so it takes your New Yorker's skin tone.
+ * Your hand, first person, holding the card: a painting (art/hand/metrocard-hand-<skin>.png, one per skin tone) of a
+ * hand gripping a card, with the card itself cut out. It sits OVER the real card, so the card's face shows through the
+ * window while the thumb lies on top of it and the fingers stay behind. It lives inside the card, so the two tilt and
+ * move together, and it's hidden once the card goes into the reader.
+ * The numbers place the window on the card: the window's top-left corner and width in the painting's pixels (360 wide),
+ * and how far the painted card is turned.
  */
-const HAND_SVG = `<svg class="ts-hand" viewBox="0 0 150 230" aria-hidden="true">
-  <path class="sleeve" d="M2 170 C 30 156, 118 152, 150 166 L 150 236 L 0 236 Z"/>
-  <path class="cuff" d="M4 170 C 32 157, 116 154, 148 167 L 148 184 C 116 172, 36 174, 6 188 Z"/>
-  <path class="skin" d="M28 174 C 28 152, 34 134, 40 120 L 112 114 C 120 130, 124 150, 126 172 Z"/>
-  <path class="skin" d="M32 126 C 20 104, 28 76, 54 64 C 82 52, 112 60, 120 84 C 126 104, 120 120, 110 128 C 86 136, 54 136, 32 126 Z"/>
-  <path class="shade" d="M44 124 C 66 130, 92 128, 110 120"/>
-  <path class="skin" d="M70 66 C 68 44, 70 22, 78 10 C 84 2, 96 4, 97 14 C 98 30, 96 48, 100 70 C 94 76, 78 76, 70 66 Z"/>
-  <path class="nail" d="M80 12 C 83 7, 90 7, 93 12"/>
-  <path class="crease" d="M74 48 C 80 50, 90 50, 96 47"/>
-  <path class="skin" d="M48 78 C 38 66, 30 50, 34 38 C 38 28, 52 28, 58 38 L 74 64 C 72 76, 58 84, 48 78 Z"/>
-  <path class="nail" d="M37 39 C 39 33, 47 32, 51 37"/>
-  <path class="crease" d="M46 62 C 52 60, 58 62, 62 66"/>
-</svg>`
+const HAND_FIT = { w: 360, tl: [90.6, 28.5] as const, width: 225.2, angle: -6.69 }
+const handImg = (skin: number) => {
+  const k = 112 / HAND_FIT.width
+  return `<img class="ts-hand-img" src="/art/hand/metrocard-hand-${Math.max(0, Math.min(7, skin | 0))}.png" alt="" draggable="false" style="width:${HAND_FIT.w}px;transform:translate(-3px, -3px) rotate(${-HAND_FIT.angle}deg) scale(${k.toFixed(4)}) translate(${-HAND_FIT.tl[0]}px, ${-HAND_FIT.tl[1]}px)">`
+}
 
 /** Resolves true once you're through, false if you back out, 'skip' if you skip the arrival story. */
 export function swipeIn(o: SwipeOpts = {}): Promise<boolean | 'skip'> {
@@ -115,7 +113,7 @@ export function swipeIn(o: SwipeOpts = {}): Promise<boolean | 'skip'> {
         <div class="ts-mc-face"><i class="ts-mc-gloss"></i><span class="ts-mc-seal">NYC</span>
         <b class="ts-mc-word">MetroCard</b><b class="ts-mc-echo" aria-hidden="true">MetroCard</b>
         <i class="ts-mc-mag"></i></div>
-        ${HAND_SVG}
+        ${handImg(save.look.skin)}
       </div>
       <div class="ts-hint"><b>Swipe In</b><span>${o.intro ? 'Click your MetroCard to swipe it.' : 'Click your MetroCard to swipe it, or tap the reader.'}</span></div>
       <button class="btn tiny ghost ts-back" type="button">${o.intro ? 'Skip Intro' : 'Back to the Street'}</button>`

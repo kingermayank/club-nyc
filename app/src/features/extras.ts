@@ -23,26 +23,6 @@ export function onAir(g: Game) {
   g.stamp('on-air')
 }
 
-/** Central Park carriage ride. */
-export async function carriageRide(g: Game) {
-  const v = await g.choose('🐴 Carriage Ride', 'A lap around the park. 4 coins. The horse is named Biscuit.', [
-    { label: 'Giddy-up (4)', value: 'go' },
-    { label: 'I’ll Walk', value: 'no' },
-  ])
-  if (v !== 'go' || !g.spend(4, 'carriage-ride')) return
-  const release = hold()
-  const r = el('div', 'scene-card carriage-ride', `<div class="sc-inner"><div class="sc-emoji">🐴</div><div class="sc-text">clip-clop… clip-clop…</div><small>Past Bethesda Fountain, under the elms, around Sheep Meadow…</small></div>`)
-  stage.root.append(r)
-  for (let i = 0; i < 8; i++) setTimeout(() => sfx.tick(), i * 330)
-  setTimeout(() => {
-    r.classList.add('out')
-    release()
-    g.say('Biscuit is my best friend now. 🐴')
-    g.stamp('carriage')
-    setTimeout(() => r.remove(), 600)
-  }, 2800)
-}
-
 /** Grand Central's Whispering Gallery: whisper into one corner, it echoes across the arch. */
 export function whisper(g: Game) {
   g.say('(whispers) …hello?')

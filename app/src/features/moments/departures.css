@@ -6,9 +6,9 @@
 .dp-row:last-child { border-bottom: 0; }
 .dp-row:hover { background: rgba(255, 215, 106, 0.1); }
 .dp-row.on { background: rgba(255, 215, 106, 0.18); box-shadow: inset 5px 0 0 var(--line); }
-.dp-row span { display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; }
+.dp-row span { display: flex; align-items: center; gap: 10px; padding: 3px 0 3px 3px; white-space: nowrap; overflow: hidden; }
 .dp-row span:nth-child(2) { color: #fff; }
-.dp-row em { flex: none; width: 13px; height: 13px; border-radius: 50%; background: var(--line); box-shadow: 0 0 0 2px #fff; }
+.dp-row em { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--line); color: #fff; font: 400 14px/1 var(--display); font-style: normal; letter-spacing: 0; text-indent: 0.06em; }
 .dp-row i { font-style: normal; color: #7ee08a; }
 .dp-row i.late { color: #ff8a80; }
 .dp-row i.go { color: #fff; animation: dp-blink 1s steps(2) infinite; }

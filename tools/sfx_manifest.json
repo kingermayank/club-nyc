@@ -813,6 +813,18 @@
       "bus": "fx",
       "vol": 0.4,
       "gap": 3000
+    },
+    "carriage.ride": {
+      "src": [
+        {
+          "id": "b5d839dd-eb78-492a-9906-6cff92e9f211",
+          "title": "Horse Carriage, On Board, Medium Speed, Hooves, Light Birds",
+          "start": 20,
+          "loop": 14
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
     }
   },
   "ambience": {

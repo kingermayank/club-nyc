@@ -78,7 +78,7 @@ export const cloudNineMenu = () =>
     extra: { label: 'Sit at the Counter', value: 'sit' },
   })
 
-/** The Boathouse Café's board, Central Park: something warm for the lake, or a rowboat. */
+/** The Boathouse Café's board, Central Park: something warm for the lake. */
 export const boathouseMenu = () =>
   menuBoard({
     cls: 'boathouse',
@@ -86,7 +86,6 @@ export const boathouseMenu = () =>
     sub: 'On the lake since 1954',
     menu: [{ title: 'To Go', ids: ['cocoa', 'coffee', 'pretzel'] }],
     note: { cocoa: 'By the lake', coffee: 'The blue deli cup', pretzel: 'Warm, with mustard' },
-    extra: { label: 'Rent a Rowboat (3)', value: 'row' },
   })
 
 /** The coffee and pretzel cart on One World Trade's plaza: its menu, under the striped umbrella. */
@@ -98,4 +97,17 @@ export const plazaCartMenu = () =>
     menu: [{ title: 'From the Cart', ids: ['coffee', 'pretzel'] }],
     note: { coffee: 'The blue deli cup', pretzel: 'Warm, with mustard' },
     extra: { label: 'Sit with It', value: 'sit' },
+  })
+
+/** The pretzel cart in Central Park: its own board under the striped awning, every twist the cart does. */
+export const pretzelCartMenu = () =>
+  menuBoard({
+    cls: 'pretzel-cart',
+    title: 'Pretzel Cart',
+    sub: 'Twisted by hand',
+    menu: [
+      { title: 'Pretzels', ids: ['pretzel', 'pretzel-mustard', 'pretzel-cinnamon', 'pretzel-everything'] },
+      { title: 'Warm Up', ids: ['cocoa', 'coffee'] },
+    ],
+    note: { pretzel: 'Salt, nothing else', 'pretzel-mustard': 'The New York way', 'pretzel-cinnamon': 'Sweet and warm', 'pretzel-everything': 'Like the bagel', cocoa: 'For cold hands', coffee: 'The blue deli cup' },
   })

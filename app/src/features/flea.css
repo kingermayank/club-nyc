@@ -1,0 +1,40 @@
+/* Flatbush Flea: the furniture stall (features/apartment.ts openFurnitureCatalog) */
+.catalog.flea { grid-template-columns: 300px 1fr; height: 520px; }
+.fl-stall { padding: 0 14px 12px; gap: 6px; background: linear-gradient(#f8e3bd, #e9c48a 58%, #c98f45 58%); }
+.fl-awning { position: relative; flex: none; align-self: stretch; height: 34px; margin: 0 -14px 4px; background: repeating-linear-gradient(90deg, #d9432f 0 30px, #fff7e6 30px 60px); border-bottom: 4px solid var(--ink); }
+.fl-awning::after { content: ''; position: absolute; box-sizing: border-box; left: 0; right: 0; top: 100%; height: 12px; background: radial-gradient(circle at 15px 0, #d9432f 11px, transparent 12px) 0 0 / 60px 12px, radial-gradient(circle at 45px 0, #fff7e6 11px, transparent 12px) 0 0 / 60px 12px; filter: drop-shadow(0 2px 0 var(--ink)); }
+.fl-stall .cat-masthead { margin-top: 12px; font-size: 32px; color: #5a2d0c; }
+/* the showroom floor: you, and the piece at the size it will be at home */
+.fl-floor { position: relative; flex: 1; align-self: stretch; min-height: 0; margin: 0 -14px; }
+.fl-floor::after { content: ''; position: absolute; box-sizing: border-box; left: 0; right: 0; bottom: 0; height: 46%; background: repeating-linear-gradient(90deg, #b9793a 0 58px, #a96a2f 58px 60px); border-top: 4px solid var(--ink); z-index: 0; }
+.fl-me { position: absolute; z-index: 2; left: 22px; bottom: 14px; width: 62px; aspect-ratio: 120 / 192; }
+.fl-me svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.fl-piece { position: absolute; z-index: 1; left: 58%; bottom: 14px; transform: translateX(-50%); max-height: 96%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 4px 0 rgba(60, 30, 5, 0.25)); animation: fl-drop 0.28s cubic-bezier(0.3, 1.5, 0.6, 1); }
+.fl-piece.flat { bottom: 2px; }
+@keyframes fl-drop { from { transform: translate(-50%, -18px); opacity: 0; } }
+/* its tag, a kraft luggage label */
+.fl-tag { position: relative; align-self: stretch; margin-top: 8px; padding: 7px 12px 8px 26px; border: 3px solid var(--ink); border-radius: 8px; background: #fbf1d8; box-shadow: 0 3px 0 var(--ink); color: var(--ink); text-align: left; }
+.fl-tag::before { content: ''; position: absolute; box-sizing: border-box; left: 8px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border: 3px solid var(--ink); border-radius: 50%; background: #e9c48a; }
+.fl-tag b { display: block; font: 19px/1.15 var(--display); font-weight: 400; }
+.fl-tag small { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #6a4a22; }
+.fl-tag small i { width: 4px; height: 4px; border-radius: 50%; background: #b9864a; }
+.catalog.flea .btn.fl-buy { align-self: stretch; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; padding: 7px 12px; font-size: 20px; }
+.catalog.flea .fl-buy img { width: 22px; }
+.catalog.flea .fl-buy span { margin-left: 6px; }
+.fl-stall .cat-wallet { position: static; align-self: center; margin-top: 2px; padding: 1px 10px; font-size: 15px; }
+.fl-stall .cat-wallet img { width: 18px; }
+
+/* the tables */
+.fl-tabs .cat-tab i { margin-right: 4px; font-style: normal; }
+.fl-grid { gap: 14px 10px; padding: 12px 8px 12px 6px; scroll-padding: 14px 0; }
+.fl-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px 10px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; color: var(--ink); font: 13.5px/1.2 var(--body, inherit); text-align: center; cursor: pointer; transition: transform 0.12s; }
+.fl-item:hover { transform: translateY(-3px); background: #fffbe8; }
+.fl-item.on { background: #fff3c9; box-shadow: 0 0 0 3px #f5b82e, 0 4px 0 var(--ink); }
+.fl-pic { display: grid; place-items: center; width: 100%; height: 74px; }
+.fl-pic img { max-width: 88%; max-height: 74px; object-fit: contain; }
+.fl-item b { font-weight: 600; min-height: 2.4em; display: flex; align-items: center; }
+/* the price hangs off the corner on a little tag */
+.fl-price { position: absolute; right: -7px; top: -8px; display: flex; align-items: center; gap: 3px; padding: 1px 7px 2px 5px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fbf1d8; font: 14px/1.2 var(--display); transform: rotate(6deg); }
+.fl-price img { width: 14px; }
+.fl-item em { position: absolute; left: -6px; top: -8px; padding: 1px 7px 2px; border: 2.5px solid var(--ink); border-radius: 999px; background: #3cb371; color: #fff; font: 13px/1.2 var(--display); font-style: normal; }
+@media (prefers-reduced-motion: reduce) { .fl-piece { animation: none; } }

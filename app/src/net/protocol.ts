@@ -49,7 +49,7 @@ export interface PartyWire {
   pub: boolean
 }
 export const PARTY_THEMES = ['glow', 'disco', 'spooky', 'bodega'] as const
-export const HOME_ROOM_IDS = ['apartment', 'loft', 'penthouse'] as const
+export const HOME_ROOM_IDS = ['apartment', 'loft', 'penthouse', 'brownstone', 'sky-residence'] as const
 
 // ---------- client -> server ----------
 export type C2S =
@@ -98,7 +98,7 @@ export type S2C =
   | MpS2C // multiplayer mini-games: lobbies, races, Carb-Jitsu
 
 /** what your phone can text a friend: presets only (no free text to moderate) */
-export const TEXT_KINDS = ['meet', 'hi', 'game'] as const
+export const TEXT_KINDS = ['meet', 'hi', 'game', 'home', 'party'] as const
 export type TextKind = (typeof TEXT_KINDS)[number]
 
 export const POSES = ['idle', 'dance', 'wave', 'cheer', 'jump', 'sit', 'skate'] as const

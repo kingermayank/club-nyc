@@ -21,7 +21,7 @@ const vend = (item: string, _price: number, line: string, stamp?: string) => asy
   if (stamp) g.stamp(stamp)
 }
 /** treats that count as a meal for "Belly Full" */
-const FOOD = new Set(['hotdog', 'pretzel', 'cocoa', 'coffee', 'latte', 'bagel', 'dumplings', 'boba', 'pizza-slice', 'gelato', 'donut', 'ralphs-coffee', 'cold-brew', 'cookie', 'black-white', 'croissant'])
+const FOOD = new Set(['hotdog', 'pretzel', 'pretzel-cinnamon', 'pretzel-everything', 'pretzel-mustard', 'cocoa', 'coffee', 'latte', 'bagel', 'dumplings', 'boba', 'pizza-slice', 'gelato', 'donut', 'ralphs-coffee', 'cold-brew', 'cookie', 'black-white', 'croissant'])
 /** "Belly Full": every food spot you've eaten at (a spot is a place plus what you had there) */
 function tasted(g: Game, item: string) {
   if (!FOOD.has(item)) return
@@ -101,7 +101,8 @@ const wish: Act = async (g) => {
 const taxi: Act = (g) => {
   g.sfx.honk()
   g.say('TAXI! 🚕')
-  setTimeout(() => g.openMap(), 650)
+  // the back seat, the partition screen, the ride (features/moments/taxi.ts)
+  setTimeout(() => void import('../features/moments/taxi').then((m) => m.taxiRide(g)), 650)
 }
 const binoc = (cx: number, cy: number, labels: [number, number, string][]): Act => (g) =>
   g.binoculars({ cx, cy, zoom: 3, labels: labels.map(([x, y, text]) => ({ at: [x, y], text })) })
@@ -211,9 +212,6 @@ export const ROOMS: Record<string, RoomDef> = {
       'exit-left': exit('To Times Square', 'times-square'),
       'exit-right': exit('To Fifth Avenue', 'fifth-ave'),
     },
-    onEnter: (g) => {
-      if (!g.owns('skates')) setTimeout(() => g.toast('Tip: rent skates at the booth, then walk onto the ice', '⛸️'), 900)
-    },
   },
 
   'fifth-ave': {
@@ -223,7 +221,8 @@ export const ROOMS: Record<string, RoomDef> = {
       'maison-malle': exit('Louis Vuittown', 'maison-malle'),
       'toy-palace': exit('Snacks Fifth Avenue', 'toy-palace'),
       'halal-cart': { label: 'Halal Bros', act: halal },
-      cathedral: look('St. Patrick’s Cathedral', mo('bells', 'ringTheBells')),
+      // scenery: not hoverable, not clickable (the bell-ringing pop-up was removed 2026-11-13)
+      cathedral: { label: 'St. Patrick’s Cathedral', decor: true },
       'street-sign': { label: 'Hail a Taxi', act: taxi, instant: true },
       hydrant: { label: 'Fire Hydrant', act: mo('hydrant', 'openTheHydrant') },
       manhole: look('Steaming Manhole', (g) => (g.emote('cheer', 2), g.say('Instant facial. Very New York.'))),
@@ -239,14 +238,30 @@ export const ROOMS: Record<string, RoomDef> = {
     objects: {
       shoes: { label: 'The Shoe Floor', act: shop('toys', 'shoes') },
       bench: { label: 'Velvet Bench', sit: true },
-      'escalator-left': look('Escalator', say(['The upper floors are for advanced shoppers. I’m still on level one.', 'Going up! The view from floor 2 is mostly other escalators.'])),
-      'escalator-right': look('Escalator', say(['Riding an escalator just to look around. Very New York.', 'Stand right, walk left. Even in Snacks.'])),
+      'escalator-left': exit('Up to the Designer Floor', 'saks-2'),
+      'escalator-right': exit('Up to the Designer Floor', 'saks-2'),
       chandelier: look('Chandelier', say('That chandelier costs more than my apartment. Probably the whole building.')),
-      counter: { label: 'Perfume Counter', act: shop('toys') },
+      counter: { label: 'Perfume Counter', act: shop('toys', 'perfume') },
       bags: { label: 'Jewelry & Shades', act: shop('toys', 'jewelry') },
       'display-left': { label: 'Shoe Display', decor: true },
       'display-right': { label: 'Handbag Display', decor: true },
       arch: exit('Exit to Fifth Avenue', 'fifth-ave'),
+    },
+  },
+
+  // upstairs at Snacks: the designer floor (racks open their own rails of features/catalog.ts)
+  'saks-2': {
+    id: 'saks-2', name: 'Snacks Fifth Avenue', area: 'The Designer Floor', bg: 'saks-2', indoor: true, npcs: 2, mapSpot: 'fifth-ave',
+    chatter: ['I’m only trying it on. For the third time.', 'The fitting room lighting is very forgiving.', 'Is tweed a personality? Asking for me.'],
+    objects: {
+      gowns: { label: 'Gowns & Jackets', act: shop('toys', 'gowns') },
+      suits: { label: 'Tailoring', act: shop('toys', 'tailoring') },
+      mannequins: { label: 'This Season', act: shop('toys', 'designer') },
+      fitting: look('Fitting Rooms', say(['Three curtains. All taken. One person has been in there since Tuesday.', 'The mirror in there adds two inches. I checked.'])),
+      mirror: look('Mirror', (g) => { g.emote('cheer', 2); g.say(['Looking sharp. The mirror agrees.', 'Okay, one more look. Okay, one more.'][Math.floor(Math.random() * 2)]) }),
+      escalator: exit('Down to the Ground Floor', 'toy-palace'),
+      sofa: { label: 'Velvet Sofa', sit: true },
+      chandelier: look('Chandelier', say('Even the chandelier up here is designer.')),
     },
   },
 
@@ -262,7 +277,10 @@ export const ROOMS: Record<string, RoomDef> = {
       staircase: { label: 'VIP Staircase', decor: true },
       'velvet-rope': { label: 'Velvet Rope', decor: true },
       chandelier: { label: 'Chandelier', decor: true },
-      'mannequin-1': look('Mannequin', snap('Serving looks. Literally.')), 'mannequin-2': look('Mannequin', snap('Camel coat season. I’m the camel.')), 'mannequin-3': look('Mannequin', snap('Very chic. The mannequin won.')),
+      // up close: every piece on a mannequin is for sale (features/mannequin.ts)
+      'mannequin-1': look('Mannequin', (g) => void import('../features/mannequin').then((m) => m.mannequin(g, 'maison-1'))),
+      'mannequin-2': look('Mannequin', (g) => void import('../features/mannequin').then((m) => m.mannequin(g, 'maison-2'))),
+      'mannequin-3': look('Mannequin', (g) => void import('../features/mannequin').then((m) => m.mannequin(g, 'maison-3'))),
     },
     zones: { exit: exit('Exit to Fifth Avenue', 'fifth-ave') },
   },
@@ -271,23 +289,32 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'central-park', name: 'Central Park', area: 'The Lake', bg: 'central-park', npcs: 4, mapSpot: 'central-park',
     chatter: ['843 acres and I still can’t find the zoo.', 'Squirrels here are fearless.', 'Picnic on the Great Lawn later?'],
     objects: {
-      carriage: { label: 'Horse Carriage Ride', act: (g) => import('../features/extras').then((m) => m.carriageRide(g)) },
+      // the ride itself, from the seat (features/carriage.ts)
+      carriage: { label: 'Horse Carriage Ride', act: (g) => void import('../features/carriage').then((m) => m.carriageRide(g)) },
       boathouse: { label: 'Boathouse Café', act: async (g) => {
         // the café's chalkboard (features/ralphs.ts); ringing it up stays here
         const v = await import('../features/ralphs').then((m) => m.boathouseMenu())
-        if (v === 'row') return mo('rowboat', 'rowTheLake')(g)
         if (v === 'cocoa') vend('cocoa', 3, 'Hot cocoa by the lake. Very cozy. ☕')(g)
         if (v === 'coffee') vend('coffee', 3, 'Deli coffee, lake view. ☕')(g)
         if (v === 'pretzel') vend('pretzel', 2, 'Warm pretzel, cold air. Perfect. 🥨')(g)
       } },
-      pretzels: { label: 'Pretzel Cart', act: vend('pretzel', 2, 'Salty, warm, the size of my face. 🥨') },
-      rowboat: { label: 'Rowboat', act: mo('rowboat', 'rowTheLake') },
-      // the water: a walk down the Mall, past Bethesda, to sit at the Lake with the ducks (features/moments/parkWalk.ts)
+      // the cart's own board (features/ralphs.ts); ringing it up stays here
+      pretzels: { label: 'Pretzel Cart', act: async (g) => {
+        const v = await import('../features/ralphs').then((m) => m.pretzelCartMenu())
+        if (v === 'pretzel') vend('pretzel', 2, 'Salty, warm, the size of my face. 🥨')(g)
+        if (v === 'pretzel-mustard') vend('pretzel-mustard', 3, 'Mustard, obviously. 🥨')(g)
+        if (v === 'pretzel-cinnamon') vend('pretzel-cinnamon', 3, 'Cinnamon sugar. My fingers are glitter now. 🥨')(g)
+        if (v === 'pretzel-everything') vend('pretzel-everything', 3, 'An everything bagel in pretzel form. Genius. 🥨')(g)
+        if (v === 'cocoa') vend('cocoa', 3, 'Cocoa in the park. My hands thank me. ☕')(g)
+        if (v === 'coffee') vend('coffee', 3, 'Park bench coffee. The best kind. ☕', 'regular')(g)
+      } },
+      // the water: three spots to stand at, the Mall, Bethesda Terrace and the Lake with the ducks (features/moments/parkWalk.ts)
       'park-walk': { label: 'Walk to the Lake', act: mo('parkWalk', 'walkThePark') },
       // the ducks: down to the water's edge to watch them (and feed them) up close
       'duck-1': look('Feed the Ducks', mo('parkWalk', 'feedTheDucks')), 'duck-2': look('Feed the Ducks', mo('parkWalk', 'feedTheDucks')), 'duck-3': look('Feed the Ducks', mo('parkWalk', 'feedTheDucks')),
       'squirrel-1': look('Squirrel', mo('squirrel', 'feedTheSquirrel')), 'squirrel-2': look('Squirrel', mo('squirrel', 'feedTheSquirrel')),
-      bridge: look('Bow Bridge', place('bow-bridge', (g) => ({ 'Pop the Question': () => fun((m) => m.kneel(g, 'Will you be my favorite bridge? …It said yes. 💖', true)), 'Take a Photo': () => snap('Me and Bow Bridge. Classic.')(g), 'Feed the Ducks': () => mo('parkWalk', 'feedTheDucks')(g) }))),
+      // the bridge and the ducks are the same spot: down at the water's edge, looking up at Bow Bridge
+      bridge: look('Bow Bridge', mo('parkWalk', 'feedTheDucks')),
       'bench-1': { label: 'Park Bench', sit: true }, 'bench-2': { label: 'Park Bench', sit: true },
       'exit-left': exit('To Fifth Avenue', 'fifth-ave'),
       'exit-right': exit('To The Met', 'the-met'),
@@ -420,7 +447,7 @@ export const ROOMS: Record<string, RoomDef> = {
       'rack-left': { label: 'Tops & Dresses', act: shop('thread', 'tops') },
       'rack-right': { label: 'Jackets & Coats', act: shop('thread', 'jackets') },
       table: { label: 'Denim & Bottoms', act: shop('thread', 'bottoms') },
-      mannequins: { label: 'Accessories', act: shop('thread', 'accessories') },
+      mannequins: { label: 'Mannequins', act: (g) => void import('../features/mannequin').then((m) => m.mannequin(g, 'thread')) },
       catalog: { label: 'This Week’s Drop', act: shop('thread', 'drops') },
       counter: { label: 'Checkout', act: shop('thread') },
       mirror: { label: 'Try Things On', act: () => import('../features/playerCard').then((m) => m.openWardrobe()) },
@@ -596,6 +623,20 @@ export const ROOMS: Record<string, RoomDef> = {
       'water-tower': { label: 'Water Tower', decor: true },
       'exit-left': exit('To SoHo', 'soho'),
     },
+    zones: { 'exit-north': exit('North to Hudson Yards', 'hudson-yards') },
+  },
+
+  'hudson-yards': {
+    id: 'hudson-yards', name: 'Hudson Yards', area: 'West Side', bg: 'hudson-yards', npcs: 4, mapSpot: 'hudson-yards',
+    chatter: ['2,500 steps. I counted. Then I lost count.', 'It’s a staircase to more staircase.', 'The 7 train ends right here.', 'Sunset from the top is the move.'],
+    objects: {
+      // walk in, look up, climb to the top for two views (features/moments/vessel.ts)
+      vessel: { label: 'Climb the Vessel', act: mo('vessel', 'climbTheVessel') },
+      subway: { label: 'Subway', act: (g) => g.openSubway(), instant: true },
+      'bench-left': { label: 'Bench', sit: true },
+      'bench-right': { label: 'Bench', sit: true },
+      stairs: exit('Down to the High Line', 'high-line'),
+    },
   },
 
   'chelsea-market': {
@@ -744,6 +785,27 @@ export const ROOMS: Record<string, RoomDef> = {
       window: look('Arched Windows', say(['Cobblestones, cast iron and a taxi that hasn’t moved in ten minutes.', 'Artists lived here once. Now: me.'])),
       easel: look('Easel', say('A half-finished painting of a blue square. It’s “a statement”.')),
       island: look('Kitchen Island', say('Butcher block, three stools, zero cooking. It’s for vibes.')),
+      kitchen: look('Kitchen', (g) => souv((m) => m.openFridge(g))),
+    },
+  },
+
+  brownstone: {
+    id: 'brownstone', name: 'My Brownstone', area: 'West Village', bg: 'brownstone', indoor: true, npcs: 0, mapSpot: 'apartment',
+    objects: {
+      door: { label: 'Leave', act: (g) => g.openMap(), instant: true },
+      fireplace: look('Fireplace', say(['A real fire. In an apartment. In New York. I checked twice.', 'Marble mantel, 1850s. It has seen things.'])),
+      window: look('Bay Window', say(['A whole street of stoops. Somebody is always sitting on one.', 'The trees turned this week. The block looks like a postcard.'])),
+      bookshelf: look('Built-In Shelves', say('Room for 400 books. I own six. And a plant.')),
+      kitchen: look('Kitchen', (g) => souv((m) => m.openFridge(g))),
+    },
+  },
+
+  'sky-residence': {
+    id: 'sky-residence', name: 'My Sky Residence', area: 'Hudson Yards', bg: 'sky-residence', indoor: true, npcs: 0, mapSpot: 'apartment',
+    objects: {
+      door: { label: 'Leave', act: (g) => g.openMap(), instant: true },
+      stairs: look('Floating Stairs', say('No railing on one side. Very chic. Very careful.')),
+      view: look('The View', say(['The whole Hudson. The Vessel looks like a paperweight from here.', 'Every sunset is like this. I may never leave.'])),
       kitchen: look('Kitchen', (g) => souv((m) => m.openFridge(g))),
     },
   },

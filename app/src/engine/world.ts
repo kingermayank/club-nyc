@@ -5,7 +5,7 @@ import { residentsIn, RESIDENT, type Resident } from '../social/residents'
 import { STAMPS } from '../data/stamps'
 import { Actor, type Seat } from './actor'
 import { stage, el, toStage, W } from './stage'
-import { ui, toast, showLabel, hideLabel, fadeOut, fadeIn, floatText } from './ui'
+import { ui, toast, showLabel, hideLabel, floatText } from './ui'
 import type { Game, ObjDef, RoomDef } from '../types'
 import { ROOMS } from '../data/rooms'
 import { link, sendTag } from '../net/link'
@@ -239,7 +239,24 @@ function buildRoom(from?: string) {
     // scenery is never a hover or click target
     if (!def || def.decor) continue
     const { rect, poly } = zoneRect(z)
-    world.hits.push({ kind: 'zone', id, def, rect, poly, z: 4 })
+    const hit: Hit = { kind: 'zone', id, def, rect, poly, z: 4 }
+    world.hits.push(hit)
+    // a shop's way out is an invisible zone: give it the same blue arrow sign the streets have, so you can find it
+    if (room.indoor && def.go) {
+      const left = (rect[0] + rect[2]) / 2 < 500
+      const sign = el('button', 'exit-sign' + (left ? '' : ' right'), `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M${left ? '26 9 L13 20 L26 31' : '14 9 L27 20 L14 31'}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`) as HTMLButtonElement
+      sign.setAttribute('aria-label', def.label)
+      const cx = Math.max(34, Math.min(966, (rect[0] + rect[2]) / 2))
+      const cy = Math.max(70, Math.min(462, (rect[1] + rect[3]) / 2))
+      sign.style.cssText = `left:${cx}px;top:${cy}px`
+      sign.onmouseenter = () => showLabel(def.label, cx, cy - 26)
+      sign.onmouseleave = () => hideLabel()
+      sign.onclick = (e) => {
+        e.stopPropagation()
+        activate(hit, [cx, cy])
+      }
+      stage.scene.append(sign)
+    }
   }
   // seats
   for (const [id, s] of Object.entries(geo?.seats ?? {})) {
@@ -626,8 +643,8 @@ function activate(h: Hit, p: Pt) {
         // already swiped in (or just off a train): straight through, no second swipe
         (t.swipedRecently() ? Promise.resolve(true as const) : m.enterStation()).then((ok) => {
           if (ok !== true || world.room !== room) return
-          if (room.id === 'times-square') void goto('subway', room.id)
-          else m.openSubway()
+          // down the stairs onto this station's platform (the same platform room, with this station's name)
+          m.enterPlatform(room.id)
         }),
       )
     if (def.go && def.ride) def.ride(() => goto(def.go!, room.id))
@@ -651,7 +668,8 @@ export async function goto(id: string, from?: string) {
   changing = true
   setHover(null, [0, 0])
   sfx.whoosh()
-  await fadeOut()
+  // no flash between places: a frozen copy of the room you're leaving stays up and dissolves into the next one
+  const ghost = ghostOfRoom()
   world.room = next
   save.room = id
   if (!save.visited.includes(id)) save.visited.push(id)
@@ -661,12 +679,17 @@ export async function goto(id: string, from?: string) {
   buildRoom(from)
   let finished = false
   let card: HTMLElement | null = null
+  // resolves once the new room is on screen, so a ride or an elevator can lift its own cover at the right moment
+  let arrived = () => {}
+  const landed = new Promise<void>((r) => (arrived = r))
   const done = () => {
     if (finished) return
     finished = true
     card?.classList.add('out')
     setTimeout(() => card?.remove(), 250)
-    fadeIn()
+    ghost.classList.add('out')
+    setTimeout(() => ghost.remove(), 440)
+    arrived()
     changing = false
     const f = world.npcs.find((a) => a.resident && save.friends.includes(a.resident.id))
     if (f) setTimeout(() => greet(f), 900)
@@ -687,6 +710,29 @@ export async function goto(id: string, from?: string) {
     }, 300)
     setTimeout(done, 4000)
   }
+  await landed
+}
+
+/** A still copy of the room as it looks right now (art, things, people), laid over the stage under the HUD. */
+function ghostOfRoom(): HTMLElement {
+  const ghost = el('div', 'room-ghost')
+  for (const part of [stage.bg, stage.scene, stage.fx]) {
+    const copy = part.cloneNode(true) as HTMLElement
+    // a copied canvas is blank and a copied clip starts over: carry over what they were showing
+    const from = part.querySelectorAll('canvas, video')
+    const to = copy.querySelectorAll('canvas, video')
+    from.forEach((f, i) => {
+      try {
+        if (f instanceof HTMLCanvasElement) (to[i] as HTMLCanvasElement).getContext('2d')?.drawImage(f, 0, 0)
+        else if (f instanceof HTMLVideoElement) (to[i] as HTMLVideoElement).currentTime = f.currentTime
+      } catch {
+        /* a canvas that can't be read just stays blank in the copy */
+      }
+    })
+    ghost.append(copy)
+  }
+  stage.root.insertBefore(ghost, stage.label)
+  return ghost
 }
 
 /** "Heading to SoHo…" with a taxi, subway car, ferry or door, depending on where you're going */

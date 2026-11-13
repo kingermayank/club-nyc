@@ -22,6 +22,7 @@ const ROOM_AMBIENCE: Record<string, string | string[]> = {
   parade: 'street',
   'central-park': 'park',
   'high-line': 'park',
+  'hudson-yards': 'street',
   'brooklyn-bridge': 'harbor',
   'battery-park': 'harbor',
   'liberty-island': 'harbor',
@@ -37,6 +38,7 @@ const ROOM_AMBIENCE: Record<string, string | string[]> = {
   pizza: 'cafe',
   'chelsea-market': 'cafe',
   'toy-palace': 'shop',
+  'saks-2': 'shop',
   'maison-malle': 'shop',
   thread: 'shop',
   'sneaker-vault': 'shop',
@@ -44,6 +46,8 @@ const ROOM_AMBIENCE: Record<string, string | string[]> = {
   apartment: 'window',
   loft: 'window',
   penthouse: 'window',
+  brownstone: 'window',
+  'sky-residence': 'window',
 }
 
 let last = ''

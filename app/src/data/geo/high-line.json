@@ -458,7 +458,14 @@
    ]
   }
  },
- "zones": {},
+ "zones": {
+  "exit-north": [
+   430,
+   120,
+   560,
+   204
+  ]
+ },
  "cutouts": {
   "river-view": {
    "rect": [

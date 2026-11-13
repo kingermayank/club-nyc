@@ -21,6 +21,8 @@ export const TEXTS: Record<TextKind, { label: string; icon: string }> = {
   meet: { label: 'Meet Me Here', icon: '📍' },
   hi: { label: 'Say Hi', icon: '👋' },
   game: { label: 'Play a Game?', icon: '🎮' },
+  home: { label: 'Come Over', icon: '🛋️' },
+  party: { label: 'Come to My Party', icon: '🎉' },
 }
 
 export async function openTextFriend() {
@@ -58,7 +60,7 @@ export async function openTextFriend() {
     const row = el('div', 'tf-row' + (f.online ? ' on' : ''))
     row.innerHTML = `<span class="tf-face">${f.look ? headPortrait(f.look) : ''}</span><span class="tf-who"><b>${esc(f.name)}</b><small>${f.online ? `● Online ${where(f.room)}` : 'Offline'}</small></span>`
     const acts = el('span', 'tf-acts')
-    for (const k of Object.keys(TEXTS) as TextKind[]) {
+    for (const k of ['meet', 'hi', 'game'] as TextKind[]) {
       const b = el('button', 'btn tiny ghost', `${TEXTS[k].icon} ${TEXTS[k].label}`) as HTMLButtonElement
       b.disabled = !f.online
       b.onclick = () => {
@@ -83,6 +85,10 @@ export function gotText(from: string, name: string, k: TextKind, room: string | 
     const go = { label: 'Go', act: () => void import('../net/multiplayer').then((m) => m.goToFriend(from)) }
     if (k === 'meet') return notify(`${who}: Meet me ${where(room) || 'here'}! 📍`, '💬', [go], 12000)
     if (k === 'game') return notify(`${who}: Want to play a game? 🎮`, '💬', [go], 12000)
+    // an invite to their place (friends' doors are open): straight to their apartment
+    const visit = { label: 'Go', act: () => void import('./apartment').then((m) => m.visitPlayerApartment(from)) }
+    if (k === 'home') return notify(`${who} invited you over to their place 🛋️`, '🏠', [visit], 20000)
+    if (k === 'party') return notify(`${who} invited you to their party 🎉`, '🎉', [visit], 20000)
     notify(`${who} says hi! 👋`, '💬', [{ label: 'Say Hi Back', act: () => link.send({ t: 'txt', i: from, k: 'hi' }) }], 9000)
   })
 }

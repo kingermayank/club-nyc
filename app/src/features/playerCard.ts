@@ -1,8 +1,8 @@
 import { sfx } from '../audio'
 import { save, persist, resetSave } from '../state'
-import { ITEM, SHOPS } from '../avatar/items'
+import { ITEM } from '../avatar/items'
 import { SLOTS, SLOT_LABEL, SKINS, SKIN_ORDER, SIG_COLORS, HAIR_COLORS, HAIR_STYLES, FACE_SHAPES, EYE_COLORS, EYE_COLOR_NAMES, BROWS, NOSES, BEARDS, SPECS, type Look, type Slot } from '../avatar/look'
-import { avatarPortrait, itemIcon, partThumb, type Part } from '../avatar/render'
+import { avatarPortrait, headPortrait, itemIcon, partThumb, type Part } from '../avatar/render'
 import { el } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton } from '../engine/ui'
 import { world } from '../engine/world'
@@ -228,103 +228,119 @@ export function playerCardFor(a: Actor) {
   return a.remote ? remoteCard(a) : npcCard(a)
 }
 
-/** Other people's cards: who they are, their style, and what you can do together. */
+/**
+ * Someone else's card is about one thing: being friends. Friends' doors are open to each other (visit their place,
+ * invite them over, ask them to your party), so the card shows the two of you and the door between you, closed until
+ * you're friends. City locals answer a request on the spot (sometimes they want to hang out a bit first).
+ */
+type Rel = 'none' | 'requested' | 'incoming' | 'friends'
+interface FriendCard { card: HTMLElement; actions: HTMLElement; extra: HTMLElement; paint(rel: Rel): void }
+function friendCard(a: Actor, opts: { remote?: boolean } = {}): FriendCard {
+  const team = a.remote ? TEAMS[a.remote.team as TeamId] : a.resident ? TEAMS[a.resident.team] : null
+  const card = el('div', 'player-card npc fc')
+  card.innerHTML = `<div class="pc-left"><div class="pc-portrait">${avatarPortrait(a.look)}</div><div class="pc-name">${esc(a.name)}</div>
+      ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
+      ${opts.remote ? '<span class="pc-level-chip" hidden></span><div class="pc-meta"><span class="pc-live">● Here now</span></div>' : ''}</div>
+    <div class="pc-right fc-right">
+      <div class="fc-doors"><span class="fc-me">${headPortrait(save.look)}</span><span class="fc-link"><i class="fc-lock"></i></span><span class="fc-them">${headPortrait(a.look)}</span></div>
+      <h3 class="fc-title"></h3><p class="fc-sub"></p>
+      <div class="pc-actions fc-actions"></div>
+      <div class="fc-extra"></div>
+    </div>`
+  card.append(closeButton())
+  const title = card.querySelector<HTMLElement>('.fc-title')!
+  const sub = card.querySelector<HTMLElement>('.fc-sub')!
+  const lock = card.querySelector<HTMLElement>('.fc-lock')!
+  const name = card.querySelector<HTMLElement>('.pc-name')!
+  return {
+    card,
+    actions: card.querySelector<HTMLElement>('.fc-actions')!,
+    extra: card.querySelector<HTMLElement>('.fc-extra')!,
+    paint(rel) {
+      card.dataset.rel = rel
+      name.innerHTML = `${esc(a.name)}${rel === 'friends' ? ' <i class="fc-star">★</i>' : ''}`
+      lock.innerHTML =
+        rel === 'friends' ? '♥' : rel === 'requested' ? '…'
+          : '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 11 V8 a4 4 0 0 1 8 0 V11" fill="none" stroke="#1d2140" stroke-width="2.6" stroke-linecap="round"/><rect x="5.5" y="11" width="13" height="9.5" rx="2.2" fill="#8a93ad" stroke="#1d2140" stroke-width="2.2"/></svg>'
+      title.textContent = rel === 'friends' ? 'Friends' : rel === 'requested' ? 'Request sent' : rel === 'incoming' ? `${a.name} wants to be friends` : 'Not friends yet'
+      sub.textContent = rel === 'friends' ? 'Your doors are open to each other.' : 'Friends can visit each other’s places anytime.'
+    },
+  }
+}
+const fbtn = (where: HTMLElement, html: string, cls: string, fn: () => void, disabled = false) => {
+  const b = el('button', 'btn small ' + cls, html) as HTMLButtonElement
+  b.disabled = disabled
+  b.onclick = () => {
+    sfx.click()
+    fn()
+  }
+  where.append(b)
+  return b
+}
+
+/** a city local's card */
 export function npcCard(a: Actor) {
   if (a.remote) return remoteCard(a)
   sfx.click()
   const r = a.resident
-  const card = el('div', 'player-card npc')
-  const items = Object.values(a.look.items).filter(Boolean) as string[]
-  const team = r ? TEAMS[r.team] : null
-  const friend = r ? isFriend(r.id) : false
-  card.innerHTML = `<div class="pc-left"><div class="pc-portrait">${avatarPortrait(a.look)}</div><div class="pc-name">${a.name}${friend ? ' ★' : ''}</div>
-      ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
-      ${r ? `<div class="pc-bio">${r.title ? `<b>${r.title}</b><br>` : ''}${r.bio}</div>` : ''}
-      ${link.account ? '<span class="pc-local">Computer-run local</span>' : ''}</div>
-    <div class="pc-right"><h3>Their Style</h3><div class="pc-grid small">${items
-      .map((id) => {
-        const d = ITEM[id]
-        if (!d) return ''
-        const where = d.shop ? SHOPS[d.shop]?.name ?? 'around town' : d.reward ? 'earned, not bought' : 'a classic'
-        return `<div class="pc-item ${save.owned.includes(id) ? 'worn' : ''}">${itemIcon(id, save.look.color)}<span>${d.name}</span><small>${save.owned.includes(id) ? 'You own this' : where}</small></div>`
-      })
-      .join('')}</div></div>`
-  const actions = el('div', 'pc-actions')
-  const btn = (html: string, cls: string, fn: () => void) => {
-    const b = el('button', 'btn small ' + cls, html)
-    b.onclick = fn
-    actions.append(b)
-  }
-  btn('👋 Wave', 'ghost', () => {
-    world.player.emote('wave', 2)
-    a.emote('wave', 2)
-    a.say(['Hey!', 'Hi there! 👋', 'Love your outfit!', 'Welcome to the city!'][Math.floor(Math.random() * 4)])
-    if (r) import('../social/friends').then((m) => m.bond(r.id, 1))
-  })
-  if (r && !friend)
-    btn('➕ Add Friend', 'go', () =>
-      import('../social/community').then((m) => {
+  const fc = friendCard(a)
+  const draw = () => {
+    const rel: Rel = r && isFriend(r.id) ? 'friends' : 'none'
+    fc.paint(rel)
+    fc.actions.innerHTML = ''
+    fc.extra.innerHTML = ''
+    if (!r) return
+    if (rel === 'none')
+      fbtn(fc.actions, '➕ Add Friend', 'go', () =>
+        void import('../social/community').then((m) => {
+          m.addFriendFlow(r)
+          draw()
+        }),
+      )
+    else {
+      fbtn(fc.actions, '🏠 Visit their place', 'go', () => {
         closeOverlay()
-        m.addFriendFlow(r)
-      }),
-    )
-  if (r)
-    btn('🏠 Visit their place', 'ghost', () => {
-      closeOverlay()
-      import('./apartment').then((m) => m.visitApartment(r.id))
+        void import('./apartment').then((m) => m.visitApartment(r.id))
+      })
+      fbtn(fc.actions, '🛋️ Invite them over', 'ghost', () => {
+        closeOverlay()
+        void import('./apartment').then((m) => m.inviteOver(r))
+      })
+    }
+    fbtn(fc.extra, '👋 Wave', 'tiny ghost', () => {
+      world.player.emote('wave', 2)
+      a.emote('wave', 2)
+      a.say(['Hey!', 'Hi there! 👋', 'Love your outfit!', 'Welcome to the city!'][Math.floor(Math.random() * 4)])
+      void import('../social/friends').then((m) => m.bond(r.id, 1))
     })
-  if (r && friend)
-    btn('⚔️ Challenge', 'ghost', () => {
-      closeOverlay()
-      import('../social/community').then((m) => m.openCommunity('boards'))
-    })
-  card.querySelector('.pc-right')!.append(actions)
-  card.append(closeButton())
-  openOverlay(card)
+    if (rel === 'friends')
+      fbtn(fc.extra, 'Unfriend', 'tiny ghost', () =>
+        void import('../social/friends').then((m) => {
+          m.unfriend(r.id)
+          refreshTag(a)
+          draw()
+        }),
+      )
+  }
+  draw()
+  openOverlay(fc.card)
 }
 
 const esc = (t: string) => t.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
-function styleGrid(look: Look) {
-  const items = Object.values(look.items).filter(Boolean) as string[]
-  return items
-    .map((id) => {
-      const d = ITEM[id]
-      if (!d) return ''
-      const where = d.shop ? SHOPS[d.shop]?.name ?? 'around town' : d.reward ? 'earned, not bought' : 'a classic'
-      return `<div class="pc-item ${save.owned.includes(id) ? 'worn' : ''}">${itemIcon(id, save.look.color)}<span>${d.name}</span><small>${save.owned.includes(id) ? 'You own this' : where}</small></div>`
-    })
-    .join('')
-}
 
-/** A real player's card: friend them, visit their place, or mute / block / report. */
+/** A real player's card: friends, their place, an invite over or to your party; mute / block / report underneath. */
 export function remoteCard(a: Actor) {
   const rem = a.remote!
   const id = rem.id
   sfx.click()
-  const team = TEAMS[rem.team as TeamId]
-  const card = el('div', 'player-card npc remote')
-  card.innerHTML = `<div class="pc-left"><div class="pc-portrait">${avatarPortrait(a.look)}</div><div class="pc-name">${esc(a.name)}${link.friends.has(id) ? ' ★' : ''}</div>
-      ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
-      <span class="pc-level-chip" hidden></span>
-      <div class="pc-meta"><span class="pc-live">● Here now</span></div></div>
-    <div class="pc-right"><h3>Their Style</h3><div class="pc-grid small">${styleGrid(a.look)}</div></div>`
-  const actions = el('div', 'pc-actions')
+  const fc = friendCard(a, { remote: true })
+  const card = fc.card
+  card.classList.add('remote')
   const safety = el('div', 'pc-safety')
-  card.querySelector('.pc-right')!.append(actions, safety)
-  card.append(closeButton())
+  card.querySelector('.pc-right')!.append(safety)
   openOverlay(card)
 
-  const btn = (where: HTMLElement, html: string, cls: string, fn: () => void, disabled = false) => {
-    const b = el('button', 'btn small ' + cls, html)
-    b.disabled = disabled
-    b.onclick = () => {
-      sfx.click()
-      fn()
-    }
-    where.append(b)
-    return b
-  }
   const draw = async () => {
     const mp = await import('../net/multiplayer')
     let info: PlayerPlace | null = null
@@ -335,37 +351,42 @@ export function remoteCard(a: Actor) {
     }
     if (!card.isConnected) return
     if (info) {
-      // their level and title (from their XP, which the server keeps)
       const l = levelOf(info.user.xp ?? 0)
       const chip = card.querySelector<HTMLElement>('.pc-level-chip')!
       chip.innerHTML = `<b>${l.level}</b>${l.title}`
-      chip.title = `Level ${l.level}`
       chip.hidden = false
-      const since = new Date(info.user.memberSince + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-      card.querySelector('.pc-meta')!.innerHTML = `<span class="pc-live">● Here now</span>${info.user.founder ? '<span class="pc-founder" title="Here before the city opened">Founder</span>' : ''}<span>New Yorker since ${since}</span><span>❤️ ${info.likes}</span><span>🏠 ${info.furniture.length}</span>`
+      if (info.user.founder) card.querySelector('.pc-meta')!.insertAdjacentHTML('beforeend', '<span class="pc-founder" title="Here before the city opened">Founder</span>')
     }
-    actions.innerHTML = ''
+    const rel: Rel = info?.friend ?? (link.friends.has(id) ? 'friends' : 'none')
+    fc.paint(rel)
+    fc.actions.innerHTML = ''
+    fc.extra.innerHTML = ''
     safety.innerHTML = ''
-    btn(actions, '👋 Wave', 'ghost', () => {
+    if (rel === 'none') fbtn(fc.actions, '➕ Add Friend', 'go', () => void mp.addFriend(id, a.name).then(draw))
+    if (rel === 'requested') fbtn(fc.actions, '⏳ Request sent', 'ghost', () => {}, true)
+    if (rel === 'incoming') fbtn(fc.actions, '✓ Accept', 'go', () => void mp.acceptFriend(id).then(draw))
+    if (rel === 'friends' || info?.openHouse)
+      fbtn(fc.actions, '🏠 Visit their place', rel === 'friends' ? 'go' : 'ghost', () => {
+        closeOverlay()
+        void import('./apartment').then((m) => m.visitPlayerApartment(id))
+      })
+    if (rel === 'friends') {
+      const hosting = await import('./houseparty').then((m) => m.isHosting())
+      fbtn(fc.actions, hosting ? '🎉 Invite to my party' : '🛋️ Invite them over', 'ghost', () => {
+        link.send({ t: 'txt', i: id, k: hosting ? 'party' : 'home' })
+        void import('../engine/ui').then((m) => m.toast(`Invite sent to <b>${esc(a.name)}</b>`, hosting ? '🎉' : '🛋️'))
+      })
+    }
+    fbtn(fc.extra, '👋 Wave', 'tiny ghost', () => {
       world.player.emote('wave', 2)
       void import('./chat').then((m) => m.emoteBubble('👋'))
     })
-    const rel = info?.friend ?? (link.friends.has(id) ? 'friends' : 'none')
-    if (rel === 'none') btn(actions, '➕ Add Friend', 'go', () => void mp.addFriend(id, a.name).then(draw))
-    if (rel === 'requested') actions.append(el('span', 'pc-status', '⏳ Friend request sent'))
-    if (rel === 'incoming') btn(actions, '✓ Accept friend request', 'go', () => void mp.acceptFriend(id).then(draw))
-    if (rel === 'friends') actions.append(el('span', 'pc-status', '★ You’re friends'))
-    // always offered: friends (or anyone during an open house) go in; otherwise the door explains why it's closed
-    btn(actions, '🏠 Visit their place', 'ghost', () => {
-      closeOverlay()
-      void import('./apartment').then((m) => m.visitPlayerApartment(id))
-    })
     const muted = mp.mp.muted.has(id)
-    btn(safety, muted ? '🔈 Unmute' : '🔇 Mute', 'tiny', () => {
+    fbtn(safety, muted ? '🔈 Unmute' : '🔇 Mute', 'tiny', () => {
       mp.toggleMute(id, a.name)
       void draw()
     })
-    btn(safety, '🚫 Block', 'tiny', async () => {
+    fbtn(safety, '🚫 Block', 'tiny', async () => {
       const { choose } = await import('../engine/ui')
       const yes = await choose(`Block ${esc(a.name)}?`, 'You won’t see them, their chat, or friend requests from them. They won’t be told.', [
         { label: 'Block', value: true },
@@ -373,7 +394,7 @@ export function remoteCard(a: Actor) {
       ])
       if (yes) void mp.block(id, a.name)
     })
-    btn(safety, '🚩 Report', 'tiny', async () => {
+    fbtn(safety, '🚩 Report', 'tiny', async () => {
       const { choose } = await import('../engine/ui')
       const reason = await choose(`Report ${esc(a.name)}`, 'What’s going on? Moderators see this report and their recent chat.', [
         { label: 'Mean or Bullying', value: 'bullying' },
@@ -385,7 +406,7 @@ export function remoteCard(a: Actor) {
       if (reason) void mp.report(id, a.name, reason)
     })
     if (rel === 'friends')
-      btn(safety, 'Unfriend', 'tiny', () => {
+      fbtn(safety, 'Unfriend', 'tiny', () => {
         void mp.removeFriend(id).then(() => {
           refreshTag(a)
           void draw()

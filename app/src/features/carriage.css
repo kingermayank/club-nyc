@@ -1,0 +1,30 @@
+/* The Central Park carriage ride (features/carriage.ts). Stage units over the 1000 x 565 stage. */
+.cr { position: absolute; inset: 0; z-index: 9700; overflow: hidden; background: #2a1c10; animation: cr-in 0.5s ease; user-select: none; }
+.cr.out { opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
+@keyframes cr-in { from { opacity: 0; } }
+.cr [hidden] { display: none !important; }
+.cr-view { position: absolute; inset: 0; transform: scale(1.04); transition: transform 0.6s ease-out; }
+.cr-leg { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s ease; }
+.cr-leg.on { opacity: 1; }
+.cr-leg img, .cr-leg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cr-leg video { opacity: 0; }
+.cr-leg video.on { opacity: 1; }
+.cr-x, .cr-way, .cr-go { border: 3px solid #1d2140; box-shadow: 0 3px 0 #1d2140; cursor: pointer; transition: transform 0.15s, opacity 0.3s; }
+.cr-x { position: absolute; right: 16px; top: 16px; width: 40px; height: 40px; padding: 9px; border-radius: 50%; background: linear-gradient(#ff8a80, #e53935); color: #fff; }
+.cr-x svg { display: block; width: 100%; height: 100%; }
+.cr-x:hover, .cr-x:focus-visible { transform: scale(1.1); outline: none; }
+/* setting off: the fare, and an arrow */
+.cr-go { position: absolute; left: 50%; top: 200px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; height: 58px; padding: 0 16px 0 14px; border-radius: 29px; background: linear-gradient(#5fd77a, #2fae52); color: #fff; font: 400 26px/1 var(--display); animation: cr-bob 1.1s ease-in-out infinite alternate; }
+.cr-go img { width: 30px; height: 30px; }
+.cr-go svg { width: 28px; height: 28px; }
+.cr-go:hover, .cr-go:focus-visible { transform: translateX(-50%) scale(1.07); outline: none; animation: none; }
+@keyframes cr-bob { to { margin-top: 6px; } }
+/* the fork: two ways over the road, each with a little picture of where it goes */
+.cr-fork { position: absolute; left: 0; right: 0; top: 196px; display: flex; justify-content: center; gap: 250px; animation: cr-in 0.4s ease; }
+.cr-way { display: flex; align-items: center; gap: 6px; height: 62px; padding: 0 16px; border-radius: 31px; background: #fbfaf6; color: #1d2140; }
+.cr-way svg:first-child, .cr-way svg:last-child { height: 34px; }
+.cr-way > svg { width: auto; height: 30px; }
+.cr-way:hover, .cr-way:focus-visible { transform: scale(1.08); outline: none; }
+.cr-fork.went-l .cr-way.r, .cr-fork.went-r .cr-way.l { opacity: 0.25; }
+.cr-fork.went-l .cr-way.l, .cr-fork.went-r .cr-way.r { background: #ffd166; transform: scale(1.08); }
+@media (prefers-reduced-motion: reduce) { .cr, .cr-go, .cr-fork { animation: none; } .cr-view { transition: none; } }

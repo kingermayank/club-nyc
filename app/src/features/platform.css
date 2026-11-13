@@ -1,0 +1,12 @@
+/* the station's name in the platform's tile mosaic: cream tiles on navy, in a grid of grout lines */
+.pf-mosaic { position: absolute; z-index: 2; display: grid; place-items: center; overflow: hidden; pointer-events: none; border-radius: 1px;
+  background: repeating-linear-gradient(90deg, rgba(10, 20, 60, 0.35) 0 1px, transparent 1px 4px), repeating-linear-gradient(0deg, rgba(10, 20, 60, 0.35) 0 1px, transparent 1px 4px), #2f5596; }
+.pf-mosaic b { position: relative; font: 400 var(--fs, 24px)/1 var(--display); letter-spacing: 0.1em; color: #f4ecd8; white-space: nowrap; text-shadow: 0 1px 0 rgba(10, 20, 60, 0.5); }
+/* grout over the letters too, so they read as tiles */
+.pf-mosaic::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(20, 30, 70, 0.28) 0 1px, transparent 1px 4px), repeating-linear-gradient(0deg, rgba(20, 30, 70, 0.28) 0 1px, transparent 1px 4px); }
+/* the poster's title: the station, its name, its lines */
+.pf-poster { position: absolute; z-index: 2; display: flex; flex-direction: column; gap: 1px; padding: 2px 3px; background: #f3ebdb; pointer-events: none; color: #1d2b4f; }
+.pf-poster b { font: 400 12px/1.1 var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-poster span { font: 500 7.5px/1.2 var(--body); opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-bullets { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px; }
+.pf-bullets .bullet { display: inline-grid; place-items: center; border-radius: 50%; font-family: var(--display); line-height: 1; }

@@ -1,15 +1,13 @@
 import './parkWalk.css'
 import { audioCtx, onMute } from '../../audio'
-import { avatarMarkup } from '../../avatar/render'
-import { randomLook } from '../../avatar/random'
 import { el, stage, toStage } from '../../engine/stage'
 import { hold } from '../../engine/ui'
 import type { Game } from '../../types'
 
 /**
- * A walk through Central Park, first person, in three stops. You walk down the Mall under the elms (the painting zooms
- * toward the promenade's vanishing point with a step bob, leaves coming down, footsteps on the paving), go through the
- * arcade to Bethesda Terrace (the fountain runs and sparkles), then out to the edge of the Lake, sitting low on a rock:
+ * Central Park in three spots you stand at and look from (never a faked walk: the paintings aren't 3D, so nothing
+ * zooms): the Mall under the elms with leaves coming down, Bethesda Terrace with the fountain running, and the edge of
+ * the Lake, sitting low on a rock. Arrows take you on to the next spot or back. At the Lake:
  * mallards paddle in slow loops, bob, leave ripples and quack now and then. Click a duck and it quacks and turns. The
  * bag of duck food is free: click the water and a handful of pellets lands with little splashes, and the nearest ducks
  * paddle over and gobble them up.
@@ -30,16 +28,7 @@ const SPRITE = '/art/places/sprites/'
 
 const HOME: Cam = { s: 1, x: 500, y: 282.5 }
 const VP: P = [540, 308] // where the Mall's promenade meets the sky
-const S_MALL = 1.8 // how far down the Mall you stop
-const FOUNTAIN: P = [497, 300]
-const S_BETH = 1.1
-const LAKE_FROM_TERRACE: Cam = { s: 2.3, x: 800, y: 262 } // walking to the balustrade, looking out at the Lake
-const LAKE_UP: Cam = { s: 1.15, x: 500, y: 250 } // sitting down on the rock: you look up at the bridge, then down
 
-/** the walk, in seconds */
-const T_MALL = 8.5
-const T_TO_BETH = 6
-const T_TO_LAKE = 5.4
 
 const LINES = {
   elms: 'The Mall is lined with one of the largest remaining stands of American elms in North America.',
@@ -72,7 +61,6 @@ const POOL = { x: 497, y: 354, rx: 282, ry: 17 }
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v))
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2)
 const rnd = (a: number, b: number) => a + Math.random() * (b - a)
 const inside = (p: P, poly: P[]) => {
   let c = false
@@ -112,11 +100,6 @@ const squash = (y: number) => 0.15 + 0.15 * depth(y)
 /** ground distance (y is foreshortened about by half) */
 const gdist = (ax: number, ay: number, bx: number, by: number) => Math.hypot(bx - ax, (by - ay) * 2)
 
-const lerpCam = (a: Cam, b: Cam, k: number): Cam => ({ s: a.s * (b.s / a.s) ** k, x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k) })
-/** walking toward `f`: zoom to `s` while `f` stays where it is on screen */
-const toward = (from: Cam, f: P, s: number): Cam => ({ s, x: f[0] + ((from.x - f[0]) * from.s) / s, y: f[1] + ((from.y - f[1]) * from.s) / s })
-const CAM_MALL = toward(HOME, VP, S_MALL)
-const CAM_BETH = toward(HOME, FOUNTAIN, S_BETH)
 
 const LEAF_COLORS = ['#f59e2b', '#e8562a', '#ffc93c', '#d9772b', '#f2b134']
 
@@ -127,26 +110,21 @@ export function walkThePark(g: Game, straightToLake = false) {
   if (document.querySelector('.pw')) return
   const release = hold()
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
-  const jogger = `<svg viewBox="-60 -185 120 192" aria-hidden="true">${avatarMarkup(randomLook(0.5), { mood: 'grin', d: -1 })}</svg>`
   const root = el('div', 'pw')
   root.innerHTML = `<div class="pw-view">
-      <div class="pw-pic pw-mall" style="background-image:url(${ART.mall})"><div class="pw-jog" hidden>${jogger}</div></div>
+      <div class="pw-pic pw-mall" style="background-image:url(${ART.mall})"></div>
       <div class="pw-pic pw-beth" style="background-image:url(${ART.beth})"><canvas class="pw-fountain"></canvas></div>
       <div class="pw-pic pw-lake" style="background-image:url(${ART.lake})"><canvas class="pw-water"></canvas></div>
       <canvas class="pw-fx"></canvas>
-      <svg class="pw-arch" viewBox="0 0 1000 565" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="pw-stone" x1="0" x2="1"><stop offset="0" stop-color="#2e241a"/><stop offset="0.28" stop-color="#5c4a33"/><stop offset="0.72" stop-color="#5c4a33"/><stop offset="1" stop-color="#2e241a"/></linearGradient></defs>
-        <path fill="url(#pw-stone)" fill-rule="evenodd" stroke="#1d2140" stroke-width="5" d="M-400 -400 H1400 V965 H-400 Z M290 965 V250 A210 210 0 0 1 710 250 V965 Z"/>
-        <path fill="none" stroke="#8a7150" stroke-width="12" d="M314 965 V252 A186 186 0 0 1 686 252 V965"/>
-        <path fill="none" stroke="#1d2140" stroke-width="3" d="M308 965 V252 A192 192 0 0 1 692 252 V965"/>
-      </svg>
-      <div class="pw-dim"></div>
       <div class="pw-hit" hidden></div>
     </div>
-    <div class="pw-caption"><b>Central Park</b><span class="pw-where">Walking the Mall</span></div>
+    <div class="pw-caption"><b>Central Park</b><span class="pw-where">The Mall</span></div>
     <p class="pw-line" aria-live="polite"></p>
-    <div class="pw-actions"><button class="btn tiny ghost pw-turn" type="button">Turn Back</button></div>
-    <button class="btn go small pw-walk" type="button" hidden>Walk On</button>
+    <button class="pw-ic pw-turn" type="button" aria-label="Leave the walk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="pw-ic pw-prev" type="button" aria-label="Back a spot" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5 L7 12 L14 19" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="pw-ic go pw-walk" type="button" aria-label="On to the next spot" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5 L17 12 L10 19" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="pw-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    <svg class="pw-aim" viewBox="0 0 1000 565" aria-hidden="true"><path class="pw-arc"/><ellipse class="pw-ring"/></svg>
     <button class="pw-bag" type="button" aria-label="Toss some duck food" hidden>
       <svg viewBox="0 0 74 88" aria-hidden="true">
         <path d="M14 26 L60 26 L66 84 L8 84 Z" fill="#c99a5e" stroke="#1d2140" stroke-width="3" stroke-linejoin="round"/>
@@ -158,17 +136,18 @@ export function walkThePark(g: Game, straightToLake = false) {
         <circle cx="22" cy="21" r="2.2" fill="#8a5a2b"/><circle cx="50" cy="20" r="2.2" fill="#8a5a2b"/><circle cx="37" cy="19" r="2" fill="#8a5a2b"/>
       </svg>
     </button>
-    <p class="pw-hint" hidden>Feed the ducks</p>`
+    <p class="pw-hint" hidden>Aim at the water</p>`
   stage.root.append(root)
   const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector(s) as T
   const pics = { mall: $('.pw-mall'), beth: $('.pw-beth'), lake: $('.pw-lake') }
-  const jog = $('.pw-jog')
-  const arch = $<SVGSVGElement>('.pw-arch')
-  const dim = $('.pw-dim')
   const hit = $('.pw-hit')
   const where = $('.pw-where')
   const line = $('.pw-line')
   const walkBtn = $<HTMLButtonElement>('.pw-walk')
+  const prevBtn = $<HTMLButtonElement>('.pw-prev')
+  const dots = [...root.querySelectorAll<HTMLElement>('.pw-dots i')]
+  const aimArc = $<SVGPathElement>('.pw-arc')
+  const aimRing = $<SVGEllipseElement>('.pw-ring')
   const bag = $<HTMLButtonElement>('.pw-bag')
   const hintEl = $('.pw-hint')
 
@@ -342,19 +321,6 @@ export function walkThePark(g: Game, straightToLake = false) {
   startSound()
   onMute((m) => (m ? snd?.stop() : alive && startSound()))
 
-  // ---------- walking ----------
-  let lastStep = -1
-  /** about two steps a second: the view rises and dips with each one */
-  const stepping = (t: number, amp: number) => {
-    if (calm || amp <= 0) return { bob: 0, sway: 0 }
-    const step = t * 1.9
-    if (Math.floor(step) !== lastStep) {
-      lastStep = Math.floor(step)
-      if (amp > 0.35) snd?.step()
-    }
-    return { bob: Math.abs(Math.sin(step * Math.PI)) * -4.5 * amp, sway: Math.sin(step * Math.PI * 0.5) * 2.6 * amp }
-  }
-
   // ---------- leaves coming down (screen space, over every stop) ----------
   const leafArt = LEAF_COLORS.map((col) => {
     const c = document.createElement('canvas')
@@ -413,18 +379,6 @@ export function walkThePark(g: Game, straightToLake = false) {
       fx.drawImage(leafArt[l.art], -l.size / 2, -l.size / 2, l.size, l.size)
       fx.restore()
     }
-  }
-
-  // ---------- a jogger coming up the Mall toward you, passing on your right ----------
-  const jogAt = (t: number) => {
-    const z = 10 - (t - 0.4) * 1.3
-    if (calm || t < 0.4 || z < 0.22) return void (jog.hidden = true)
-    jog.hidden = false
-    const h = 230 / z
-    const x = 548 + 125 / z
-    const y = 308 + 300 / z - Math.abs(Math.sin(t * 9)) * h * 0.035
-    const H = (h * 192) / 185
-    jog.style.cssText = `opacity:${clamp01((10 - z) / 2).toFixed(3)};width:${((H * 120) / 192).toFixed(1)}px;height:${H.toFixed(1)}px;left:${(x - (H * 60) / 192).toFixed(1)}px;top:${(y - (H * 185) / 192).toFixed(1)}px`
   }
 
   // ---------- Bethesda Fountain: falling water, splashes, rings, sparkles ----------
@@ -720,11 +674,11 @@ export function walkThePark(g: Game, straightToLake = false) {
         }
       }
     // now and then somebody has something to say
-    if (phase === 'lake' || phase === 'to-lake') {
+    if (phase === 'lake') {
       ambient -= dt
       if (ambient < 0) {
         ambient = rnd(6, 12)
-        quack(ducks[Math.floor(Math.random() * ducks.length)], phase === 'lake')
+        quack(ducks[Math.floor(Math.random() * ducks.length)], true)
       }
     }
   }
@@ -992,25 +946,42 @@ export function walkThePark(g: Game, straightToLake = false) {
     }
     if (isWater(p)) toss(p)
   }
+  /** the throw you're lining up: an arc from the bag to where the handful will land */
+  const aim = (p: P | null) => {
+    if (!p || phase !== 'lake' || !isWater(p) || duckAt(p)) return void root.classList.remove('aiming')
+    const tgt = intoZone(p)
+    const dist = Math.hypot(tgt[0] - BAG[0], tgt[1] - BAG[1])
+    const lift = 40 + dist * 0.18
+    aimArc.setAttribute('d', `M ${BAG[0]} ${BAG[1]} Q ${(BAG[0] + tgt[0]) / 2} ${(BAG[1] + tgt[1]) / 2 - lift * 2} ${tgt[0]} ${tgt[1]}`)
+    const w = duckW(tgt[1]) * 0.36
+    aimRing.setAttribute('cx', String(tgt[0]))
+    aimRing.setAttribute('cy', String(tgt[1]))
+    aimRing.setAttribute('rx', String(w))
+    aimRing.setAttribute('ry', String(w * squash(tgt[1]) * 1.6))
+    root.classList.add('aiming')
+  }
   hit.onpointermove = (e) => {
     const p = toStage(e)
-    hit.style.cursor = phase === 'lake' && (duckAt(p) || isWater(p)) ? 'pointer' : 'default'
+    hit.style.cursor = phase === 'lake' && duckAt(p) ? 'pointer' : phase === 'lake' && isWater(p) ? 'crosshair' : 'default'
+    aim(p)
   }
+  hit.onpointerleave = () => aim(null)
+  // the bag is in your hand: it doesn't throw for you, it only reminds you where to aim
   bag.onclick = () => {
-    // a handful just in front of a duck, a hungry one if there is one
-    const hungry = ducks.filter((d) => !d.fed)
-    const pool = hungry.length ? hungry : ducks
-    const d = pool[Math.floor(Math.random() * pool.length)]
-    const w = duckW(d.y)
-    toss([d.x + d.face * w * rnd(0.7, 1.1), d.y + rnd(-6, 10)])
+    bag.classList.remove('shake')
+    void bag.offsetWidth
+    bag.classList.add('shake')
+    hintEl.hidden = false
+    requestAnimationFrame(() => hintEl.classList.add('on'))
   }
 
-  // ---------- the walk ----------
-  type Phase = 'mall-in' | 'mall' | 'to-beth' | 'beth' | 'to-lake' | 'lake' | 'gone'
-  let phase: Phase = 'mall-in'
-  let t0 = performance.now()
-  let last = t0
-  const opened = t0
+  // ---------- three spots: stand at each one and look; the arrows take you on (or back) ----------
+  type Phase = 'mall' | 'beth' | 'lake' | 'gone'
+  const STOPS = ['mall', 'beth', 'lake'] as const
+  const NAMES = { mall: 'The Mall', beth: 'Bethesda Terrace', lake: 'The Lake' }
+  let phase: Phase = 'mall'
+  let at = 0
+  let last = performance.now()
   let raf = 0
 
   const show = (btn: HTMLElement) => {
@@ -1021,155 +992,56 @@ export function walkThePark(g: Game, straightToLake = false) {
     btn.classList.remove('on')
     btn.hidden = true
   }
-  const begin = (p: Phase) => {
-    phase = p
-    t0 = performance.now()
-    lastStep = -1
-  }
-
   const frame = (now: number) => {
     if (!alive) return
     const dt = Math.min(0.05, (now - last) / 1000)
     last = now
-    const t = (now - t0) / 1000
     const T = now / 1000
-    let zoom = 0 // how fast you're walking in, for the leaves
-    let focus: P = VP
-
-    if (phase === 'mall-in') {
-      const dur = calm ? 0.01 : T_MALL
-      const k = ease(clamp01(t / dur))
-      const amp = clamp01(t / 0.6) * clamp01((dur - t) / 0.9)
-      const { bob, sway } = stepping(t, amp)
-      const cam = toward(HOME, VP, lerp(1, S_MALL, k))
-      place(pics.mall, cam, bob, sway)
-      zoom = calm ? 0 : ((S_MALL - 1) * (Math.PI / dur) * Math.sin(Math.PI * clamp01(t / dur)) * 0.5) / cam.s
-      focus = [500 + (VP[0] - cam.x) * cam.s, 282.5 + (VP[1] - cam.y) * cam.s]
-      if (t > 1.6) say('elms')
-      if (t >= dur) arriveMall()
-    } else if (phase === 'to-beth') {
-      const dur = calm ? 1.2 : T_TO_BETH
-      if (calm) {
-        pics.beth.style.opacity = String(clamp01(t / 1))
-        place(pics.beth, CAM_BETH)
-      } else {
-        const amp = clamp01(t / 0.4) * clamp01((dur - t) / 0.9)
-        const { bob, sway } = stepping(t, amp)
-        if (t < 2.8) {
-          const k = clamp01(t / 2.6) ** 1.5
-          const cam = toward(CAM_MALL, VP, S_MALL * (3.1 / S_MALL) ** k)
-          place(pics.mall, cam, bob, sway)
-          zoom = 0.35 * k
-          focus = [500 + (VP[0] - cam.x) * cam.s, 282.5 + (VP[1] - cam.y) * cam.s]
-        }
-        // down the steps and through the arcade under the terrace: the light closes in, the arch goes by overhead,
-        // and the terrace opens up on the other side
-        const r = t < 2.3 ? lerp(1500, 520, ease(clamp01((t - 0.9) / 1.4))) : lerp(520, 1700, ease(clamp01((t - 2.5) / 1.3)))
-        dim.style.background = `radial-gradient(${r.toFixed(0)}px ${(r * 0.62).toFixed(0)}px at 500px 300px, rgba(34, 25, 16, 0) 52%, rgba(34, 25, 16, 0.93) 100%)`
-        dim.hidden = t > 3.9
-        arch.style.opacity = clamp01((t - 2) / 0.25).toFixed(3)
-        arch.style.transform = `scale(${(1.1 * (4 / 1.1) ** (clamp01((t - 2) / 1.5) ** 1.6)).toFixed(4)})`
-        arch.style.visibility = t > 3.55 ? 'hidden' : ''
-        pics.beth.style.opacity = clamp01((t - 2.1) / 0.8).toFixed(3)
-        if (t > 2) place(pics.beth, toward(HOME, FOUNTAIN, lerp(1, S_BETH, ease(clamp01((t - 2) / (dur - 2))))), bob, sway)
-        if (t > 2.4) {
-          zoom = 0.05
-          focus = [500, 300]
-        }
-      }
-      if (t > 2) setMood('beth', 2.5)
-      if (t >= dur) arriveBeth()
-    } else if (phase === 'to-lake') {
-      const dur = calm ? 1.2 : T_TO_LAKE
-      if (calm) {
-        pics.lake.style.opacity = String(clamp01(t / 1))
-        place(pics.lake, HOME)
-      } else {
-        const amp = clamp01(t / 0.4) * clamp01((4.6 - t) / 1)
-        const { bob, sway } = stepping(t, amp)
-        if (t < 3.2) place(pics.beth, lerpCam(CAM_BETH, LAKE_FROM_TERRACE, ease(clamp01(t / 3))), bob, sway)
-        pics.lake.style.opacity = clamp01((t - 2.2) / 0.9).toFixed(3)
-        // the ducks come into view with the water, not over the terrace
-        waterEl.style.opacity = clamp01((t - 2.7) / 0.6).toFixed(3)
-        if (t > 2.2) place(pics.lake, lerpCam(LAKE_UP, HOME, ease(clamp01((t - 2.2) / 3.2))), bob * 0.6, sway * 0.6)
-        zoom = t < 3 ? 0.15 : 0
-        focus = [700, 260]
-      }
-      if (t > 2.2) setMood('lake', 2.5)
-      if (t >= dur) arriveLake()
-    }
-
-    if (phase === 'mall-in' || phase === 'mall' || (phase === 'to-beth' && t < 2.8)) jogAt((now - opened) / 1000)
-    else jog.hidden = true
-    drawLeaves(T, dt, zoom, focus)
-    const bethOn = phase === 'beth' || (phase === 'to-beth' && t > 1.8) || (phase === 'to-lake' && t < 3.3)
-    if (bethOn) drawFountain(T, dt)
-    const lakeOn = phase === 'lake' || (phase === 'to-lake' && t > 2)
-    if (lakeOn) drawLake(T, dt)
+    drawLeaves(T, dt, 0, VP)
+    if (phase === 'beth') drawFountain(T, dt)
+    if (phase === 'lake') drawLake(T, dt)
     raf = requestAnimationFrame(frame)
   }
-  place(pics.mall, HOME)
+  for (const pic of Object.values(pics)) place(pic, HOME)
   raf = requestAnimationFrame(frame)
 
-  // ---------- the stops ----------
-  const arriveMall = () => {
-    begin('mall')
-    place(pics.mall, CAM_MALL)
-    where.textContent = 'The Mall'
-    show(walkBtn)
-    say('elms')
-    later(() => phase === 'mall' && say('hurry'), 6500)
-  }
-  const arriveBeth = () => {
-    begin('beth')
-    pics.mall.style.opacity = '0'
-    arch.style.opacity = '0'
-    place(pics.beth, CAM_BETH)
-    pics.beth.style.opacity = '1'
-    leafCap = calm ? 3 : 7
-    where.textContent = 'Bethesda Terrace'
-    show(walkBtn)
-    later(() => say('angel'), 900)
-    later(() => phase === 'beth' && say('sax'), 10500)
-  }
-  const arriveLake = () => {
-    begin('lake')
-    pics.beth.style.opacity = '0'
-    place(pics.lake, HOME)
-    pics.lake.style.opacity = '1'
-    waterEl.style.opacity = '1'
-    leafCap = calm ? 3 : 6
-    where.textContent = 'The Lake'
-    hit.hidden = false
-    show(bag)
-    if (!straightToLake) g.stamp('park-walk')
-    later(() => say('remo'), 900)
-    later(() => {
-      if (tossed) return
-      hintEl.hidden = false
-      requestAnimationFrame(() => hintEl.classList.add('on'))
-    }, 3200)
-    later(() => phase === 'lake' && say('rent'), 14000)
-  }
-  if (straightToLake) {
-    pics.mall.style.opacity = '0'
-    jog.hidden = true
-    setMood('lake', 0.8)
-    arriveLake()
-  }
-  walkBtn.onclick = () => {
-    g.sfx.click()
-    hide(walkBtn)
+  let hinted = false
+  const go = (i: number, walked = true) => {
+    at = Math.max(0, Math.min(STOPS.length - 1, i))
+    const stop = STOPS[at]
+    phase = stop
+    for (const k of STOPS) pics[k].style.opacity = k === stop ? '1' : '0'
+    waterEl.style.opacity = stop === 'lake' ? '1' : '0'
+    where.textContent = NAMES[stop]
+    dots.forEach((d, k) => d.classList.toggle('on', k === at))
+    leafCap = calm ? 3 : stop === 'mall' ? 18 : 7
+    setMood(stop, 1.2)
     line.classList.remove('on')
     lineTok++
-    if (phase === 'mall') {
-      begin('to-beth')
-      where.textContent = 'Walking to Bethesda Terrace'
-    } else if (phase === 'beth') {
-      begin('to-lake')
-      where.textContent = 'Walking to the Lake'
+    root.classList.remove('aiming')
+    hit.hidden = stop !== 'lake'
+    if (stop === 'lake') show(bag)
+    else hide(bag)
+    if (at > 0) show(prevBtn)
+    else hide(prevBtn)
+    if (at < STOPS.length - 1) show(walkBtn)
+    else hide(walkBtn)
+    if (stop === 'mall') later(() => phase === 'mall' && say('elms'), 900)
+    if (stop === 'beth') later(() => phase === 'beth' && say('angel'), 900)
+    if (stop === 'lake') {
+      if (walked) g.stamp('park-walk')
+      later(() => phase === 'lake' && say('remo'), 900)
+      later(() => {
+        if (tossed || hinted || phase !== 'lake') return
+        hinted = true
+        hintEl.hidden = false
+        requestAnimationFrame(() => hintEl.classList.add('on'))
+      }, 2600)
     }
   }
+  go(straightToLake ? 2 : 0, false)
+  walkBtn.onclick = () => (g.sfx.click(), go(at + 1))
+  prevBtn.onclick = () => (g.sfx.click(), go(at - 1, false))
 
   // ---------- leaving ----------
   const leave = () => {
@@ -1190,10 +1062,12 @@ export function walkThePark(g: Game, straightToLake = false) {
   const keys = (e: KeyboardEvent) => {
     const tg = e.target as HTMLElement | null
     if (tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA')) return
-    if (e.key !== 'Escape') return
+    if (e.key === 'ArrowRight' && at < STOPS.length - 1) go(at + 1)
+    else if (e.key === 'ArrowLeft' && at > 0) go(at - 1, false)
+    else if (e.key === 'Escape') leave()
+    else return
     e.preventDefault()
     e.stopPropagation()
-    leave()
   }
   window.addEventListener('keydown', keys, true)
   $('.pw-turn').onclick = leave

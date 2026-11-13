@@ -39,14 +39,14 @@ const NAMES = [
 /** where people tend to live/hang out — weighted toward busy hubs so those feel alive */
 const HOME_WEIGHTS: [string, number][] = [
   ['times-square', 6], ['soho', 5], ['central-park', 5], ['the-met', 3], ['rockefeller', 3], ['chinatown', 3],
-  ['brooklyn-bridge', 3], ['battery-park', 3], ['high-line', 3], ['fifth-ave', 2], ['grand-central', 2],
+  ['brooklyn-bridge', 3], ['battery-park', 3], ['high-line', 3], ['hudson-yards', 2], ['fifth-ave', 2], ['grand-central', 2],
   ['coffee', 2], ['pizza', 2], ['chelsea-market', 2], ['liberty-island', 1], ['broadway', 1], ['subway', 1],
   ['sneaker-vault', 1], ['thread', 1], ['iloveny', 1], ['toy-palace', 1], ['empire-deck', 1], ['maison-malle', 1],
 ]
 const HUBS = ['times-square', 'soho', 'central-park', 'rockefeller', 'brooklyn-bridge', 'the-met', 'chinatown']
 /** people between places pass through the transit hubs */
 const TRANSIT = ['subway', 'grand-central', 'times-square', 'subway', 'grand-central']
-export const OUTDOOR = ['times-square', 'fifth-ave', 'rockefeller', 'central-park', 'the-met', 'soho', 'chinatown', 'brooklyn-bridge', 'battery-park', 'high-line']
+export const OUTDOOR = ['times-square', 'fifth-ave', 'rockefeller', 'central-park', 'the-met', 'soho', 'chinatown', 'brooklyn-bridge', 'battery-park', 'high-line', 'hudson-yards']
 /** homes near Wall Street and One World Trade (their locals hang out there too) */
 const DOWNTOWN = ['battery-park', 'brooklyn-bridge', 'chinatown', 'liberty-island']
 

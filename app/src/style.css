@@ -486,6 +486,8 @@ a.btn { text-decoration: none; }
 .cat-page { display: flex; flex-direction: column; padding: 14px 16px 10px; background: repeating-linear-gradient(0deg, #fff 0 26px, #f7f9ff 26px 27px); min-height: 0; }
 .cat-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start; margin-right: 34px; }
 .cat-grid.furn { grid-template-columns: repeat(4, 1fr); overflow-y: auto; }
+/* room above the first row, so a card that lifts on hover isn't cut off by the scrolling edge */
+.cat-grid { padding-top: 6px; }
 .cat-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 6px; border: 3px solid var(--ink); border-radius: 16px; background: #fff; text-align: center; font-size: var(--fs-sm); line-height: 1.2; transition: transform 0.12s; }
 .cat-item:hover { transform: translateY(-3px) rotate(-1deg); background: #fffbe8; }
 .cat-item.owned { background: #e6f7e7; }
@@ -734,8 +736,11 @@ a.btn { text-decoration: none; }
 /* ================= misc ================= */
 .confetti { position: absolute; top: -20px; width: 9px; height: 14px; z-index: 9900; pointer-events: none; animation: confetti linear forwards; }
 @keyframes confetti { to { transform: translate(var(--dx), 620px) rotate(var(--r)); } }
-.fade { position: absolute; inset: 0; z-index: 9990; background: #fff; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-.fade.on { opacity: 1; }
+/* (this layer used to flash white between rooms; it now only holds the slow-connection travel card) */
+.fade { position: absolute; inset: 0; z-index: 9990; pointer-events: none; }
+/* the room you just left, dissolving into the one you walked into */
+.room-ghost { position: absolute; inset: 0; z-index: 9050; pointer-events: none; opacity: 1; transition: opacity 0.4s ease; }
+.room-ghost.out { opacity: 0; }
 .debug-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 9100; }
 .stage.debug .debug-layer { display: block; }
 .item-icon { width: 100%; height: 100%; }
@@ -862,7 +867,8 @@ a.btn { text-decoration: none; }
 
 /* ================= apartment ================= */
 /* compact, at the right edge, so they don't cover the fridge / kitchen / bar behind them; labels show on hover */
-.apt-controls { position: absolute; right: 6px; top: 132px; z-index: 9250; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+/* (2026-11-13) a tidy row under the coins, lined up with the top bar, instead of a column floating over the kitchen */
+.apt-controls { position: absolute; right: 10px; top: 58px; z-index: 9250; display: flex; flex-direction: row-reverse; align-items: center; gap: 6px; }
 /* the column itself lets clicks through to the room; only the buttons catch them */
 .apt-controls { pointer-events: none; }
 /* icon buttons: 34px squares with the picture centred (the labels show on hover) */
@@ -1565,3 +1571,29 @@ input::placeholder, textarea::placeholder { font-family: var(--field); }
 .rd-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background: linear-gradient(#77756f 0 62%, #e0b532 62% 80%, #3a3b40 80%); box-shadow: inset 0 6px 8px rgba(0, 0, 0, 0.25); }
 .ride-car.moving .ride-doorway { animation: rock 0.32s ease-in-out infinite alternate; transform-origin: 99px 115px; }
 .ride-car.jolt .ride-doorway { animation: jolt 0.45s ease-out; }
+
+/* a shop's way out: the blue arrow sign the streets have, over the exit (engine/world.ts) */
+.exit-sign { position: absolute; z-index: 40000; width: 46px; height: 42px; margin: -21px 0 0 -23px; padding: 0; border: 3px solid var(--ink); border-radius: 9px; background: linear-gradient(#4f9bff, #1f66d8); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), 0 4px 0 var(--ink); cursor: pointer; animation: exit-sign-nudge 2.4s ease-in-out infinite; }
+.exit-sign svg { width: 100%; height: 100%; }
+.exit-sign:hover { filter: brightness(1.12); }
+@keyframes exit-sign-nudge { 0%, 70%, 100% { translate: 0 0; } 80% { translate: -4px 0; } 90% { translate: 0 0; } }
+.exit-sign.right { animation-name: exit-sign-nudge-r; }
+@keyframes exit-sign-nudge-r { 0%, 70%, 100% { translate: 0 0; } 80% { translate: 4px 0; } 90% { translate: 0 0; } }
+
+/* someone else's card: the two of you and the door between you (features/playerCard.ts friendCard) */
+.fc .fc-right { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding-top: 24px; }
+.fc-doors { display: flex; align-items: center; gap: 0; }
+.fc-me, .fc-them { width: 92px; height: 92px; border-radius: 50%; overflow: hidden; border: 4px solid var(--ink); background: radial-gradient(circle at 50% 35%, #fff, #dfeaff); box-shadow: 0 4px 0 var(--ink); }
+.fc-me svg, .fc-them svg { width: 100%; height: 100%; }
+.fc-link { position: relative; width: 120px; height: 6px; margin: 0 -4px; background: repeating-linear-gradient(90deg, #b9c2d8 0 10px, transparent 10px 18px); }
+.fc-lock { position: absolute; left: 50%; top: 50%; width: 38px; height: 38px; margin: -19px; display: grid; place-items: center; border-radius: 50%; background: #fff; border: 3px solid var(--ink); font: 400 20px/1 var(--display); font-style: normal; color: var(--ink); }
+.fc[data-rel='friends'] .fc-link { background: linear-gradient(90deg, #ffcf4a, #ff7aa8); }
+.fc[data-rel='friends'] .fc-lock { background: #ff5a8a; color: #fff; animation: fc-beat 1.4s ease-in-out infinite; }
+.fc[data-rel='friends'] .fc-me, .fc[data-rel='friends'] .fc-them { border-color: #e2a612; }
+@keyframes fc-beat { 50% { transform: scale(1.12); } }
+.fc-title { margin: 6px 0 0; font: 400 var(--fs-3xl)/1.15 var(--display); color: var(--ink); }
+.fc-sub { margin: 0; font: 500 var(--fs-base)/1.3 var(--body); color: #5d6282; }
+.fc .fc-actions { justify-content: center; margin-top: 6px; }
+.fc .fc-actions .btn { min-width: 170px; }
+.fc-extra { display: flex; gap: 8px; justify-content: center; }
+.fc-star { font-style: normal; color: #e2a612; }

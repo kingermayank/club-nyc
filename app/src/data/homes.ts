@@ -41,6 +41,17 @@ export const HOMES: HomeDef[] = [
     fine: 'Freight elevator operated by a man named Sal. Be nice to Sal.',
   },
   {
+    id: 'brownstone',
+    room: 'brownstone',
+    name: 'West Village Brownstone',
+    hood: 'West Village',
+    price: 2500,
+    img: '/art/rooms/brownstone.jpg',
+    blurb: 'The parlor floor of an 1850s brownstone: a marble fireplace, a bay window on a street of trees, herringbone floors and ceilings you can’t reach.',
+    perks: ['Working fireplace', 'Bay window', 'A stoop of your own'],
+    fine: 'The floors creak. The neighbors have lived here since 1974 and know everything.',
+  },
+  {
     id: 'penthouse',
     room: 'penthouse',
     name: 'Billionaires’ Row Penthouse',
@@ -50,6 +61,17 @@ export const HOMES: HomeDef[] = [
     blurb: 'A wraparound terrace above Central Park, a built-in bar and a DJ nook. The building sways a little in the wind. That’s normal. Probably.',
     perks: ['Party terrace', 'Whole-park views', 'Your own DJ booth'],
     fine: 'Ears pop in the elevator. Neighbors are mostly in Monaco.',
+  },
+  {
+    id: 'sky-residence',
+    room: 'sky-residence',
+    name: 'Hudson Yards Sky Residence',
+    hood: 'Hudson Yards',
+    price: 8000,
+    img: '/art/rooms/sky-residence.jpg',
+    blurb: 'Glass from floor to ceiling, a private elevator, a marble island the size of your first apartment and the whole Hudson at sunset. The Vessel is that small thing down there.',
+    perks: ['Private elevator', 'Sunset every night', 'Floating staircase'],
+    fine: 'Window washing is extra. So is everything else.',
   },
 ]
 export const HOME: Record<string, HomeDef> = Object.fromEntries(HOMES.map((h) => [h.id, h]))

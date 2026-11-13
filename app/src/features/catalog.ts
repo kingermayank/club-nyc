@@ -40,14 +40,21 @@ const SECTIONS: Record<string, { id: string; label: string; has: (i: ItemDef) =>
     { id: 'bags', label: 'Bags', has: (i) => i.slot === 'hand' },
     { id: 'wear', label: 'Ready-to-Wear', has: (i) => i.slot === 'body' || i.slot === 'feet' },
     { id: 'jewelry', label: 'Jewelry & Shades', has: (i) => i.slot === 'neck' || i.slot === 'face' },
+    { id: 'hats', label: 'Hats', has: (i) => i.slot === 'head' },
   ],
   // Snacks Fifth Avenue (shop id 'toys' from its toy-store days): a department store stocked from the other shops' racks
   toys: [
+    { id: 'perfume', label: 'The Perfume Counter', has: (i) => i.id.startsWith('pf-') },
     { id: 'shoes', label: 'The 10022-SHOE Floor', has: (i) => i.slot === 'feet' },
-    { id: 'coats', label: 'Coats & Jackets', has: (i) => i.slot === 'body' },
+    { id: 'designer', label: 'The Designer Floor', has: (i) => i.slot === 'body' },
+    { id: 'gowns', label: 'Gowns & Jackets', has: (i) => ['ds-chanelle', 'ds-diorama', 'ds-burburry', 'ds-guccini', 'camel-coat'].includes(i.id) },
+    { id: 'tailoring', label: 'Tailoring', has: (i) => ['ds-ysb', 'ds-versayce', 'ds-pradda', 'suit', 'ds-burburry'].includes(i.id) },
     { id: 'jewelry', label: 'Jewelry & Shades', has: (i) => i.slot === 'neck' || i.slot === 'face' },
   ],
 }
+
+/** department stores: a counter sells only what's on that counter (no tabs to the other departments) */
+const COUNTERS = new Set(['toys'])
 
 /** A Club Penguin–style catalog for a shop: sections, page flips, try-on, buy. */
 export function openCatalog(shopId: string, section?: string) {
@@ -56,6 +63,7 @@ export function openCatalog(shopId: string, section?: string) {
   const all = ITEMS.filter((i) => i.shop === shopId || i.alsoAt?.includes(shopId))
   const secs = SECTIONS[shopId]?.filter((s) => all.some(s.has)) ?? []
   let sec = secs.find((s) => s.id === section)?.id ?? 'all'
+  const locked = sec !== 'all' && COUNTERS.has(shopId)
   let page = 0
   const mag = el('div', `catalog shop-${shopId}`)
   const render = () => {
@@ -73,7 +81,7 @@ export function openCatalog(shopId: string, section?: string) {
         <div class="cat-trying">Hover an item to try it on</div>
       </div>
       <div class="cat-page">
-        ${secs.length > 1 ? '<div class="cat-tabs"></div>' : ''}
+        ${secs.length > 1 && !locked ? '<div class="cat-tabs"></div>' : ''}
         <div class="cat-grid"></div>
         <div class="cat-foot"><button class="btn small ghost cat-flip prev${page === 0 ? ' gone' : ''}" ${page === 0 ? 'disabled aria-hidden="true" tabindex="-1"' : 'aria-label="Previous page"'}>${CHEVRON_LEFT}Back</button><span>Page ${page + 1} of ${pages}</span><button class="btn small ghost cat-flip next${page >= pages - 1 ? ' gone' : ''}" ${page >= pages - 1 ? 'disabled aria-hidden="true" tabindex="-1"' : 'aria-label="Next page"'}>Next${CHEVRON_RIGHT}</button></div>
       </div>`

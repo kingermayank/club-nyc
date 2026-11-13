@@ -170,7 +170,7 @@ const TOPS: ItemDef[] = [
     top: { color: '#4f7cc4', sleeves: 'long', front: () => vneck('#fff') + lapels('#4f7cc4') + R(-15, -56, 8, 6, 1.5, shade('#4f7cc4', 0.1), 1.6) + R(7, -56, 8, 6, 1.5, shade('#4f7cc4', 0.1), 1.6) + buttons(0, [-52, -45, -38], '#d9dde8') },
   },
   {
-    id: 'leather-jacket', name: 'Leather Jacket', slot: 'body', price: 60, shop: 'thread', alsoAt: ['toys'],
+    id: 'leather-jacket', name: 'Leather Jacket', slot: 'body', price: 60, shop: 'thread',
     top: { color: '#24262d', sleeves: 'long', front: () => vneck('#e8e8e8') + lapels('#24262d') + L(4, -60, -6, -36, '#c9ccd6', 1.6) },
   },
   {
@@ -186,7 +186,7 @@ const TOPS: ItemDef[] = [
     top: { color: '#23232b', sleeves: 'long', collar: () => R(-9, -80, 18, 10, 4, '#2c2c36') },
   },
   {
-    id: 'trench', name: 'Trench Coat', slot: 'body', price: 70, shop: 'thread', alsoAt: ['toys'],
+    id: 'trench', name: 'Trench Coat', slot: 'body', price: 70, shop: 'thread',
     top: { color: '#c8a46a', sleeves: 'long', length: 'long', rear: () => R(-21, -42, 42, 5, 2, shade('#c8a46a', 0.22), 1.6) + L(0, -34, 0, -20, shade('#c8a46a', 0.3), 1.6), front: () => vneck('#f2f2f2') + lapels('#c8a46a') + R(-21, -42, 42, 5, 2, shade('#c8a46a', 0.22), 1.6) + buttons(-6, [-56, -32, -26], '#6b4e2a') + buttons(6, [-56, -32, -26], '#6b4e2a') },
   },
   {
@@ -246,10 +246,10 @@ const sneaker = (upper: string, solecol: string, accent?: string) => (x: number,
   sole(x, solecol)
 const SHOES: ItemDef[] = [
   { id: 'sneakers', name: 'White Sneakers', slot: 'feet', price: 0, shoe: sneaker('#f7f7fb', '#d8dbe6', '#9aa3c0') },
-  { id: 'hightops', name: 'Red High-Tops', slot: 'feet', price: 35, shop: 'sneakers', alsoAt: ['toys'], shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -18 Q ${x - 9} -21 ${x - 6} -21 L ${x + 2} -21 Q ${x + 4} -21 ${x + 4} -18 L ${x + 4} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#e8333a') + C(x - 3, -15, 2.3, '#fff', 1.2) + sole(x, '#f4f4f8') },
+  { id: 'hightops', name: 'Red High-Tops', slot: 'feet', price: 35, shop: 'sneakers', shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -18 Q ${x - 9} -21 ${x - 6} -21 L ${x + 2} -21 Q ${x + 4} -21 ${x + 4} -18 L ${x + 4} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#e8333a') + C(x - 3, -15, 2.3, '#fff', 1.2) + sole(x, '#f4f4f8') },
   { id: 'runners', name: 'Retro Runners', slot: 'feet', price: 30, shop: 'sneakers', shoe: sneaker('#5aa7ff', '#ff9f43', '#ffffff') },
-  { id: 'rainbow-kicks', name: 'Rainbow Kicks', slot: 'feet', price: 55, shop: 'sneakers', alsoAt: ['toys'], shoe: (x, s) => sneaker('#ffffff', '#b06bff')(x, s) + `<path d="M ${x - 6} -9 L ${x + 6} -9" stroke="#ff5a5f" stroke-width="2"/><path d="M ${x - 6} -6.5 L ${x + 7} -6.5" stroke="#3fd0ff" stroke-width="2"/>` },
-  { id: 'boots', name: 'Work Boots', slot: 'feet', price: 40, shop: 'sneakers', alsoAt: ['toys'], shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -17 Q ${x - 9} -20 ${x - 6} -20 L ${x + 3} -20 Q ${x + 5} -20 ${x + 5} -17 L ${x + 5} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#a8692f') + L(x - 4, -16, x + 1, -16, '#f3d9a4', 1.4) + sole(x, '#5a3a1e') },
+  { id: 'rainbow-kicks', name: 'Rainbow Kicks', slot: 'feet', price: 55, shop: 'sneakers', shoe: (x, s) => sneaker('#ffffff', '#b06bff')(x, s) + `<path d="M ${x - 6} -9 L ${x + 6} -9" stroke="#ff5a5f" stroke-width="2"/><path d="M ${x - 6} -6.5 L ${x + 7} -6.5" stroke="#3fd0ff" stroke-width="2"/>` },
+  { id: 'boots', name: 'Work Boots', slot: 'feet', price: 40, shop: 'sneakers', shoe: (x) => P(`M ${x - 9} -3 L ${x - 9} -17 Q ${x - 9} -20 ${x - 6} -20 L ${x + 3} -20 Q ${x + 5} -20 ${x + 5} -17 L ${x + 5} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, '#a8692f') + L(x - 4, -16, x + 1, -16, '#f3d9a4', 1.4) + sole(x, '#5a3a1e') },
   { id: 'loafers', name: 'Penny Loafers', slot: 'feet', price: 150, shop: 'maison', alsoAt: ['toys'], shoe: (x) => P(`M ${x - 10} -2 Q ${x - 10} -9 ${x - 3} -9 L ${x + 3} -9 Q ${x + 10} -9 ${x + 11} -3 L ${x + 11} -2 Z`, '#4a2a1e') + L(x - 3, -7, x + 4, -7, '#e2b04a', 1.6) + sole(x, '#2a1810') },
   { id: 'slides', name: 'Slides & Socks', slot: 'feet', price: 12, shop: 'sneakers', shoe: (x) => R(x - 7, -14, 14, 11, 4, '#ffffff', 2) + P(`M ${x - 10} -6 L ${x + 10} -6 L ${x + 10} -3 L ${x - 10} -3 Z`, '#2b2f3a') + sole(x, '#2b2f3a') },
   { id: 'skates', name: 'Ice Skates', slot: 'feet', price: 15, shop: 'rink', shoe: (x) => P(`M ${x - 9} -6 L ${x - 9} -18 Q ${x - 9} -20 ${x - 6} -20 L ${x + 3} -20 Q ${x + 5} -20 ${x + 5} -17 L ${x + 5} -12 Q ${x + 11} -11 ${x + 11} -6 Z`, '#ffffff') + L(x - 10, -1, x + 11, -1, '#bfc6d6', 2.4) + L(x - 6, -5, x - 6, -1, O, 1.6) + L(x + 6, -5, x + 6, -1, O, 1.6) },
@@ -552,7 +552,119 @@ const SOHO: ItemDef[] = [
 /** the Vault's grails (avatar/grails.ts): wearable once you've copped one on its drop day (the archive pairs aren't for sale) */
 const VAULT: ItemDef[] = GRAILS.map((g) => ({ id: grailItemId(g), name: `${g.line} “${g.nick.replace('&amp;', '&')}”`, slot: 'feet' as Slot, price: g.price, shop: 'vault', shoe: (x: number) => g.draw(x) }))
 
-export const ITEMS: ItemDef[] = [...TOPS, ...BOTTOMS, ...SHOES, ...HATS, ...FACE, ...NECK, ...HAND, ...SOUVENIRS, ...PARTY, ...SOHO, ...VAULT]
+// ---------- Snacks Fifth Avenue's own stock: designer perfume, shoes and clothes (parody houses, never real marks) ----------
+/** a perfume bottle held in the hand: body, cap, label */
+const bottle = (glass: string, cap: string, label: string, extra = '') => () =>
+  R(-2.5, -9, 5, 5, 1, cap, 1.6) + R(-7, -4, 14, 16, 2.5, glass, 2.2) + Pn('M -4.5 1 L 4.5 1 L 4.5 7 L -4.5 7 Z', label) + extra
+/** a court shoe from the front: a low vamp, and a sole in its own colour (the red ones are the point) */
+const pump = (upper: string, solecol: string, extra = (_x: number) => '') => (x: number) =>
+  P(`M ${x - 9} -3 Q ${x - 9} -10 ${x - 2} -10 L ${x + 3} -10 Q ${x + 10} -9 ${x + 11} -3 Z`, upper) + sole(x, solecol) + extra(x)
+const gleam = (x: number, y: number, col = '#fff') => `<path transform="translate(${x} ${y})" d="M0 -2.4 L.7 -.7 L2.4 0 L.7 .7 L0 2.4 L-.7 .7 L-2.4 0 L-.7 -.7Z" fill="${col}"/>`
+const LUXE: ItemDef[] = [
+  { id: 'pf-no5th', name: 'Chanelle No. 5th Ave', slot: 'hand', price: 90, shop: 'toys', draw: bottle('#f1c66a', '#16171c', '#fffdf5', L(-2.5, 4, 2.5, 4, '#16171c', 1.2)) },
+  { id: 'pf-santal', name: 'Le Lobby Santal 33rd St', slot: 'hand', price: 120, shop: 'toys', draw: bottle('#e9dcc0', '#16171c', '#fffdf5', L(-3, 3, 3, 3, '#16171c', 0.9) + L(-3, 5, 1, 5, '#16171c', 0.9)) },
+  { id: 'pf-diorama', name: 'Diorama J’adorbs', slot: 'hand', price: 110, shop: 'toys', draw: () => [-9, -7, -5].map((y) => L(-2.5, y, 2.5, y, '#e2b04a', 1.6)).join('') + P('M -2.5 -4 Q -9 4 -6 12 L 6 12 Q 9 4 2.5 -4 Z', '#f6cf73', 'stroke-width="2.2"') + C(0, -11, 2.2, '#e2b04a', 1.4) },
+  { id: 'pf-tomfjord', name: 'Tom Fjord Noir', slot: 'hand', price: 140, shop: 'toys', draw: bottle('#1b1c22', '#e2b04a', '#e2b04a') },
+  { id: 'pf-ysb', name: 'YSB Black Espresso', slot: 'hand', price: 100, shop: 'toys', draw: bottle('#23232b', '#23232b', '#23232b', C(0, 4, 4, '#ff6fa8', 1.4) + gleam(-4, -1, '#e6e6f0') + gleam(4, 10, '#e6e6f0')) },
+  { id: 'pf-pretzel', name: 'Eau de Pretzel', slot: 'hand', price: 60, shop: 'toys', draw: bottle('#c98a45', '#f4efe2', '#fffdf5', [[-2, 3], [2, 3], [0, 6]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".8" fill="#7a4b2a"/>`).join('')) },
+  { id: 'lx-loubootin', name: 'Loubootin Red Soles', slot: 'feet', price: 320, shop: 'toys', shoe: pump('#16171c', '#e0162b') },
+  { id: 'lx-jimmychew', name: 'Jimmy Chew Glitter Pumps', slot: 'feet', price: 280, shop: 'toys', shoe: pump('#d9c7a0', '#b89b5e', (x) => gleam(x - 4, -6) + gleam(x + 3, -7) + gleam(x + 7, -4.5)) },
+  { id: 'lx-manolo', name: 'Manolo Blahnot Blue Satins', slot: 'feet', price: 300, shop: 'toys', shoe: pump('#2456c9', '#16264f', (x) => R(x - 1, -10, 6, 4.5, 1, '#e8eefc', 1.2) + gleam(x + 2, -7.7, '#9fd0ff')) },
+  { id: 'lx-guccini', name: 'Guccini Horsebit Loafers', slot: 'feet', price: 260, shop: 'toys', shoe: (x) => P(`M ${x - 10} -2 Q ${x - 10} -10 ${x - 3} -10 L ${x + 3} -10 Q ${x + 10} -10 ${x + 11} -3 L ${x + 11} -2 Z`, '#1d1a18') + Pn(`M ${x - 4} -8.6 L ${x + 6} -8.6 L ${x + 6} -6.4 L ${x - 4} -6.4 Z`, '#1f7a4a') + Pn(`M ${x - 4} -7.9 L ${x + 6} -7.9 L ${x + 6} -7.1 L ${x - 4} -7.1 Z`, '#c8323c') + L(x - 1.5, -5, x + 3.5, -5, '#e2b04a', 1.6) + sole(x, '#3a2a20') },
+  { id: 'lx-pradda', name: 'Pradda Lug Boots', slot: 'feet', price: 290, shop: 'toys', shoe: (x) => P(`M ${x - 9} -5 L ${x - 9} -19 Q ${x - 9} -22 ${x - 6} -22 L ${x + 3} -22 Q ${x + 5} -22 ${x + 5} -19 L ${x + 5} -13 Q ${x + 11} -12 ${x + 11} -6 L ${x + 11} -5 Z`, '#17181d') + Pn(`M ${x - 3} -19 L ${x + 2} -19 L ${x - 0.5} -15 Z`, '#c9ccd6') + P(`M ${x - 11} -6 L ${x + 12} -6 L ${x + 12} -1 Q ${x + 12} 1 ${x + 10} 1 L ${x - 9} 1 Q ${x - 11} 1 ${x - 11} -1 Z`, '#2b2c33') + [-6, -1, 4, 9].map((d) => L(x + d, -2, x + d, 1, O, 1.2)).join('') },
+  { id: 'lx-balenci', name: 'Balenciyaga Chunky Runners', slot: 'feet', price: 310, shop: 'toys', shoe: (x, s) => sneaker('#e9e6dc', '#f7f4ea', '#8d8f99')(x, s) + P(`M ${x - 11} -6 L ${x + 12} -6 L ${x + 12} -1 Q ${x + 12} 1 ${x + 10} 1 L ${x - 9} 1 Q ${x - 11} 1 ${x - 11} -1 Z`, '#f7f4ea') + L(x - 10, -3, x + 11, -3, '#c9c4b2', 1.4) + Pn(`M ${x - 9} -6 L ${x - 3} -6 L ${x - 3} -4.4 L ${x - 9} -4.4 Z`, '#ff7a2f') },
+  {
+    id: 'ds-chanelle', name: 'Chanelle Tweed Jacket', slot: 'body', price: 340, shop: 'toys',
+    top: { color: '#f3b8c8', sleeves: 'long', wraps: true, front: (c) => [-66, -58, -50, -42].map((y) => L(-18, y, 18, y, '#fbe3ea', 1)).join('') + [-12, -4, 4, 12].map((x) => L(x, -72, x, -36, '#e58fa8', 0.9)).join('') + (c.back ? '' : R(-2.2, -73, 4.4, 38, 1, '#16171c', 1) + buttons(0, [-66, -57, -48, -39], '#e2b04a') + R(-15, -50, 8, 2.6, 1, '#16171c', 0.8) + R(7, -50, 8, 2.6, 1, '#16171c', 0.8)) },
+  },
+  {
+    id: 'ds-burburry', name: 'Burburry Check Trench', slot: 'body', price: 380, shop: 'toys',
+    top: { color: '#d2b48a', sleeves: 'long', length: 'long', rear: () => R(-21, -42, 42, 5, 2, shade('#d2b48a', 0.22), 1.6), front: () => vneck('#f6ead2') + P('M -9 -73 L -3 -56 L -11 -50 L -16 -66 Z', '#f0dcb4') + P('M 9 -73 L 3 -56 L 11 -50 L 16 -66 Z', '#f0dcb4') + L(-13, -66, -6, -54, '#c8323c', 1) + L(-10, -70, -13, -53, '#16171c', 1) + L(13, -66, 6, -54, '#c8323c', 1) + L(10, -70, 13, -53, '#16171c', 1) + R(-21, -42, 42, 5, 2, shade('#d2b48a', 0.22), 1.6) + R(-3, -43, 6, 7, 1, '#6b4e2a', 1.2) + buttons(-6, [-54, -32, -26], '#6b4e2a') + buttons(6, [-54, -32, -26], '#6b4e2a') },
+  },
+  {
+    id: 'ds-guccini', name: 'Guccini Stripe Cardigan', slot: 'body', price: 300, shop: 'toys',
+    top: { color: '#f4ecd8', sleeves: 'long', front: (c) => (c.back ? '' : vneck('#ffffff') + Pn('M -4.5 -64 L 4.5 -64 L 4.5 -36 L -4.5 -36 Z', '#1f7a4a') + Pn('M -1.5 -64 L 1.5 -64 L 1.5 -36 L -1.5 -36 Z', '#c8323c') + buttons(0, [-58, -50, -42], '#e2b04a')) },
+  },
+  {
+    id: 'ds-pradda', name: 'Pradda Nylon Puffer', slot: 'body', price: 360, shop: 'toys',
+    top: { color: '#1b1c22', sleeves: 'long', collar: () => P('M -12 -70 C -12 -80 12 -80 12 -70 Z', '#1b1c22'), rear: () => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="#3a3c46" stroke-width="1.8"/>`).join(''), front: (c) => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="#3a3c46" stroke-width="1.8"/>`).join('') + (c.back ? '' : Pn('M 6 -68 L 13 -68 L 9.5 -62.5 Z', '#c9ccd6')) },
+  },
+  {
+    id: 'ds-versayce', name: 'Versayce Gold Silk Shirt', slot: 'body', price: 320, shop: 'toys',
+    top: { color: '#16171c', sleeves: 'short', wraps: true, front: (c) => [[-12, -64], [-3, -58], [9, -63], [13, -52], [-13, -50], [2, -47], [-6, -40], [10, -40]].map(([x, y]) => `<path d="M ${x - 3} ${y} q 3 -5 6 0 q -3 5 -6 0 z" fill="#e2b04a"/>`).join('') + (c.back ? '' : vneck('#e2b04a')) },
+  },
+  {
+    id: 'ds-diorama', name: 'Diorama Evening Gown', slot: 'body', price: 420, shop: 'toys',
+    top: { color: '#1c2a6b', sleeves: 'none', length: 'dress', wraps: true, front: () => [[-10, -60], [7, -54], [-3, -44], [11, -34], [-13, -30], [3, -26], [-7, -20], [12, -18]].map(([x, y]) => gleam(x, y, '#cfe0ff')).join('') },
+  },
+  {
+    id: 'ds-ysb', name: 'YSB Le Tuxedo', slot: 'body', price: 400, shop: 'toys',
+    top: { color: '#111216', sleeves: 'long', front: () => vneck('#ffffff') + P('M -9 -73 L -3 -56 L -11 -50 L -16 -66 Z', '#2e3038') + P('M 9 -73 L 3 -56 L 11 -50 L 16 -66 Z', '#2e3038') + P('M 0 -68 L -5 -71 L -5 -65 Z', '#111216', 'stroke-width="1.4"') + P('M 0 -68 L 5 -71 L 5 -65 Z', '#111216', 'stroke-width="1.4"') + buttons(0, [-58, -52], '#16171c') + buttons(0, [-42], '#2e3038') },
+  },
+]
+// ---------- the boutiques' new stock (Louis Vuittown and THREAD): what the mannequins wear, and more to pick from ----------
+const star4 = (x: number, y: number, r = 2.2, col = '#e2b04a') => `<path transform="translate(${x} ${y})" d="M0 ${-r} L${r * 0.28} ${-r * 0.28} L${r} 0 L${r * 0.28} ${r * 0.28} L0 ${r} L${-r * 0.28} ${r * 0.28} L${-r} 0 L${-r * 0.28} ${-r * 0.28}Z" fill="${col}"/>`
+const BOUTIQUE: ItemDef[] = [
+  // hats
+  { id: 'wide-brim', name: 'Wide-Brim Hat', slot: 'head', price: 140, shop: 'maison', flattensHair: true, covers: -116,
+    draw: () => E(0, -114, 44, 9, '#1b1c22') + P('M -22 -116 C -22 -138 -12 -144 0 -144 C 12 -144 22 -138 22 -116 Z', '#23242c') + Pn('M -22 -121 Q 0 -125 22 -121 L 22 -116 Q 0 -120 -22 -116 Z', '#e2b04a') },
+  { id: 'fedora', name: 'Fifth Ave Fedora', slot: 'head', price: 110, shop: 'maison', flattensHair: true, covers: -116,
+    draw: () => E(0, -115, 36, 7, '#7a4e2c') + P('M -21 -117 C -23 -134 -14 -146 -4 -142 L 0 -138 L 4 -142 C 14 -146 23 -134 21 -117 Z', '#8a5a34') + Pn('M -21 -123 Q 0 -127 21 -123 L 21 -117 Q 0 -121 -21 -117 Z', '#1b1c22') },
+  { id: 'pillbox', name: 'Pillbox Hat', slot: 'head', price: 95, shop: 'maison',
+    draw: () => lift(-12, P('M -16 -128 L -15 -142 Q 0 -147 15 -142 L 16 -128 Q 0 -124 -16 -128 Z', '#8e2440') + E(0, -142, 15, 4, shade('#8e2440', -0.15), 2)) },
+  { id: 'five-panel', name: 'Five-Panel Cap', slot: 'head', price: 24, shop: 'thread', covers: -119,
+    draw: (c) => lift(6, capDome('#2f6b4f') + (c.back ? capRear('#2f6b4f') : capBrim(c.fx, '#24543d') + R(-7 + c.fx, -138, 14, 8, 2, '#f4ecd8', 1.4)) + C(0, -147, 2.6, '#2f6b4f', 1.6)) },
+  // shades
+  { id: 'cat-eye', name: 'Cat-Eye Shades', slot: 'face', price: 95, shop: 'maison',
+    draw: (c) => (c.back ? '' : [-1, 1].map((sd) => P(`M ${sd * 3 + c.fx} -101 Q ${sd * 4 + c.fx} -94 ${sd * 13 + c.fx} -94 Q ${sd * 21 + c.fx} -95 ${sd * 22 + c.fx} -105 L ${sd * 24 + c.fx} -109 Q ${sd * 12 + c.fx} -106 ${sd * 3 + c.fx} -104 Z`, '#6b3a1e') + C(sd * 15 + c.fx, -100, 1.6, '#c98a45', 0)).join('')) },
+  { id: 'aviators', name: 'Gold Aviators', slot: 'face', price: 85, shop: 'maison',
+    draw: (c) => (c.back ? '' : [-11, 11].map((x) => P(`M ${x - 9 + c.fx} -105 L ${x + 9 + c.fx} -105 Q ${x + 9 + c.fx} -93 ${x + c.fx} -93 Q ${x - 9 + c.fx} -93 ${x - 9 + c.fx} -105 Z`, '#3d3426', 'stroke="#e2b04a" stroke-width="2.4"')).join('') + L(-3 + c.fx, -104, 3 + c.fx, -104, '#e2b04a', 2.2)) },
+  { id: 'sport-shades', name: 'Wraparound Shades', slot: 'face', price: 22, shop: 'thread',
+    draw: (c) => (c.back ? '' : P(`M ${-24 + c.fx} -104 Q ${c.fx} -110 ${24 + c.fx} -104 L ${22 + c.fx} -96 Q ${c.fx} -92 ${-22 + c.fx} -96 Z`, '#16171c') + Pn(`M ${-18 + c.fx} -103 Q ${-6 + c.fx} -106 ${4 + c.fx} -104`, 'none', 'stroke="#7fd7ff" stroke-width="2" opacity=".7"')) },
+  // jewelry
+  { id: 'diamond-choker', name: 'Diamond Choker', slot: 'neck', price: 180, shop: 'maison',
+    draw: () => `<path d="M -12 -75 Q 0 -69 12 -75" fill="none" stroke="${O}" stroke-width="5"/><path d="M -12 -75 Q 0 -69 12 -75" fill="none" stroke="#c9ccd6" stroke-width="3"/>` + [-8, -4, 0, 4, 8].map((x) => gleam(x, -72 + Math.abs(x) * -0.25, '#ffffff')).join('') + C(0, -68, 2.6, '#e8f6ff', 1.4) },
+  { id: 'gold-locket', name: 'Gold Locket', slot: 'neck', price: 70, shop: 'maison',
+    draw: () => `<path d="M -10 -74 Q 0 -60 10 -74" fill="none" stroke="#e2b04a" stroke-width="1.6"/>` + P('M 0 -62 C -5 -66 -6 -58 0 -55 C 6 -58 5 -66 0 -62 Z', '#e2b04a', 'stroke-width="1.6"') },
+  { id: 'silver-chain', name: 'Chunky Silver Chain', slot: 'neck', price: 30, shop: 'thread',
+    draw: () => [-10, -6.5, -3, 0.5, 4, 7.5, 11].map((x, i) => E(x - 0.5, -73 + (11 - Math.abs(x)) * 0.75, 2.6, 1.8, '#d5d9e2', 1.4, `transform="rotate(${i % 2 ? 30 : -30} ${x - 0.5} ${-73 + (11 - Math.abs(x)) * 0.75})"`)).join('') },
+  // clothes
+  { id: 'midnight-gown', name: 'Midnight Gown', slot: 'body', price: 300, shop: 'maison',
+    top: { color: '#1f2a52', sleeves: 'long', length: 'dress', wraps: true, front: () => P('M -9 -73 Q 0 -66 9 -73', 'none', 'stroke="#3a4a86" stroke-width="2"') + [[-9, -48], [8, -38], [-4, -28], [10, -22]].map(([x, y]) => gleam(x, y, '#8fa6ff')).join('') } },
+  { id: 'tweed-jacket', name: 'Cream Tweed Jacket', slot: 'body', price: 240, shop: 'maison',
+    top: { color: '#efe4cc', sleeves: 'long', wraps: true, front: (c) => [-64, -56, -48, -40].map((y) => L(-18, y, 18, y, '#dccdaa', 1)).join('') + (c.back ? '' : R(-2, -73, 4, 38, 1, '#22305a', 1) + buttons(0, [-64, -55, -46], '#e2b04a') + L(-16, -42, 16, -42, '#22305a', 2.4)) } },
+  { id: 'velvet-cape', name: 'Velvet Cape', slot: 'body', price: 280, shop: 'maison',
+    top: { color: '#6e1e35', sleeves: 'long', length: 'long', front: () => P('M -12 -76 Q 0 -70 12 -76 L 8 -70 Q 0 -66 -8 -70 Z', '#e2b04a') + C(0, -68, 2.4, '#e2b04a', 1.4) } },
+  { id: 'windbreaker', name: 'Color-Block Windbreaker', slot: 'body', price: 55, shop: 'thread',
+    top: { color: '#2bb3a6', sleeves: 'long', front: () => Pn('M -21 -52 L 21 -52 L 21 -34 L -21 -34 Z', '#7b4bd6') + L(0, -74, 0, -34, '#ffffff', 2.2) + R(-4, -70, 3, 6, 1, '#ffffff', 1) } },
+  { id: 'graphic-hoodie', name: 'THREAD Logo Hoodie', slot: 'body', price: 38, shop: 'thread',
+    top: { color: '#1e1f26', sleeves: 'long', collar: hood('#1e1f26'), front: (c) => (c.back ? '' : R(-12, -60, 24, 9, 1.5, '#16171c', 1.4) + T(0, -53.5, 6.5, 'THREAD', '#ffffff', 'font-weight="900"')) } },
+  // bags
+  { id: 'gold-clutch', name: 'Gold Clutch', slot: 'hand', price: 150, shop: 'maison',
+    draw: () => R(-6, -2, 24, 13, 3, '#e8b84a') + P('M -6 1 Q 6 9 18 1', 'none', 'stroke-width="1.8"') + C(6, 5, 1.8, '#fff3c4', 1.2) + gleam(13, 3) },
+  { id: 'monogram-tote', name: 'Monogram Tote', slot: 'hand', price: 200, shop: 'maison',
+    draw: () => `<path d="M -4 2 Q 0 -12 4 2 M 12 2 Q 16 -12 20 2" fill="none" stroke="${O}" stroke-width="2.2"/>` + P('M -8 2 L 24 2 L 22 26 L -6 26 Z', '#7a4b2a') + [[-2, 8], [8, 8], [18, 8], [3, 15], [13, 15], [-1, 22], [9, 22], [19, 22]].map(([x, y]) => star4(x, y)).join('') },
+  { id: 'mini-trunk', name: 'Mini Trunk', slot: 'hand', price: 260, shop: 'maison',
+    draw: () => `<path d="M 1 -2 Q 6 -10 11 -2" fill="none" stroke="${O}" stroke-width="2.4"/>` + R(-5, -2, 22, 17, 2.5, '#7a4b2a') + [[-5, -2], [14, -2], [-5, 12], [14, 12]].map(([x, y]) => R(x, y, 3, 3, 0.5, '#e2b04a', 0.8)).join('') + L(-5, 4, 17, 4, '#e2b04a', 1.6) + R(4, 2, 4, 5, 1, '#e2b04a', 1) },
+  { id: 'hat-box', name: 'Hat Box', slot: 'hand', price: 120, shop: 'maison',
+    draw: () => `<path d="M 1 -2 Q 6 -10 11 -2" fill="none" stroke="${O}" stroke-width="2"/>` + R(-6, 0, 24, 20, 3, '#f4ecd8') + R(-7, -2, 26, 6, 2, '#1b1c22') + star4(6, 12, 3) },
+  { id: 'sling-bag', name: 'Sling Bag', slot: 'hand', price: 28, shop: 'thread',
+    draw: () => `<path d="M -6 -18 L 4 2" fill="none" stroke="${O}" stroke-width="3"/>` + R(-6, 0, 22, 12, 5, '#1b1c22') + L(-2, 4, 12, 4, '#c9ccd6', 1.4) },
+  { id: 'canvas-tote', name: 'Canvas Tote', slot: 'hand', price: 12, shop: 'thread',
+    draw: () => `<path d="M -2 2 Q 5 -12 12 2" fill="none" stroke="${O}" stroke-width="2"/>` + P('M -8 2 L 18 2 L 18 26 L -8 26 Z', '#efe6cf') + T(5, 16, 5.5, 'THREAD', '#16171c', 'font-weight="900"') },
+]
+// the Central Park pretzel cart's other twists (the plain one is 'pretzel')
+const twist = (dough: string, extra = '') => () => {
+  const d = 'M 0 6 C -10 -6 2 -14 8 -4 C 14 -14 26 -6 16 6 C 12 10 4 10 0 6 Z M 8 -4 L 4 6 M 8 -4 L 12 6'
+  return `<path d="${d}" fill="none" stroke="${O}" stroke-width="7" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${dough}" stroke-width="3.5" stroke-linejoin="round"/>` + extra
+}
+const speck = (pts: number[][], col: string, r = 0.8) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${col}"/>`).join('')
+const PRETZELS: ItemDef[] = [
+  { id: 'pretzel-cinnamon', name: 'Cinnamon Sugar Pretzel', slot: 'hand', price: 3, shop: 'street', draw: twist('#c98a52', speck([[-3, -3], [3, -9], [8, 3], [13, -9], [18, -2], [5, 8], [12, 8]], '#fff6e0', 0.9)) },
+  { id: 'pretzel-everything', name: 'Everything Pretzel', slot: 'hand', price: 3, shop: 'street', draw: twist('#a9682a', speck([[-3, -2], [2, -9], [14, -9], [18, -1], [6, 8]], '#1d2140') + speck([[0, -7], [9, 2], [16, 4], [11, 8]], '#fff6e0')) },
+  { id: 'pretzel-mustard', name: 'Pretzel with Mustard', slot: 'hand', price: 3, shop: 'street', draw: twist('#b9732f', `<path d="M -4 -1 q 3 -4 6 0 t 6 0 t 6 0 t 6 0" fill="none" stroke="#f6c514" stroke-width="2.2" stroke-linecap="round"/>`) },
+]
+export const ITEMS: ItemDef[] = [...TOPS, ...BOTTOMS, ...SHOES, ...HATS, ...FACE, ...NECK, ...HAND, ...SOUVENIRS, ...PARTY, ...SOHO, ...VAULT, ...LUXE, ...BOUTIQUE, ...PRETZELS]
 export const ITEM: Record<string, ItemDef> = Object.fromEntries(ITEMS.map((i) => [i.id, i]))
 export const STARTER_ITEMS = ITEMS.filter((i) => i.price === 0 && !i.reward).map((i) => i.id)
 
@@ -561,7 +673,7 @@ export const SHOPS: Record<string, { name: string; tagline: string }> = {
   thread: { name: 'THREAD', tagline: 'SoHo · New Drops Every Thursday' },
   sneakers: { name: 'Sneaker Vault', tagline: 'This week’s drops. Camping out optional.' },
   maison: { name: 'Louis Vuittown', tagline: 'Fifth Avenue · Trunk-makers since 1854' },
-  toys: { name: 'Snacks Fifth Avenue', tagline: 'The shoe floor has its own zip code: 10022-SHOE' },
+  toys: { name: 'Snacks Fifth Avenue', tagline: 'Luxury since 1924. Snacks since 1925.' },
   broadway: { name: 'Broadway Merch', tagline: 'Take the show home' },
   liberty: { name: 'Liberty Island Kiosk', tagline: 'Foam crowns & torches' },
   rink: { name: 'Rink Rentals', tagline: 'Skates for the season. Falling is free.' },

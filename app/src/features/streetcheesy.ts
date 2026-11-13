@@ -13,31 +13,48 @@ import { walletOnline, buyOnline } from '../net/wallet'
  */
 const coin = `<img src="/art/icons/coin.png" alt="">`
 
+let showing = ''
+
 export function openListings() {
   const p = el('div', 'streetcheesy')
+  if (!HOME[showing]) showing = save.home
   const draw = () => {
-    p.innerHTML = `<div class="sc-head"><span class="sc-logo">🧀</span><div><b>StreetCheesy</b><small>Cheesy listings. Real views. No broker fee (thanks, FARE Act).</small></div><span class="sc-wallet">${coin}${save.coins.toLocaleString('en-US')}</span></div>
-      <div class="sc-list"></div>`
-    const list = p.querySelector('.sc-list')!
-    for (const h of HOMES) list.append(card(h))
+    p.innerHTML = `<div class="sc-head"><span class="sc-logo">🧀</span><div><b>StreetCheesy</b><small>Buy it once, it’s yours. No rent, no broker fee.</small></div><span class="sc-wallet">${coin}${save.coins.toLocaleString('en-US')}</span></div>
+      <div class="sc-body"><div class="sc-rail"></div><div class="sc-tour"></div></div>`
+    const rail = p.querySelector('.sc-rail')!
+    for (const h of [...HOMES].sort((x, y) => x.price - y.price)) {
+      const owned = save.homes.includes(h.id)
+      const b = el('button', 'sc-pick' + (h.id === showing ? ' on' : ''), `<span class="sc-thumb"><img src="${h.img}" alt="">${save.home === h.id ? '<em>Home</em>' : owned ? '<em class="own">Yours</em>' : ''}</span><b>${h.name}</b><small>${owned ? h.hood : `${coin}${h.price.toLocaleString('en-US')}`}</small>`) as HTMLButtonElement
+      b.type = 'button'
+      b.onclick = () => {
+        sfx.click()
+        showing = h.id
+        draw()
+      }
+      rail.append(b)
+    }
+    p.querySelector('.sc-tour')!.append(tour(HOME[showing]))
+    rail.querySelector('.sc-pick.on')?.scrollIntoView({ block: 'nearest' })
     p.append(closeButton())
   }
   draw()
   openOverlay(p)
 }
 
-function card(h: HomeDef) {
+/** One listing, big: the photo, where it is, what's special, and the one thing you can do about it. */
+function tour(h: HomeDef) {
   const owned = save.homes.includes(h.id)
   const current = save.home === h.id
-  const c = el('div', 'sc-card' + (current ? ' current' : ''))
-  c.innerHTML = `<div class="sc-photo">${h.img ? `<img src="${h.img}" alt="">` : '<span>🌉</span>'}${current ? '<em>Home</em>' : owned ? '<em class="own">Owned</em>' : ''}</div>
-    <div class="sc-info"><div class="sc-price">${h.price ? `${coin}${h.price.toLocaleString('en-US')}` : 'Free'}</div>
-    <b class="sc-name">${h.name}</b><small class="sc-hood">📍 ${h.hood}</small><p>${h.blurb}</p>
-    <div class="sc-perks">${h.perks.map((x) => `<span>${x}</span>`).join('')}</div><small class="sc-fine">${h.fine}</small></div>`
-  const btn = el('button', 'btn small ' + (current ? 'ghost' : 'go'))
+  const c = el('div', 'sc-card')
+  c.innerHTML = `<div class="sc-photo"><img src="${h.img}" alt="">${current ? '<em>Home</em>' : owned ? '<em class="own">Yours</em>' : ''}<span class="sc-hood">📍 ${h.hood}</span></div>
+    <div class="sc-info"><div class="sc-top"><b class="sc-name">${h.name}</b><span class="sc-price">${owned ? '' : h.price ? `${coin}${h.price.toLocaleString('en-US')}` : 'Free'}</span></div>
+    <p>${h.blurb}</p>
+    <div class="sc-perks">${h.perks.map((x) => `<span>${x}</span>`).join('')}</div><small class="sc-fine">${h.fine}</small><div class="sc-act"></div></div>`
+  const act = c.querySelector('.sc-act')!
+  const btn = el('button', 'btn ' + (current ? 'ghost' : 'go'))
   // statuses are labels, not buttons that do nothing
   if (current) {
-    c.querySelector('.sc-info')!.append(el('span', 'pc-status', '🔑 You live here'))
+    act.append(el('span', 'pc-status', '🔑 You live here'))
     return c
   } else if (owned) {
     btn.textContent = 'Move in 🚚'
@@ -46,13 +63,15 @@ function card(h: HomeDef) {
       moveIn(h.id)
     }
   } else {
+    const short = h.price - save.coins
     btn.innerHTML = `Buy for ${coin}${h.price.toLocaleString('en-US')}`
+    if (short > 0) act.append(el('small', 'sc-short', `${short.toLocaleString('en-US')} coins to go`))
     btn.onclick = async () => {
       if (save.coins < h.price) {
         sfx.squawk()
         return toast(`You need ${(h.price - save.coins).toLocaleString('en-US')} more coins. Time for a few shifts at Papi’s!`, '🪙')
       }
-      const ok = await api.choose(`Buy the ${h.name}?`, `${h.price.toLocaleString('en-US')} coins. Closing costs: zero. Board interview: just vibes.`, [
+      const ok = await api.choose(`Buy the ${h.name}?`, `${h.price.toLocaleString('en-US')} coins, once. It’s yours for good. Closing costs: zero. Board interview: just vibes.`, [
         { label: 'Sign the Papers ✍️', value: true },
         { label: 'Keep Looking', value: false },
       ])
@@ -75,7 +94,7 @@ function card(h: HomeDef) {
       moveIn(h.id)
     }
   }
-  c.querySelector('.sc-info')!.append(btn)
+  act.prepend(btn)
   return c
 }
 
@@ -91,7 +110,7 @@ export function moveIn(id: string) {
     persist()
   }
   const release = hold()
-  toast(id === 'penthouse' ? 'Two guys and a van are carrying your bean bag up 90 floors… 🚚' : 'Two guys and a van are on it… 🚚', '🚚')
+  toast(id === 'penthouse' || id === 'sky-residence' ? 'Two guys and a van are carrying your bean bag up 90 floors… 🚚' : 'Two guys and a van are on it… 🚚', '🚚')
   setTimeout(() => {
     release()
     void import('./apartment').then((m) => m.goHome())

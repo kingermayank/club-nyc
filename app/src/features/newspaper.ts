@@ -117,7 +117,7 @@ async function livePress(): Promise<Press> {
 
 // ---------- new places in the city ----------
 /** the places that were there when the paper started printing; anything else is news */
-const ORIGINAL = new Set(['times-square', 'broadway', 'iloveny', 'rockefeller', 'fifth-ave', 'toy-palace', 'maison-malle', 'central-park', 'the-met', 'empire-deck', 'grand-central', 'subway', 'soho', 'thread', 'sneaker-vault', 'coffee', 'chinatown', 'pizza', 'brooklyn-bridge', 'battery-park', 'liberty-island', 'high-line', 'chelsea-market', 'parade'])
+const ORIGINAL = new Set(['times-square', 'broadway', 'iloveny', 'rockefeller', 'fifth-ave', 'toy-palace', 'saks-2', 'maison-malle', 'central-park', 'the-met', 'empire-deck', 'grand-central', 'subway', 'soho', 'thread', 'sneaker-vault', 'coffee', 'chinatown', 'pizza', 'brooklyn-bridge', 'battery-park', 'liberty-island', 'high-line', 'chelsea-market', 'parade'])
 const SEEN_KEY = 'club-nyc:news-places'
 /** when this browser first saw each new place (that's the day it "opened" in your paper) */
 function openings(today: string): { id: string; day: string }[] {

@@ -505,6 +505,13 @@
    "bus": "fx",
    "vol": 0.4,
    "gap": 3000
+  },
+  "carriage.ride": {
+   "files": [
+    "carriage.ride.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.55
   }
  },
  "ambience": {

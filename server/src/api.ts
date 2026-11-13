@@ -11,6 +11,7 @@ import { cleanChat } from './game/filter.ts'
 import { nameHeldForOther } from './waitlist.ts'
 import { GAMES, TEAMS, validLook, nameProblem, weekId } from './game/rules.ts'
 import { presenceOf, onlineCount, roomCounts, friendshipChanged, blockChanged, profileChanged, notifyUser, cityPulse, partiesFor, partyOf, stats, walletChanged, kickUser, setLiveMute } from './game/realtime.ts'
+import { HOME } from '../../app/src/data/homes.ts'
 import { ensureWallet, claim, debit, buyItem, buyHome, grantItem, grantCreatorItems, ownedLook, withWallet, payJob, daysThisWeek, daysVisited } from './economy.ts'
 import { banOf, autoModAfterReport } from './moderation.ts'
 import { inviterByName, recordReferral, referralStats } from './referrals.ts'
@@ -270,7 +271,7 @@ api.get('/users/:id', requireUser, (c) => {
     stamps: Array.isArray(save.stamps) ? save.stamps.length : 0,
     furniture: Array.isArray(save.furniture) ? save.furniture.slice(0, 40) : [],
     openHouse: !!save.openHouse,
-    home: save.home === 'loft' ? 'loft' : save.home === 'penthouse' ? 'penthouse' : 'apartment',
+    home: (typeof save.home === 'string' && HOME[save.home]?.room) || 'apartment',
     party: partyOf(u.id),
     likes,
     liked: !!q.get('SELECT 1 FROM likes WHERE owner = ? AND liker = ?', u.id, me.id),

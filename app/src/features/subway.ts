@@ -5,7 +5,8 @@ import { el, stage } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton, hold, toast } from '../engine/ui'
 import { world, goto } from '../engine/world'
 import { ROOMS } from '../data/rooms'
-import { swipeIn, swipedRecently } from './turnstile'
+import { swipeIn, swipedRecently, markInSystem } from './turnstile'
+import { setPlatformSign } from './platform'
 import { AvatarView } from '../avatar/render'
 import { randomLook } from '../avatar/random'
 import { api } from '../game'
@@ -40,10 +41,11 @@ const STATIONS: Station[] = [
   { room: 'the-met', name: '86 St', place: 'The Met', at: project(40.7795, -73.9555), lines: ['4', '5', '6'], label: { side: 'r' } },
   { room: 'central-park', name: '59 St–Columbus Circle', place: 'Central Park', at: project(40.7681, -73.9819), lines: ['1', 'A', 'C', 'B', 'D'], label: { side: 'l' } },
   { room: 'fifth-ave', name: '5 Av/59 St', place: 'Fifth Avenue', at: project(40.7648, -73.9732), lines: ['N', 'R', 'W'], label: { side: 'r', dx: 18 } },
-  { room: 'rockefeller', name: '47–50 Sts–Rockefeller Ctr', place: 'Rockefeller Center', at: project(40.7586, -73.9813), lines: ['B', 'D', 'F', 'M'], label: { side: 'l', dx: -24, dy: -4 } },
-  { room: 'subway', name: 'Times Sq–42 St', place: 'Times Square', at: project(40.7553, -73.9869), lines: ['1', '2', '3', '7', 'N', 'Q', 'R', 'W', 'S'], label: { side: 'l', dx: -10, dy: 6 } },
+  { room: 'rockefeller', name: '47–50 Sts–Rockefeller Ctr', place: 'Rockefeller Center', at: project(40.7586, -73.9813), lines: ['B', 'D', 'F', 'M'], label: { side: 'l', dx: -24, dy: -10 } },
+  { room: 'subway', name: 'Times Sq–42 St', place: 'Times Square', at: project(40.7553, -73.9869), lines: ['1', '2', '3', '7', 'N', 'Q', 'R', 'W', 'S'], label: { side: 'l', dx: -8, dy: -4 } },
+  { room: 'hudson-yards', name: '34 St–Hudson Yards', place: 'Hudson Yards', at: project(40.7559, -74.0019), lines: ['7'], label: { side: 'l', dx: -4, dy: 16 } },
   { room: 'grand-central', name: 'Grand Central–42 St', place: 'Grand Central', at: project(40.7527, -73.9772), lines: ['4', '5', '6', '7', 'S'], label: { side: 'r' } },
-  { room: 'empire-street', name: '34 St–Herald Sq', place: 'Empire State Building', at: project(40.7497, -73.9879), lines: ['B', 'D', 'F', 'M', 'N', 'Q', 'R', 'W'], label: { side: 'l', dx: -24, dy: 16 } },
+  { room: 'empire-street', name: '34 St–Herald Sq', place: 'Empire State Building', at: project(40.7497, -73.9879), lines: ['B', 'D', 'F', 'M', 'N', 'Q', 'R', 'W'], label: { side: 'l', dx: -30, dy: 34 } },
   { room: 'high-line', name: '14 St', place: 'The High Line', at: project(40.74, -74.0021), lines: ['1', '2', '3', 'A', 'C', 'E', 'L'], label: { side: 'l' } },
   { room: 'soho', name: 'Prince St', place: 'SoHo', at: project(40.7243, -73.9977), lines: ['N', 'R', 'W', '6'], label: { side: 'r', dy: -5 } },
   { room: 'chinatown', name: 'Canal St', place: 'Chinatown', at: project(40.719, -74.0002), lines: ['J', 'Z', 'N', 'Q', 'R', 'W', '6'], label: { side: 'r', dy: 3 } },
@@ -73,6 +75,8 @@ const ROUTES: { line: string; via: string[]; shift?: number }[] = [
   // 6 Av line runs one avenue east of Times Sq: nudge it a hair east so it clears that dot.
   { line: 'B', via: ['central-park', 'rockefeller', 'empire-street'], shift: 3 },
   { line: 'S', via: ['subway', 'grand-central'] },
+  // the 7 ends at Hudson Yards, the newest station in the system (2015)
+  { line: '7', via: ['hudson-yards', 'subway', 'grand-central'], shift: -3 },
 ]
 
 const bullet = (l: string, size = 18) => {
@@ -80,13 +84,46 @@ const bullet = (l: string, size = 18) => {
   return `<span class="bullet" style="background:${c.color};color:${c.dark ? '#1d2140' : '#fff'};width:${size}px;height:${size}px;font-size:${size * 0.62}px">${l}</span>`
 }
 
+// ---------- the platform: one room ('subway') that becomes whichever station you went down into ----------
+/** the station whose platform the 'subway' room is showing (its STATIONS room id; 'subway' is Times Sq–42 St) */
+let platform = 'subway'
+export const platformStation = () => byRoom(platform)
+/** the street above a station */
+const streetOf = (st: string) => (st === 'subway' ? 'times-square' : st)
+/** the station's name as the platform's tile mosaic spells it ("TIMES SQ", "WALL ST", "86 ST") */
+export function mosaicName(st = platformStation()): string {
+  const short: Record<string, string> = { subway: 'TIMES SQ', 'grand-central': 'GRAND CENTRAL', 'central-park': 'COLUMBUS CIRCLE', rockefeller: 'ROCKEFELLER CTR', 'empire-street': 'HERALD SQ', 'hudson-yards': 'HUDSON YARDS', 'brooklyn-bridge': 'CITY HALL', 'one-world-trade': 'CORTLANDT ST', 'fifth-ave': '5 AV 59 ST', 'battery-park': 'SOUTH FERRY', 'the-met': '86 ST', 'high-line': '14 ST' }
+  return short[st.room] ?? st.name.toUpperCase()
+}
+/** Make the platform room this station's: its name on the plate, its exit to its own street, its lines. */
+export function setPlatform(st: string) {
+  const s = byRoom(st) ?? byRoom('subway')
+  platform = s.room
+  setPlatformSign({ room: s.room, name: s.name, place: s.place, mosaic: mosaicName(s), bullets: s.lines.map((l) => bullet(l, 12)).join('') })
+  const room = ROOMS.subway
+  room.area = s.name
+  room.mapSpot = streetOf(s.room) === 'times-square' ? 'times-square' : (ROOMS[streetOf(s.room)]?.mapSpot ?? s.room)
+  const street = ROOMS[streetOf(s.room)]
+  const exitObj = room.objects.turnstiles
+  if (exitObj) {
+    exitObj.go = street ? street.id : 'times-square'
+    exitObj.label = `Exit to ${s.place}`
+  }
+}
+/** Down into this street's station: onto its platform (the swipe has already happened). */
+export function enterPlatform(fromRoom = world.room.id) {
+  setPlatform(hereRoom())
+  void goto('subway', fromRoom)
+}
+
 /** Which station you're "at" for the current room (shops map to their neighborhood station). */
 function hereRoom(): string {
   const r = world.room
+  if (r.id === 'subway') return platform
   const exact = STATIONS.find((s) => s.room === r.id)
   if (exact) return exact.room
   const bySpot: Record<string, string> = {
-    'times-square': 'subway', 'fifth-ave': 'fifth-ave', soho: 'soho', chinatown: 'chinatown', 'high-line': 'high-line',
+    'times-square': 'subway', 'fifth-ave': 'fifth-ave', soho: 'soho', chinatown: 'chinatown', 'high-line': 'high-line', 'hudson-yards': 'hudson-yards',
     'central-park': 'central-park', 'the-met': 'the-met', rockefeller: 'rockefeller', 'grand-central': 'grand-central',
     'empire-state': 'empire-street', 'brooklyn-bridge': 'brooklyn-bridge', 'battery-park': 'battery-park', liberty: 'battery-park',
     wtc: 'one-world-trade', 'wall-street': 'wall-street',
@@ -174,7 +211,12 @@ export const enterStation = () => swipeIn({ station: stationSign() })
 
 export function openSubway() {
   // from the street, you swipe in at the turnstile before you pick a train (on the platform you're already in)
-  if (world.room.id !== 'subway' && !swipedRecently()) return void enterStation().then((ok) => ok === true && openSubway())
+  // from the street you go down onto the platform (through the turnstile, unless you've just swiped): the trains,
+  // and this map, are down there
+  if (world.room.id !== 'subway') {
+    if (swipedRecently()) return enterPlatform()
+    return void enterStation().then((ok) => ok === true && enterPlatform())
+  }
   const here = hereRoom()
   const p = el('div', 'subway-board')
   const svgNS = 'http://www.w3.org/2000/svg'
@@ -246,8 +288,7 @@ export function openSubway() {
     const anchor = left ? 'end' : 'start'
     g.innerHTML = `<circle class="sw-hit" cx="${x}" cy="${y}" r="14"/>${s.room === here ? `<circle class="sw-ring" cx="${x}" cy="${y}" r="9"/>` : ''}
       <circle class="sw-dot" cx="${x}" cy="${y}" r="8"/>
-      <text x="${tx}" y="${ty - 1}" text-anchor="${anchor}" class="stop-name">${s.place}</text>
-      <text x="${tx}" y="${ty + 11}" text-anchor="${anchor}" class="stop-sub">${s.name}</text>`
+      <text x="${tx}" y="${ty + 4.5}" text-anchor="${anchor}" class="stop-name">${s.place}</text>`
     g.addEventListener('click', () => {
       sfx.click()
       if (s.room === here) return toast('You’re already at this station. Even the express isn’t that fast.', '📍')
@@ -432,6 +473,8 @@ export function ride(s: Station, o: { intro?: boolean; arrive?: () => void } = {
       car.classList.add('cover')
       await ready
       api.stamp('straphanger')
+      markInSystem()
+      if (s.room === 'subway') setPlatform('subway')
       await goto(s.room)
       persist()
       setTimeout(() => {

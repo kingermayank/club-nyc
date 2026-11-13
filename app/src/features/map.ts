@@ -12,7 +12,7 @@ const MAP_W = 1000
 const MAP_H = 664
 
 /** Landmarks on the island map. Shapes come from tools/rooms/map.json (traced with SAM). */
-const SPOTS: { id: string; label: string; room?: string; note?: 'subway' | 'ferry' | 'snack' }[] = [
+export const MAP_SPOTS: { id: string; label: string; room?: string; note?: 'subway' | 'ferry' | 'snack' }[] = [
   { id: 'central-park', label: 'Central Park', room: 'central-park' },
   { id: 'the-met', label: 'The Met', room: 'the-met' },
   { id: 'times-square', label: 'Times Square', room: 'times-square' },
@@ -21,6 +21,7 @@ const SPOTS: { id: string; label: string; room?: string; note?: 'subway' | 'ferr
   { id: 'grand-central', label: 'Grand Central', room: 'grand-central' },
   { id: 'fifth-ave', label: 'Fifth Avenue', room: 'fifth-ave' },
   { id: 'high-line', label: 'The High Line', room: 'high-line' },
+  { id: 'hudson-yards', label: 'Hudson Yards', room: 'hudson-yards' },
   { id: 'chelsea', label: 'Chelsea Market', room: 'chelsea-market' },
   { id: 'soho', label: 'SoHo', room: 'soho' },
   { id: 'wtc', label: 'One World Trade', room: 'one-world-trade' },
@@ -40,7 +41,7 @@ const SPOTS: { id: string; label: string; room?: string; note?: 'subway' | 'ferr
 const open = (room?: string) => !!room && !!ROOMS[room]
 
 interface Shape {
-  spot: (typeof SPOTS)[number]
+  spot: (typeof MAP_SPOTS)[number]
   rect: [number, number, number, number]
   img: HTMLImageElement
   alpha?: { data: Uint8ClampedArray; w: number; h: number }
@@ -69,7 +70,7 @@ export function openMap() {
   art.innerHTML = '<img src="/art/rooms/map.jpg" alt="Map of Manhattan" draggable="false">'
   const tip = el('div', 'map-tip')
   const shapes: Shape[] = []
-  for (const spot of SPOTS) {
+  for (const spot of MAP_SPOTS) {
     const c = cut[spot.id]
     // a landmark whose room isn't built isn't on the map
     if (!c || (spot.room && !open(spot.room))) continue

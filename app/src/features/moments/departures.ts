@@ -7,24 +7,32 @@ import { hash } from './kit'
 import { cu } from '../../sound/closeup'
 
 /**
- * Grand Central's departures board, up close and working: the next trains out, in New York time, with their track
- * and status, on the painted board. The lines, their colours and the stops are the real ones that leave from here;
+ * Grand Central's departures board, up close and working: the next subway trains out of Grand Central–42 St to
+ * places in the city, in New York time, with their track and status. The lines, their colours and the stops are real;
  * the times come from a fixed pattern on the wall clock, so everyone reads the same board. Click a train and its
  * route unrolls on the brass ledge under the board.
  */
-interface Service { dest: string; line: 'Hudson' | 'Harlem' | 'New Haven'; every: number; at: number; stops: string[] }
-const COLOR = { Hudson: '#009b3a', Harlem: '#0039a6', 'New Haven': '#ee0034' }
+interface Service { dest: string; line: '4' | '5' | '6' | '7'; every: number; at: number; stops: string[] }
+/** the subway's own line colours (Lexington Avenue green, Flushing purple) */
+const COLOR = { '4': '#00933c', '5': '#00933c', '6': '#00933c', '7': '#b933ad' }
+/** trains out of Grand Central–42 St to the stations on the subway map its lines reach (the 4, 5, 6 and 7, as the
+ *  map draws them), ending at the map's own station name, with the real stops on the way */
 const SERVICES: Service[] = [
-  { dest: 'Poughkeepsie', line: 'Hudson', every: 60, at: 43, stops: ['Harlem-125 St', 'Yonkers', 'Tarrytown', 'Croton-Harmon', 'Peekskill', 'Cold Spring', 'Beacon', 'Poughkeepsie'] },
-  { dest: 'Croton-Harmon', line: 'Hudson', every: 30, at: 20, stops: ['Harlem-125 St', 'Yonkers', 'Dobbs Ferry', 'Tarrytown', 'Ossining', 'Croton-Harmon'] },
-  { dest: 'North White Plains', line: 'Harlem', every: 30, at: 7, stops: ['Harlem-125 St', 'Fordham', 'Bronxville', 'Scarsdale', 'White Plains', 'North White Plains'] },
-  { dest: 'Southeast', line: 'Harlem', every: 60, at: 48, stops: ['Harlem-125 St', 'White Plains', 'Chappaqua', 'Mount Kisco', 'Katonah', 'Brewster', 'Southeast'] },
-  { dest: 'Stamford', line: 'New Haven', every: 30, at: 4, stops: ['Harlem-125 St', 'New Rochelle', 'Larchmont', 'Rye', 'Greenwich', 'Stamford'] },
-  { dest: 'New Haven', line: 'New Haven', every: 60, at: 34, stops: ['Harlem-125 St', 'Stamford', 'South Norwalk', 'Bridgeport', 'Milford', 'New Haven'] },
-  { dest: 'New Canaan', line: 'New Haven', every: 60, at: 13, stops: ['Harlem-125 St', 'Stamford', 'Springdale', 'Talmadge Hill', 'New Canaan'] },
+  { dest: 'The Met', line: '4', every: 8, at: 3, stops: ['59 St', '86 St'] },
+  { dest: 'The Met', line: '6', every: 10, at: 7, stops: ['51 St', '59 St', '68 St', '77 St', '86 St'] },
+  { dest: 'Wall Street', line: '4', every: 6, at: 1, stops: ['14 St–Union Sq', 'Brooklyn Bridge–City Hall', 'Fulton St', 'Wall St'] },
+  { dest: 'Brooklyn Bridge', line: '5', every: 10, at: 4, stops: ['14 St–Union Sq', 'Brooklyn Bridge–City Hall'] },
+  { dest: 'SoHo', line: '6', every: 8, at: 2, stops: ['33 St', '28 St', '23 St', '14 St–Union Sq', 'Astor Pl', 'Bleecker St', 'Prince St'] },
+  { dest: 'Chinatown', line: '6', every: 10, at: 6, stops: ['33 St', '28 St', '23 St', '14 St–Union Sq', 'Astor Pl', 'Bleecker St', 'Canal St'] },
+  { dest: 'Times Square', line: '7', every: 5, at: 0, stops: ['5 Av', 'Times Sq–42 St'] },
+  { dest: 'Hudson Yards', line: '7', every: 10, at: 8, stops: ['5 Av', 'Times Sq–42 St', '34 St–Hudson Yards'] },
 ]
 const ROWS = 7
 
+/** the Lexington Av platforms: local 6 on the outside tracks (1 downtown, 4 uptown), the 4/5 express in the middle
+ *  (2 downtown, 3 uptown); the 7 has its own platform deep under 42nd St */
+const UPTOWN = new Set(['The Met'])
+const trackFor = (svc: Service) => (svc.line === '7' ? 7 : svc.line === '6' ? (UPTOWN.has(svc.dest) ? 4 : 1) : UPTOWN.has(svc.dest) ? 3 : 2)
 interface Train { svc: Service; min: number; track: number; late: number }
 
 /** minutes since midnight in New York, and the seconds */
@@ -46,8 +54,7 @@ function nextTrains(now: number): Train[] {
     if (m < now) m += svc.every
     for (let i = 0; i < 3; i++, m += svc.every) {
       const h = hash(svc.dest + (m % 1440))
-      // upper level tracks 11 to 42, lower level 101 to 117
-      out.push({ svc, min: m, track: h % 5 === 0 ? 101 + (h >>> 4) % 17 : 11 + (h >>> 4) % 32, late: h % 11 === 0 ? 4 + (h >>> 8) % 5 : 0 })
+      out.push({ svc, min: m, track: trackFor(svc), late: h % 11 === 0 ? 2 + (h >>> 8) % 4 : 0 })
     }
   }
   return out.sort((a, b) => a.min - b.min).slice(0, ROWS)
@@ -65,7 +72,7 @@ export function departuresBoard(_g: Game) {
     if (!t) return (route.innerHTML = '')
     const col = COLOR[t.svc.line]
     route.style.setProperty('--line', col)
-    route.innerHTML = `<b class="dp-track"><small>Track</small>${t.track}</b><div class="dp-stops"><i></i>${['Grand Central', ...t.svc.stops].map((s, i, a) => `<span class="${i === 0 || i === a.length - 1 ? 'end' : ''}"><em></em>${s}</span>`).join('')}</div>`
+    route.innerHTML = `<b class="dp-track"><small>Track</small>${t.track}</b><div class="dp-stops"><i></i>${['Grand Central–42 St', ...t.svc.stops].map((s, i, a) => `<span class="${i === 0 || i === a.length - 1 ? 'end' : ''}"><em></em>${s}</span>`).join('')}</div>`
   }
 
   const render = (flip: boolean) => {
@@ -76,8 +83,8 @@ export function departuresBoard(_g: Game) {
     board.innerHTML = `<div class="dp-head"><span>Time</span><span>Destination</span><span>Track</span><span>Status</span></div>` + trains.map((t) => {
       const key = t.svc.dest + t.min
       const left = t.min - now
-      const status = t.late ? `<i class="late">Late ${t.late} min</i>` : left <= 2 ? '<i class="go">Boarding</i>' : '<i>On time</i>'
-      return `<button class="dp-row${key === picked ? ' on' : ''}${flip ? ' flip' : ''}" type="button" data-k="${key}" style="--line:${COLOR[t.svc.line]}"><span>${clock(t.min)}</span><span><em></em>${t.svc.dest}</span><span>${t.track}</span><span>${status}</span></button>`
+      const status = t.late ? `<i class="late">Late ${t.late} min</i>` : left <= 0 ? '<i class="go">Boarding</i>' : '<i>On time</i>'
+      return `<button class="dp-row${key === picked ? ' on' : ''}${flip ? ' flip' : ''}" type="button" data-k="${key}" style="--line:${COLOR[t.svc.line]}"><span>${clock(t.min)}</span><span><em>${t.svc.line}</em>${t.svc.dest}</span><span>${t.track}</span><span>${status}</span></button>`
     }).join('')
     board.querySelectorAll<HTMLButtonElement>('.dp-row').forEach((b, i) => {
       b.style.animationDelay = `${i * 45}ms`

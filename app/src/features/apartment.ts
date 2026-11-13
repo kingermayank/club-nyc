@@ -1,3 +1,4 @@
+import './flea.css'
 import { sfx, startBeat } from '../audio'
 import { save, persist, bump, type PlacedFurniture } from '../state'
 import { NavGrid, inPoly, type Pt } from '../geometry'
@@ -12,6 +13,7 @@ import { api } from '../game'
 import { link } from '../net/link'
 import { rest, HttpError, type PublicUser } from '../net/server'
 import { HOME, HOME_ROOMS, isHomeRoom, homeOfRoom } from '../data/homes'
+import { avatarMarkup } from '../avatar/render'
 import { ART_FURNITURE } from '../data/souvenirs'
 
 interface FurnitureDef {
@@ -88,6 +90,8 @@ let owner: Owner | null = null
 export function visitApartment(id: string) {
   const r = RESIDENT[id]
   if (!r) return
+  // friends' doors are open to each other; everyone else's is closed
+  if (!save.friends.includes(r.id)) return toast(`${r.name}’s door is closed. Be friends first!`, '🚪')
   owner = { kind: 'resident', r }
   api.goto(residentHome(r))
 }
@@ -155,6 +159,13 @@ const isMine = () => !owner
 // ---------- rendering ----------
 let editing = false
 let layer: HTMLElement | null = null
+/**
+ * Furniture was drawn small next to the room's own fridge, stove and people (the user, 2026-11-13: "proportionally
+ * very small"): everything placed in a home is this much bigger than its listed width. Rugs grow a little less.
+ */
+const FURN_SCALE = 1.4
+const fw = (f: FurnitureDef) => f.w * (f.flat ? 1.2 : FURN_SCALE)
+
 const aspectOf = new Map<string, number>()
 
 function aspect(f: FurnitureDef, img: HTMLImageElement) {
@@ -165,14 +176,14 @@ function aspect(f: FurnitureDef, img: HTMLImageElement) {
 
 function placeEl(node: HTMLImageElement, f: FurnitureDef, x: number, y: number, flip?: boolean) {
   const s = depthScale(y)
-  const w = f.w * s
+  const w = fw(f) * s
   const h = w * aspect(f, node)
   node.style.cssText = `left:${x - w / 2}px;top:${y - h}px;width:${w}px;height:${h}px;z-index:${f.flat ? 4 : Math.round(y * 10)};transform:${flip ? 'scaleX(-1)' : 'none'}`
 }
 
 function footprint(f: FurnitureDef, x: number, y: number): Pt[] {
   const s = depthScale(y)
-  const hw = f.w * s * 0.42
+  const hw = fw(f) * s * 0.42
   const d = 16 * s
   return [[x - hw, y - d], [x + hw, y - d], [x + hw, y + 3], [x - hw, y + 3]]
 }
@@ -199,7 +210,7 @@ function seatFor(i: number): Seat | null {
   const f = FDEF[p?.id]
   if (!f?.seat) return null
   const s = depthScale(p.y)
-  const h = f.w * s * (aspectOf.get(f.id) ?? 0.7)
+  const h = fw(f) * s * (aspectOf.get(f.id) ?? 0.7)
   return { id: `furn-${i}`, sit: [p.x, p.y - h * f.seat], stand: world.nav!.nearest([p.x, p.y + 14]) }
 }
 
@@ -605,8 +616,15 @@ function guestArrives() {
 }
 
 // ---------- room hook (every kind of home shares it) ----------
-const homeWord = (room: string) => (room === 'penthouse' ? 'Penthouse' : room === 'loft' ? 'Loft' : 'Apartment')
+const homeWord = (room: string) => (room === 'penthouse' ? 'Penthouse' : room === 'loft' ? 'Loft' : room === 'brownstone' ? 'Brownstone' : room === 'sky-residence' ? 'Sky Residence' : 'Apartment')
 for (const room of HOME_ROOMS) onRoom(room, homeHook)
+/** friends you've invited over: they're at your place next time you're home */
+const guests = new Set<string>()
+export function inviteOver(r: Resident) {
+  guests.add(r.id)
+  toast(`${r.name} is on the way to your place 🛋️`, '🏠')
+  goHome()
+}
 function homeHook({ scene }: { scene: HTMLElement }) {
   layer = el('div', 'furniture-layer')
   scene.append(layer)
@@ -619,6 +637,17 @@ function homeHook({ scene }: { scene: HTMLElement }) {
   controls = el('div', 'apt-controls')
   stage.root.append(controls)
   renderControls()
+  // your place: anyone you invited over comes in the door and says hi
+  if (!owner && guests.size) {
+    const list = [...guests].map((id) => RESIDENT[id]).filter(Boolean)
+    guests.clear()
+    list.forEach((r, i) =>
+      setTimeout(() => {
+        const g = spawnResident(r, { enter: true })
+        setTimeout(() => (g.emote('wave', 2), g.say(pick([`Thanks for having me, ${save.name}!`, 'Nice place! 🏠', 'I brought snacks. Kidding. 🥨']))), 1800)
+      }, 700 + i * 900),
+    )
+  }
   if (owner?.kind === 'resident') {
     const r = owner.r
     world.plate = { name: `${r.name}’s ${homeWord(world.room.id)}`, area: r.bio }
@@ -648,7 +677,6 @@ function homeHook({ scene }: { scene: HTMLElement }) {
     if (!save.furniture.length && !save.storage.length) {
       save.storage.push('beanbag', 'plant', 'lamp')
       persist()
-      setTimeout(() => toast('Housewarming gifts are in storage. Hit <b>Decorate</b> to place them!', '🎁'), 900)
     }
     guestTimer = 6
   }
@@ -681,17 +709,39 @@ export function openFurniture() {
 const CATS = ['All', 'Seating', 'Beds', 'Tables & Storage', 'Lights', 'Fun', 'Decor'] as const
 let catTab: (typeof CATS)[number] = 'All'
 
+/** what a piece does, in two or three words (shown on its tag in the showroom) */
+const does = (f: FurnitureDef) =>
+  f.use === 'music' ? 'Plays music' : f.use === 'screen' ? 'Turns on' : f.use === 'light' ? 'Lights up' : f.use === 'cat' ? 'Cats love it' : f.use === 'game' ? 'Playable' : f.seat ? 'You can sit on it' : f.flat ? 'Goes on the floor' : ''
+const CAT_ICON: Record<(typeof CATS)[number], string> = { All: '🏷️', Seating: '🛋️', Beds: '🛏️', 'Tables & Storage': '🗄️', Lights: '💡', Fun: '🕹️', Decor: '🪴' }
+let catPick = ''
+
+/**
+ * Flatbush Flea, the furniture stall. The left side is the showroom floor: the piece you've picked stands there at
+ * its real size next to you, with its tag (what it does, what it costs, how many you own) and the Buy button. The
+ * right side is the stall's tables: everything for sale, each with a price tag hanging off it.
+ */
 export function openFurnitureCatalog() {
-  const mag = el('div', 'catalog furniture-cat')
+  const mag = el('div', 'catalog furniture-cat flea')
   const draw = () => {
     const items = FURNITURE.filter((f) => f.shop && (catTab === 'All' || f.cat === catTab))
-    mag.innerHTML = `<div class="cat-cover"><div class="cat-masthead">Flatbush Flea</div><div class="cat-tag">Furniture for tiny NYC apartments</div>
-      <div class="cat-model furn-hero"><img src="/art/furniture/taxi-bed.png" alt=""></div>
-      <div class="cat-wallet"><img src="/art/icons/coin.png" alt=""> ${save.coins}</div><div class="cat-trying">Delivered straight to your storage</div></div>
-      <div class="cat-page"><div class="cat-tabs"></div><div class="cat-grid furn"></div></div>`
+    const pick = items.find((f) => f.id === catPick) ?? items[0]
+    catPick = pick?.id ?? ''
+    const have = (f: FurnitureDef) => save.storage.filter((x) => x === f.id).length + save.furniture.filter((x) => x.id === f.id).length
+    const me = `<svg viewBox="-60 -185 120 192" aria-hidden="true">${avatarMarkup(save.look)}</svg>`
+    // the showroom shows the piece at the size it will be in your room (stage px, before the room's depth)
+    const showW = pick ? Math.min(210, fw(pick) * 0.92) : 0
+    mag.innerHTML = `<div class="cat-cover fl-stall">
+        <div class="fl-awning"></div>
+        <div class="cat-masthead">Flatbush Flea</div>
+        <div class="cat-wallet"><img src="/art/icons/coin.png" alt=""> ${save.coins}</div>
+        <div class="fl-floor"><div class="fl-me">${me}</div>${pick ? `<img class="fl-piece${pick.flat ? ' flat' : ''}" src="${pick.src}" alt="" style="width:${showW}px">` : ''}</div>
+        ${pick ? `<div class="fl-tag"><b>${pick.name}</b><small>${[does(pick), have(pick) ? `You have ${have(pick)}` : ''].filter(Boolean).join('<i></i>') || pick.cat}</small></div>
+        <button class="btn go fl-buy" type="button"><img src="/art/icons/coin.png" alt=""> ${pick.price}<span>Buy</span></button>` : ''}
+      </div>
+      <div class="cat-page"><div class="cat-tabs fl-tabs"></div><div class="cat-grid furn fl-grid"></div></div>`
     const tabs = mag.querySelector('.cat-tabs')!
     for (const c of CATS) {
-      const b = el('button', 'cat-tab' + (c === catTab ? ' on' : ''), c)
+      const b = el('button', 'cat-tab' + (c === catTab ? ' on' : ''), `<i>${CAT_ICON[c]}</i>${c}`)
       b.onclick = () => {
         sfx.click()
         catTab = c
@@ -700,25 +750,33 @@ export function openFurnitureCatalog() {
       tabs.append(b)
     }
     const grid = mag.querySelector('.cat-grid')!
+    const buy = (f: FurnitureDef) => {
+      if (!api.spend(f.price, `furniture:${f.id}`)) return toast('Not enough coins. Try a job around town!', '🪙')
+      sfx.register()
+      save.storage.push(f.id)
+      persist()
+      toast(`${f.name} is in your storage`, '📦')
+      draw()
+      renderTray()
+    }
     for (const f of items) {
-      const owned = save.storage.filter((x) => x === f.id).length + save.furniture.filter((x) => x.id === f.id).length
-      const card = el('div', 'cat-item', `<div class="cat-icon"><img src="${f.src}" alt=""></div><b>${f.name}</b>${owned ? `<small>You have ${owned}</small>` : ''}`)
-      const btn = el('button', 'btn small', `<img src="/art/icons/coin.png" alt=""> ${f.price}`)
-      btn.onclick = () => {
-        if (!api.spend(f.price, `furniture:${f.id}`)) return toast('Not enough coins. Try a job around town!', '🪙')
-        sfx.register()
-        save.storage.push(f.id)
-        persist()
-        toast(`${f.name} is in your storage! Hit Decorate to place it.`, '📦')
+      const owned = have(f)
+      const card = el('button', 'fl-item' + (f.id === catPick ? ' on' : ''), `<span class="fl-pic"><img src="${f.src}" alt=""></span><b>${f.name}</b><span class="fl-price"><img src="/art/icons/coin.png" alt="">${f.price}</span>${owned ? `<em>×${owned}</em>` : ''}`) as HTMLButtonElement
+      card.type = 'button'
+      card.onclick = () => {
+        sfx.click()
+        catPick = f.id
         draw()
-        renderTray()
       }
-      card.append(btn)
+      card.ondblclick = () => buy(f)
       grid.append(card)
     }
+    const buyBtn = mag.querySelector<HTMLButtonElement>('.fl-buy')
+    if (buyBtn && pick) buyBtn.onclick = () => buy(pick)
+    // keep the picked piece in view after a redraw
+    grid.querySelector('.fl-item.on')?.scrollIntoView({ block: 'nearest' })
     mag.append(closeButton())
   }
   draw()
   openOverlay(mag)
 }
-

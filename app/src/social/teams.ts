@@ -25,7 +25,7 @@ export const TEAMS: Record<TeamId, Team> = {
   midtown: {
     id: 'midtown', name: 'Midtown Lights', emoji: '✨', color: '#f2b632', dark: '#a87610',
     pitch: 'Times Square, Broadway & Fifth. Big lights, bigger dreams.',
-    turf: ['times-square', 'broadway', 'iloveny', 'rockefeller', 'fifth-ave', 'toy-palace', 'maison-malle', 'grand-central', 'empire-deck', 'empire-street', 'empire-lobby', 'subway'],
+    turf: ['times-square', 'broadway', 'iloveny', 'rockefeller', 'fifth-ave', 'toy-palace', 'saks-2', 'maison-malle', 'grand-central', 'empire-deck', 'empire-street', 'empire-lobby', 'subway'],
     scarf: 'team-scarf-midtown',
   },
   uptown: {
@@ -37,7 +37,7 @@ export const TEAMS: Record<TeamId, Team> = {
   harbor: {
     id: 'harbor', name: 'Harbor Gulls', emoji: '⚓', color: '#2a7bd5', dark: '#164f94',
     pitch: 'Battery Park, Lady Liberty & the West Side. Ferries, sunsets, seagulls.',
-    turf: ['battery-park', 'liberty-island', 'high-line', 'chelsea-market'],
+    turf: ['battery-park', 'liberty-island', 'high-line', 'chelsea-market', 'hudson-yards'],
     scarf: 'team-scarf-harbor',
   },
 }
