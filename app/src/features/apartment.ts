@@ -1,7 +1,7 @@
 import './flea.css'
 import { sfx, startBeat } from '../audio'
 import { save, persist, bump, type PlacedFurniture } from '../state'
-import { NavGrid, inPoly, type Pt } from '../geometry'
+import { NavGrid, inPoly, clampToPoly, type Pt } from '../geometry'
 import { el, stage, toStage } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton, toast, hold, confetti } from '../engine/ui'
 import { world, onRoom, onFrame, depthScale, sitPlayer, spawnResident, leave } from '../engine/world'
@@ -275,7 +275,7 @@ function render() {
       if (!editing) return
       e.stopPropagation()
       e.preventDefault()
-      startDrag(i, img)
+      startDrag(i, img, e)
     }
     img.onclick = (e) => {
       if (editing) return
@@ -297,29 +297,43 @@ function render() {
   })
 }
 
-function startDrag(i: number, img: HTMLImageElement) {
+/**
+ * Drag a placed piece. It stays under the cursor where you took hold of it (it used to jump so that you were holding
+ * its feet), it slides along the edge of the floor instead of being rejected when you go past it, and letting go
+ * over the strip at the bottom puts it back in storage. `grab` overrides where on the piece you're holding it, as a
+ * share of its height above its feet (pieces pulled out of the strip are held by the middle).
+ */
+function startDrag(i: number, img: HTMLImageElement, e0: PointerEvent, grab?: number) {
   const p = save.furniture[i]
   const f = FDEF[p.id]
+  const [sx, sy] = toStage(e0)
+  // where the cursor is relative to the piece's feet, kept for the whole drag
+  const h0 = fw(f) * depthScale(p.y) * (aspectOf.get(f.id) ?? 0.7)
+  const off: Pt = grab === undefined ? [p.x - sx, p.y - sy] : [0, h0 * grab]
+  const walk = world.geo?.walk
   img.classList.add('dragging')
+  stage.root.classList.add('furn-dragging')
   sfx.pop()
+  const overTray = (e: PointerEvent) => (tray ? e.clientY > tray.getBoundingClientRect().top : false)
   const move = (e: PointerEvent) => {
     const [x, y] = toStage(e)
-    p.x = Math.max(20, Math.min(980, x))
-    p.y = Math.max(200, Math.min(550, y))
+    let at: Pt = [Math.max(20, Math.min(980, x + off[0])), Math.max(200, Math.min(550, y + off[1]))]
+    // things that stand on the floor stay on the floor; rugs can go anywhere
+    if (walk && !f.flat && !inPoly(at, walk)) at = clampToPoly(at, walk)
+    p.x = at[0]
+    p.y = at[1]
     placeEl(img, f, p.x, p.y, p.flip)
-    img.classList.toggle('to-storage', tray ? e.clientY > tray.getBoundingClientRect().top : false)
+    img.classList.toggle('to-storage', overTray(e))
   }
   const up = (e: PointerEvent) => {
     window.removeEventListener('pointermove', move)
     window.removeEventListener('pointerup', up)
     img.classList.remove('dragging')
-    const inTray = tray ? e.clientY > tray.getBoundingClientRect().top : false
-    const walk = world.geo?.walk
-    if (inTray || (walk && !inPoly([p.x, p.y], walk) && !f.flat)) {
+    stage.root.classList.remove('furn-dragging')
+    if (overTray(e)) {
       save.furniture.splice(i, 1)
       save.storage.push(f.id)
       sfx.whoosh()
-      if (!inTray) toast('That doesn’t fit there. Classic New York apartment. Back to storage it goes.', '📦')
     } else sfx.pop()
     persist()
     render()
@@ -327,6 +341,7 @@ function startDrag(i: number, img: HTMLImageElement) {
   }
   window.addEventListener('pointermove', move)
   window.addEventListener('pointerup', up)
+  move(e0)
 }
 
 // ---------- decorating ----------
@@ -336,28 +351,62 @@ let releaseHold: (() => void) | null = null
 function renderTray() {
   if (!tray) return
   const counts = save.storage.reduce<Record<string, number>>((a, id) => ((a[id] = (a[id] ?? 0) + 1), a), {})
-  tray.innerHTML = `<div class="tray-head"><b>Decorating</b><span>Click to place, drag to move, double-click to flip</span></div>`
+  // one slim strip along the bottom, so the floor stays free to arrange things on
+  tray.innerHTML = ''
+  tray.title = 'Click to place, drag to move, double-click to flip'
   const row = el('div', 'tray-row')
   for (const [id, n] of Object.entries(counts)) {
     const f = FDEF[id]
     if (!f) continue
-    const b = el('button', 'tray-item', `<img src="${f.src}" alt=""><span>${f.name}</span>${n > 1 ? `<i>×${n}</i>` : ''}`)
-    b.onclick = () => {
+    const b = el('button', 'tray-item', `<img src="${f.src}" alt="" draggable="false">${n > 1 ? `<i>×${n}</i>` : ''}`)
+    b.title = f.name
+    b.setAttribute('aria-label', f.name)
+    // take it out of storage and onto the floor at `at`; returns its place in the room's list
+    const takeOut = (at: Pt): number => {
       const idx = save.storage.indexOf(id)
-      if (idx < 0) return
+      if (idx < 0) return -1
       save.storage.splice(idx, 1)
-      const spot = world.nav?.randomPoint() ?? [500, 430]
-      save.furniture.push({ id, x: spot[0], y: Math.max(380, spot[1]) })
+      save.furniture.push({ id, x: at[0], y: at[1] })
       persist()
-      sfx.pop()
       render()
-      renderTray()
       if (save.furniture.length >= 5) api.stamp('homebody')
+      return save.furniture.length - 1
+    }
+    // press and pull it out into the room, or just click to have it set down for you
+    b.onpointerdown = (e0) => {
+      if (e0.button !== 0) return
+      // (without this the browser starts its own drag of the little picture and the pointer events stop coming)
+      e0.preventDefault()
+      let pulled = false
+      const pull = (e: PointerEvent) => {
+        if (pulled || Math.hypot(e.clientX - e0.clientX, e.clientY - e0.clientY) < 7) return
+        pulled = true
+        stop()
+        const [x, y] = toStage(e)
+        const i = takeOut([x, Math.max(210, y)])
+        const img = layer?.lastElementChild as HTMLImageElement | null
+        if (i < 0 || !img) return
+        b.classList.add('gone')
+        startDrag(i, img, e, 0.5)
+      }
+      const stop = () => {
+        window.removeEventListener('pointermove', pull)
+        window.removeEventListener('pointerup', stop)
+      }
+      window.addEventListener('pointermove', pull)
+      window.addEventListener('pointerup', stop)
+      b.onclick = () => {
+        if (pulled) return
+        const spot = world.nav?.randomPoint() ?? [500, 430]
+        if (takeOut([spot[0], Math.max(380, spot[1])]) < 0) return
+        sfx.pop()
+        renderTray()
+      }
     }
     row.append(b)
   }
-  if (!Object.keys(counts).length) row.append(el('div', 'tray-empty', 'Storage is empty. Get more from the Furniture Catalog →'))
-  const shop = el('button', 'btn small', '📖 Furniture Catalog')
+  if (!Object.keys(counts).length) row.append(el('div', 'tray-empty', 'Storage is empty'))
+  const shop = el('button', 'btn small', '📖 Catalog')
   shop.onclick = () => openFurnitureCatalog()
   const done = el('button', 'btn small go', 'Done ✓')
   done.onclick = () => setEditing(false)

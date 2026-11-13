@@ -2,7 +2,7 @@ import './souvenirs.css'
 import { sfx } from '../audio'
 import { save, persist, bump } from '../state'
 import { el } from '../engine/stage'
-import { onRoom, world } from '../engine/world'
+import { onRoom } from '../engine/world'
 import type { Game } from '../types'
 import { PAINTINGS, MAGNETS, magnetSrc } from '../data/souvenirs'
 import { picCard } from './infocard'
@@ -123,30 +123,8 @@ const MAGNET_LINE = 'Collect all nine. Your fridge has room. Your apartment does
  * apartment's side buttons that sit over the fridge's right edge */
 const SLOTS: [number, number][] = [[906, 104], [934, 116], [914, 172], [906, 205], [934, 222], [910, 250], [936, 268], [912, 296], [938, 314]]
 
-export function openFridge(g: Game) {
-  const have = myMagnets()
-  const grid = el('div', 'ic-gallery magnets fridge')
-  for (const m of MAGNETS) {
-    const owned = have.includes(m.id)
-    const tile = el('div', 'ic-tile' + (owned ? ' owned' : ' missing'))
-    tile.title = owned ? m.blurb : 'Find it at the Brooklyn Bridge souvenir stand'
-    tile.innerHTML = `<div class="ic-tile-pic"><img src="${magnetSrc(m.id)}" alt="" draggable="false"></div><b>${owned ? m.name : '???'}</b><small>${owned ? 'On the fridge' : 'Not yet'}</small>`
-    grid.append(tile)
-  }
-  const home = world.room.id === 'apartment'
-  picCard({
-    title: 'Your Fridge',
-    kicker: `Magnets: ${have.length} of ${MAGNETS.length}`,
-    cls: 'gallery fridge',
-    text: have.length ? '' : 'The souvenir stand on the Brooklyn Bridge sells nine.',
-    joke: 'Inside: half a halal platter and forty hot sauce packets.',
-    extra: grid,
-    actions: [
-      { label: 'Open the Fridge', act: () => g.say(pick(['Half a halal platter and forty hot sauce packets. Dinner is served.', 'One egg. No idea how old. I’m scared of it.', 'Leftover dumplings! Past me is a hero.'])) },
-      ...(home ? [{ label: 'Get More Magnets', note: 'Brooklyn Bridge', act: () => g.goto('brooklyn-bridge') }] : []),
-    ],
-  })
-}
+/** The fridge at home: the door up close with your magnets on it, and the inside (features/fridge.ts). */
+export const openFridge = (g: Game) => void import('./fridge').then((m) => m.openFridge(g))
 
 /** Your magnets on the walk-up's fridge (your own place only: a visit shows their fridge, not yours). */
 onRoom('apartment', ({ scene }) => {

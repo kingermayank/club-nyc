@@ -73,6 +73,8 @@ export interface SaveState {
   xpLog?: { refs: string[]; day: string; counts: Record<string, number>; today: number }
   /** fridge magnets from the Brooklyn Bridge souvenir stand (data/souvenirs.ts), shown on your apartment fridge */
   magnets?: string[]
+  /** where you've put each magnet on the fridge door, as a share of the door's width and height (features/fridge.ts) */
+  magnetAt?: Record<string, [number, number]>
   /** love locks while playing offline (online the server keeps them, features/moments/lovelocks.ts): locks and keys in
    * your pocket and the locks you've hung on the Brooklyn Bridge railing */
   loveLocks?: { locks: number; keys: number; hung: { x: number; y: number; body: number; shape: string; initials: string; paint: string | null; at: number; kept: boolean }[] }

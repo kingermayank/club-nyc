@@ -295,20 +295,25 @@ img.ji { display: inline-block; width: 1.25em; height: 1.25em; margin: 0 0.04em;
 .furniture { position: absolute; pointer-events: none; transform-origin: 50% 100%; }
 .furniture.sittable, .furniture.editable { pointer-events: auto; cursor: pointer; }
 .furniture.sittable:hover, .furniture.editable:hover { filter: drop-shadow(1.6px 0 0 #fff) drop-shadow(-1.6px 0 0 #fff) drop-shadow(0 1.6px 0 #fff) drop-shadow(0 -1.6px 0 #fff) drop-shadow(0 0 8px rgba(255, 231, 120, 0.9)); }
-.furniture.dragging { cursor: grabbing; filter: drop-shadow(0 12px 8px rgba(0, 0, 0, 0.3)); }
+/* one steady look for the whole drag: the outline no longer swaps with the shadow each time the cursor slips off
+   the piece's edge, and the other pieces don't light up as you pass over them */
+.furniture.dragging, .furniture.dragging:hover { cursor: grabbing; filter: drop-shadow(1.6px 0 0 #fff) drop-shadow(-1.6px 0 0 #fff) drop-shadow(0 1.6px 0 #fff) drop-shadow(0 -1.6px 0 #fff) drop-shadow(0 12px 8px rgba(0, 0, 0, 0.3)); }
+.furn-dragging .furniture.editable:not(.dragging) { pointer-events: none; }
+.furn-dragging { cursor: grabbing; }
+.furniture.editable { cursor: grab; touch-action: none; }
+.tray-item { touch-action: none; cursor: grab; }
+.tray-item.gone { opacity: 0.35; }
 .furniture.to-storage { opacity: 0.5; }
-.decor-tray { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 9400; padding: 8px 12px 10px; background: var(--paper); border: 4px solid var(--ink); border-radius: 20px; box-shadow: 0 5px 0 var(--ink); animation: pop-in 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
-.tray-head { display: flex; gap: 10px; align-items: baseline; font-size: var(--fs-sm); }
-.tray-head b { font-family: var(--display); font-size: var(--fs-xl); color: var(--blue-dark); }
-.tray-head span { opacity: 0.65; }
-.tray-row { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 6px; }
-.tray-item { position: relative; flex: 0 0 auto; width: 92px; padding: 4px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; font-size: var(--fs-2xs); }
-.tray-item img { width: 100%; height: 52px; object-fit: contain; }
-.tray-item span { display: block; }
-.tray-item i { position: absolute; top: 2px; right: 6px; font-style: normal; }
-.tray-item:hover { background: #fff6cf; }
-.tray-empty { padding: 14px; opacity: 0.6; }
-.tray-actions { display: flex; justify-content: flex-end; gap: 8px; }
+/* (2026-11-13) a slim strip: storage on the left, Catalog and Done on the right. It used to be a tall panel that
+   covered the bottom third of the floor you were trying to arrange. */
+.decor-tray { position: absolute; left: 10px; right: 10px; bottom: 8px; z-index: 9400; display: flex; align-items: center; gap: 10px; padding: 5px 8px; background: var(--paper); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); animation: pop-in 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.tray-row { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; padding: 2px; }
+.tray-item { position: relative; flex: 0 0 auto; width: 50px; height: 44px; padding: 3px; border: 2.5px solid var(--ink); border-radius: 11px; background: #fff; }
+.tray-item img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.tray-item i { position: absolute; top: -5px; right: -5px; padding: 0 5px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; font: 11px/1.4 var(--display); font-style: normal; }
+.tray-item:hover { background: #fff6cf; transform: translateY(-2px); }
+.tray-empty { padding: 10px 8px; font-size: var(--fs-sm); opacity: 0.6; }
+.tray-actions { flex: none; display: flex; gap: 6px; }
 .decorating .toolbar { display: none; }
 
 /* ================= HUD ================= */
