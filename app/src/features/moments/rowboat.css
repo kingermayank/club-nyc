@@ -1,0 +1,25 @@
+/* ---------- The Rowboats, Central Park: row the real lake ---------- */
+.mo-row { cursor: pointer; }
+.rw-boat { position: absolute; left: 0; top: 0; z-index: 6; width: 64px; height: 34px; margin: -17px -32px; pointer-events: none; filter: drop-shadow(0 4px 0 rgba(13, 50, 110, 0.35)); will-change: transform; }
+.rw-boat svg { display: block; overflow: visible; }
+.rw-guide { position: absolute; left: 0; top: 0; z-index: 4; width: 30px; height: 18px; margin: -9px -15px; border: 3px dashed #fff; border-radius: 50%; opacity: 0.45; pointer-events: none; }
+.rw-guide.on { opacity: 1; box-shadow: 0 0 0 2px rgba(29, 33, 64, 0.45), 0 0 12px #fff; animation: rw-pulse 0.5s ease-in-out infinite alternate; }
+@keyframes rw-pulse { from { border-color: #fff; } to { border-color: var(--sun); } }
+.rw-ripple { position: absolute; left: 0; top: 0; z-index: 3; width: 26px; height: 14px; margin: -7px -13px; border: 3px solid #fff; border-radius: 50%; pointer-events: none; animation: rw-ripple 0.65s ease-out forwards; }
+@keyframes rw-ripple { from { opacity: 0.95; } to { width: 58px; height: 30px; margin: -15px -29px; opacity: 0; } }
+.rw-goal { position: absolute; left: 0; top: 0; z-index: 2; width: 64px; height: 26px; margin: -13px -32px; border: 4px dashed var(--sun); border-radius: 50%; box-shadow: 0 0 0 2px rgba(29, 33, 64, 0.5), inset 0 0 0 2px rgba(29, 33, 64, 0.35); pointer-events: none; animation: rw-goal 0.7s ease-in-out infinite alternate; }
+@keyframes rw-goal { from { opacity: 0.6; } to { opacity: 1; } }
+.rw-duck { position: absolute; left: 0; top: 0; z-index: 5; width: 71px; height: 45px; pointer-events: none; }
+.rw-clock { position: absolute; left: 500px; top: 268px; z-index: 12; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; pointer-events: none; }
+.rw-clock b { min-width: 74px; text-align: center; font: var(--fs-6xl) / 1 var(--display); font-weight: 400; color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill; font-variant-numeric: tabular-nums; }
+.rw-clock.best b { color: var(--sun); }
+.rw-clock .mo-x { pointer-events: auto; }
+.cutout.rw-glow { filter: brightness(1.25) drop-shadow(0 0 10px #fff2a8); }
+.cutout.rw-flap { animation: rw-flap 0.5s ease-out; }
+@keyframes rw-flap { 30% { transform: translateY(-12px) rotate(-14deg); } 60% { transform: translateY(0) rotate(8deg); } 100% { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-guide.on, .rw-goal { animation: none; }
+  .rw-ripple { animation-duration: 0.01s; }
+  .cutout.rw-flap { animation: none; }
+}

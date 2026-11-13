@@ -63,6 +63,12 @@ export class NavGrid {
       }
   }
 
+  /** open up more floor after the fact (the rink's ice inside its railing, and the gate through it) */
+  openPoly(poly: Pt[]) {
+    for (let gy = 0; gy < this.h; gy++)
+      for (let gx = 0; gx < this.w; gx++) if (inPoly([(gx + 0.5) * CELL, (gy + 0.5) * CELL], poly)) this.open[gy * this.w + gx] = 1
+  }
+
   walkable(p: Pt): boolean {
     const gx = Math.floor(p[0] / CELL)
     const gy = Math.floor(p[1] / CELL)

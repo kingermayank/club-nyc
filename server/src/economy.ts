@@ -2,6 +2,7 @@ import { q, tx, type UserRow } from './db.ts'
 import { GAMES, weekId } from './game/rules.ts'
 import { ITEM, STARTER_ITEMS } from '../../app/src/avatar/items.ts'
 import { HOME } from '../../app/src/data/homes.ts'
+import { dropOf, grailItemId } from '../../app/src/avatar/grails.ts'
 import { STAMPS } from '../../app/src/data/stamps.ts'
 import { XP_FOR_CLAIM } from '../../app/src/data/levels.ts'
 import { awardXp } from './xp.ts'
@@ -65,7 +66,7 @@ export function ensureWallet(u: UserRow, seed?: Seed): Wallet {
   }
   const coins = Math.max(0, Math.min(MIGRATION_COIN_CAP, Math.floor(Number(src.coins ?? STARTING_COINS)) || 0))
   const owned = uniq((Array.isArray(src.owned) ? src.owned : []).filter((id): id is string => typeof id === 'string' && !!ITEM[id] && !STARTER.has(id) && ITEM[id].reward !== 'halloween' && ITEM[id].reward !== 'candy-hunt'))
-  const homes = uniq(['walkup', ...(Array.isArray(src.homes) ? src.homes : []).filter((h): h is string => typeof h === 'string' && !!HOME[h] && !HOME[h].soon)])
+  const homes = uniq(['walkup', ...(Array.isArray(src.homes) ? src.homes : []).filter((h): h is string => typeof h === 'string' && !!HOME[h])])
   const w = { coins, owned, homes }
   tx(() => {
     const r = q.run('UPDATE users SET coins = ?, owned = ?, homes = ? WHERE id = ? AND coins IS NULL', coins, JSON.stringify(owned), JSON.stringify(homes), u.id)
@@ -234,6 +235,8 @@ export function buyItem(userId: string, itemId: string): WalletResult {
   const def = ITEM[itemId]
   if (!def || def.price <= 0 || def.reward) return { ok: false, coins: w.coins, error: 'not-for-sale', wallet: w }
   if (w.owned.includes(itemId)) return { ok: true, coins: w.coins, paid: 0, wallet: w }
+  // a Vault grail sells on its drop day only (the same day for the whole city, New York time)
+  if (def.shop === 'vault' && itemId !== grailItemId(dropOf(nycDay()))) return { ok: false, coins: w.coins, error: 'not-for-sale', wallet: w }
   if (w.coins < def.price) return { ok: false, coins: w.coins, error: 'poor', wallet: w }
   return tx(() => {
     const r = debit(userId, def.price, `item:${itemId}`)
@@ -249,7 +252,7 @@ export function buyHome(userId: string, homeId: string): WalletResult {
   if (!u) return { ok: false, coins: 0, error: 'no-user' }
   const w = ensureWallet(u)
   const h = HOME[homeId]
-  if (!h || h.soon || h.price <= 0) return { ok: false, coins: w.coins, error: 'not-for-sale', wallet: w }
+  if (!h || h.price <= 0) return { ok: false, coins: w.coins, error: 'not-for-sale', wallet: w }
   if (w.homes.includes(homeId)) return { ok: true, coins: w.coins, paid: 0, wallet: w }
   if (w.coins < h.price) return { ok: false, coins: w.coins, error: 'poor', wallet: w }
   return tx(() => {

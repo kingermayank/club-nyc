@@ -198,7 +198,18 @@ function buildRoom(from?: string) {
   if (!geo) {
     console.warn('no geo for room', room.id)
     world.nav = new NavGrid([[0, 300], [1000, 300], [1000, 548], [0, 548]])
-  } else world.nav = new NavGrid(geo.walk, geo.holes ?? [])
+  } else {
+    world.nav = new NavGrid(geo.walk, geo.holes ?? [])
+    // a rink's ice is floor too: walk in through the gate and you glide (actors on the ice skate, see `skating`)
+    if (geo.ice) {
+      world.nav.openPoly(geo.ice)
+      const gate = geo.zones?.['rink-gate']
+      if (gate) {
+        const { rect: [x1, y1, x2, y2], poly } = zoneRect(gate)
+        world.nav.openPoly(poly ?? [[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
+      }
+    }
+  }
 
   // cutouts (pixel-traced objects)
   const standing: { rect: Rect; z: number }[] = []
@@ -448,7 +459,16 @@ function npcThink(a: Actor, dt: number) {
   }
   if (a.seat) a.standUp()
   if (r < 0.48) {
-    a.path = nav.path(a.pos, nav.randomPoint())
+    // locals often cut across a rink's ice, so it looks busy instead of empty
+    let dest = nav.randomPoint()
+    const ice = world.geo?.ice
+    if (ice && Math.random() < 0.55) {
+      const q = ice[Math.floor(Math.random() * ice.length)]
+      const cx = ice.reduce((s, p) => s + p[0], 0) / ice.length
+      const cy = ice.reduce((s, p) => s + p[1], 0) / ice.length
+      dest = nav.nearest([cx + (q[0] - cx) * 0.65, cy + (q[1] - cy) * 0.55])
+    }
+    a.path = nav.path(a.pos, dest)
     a.next = 2 + Math.random() * 4
   } else if (r < 0.64 && world.seats.some(seatFree)) {
     const s = pick(world.seats.filter(seatFree))
@@ -469,15 +489,46 @@ function npcThink(a: Actor, dt: number) {
 }
 
 // ---------- coins on the ground ----------
+/** The places worth walking up to in this room (doors, carts, counters): where you'd stand to use each one. */
+function landmarkPoints(): Pt[] {
+  const nav = world.nav!
+  const pts: Pt[] = []
+  for (const id of Object.keys(world.room.objects)) {
+    const c = world.geo?.cutouts[id]
+    if (c) pts.push(nav.nearest(c.at ?? [c.rect[0] + c.rect[2] / 2, c.rect[1] + c.rect[3] + 10]))
+  }
+  return pts.length ? pts : exitPoints()
+}
+/** the point `d` px along a walking path */
+function along(path: Pt[], d: number): Pt {
+  for (let i = 1; i < path.length; i++) {
+    const seg = dist(path[i - 1], path[i])
+    if (d <= seg && seg > 0) return [path[i - 1][0] + ((path[i][0] - path[i - 1][0]) * d) / seg, path[i - 1][1] + ((path[i][1] - path[i - 1][1]) * d) / seg]
+    d -= seg
+  }
+  return path[path.length - 1]
+}
+/**
+ * How many coins a room has is unchanged (most visits one or two, each worth 1). Where they sit is deliberate now:
+ * a neat little trail on the walk up to one of the room's landmarks, evenly spaced, instead of strays anywhere.
+ */
 function scatterCoins() {
   if (isHomeRoom(world.room.id)) return
   const n = Math.random() < 0.7 ? 1 + Math.floor(Math.random() * 2) : 0
+  if (!n) return
+  const nav = world.nav!
+  const centre = nav.nearest(world.geo?.spawn ?? [500, 460])
+  // the trail starts a couple of steps out from the landmark and leads back toward the middle of the room
+  const marks = landmarkPoints().filter((m) => dist(m, centre) > 120)
+  const from = marks.length ? pick(marks) : nav.randomPoint()
+  const trail = [from, ...nav.path(from, centre)]
+  const GAP = 34
   for (let i = 0; i < n; i++) {
-    const p = world.nav!.randomPoint()
+    const p = along(trail, 44 + i * GAP)
     if (dist(p, world.player.pos) < 90) continue
-    const c = el('button', 'coin', COIN_SVG)
+    const c = el('button', 'coin', COIN_HTML)
     c.setAttribute('aria-label', 'Coin')
-    c.style.cssText = `left:${p[0]}px;top:${p[1]}px;--s:${depthScale(p[1])};z-index:${Math.round(p[1] * 10) - 1}`
+    c.style.cssText = `left:${p[0]}px;top:${p[1]}px;--s:${depthScale(p[1])};--i:${i};z-index:${Math.round(p[1] * 10) - 1}`
     c.dataset.x = String(p[0])
     c.dataset.y = String(p[1])
     c.onclick = (e) => {
@@ -487,14 +538,15 @@ function scatterCoins() {
     stage.scene.append(c)
   }
 }
-export const COIN_SVG = `<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="#ffd166" stroke="#1d2140" stroke-width="3.5"/><circle cx="20" cy="20" r="10" fill="none" stroke="#e8a317" stroke-width="3"/><path d="M14 13 L18 11" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>`
+/** One coin, the same everywhere it lies on the ground: a soft shadow, a round gold face with a star, a glint. */
+export const COIN_HTML = `<i class="coin-shadow"></i><span class="coin-face"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17.5" fill="#1d2140"/><circle cx="20" cy="21.5" r="14.5" fill="#d98a0b"/><circle cx="20" cy="19.5" r="14.5" fill="#ffc933"/><circle cx="20" cy="19.5" r="10.5" fill="#ffdf6b" stroke="#e8a317" stroke-width="2"/><path d="M20 12.6l2.1 4.4 4.8.6-3.5 3.3.9 4.8-4.3-2.4-4.3 2.4.9-4.8-3.5-3.3 4.8-.6z" fill="#fff6c9" stroke="#e8a317" stroke-width="1.4" stroke-linejoin="round"/><path d="M9.5 15.5a11.5 11.5 0 0 1 6-6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9"/></svg></span><i class="coin-glint"></i>`
 
 function coinPickup() {
   const p = world.player.pos
   stage.scene.querySelectorAll<HTMLElement>('.coin:not(.got)').forEach((c) => {
     if (Math.hypot(+c.dataset.x! - p[0], +c.dataset.y! - p[1]) < 24) {
       c.classList.add('got')
-      setTimeout(() => c.remove(), 500)
+      setTimeout(() => c.remove(), 600)
       world.api.earn(1, undefined, 'coin')
       floatText('+1', +c.dataset.x!, +c.dataset.y! - 40, 'coin-float')
     }
@@ -541,7 +593,7 @@ function setHover(h: Hit | null, p: Pt) {
   if (h.img) h.img.classList.toggle('door', !!h.def?.go)
   if (h.img) h.img.classList.add('hover')
   if (h.npc) h.npc.wrap.classList.add('hover')
-  const label = h.kind === 'npc' ? personLabel(h.npc!) : h.def ? (h.def.go ? '🚪 ' : '') + h.def.label + (h.def.soon ? ' (Coming Soon)' : '') : ''
+  const label = h.kind === 'npc' ? personLabel(h.npc!) : h.def ? (h.def.go ? '🚪 ' : '') + h.def.label : ''
   const top = h.kind === 'npc' ? h.npc!.pos[1] - 120 * depthScale(h.npc!.pos[1]) : h.rect[1]
   if (label) showLabel(label, h.kind === 'npc' ? h.npc!.pos[0] : h.kind === 'seat' ? p[0] : (h.rect[0] + h.rect[2]) / 2, top)
 }
@@ -549,7 +601,7 @@ function setHover(h: Hit | null, p: Pt) {
 function personLabel(a: Actor) {
   if (a.remote) return `${a.name}${link.friends.has(a.remote.id) ? ' ★ friend' : ''}`
   const friend = a.resident && save.friends.includes(a.resident.id)
-  return `${a.name}${friend ? ' ★' : ''}${link.account ? ' · city local' : friend ? ' friend' : ''}`
+  return `${a.name}${friend ? ' ★' : ''}${link.account ? ' (city local)' : friend ? ' friend' : ''}`
 }
 
 function activate(h: Hit, p: Pt) {
@@ -558,7 +610,6 @@ function activate(h: Hit, p: Pt) {
   if (h.kind === 'seat') return sitPlayer(h.seat!)
   const def = h.def!
   sfx.click()
-  if (def.soon) return toast(`${def.label}: under construction. Very New York of it.`, '🚧')
   if (def.sit) {
     const seats = world.seats.filter(seatFree).sort((a, b) => dist(a.sit, p) - dist(b.sit, p))
     if (seats.length) return sitPlayer(seats[0])
@@ -567,7 +618,18 @@ function activate(h: Hit, p: Pt) {
   }
   const fire = () => {
     if (world.room !== room) return
-    if (def.go) goto(def.go, room.id)
+    // down into the subway from the street: through this station's turnstile first (features/turnstile.ts). The
+    // platform room is Times Sq–42 St, so from any other station (Grand Central) you go straight to picking a train.
+    if (def.go === 'subway' && room.id !== 'subway')
+      return void import('../features/subway').then((m) =>
+        m.enterStation().then((ok) => {
+          if (ok !== true || world.room !== room) return
+          if (room.id === 'times-square') void goto('subway', room.id)
+          else m.openSubway()
+        }),
+      )
+    if (def.go && def.ride) def.ride(() => goto(def.go!, room.id))
+    else if (def.go) goto(def.go, room.id)
     else def.act?.(world.api)
   }
   if (def.instant) return fire()
@@ -797,7 +859,10 @@ export function startWorld(player: Actor, api: Game) {
     // Rosa's walking step: every click on the ground walks (a local standing near the glowing spot shouldn't
     // turn "try walking" into opening their card)
     const h = stage.root.querySelector('.tour-spot') ? null : hitAt(p)
-    if (!save.stats.walks || !save.stats.clicks) bump(h ? 'clicks' : 'walks')
+    // any click in the scene walks you somewhere (the ground, or up to the thing you clicked): that's "Take a Walk"
+    // done (round 2's playtesters clicked things first, and the task never ticked)
+    if (!save.stats.walks) bump('walks')
+    if (h && !save.stats.clicks) bump('clicks')
     if (world.debug) {
       console.log(`[${Math.round(p[0])}, ${Math.round(p[1])}]`)
       toast(`[${Math.round(p[0])}, ${Math.round(p[1])}]`, '📐')

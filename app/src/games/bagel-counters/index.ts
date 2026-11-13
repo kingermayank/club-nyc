@@ -669,7 +669,7 @@ function run(ctx: MiniGameContext) {
     Array.from(livesEl.children).forEach((c, i) => c.classList.toggle(k('lost'), i >= lives))
   }
   function renderLevel() {
-    levelName.textContent = level >= LEVELS ? `Level ${level} · Final load` : `Level ${level}`
+    levelName.textContent = level >= LEVELS ? 'Final load' : `Level ${level}`
     barFill.style.width = `${(clamp(inLevel, 0, PER_LEVEL) / PER_LEVEL) * 100}%`
     barText.textContent = `${clamp(inLevel, 0, PER_LEVEL)} / ${PER_LEVEL}`
   }
@@ -1345,7 +1345,7 @@ function run(ctx: MiniGameContext) {
   }
   function gameOver() {
     snd.lose()
-    banner('Game Over', `${delivered} delivered · reached level ${level}`, 3, 'bad')
+    banner('Game Over', `${delivered} delivered`, 3, 'bad')
     endAt = clock + 3.0
   }
   function finish() {

@@ -1,0 +1,23 @@
+/* ---------- The Life Ring, Battery Park: a slingshot over the harbor ---------- */
+.mo-ring.pulling { cursor: grabbing; }
+.lr-rope { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.lr-rope svg { display: block; overflow: visible; }
+.lr-ring { position: absolute; left: 0; top: 0; z-index: 8; width: 44px; height: 44px; margin: -22px; pointer-events: none; filter: drop-shadow(0 3px 0 rgba(29, 33, 64, 0.3)); will-change: transform; }
+.lr-ring svg, .lr-float svg, .lr-pips i svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.lr-hung { z-index: 7; animation: lr-hung 1.6s ease-in-out infinite alternate; transform-origin: 50% 0; }
+@keyframes lr-hung { from { rotate: -9deg; } to { rotate: 9deg; } }
+.lr-dot { position: absolute; left: 0; top: 0; z-index: 7; width: 10px; height: 10px; margin: -5px; background: #fff; border: 2.5px solid var(--ink); border-radius: 50%; opacity: 0; pointer-events: none; }
+.lr-float { position: absolute; left: 0; top: 0; z-index: 5; width: 48px; height: 55px; pointer-events: none; }
+.lr-float::after { content: ''; position: absolute; left: 4px; right: 4px; bottom: 2px; height: 8px; border: 2.5px solid rgba(255, 255, 255, 0.85); border-radius: 50%; z-index: -1; }
+.lr-pips { position: absolute; z-index: 12; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 4px 6px 4px 10px; background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); }
+.lr-pips i { width: 20px; height: 20px; transition: opacity 0.2s, transform 0.2s; }
+.lr-pips i.used { opacity: 0.22; transform: scale(0.8); }
+.lr-pips .mo-x { width: 26px; height: 26px; padding: 5px; margin-left: 6px; }
+.lr-drop { position: absolute; z-index: 9; width: 7px; height: 10px; margin: -5px -3px; background: #e6f6ff; border: 2px solid var(--blue); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; pointer-events: none; animation: lr-drop 0.6s ease-out forwards; }
+@keyframes lr-drop { 55% { transform: translate(var(--dx), var(--dy)); opacity: 1; } 100% { transform: translate(calc(var(--dx) * 1.3), 4px); opacity: 0; } }
+.cutout.lr-wobble { transform-origin: 50% 100%; animation: lr-wobble 0.7s ease-out; }
+@keyframes lr-wobble { 20% { transform: rotate(-5deg); } 50% { transform: rotate(4deg); } 80% { transform: rotate(-2deg); } 100% { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lr-hung, .cutout.lr-wobble { animation: none; }
+}

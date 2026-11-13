@@ -410,8 +410,8 @@ class Showtime {
        <div class="showtime-keys">${[0, 1, 2, 3].map((i) => keyTile(i)).join('')}</div>
        <p>Press <b>← ↑ ↓ →</b> (or tap the lanes) as arrows hit the line.<br>Keep the combo going and riders tip. Miss, and they look away.</p>
        <div class="showtime-diffs">
-         <button class="showtime-diff is-on" data-d="easy"><span class="showtime-diff-bullet">${bulletSVG('7', '#b933ad')}</span><span><b>Easy</b><small>Local · all stops</small></span></button>
-         <button class="showtime-diff" data-d="hard"><span class="showtime-diff-bullet">${bulletSVG('7', '#b933ad', true)}</span><span><b>Hard</b><small>Express · hold on!</small></span></button>
+         <button class="showtime-diff is-on" data-d="easy"><span class="showtime-diff-bullet">${bulletSVG('7', '#b933ad')}</span><span><b>Easy</b><small>All stops</small></span></button>
+         <button class="showtime-diff" data-d="hard"><span class="showtime-diff-bullet">${bulletSVG('7', '#b933ad', true)}</span><span><b>Hard</b><small>Hold on!</small></span></button>
        </div>
        <button class="btn showtime-go">Start the Show</button>`,
     )
@@ -583,7 +583,7 @@ class Showtime {
          <div><b>${this.maxCombo}</b><small>best combo</small></div>
          <div><b>${this.counts.perfect}/${this.counts.good}/${this.counts.miss}</b><small>perfect/good/miss</small></div>
        </div>
-       <div class="showtime-results-tips"><img src="${COIN}" alt=""><b>${this.tips}</b> tips in the hat <small>· ${d.label} (${d.sub})</small></div>
+       <div class="showtime-results-tips"><img src="${COIN}" alt=""><b>${this.tips}</b> tips in the hat <small>${d.label}</small></div>
        <button class="btn showtime-go showtime-collect">Collect Tips<i class="showtime-collect-bar"></i></button>`,
     )
     card.querySelector('.showtime-collect')!.addEventListener('click', () => this.finish())
@@ -597,9 +597,10 @@ class Showtime {
     const total = this.tips + this.pendingTips + this.coins.length
     const d = DIFF[this.diff]
     const lines = [
-      `Rank ${this.phase === 'results' ? this.grade : '?'} · ${Math.round(acc * 100)}% on ${d.label} (${d.sub})`,
+      `Rank ${this.phase === 'results' ? this.grade : '?'}`,
+      `${Math.round(acc * 100)}% on ${d.label}`,
       `Best combo: ${this.maxCombo}`,
-      `Perfect ${this.counts.perfect} · Good ${this.counts.good} · Miss ${this.counts.miss}`,
+      `${this.counts.perfect} perfect, ${this.counts.good} good, ${this.counts.miss} missed`,
     ]
     const flags: string[] = []
     if (this.phase === 'results') {

@@ -426,7 +426,7 @@ export function start(ctx: GameCtx): RunningGame {
       S.station = next
       if (next < STATIONS.length - 1) {
         msfx.station()
-        line(`<b>${STATIONS[next]}</b>${next + 1 < STATIONS.length ? ` · next stop ${STATIONS[next + 1]}` : ''}`)
+        line(`<b>${STATIONS[next]}</b>${next + 1 < STATIONS.length ? ` Next stop ${STATIONS[next + 1]}` : ''}`)
       }
     }
     me.d = S.d

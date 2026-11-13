@@ -36,11 +36,19 @@ export function mountStage(host: HTMLElement) {
   stage.root.append(stage.bg, stage.scene, stage.overhead, stage.fx, stage.label, stage.hud, stage.toolbar, stage.notices, stage.overlay, stage.toasts, stage.fade)
   stage.viewport.append(stage.root)
   host.append(stage.viewport)
+  // The stage fills its viewport box, which is the framed page by default and the whole window in full screen
+  // (shell.ts), so it follows the box rather than the window.
   const fit = () => {
-    stage.scale = Math.min(window.innerWidth / W, window.innerHeight / H)
-    stage.root.style.transform = `translate(-50%, -50%) scale(${stage.scale})`
+    const r = stage.viewport.getBoundingClientRect()
+    const scale = Math.min((r.width || window.innerWidth) / W, (r.height || window.innerHeight) / H)
+    if (scale === stage.scale && stage.root.style.transform) return
+    stage.scale = scale
+    stage.root.style.transform = `translate(-50%, -50%) scale(${scale})`
+    // canvases that size themselves from the stage (the city view, the mini-games) listen for the window's resize;
+    // going in and out of full screen changes the stage without one
+    window.dispatchEvent(new Event('resize'))
   }
-  window.addEventListener('resize', fit)
+  new ResizeObserver(fit).observe(stage.viewport)
   fit()
   // the stage clips (overflow: hidden) but can still be scrolled by focus/scrollIntoView — keep it pinned
   for (const node of [stage.root, stage.viewport]) node.addEventListener('scroll', () => node.scrollTop || node.scrollLeft ? node.scrollTo(0, 0) : undefined)

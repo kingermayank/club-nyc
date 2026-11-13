@@ -1,0 +1,93 @@
+/* The 9/11 Memorial up close (features/memorial.ts): first person at the North Pool's parapet. Quiet on purpose: no
+   game chrome, small calm type, slow fades. Everything is in stage units over the 1000 × 565 stage. */
+.mem { position: absolute; inset: 0; z-index: 9700; overflow: hidden; background: #0d1218; animation: mem-in 1.2s ease; user-select: none; }
+.mem.out { opacity: 0; transition: opacity 0.6s ease; }
+@keyframes mem-in { from { opacity: 0; } }
+.mem-view { position: absolute; inset: 0; }
+
+/* the pool: one painting (art/memorial/pool.jpg), and over its water a clip of that same painting with only the
+   water moving (art/video/memorial-pool.mp4 is rows 35.6% to 75.6% of the picture) */
+.mem-art { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; }
+.mem-water { position: absolute; left: 0; top: 200.9px; width: 1000px; height: 226px; object-fit: fill; opacity: 0; transition: opacity 0.8s ease; pointer-events: none; }
+.mem-water.on { opacity: 1; }
+
+/* the bronze parapet in the painting: the names are cut into its face */
+.mem-face { position: absolute; left: 0; right: 0; top: 428px; bottom: 0; overflow: visible; clip-path: inset(-90px 0 0 0); }
+.mem-face::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 14%, transparent 86%, rgba(0, 0, 0, 0.3)); }
+.mem-names { position: absolute; left: 0; top: 0; width: 2600px; height: 100%; will-change: transform; }
+.mem-row { position: absolute; left: 0; right: 0; height: 24px; }
+
+/* a name: an invented one, incised in the bronze (dark cut, a lit lower lip), softened just enough that it reads as
+   an inscription and not as a person */
+.mem-name { position: absolute; top: 0; display: flex; align-items: center; height: 26px; padding: 0 8px; border: 0; background: none; cursor: pointer; }
+.mem-text { font: 400 15px/1 var(--display); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; color: #1c120a; text-shadow: 0 1.2px 0 rgba(255, 214, 160, 0.34), 0 -0.6px 0 rgba(0, 0, 0, 0.5); filter: blur(1.3px); opacity: 0.9; transition: color 0.35s, text-shadow 0.35s, opacity 0.35s; }
+/* under your hand the letters catch the light, the way the cut names glow from inside at night */
+.mem-name:hover .mem-text, .mem-name:focus-visible .mem-text { color: #ffe9c4; opacity: 1; text-shadow: 0 0 7px rgba(255, 214, 150, 0.75), 0 1px 0 rgba(0, 0, 0, 0.4); }
+.mem-name:focus-visible { outline: 2px solid rgba(255, 236, 200, 0.7); outline-offset: 2px; border-radius: 4px; }
+.mem.carrying, .mem.carrying .mem-name { cursor: grabbing; }
+
+/* the rose (art/memorial/rose.png), set into a name: stem tucked in the letters, bloom leaning out over the bronze */
+.mem-rose, .mem-fly, .mem-carry { position: absolute; pointer-events: none; }
+.mem-rose img, .mem-fly img, .mem-carry img, .mem-bundle img, .mem-card img { display: block; width: 100%; height: auto; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.45)); }
+.mem-rose { left: 34%; bottom: 0; width: 32px; transform: rotate(-34deg); transform-origin: 50% 100%; z-index: 2; animation: mem-settle 0.5s ease-out; }
+@keyframes mem-settle { from { transform: rotate(-22deg) translateY(-5px); } }
+.mem-fly, .mem-carry { left: -16px; top: -48px; width: 32px; z-index: 6; transform-origin: 50% 60%; }
+.mem-fly { transition: transform 0.62s cubic-bezier(0.3, 0.1, 0.25, 1); }
+.mem-carry { transform-origin: 50% 20%; rotate: 16deg; }
+
+/* on the ledge: a few roses to take, and a small bronze card beside them */
+.mem-bundle { position: absolute; left: 700px; top: 358px; width: 100px; height: 74px; padding: 0; border: 0; background: none; cursor: grab; }
+.mem-bundle img { position: absolute; left: 36px; top: -4px; width: 30px; transform-origin: 50% 100%; transition: transform 0.25s ease; }
+.mem-bundle img:nth-child(1) { transform: rotate(-62deg); }
+.mem-bundle img:nth-child(2) { transform: rotate(-78deg) translateX(3px); }
+.mem-bundle img:nth-child(3) { transform: rotate(-94deg) translateX(6px); }
+.mem-bundle:hover img:nth-child(1), .mem-bundle:focus-visible img:nth-child(1) { transform: rotate(-52deg) translateY(-3px); }
+.mem-bundle:focus-visible { outline: 2px solid rgba(255, 236, 200, 0.7); outline-offset: 2px; border-radius: 8px; }
+.mem-card { position: absolute; right: 14px; top: 392px; display: flex; align-items: center; margin: 0; padding: 6px 12px 6px 8px; border: 2px solid #2a1c10; border-radius: 6px; background: linear-gradient(#b98d58, #8a6238 55%, #6d4a28); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 230, 190, 0.45); color: #24160b; font: 400 var(--fs-md)/1.1 var(--display); letter-spacing: 0.03em; text-shadow: 0 1px 0 rgba(255, 226, 180, 0.4); pointer-events: none; }
+
+/* the plaza's own kind of sign: brushed steel, a bronze rule */
+.mem-sign { position: absolute; left: 16px; top: 14px; display: flex; flex-direction: column; gap: 3px; padding: 9px 16px 10px 14px; border: 2px solid #10151c; border-left: 6px solid #a8804e; border-radius: 4px; background: linear-gradient(#3b4654, #232b36); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14); color: #f4f1e8; }
+.mem-sign b { font: 400 var(--fs-xl, 20px)/1 var(--display); letter-spacing: 0.02em; }
+.mem-sign span { font: var(--fs-sm)/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.8; }
+
+/* the two ways on: the story, and stepping back */
+.mem-actions { position: absolute; right: 14px; top: 14px; display: flex; align-items: center; gap: 10px; }
+.mem-story-btn { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px 0 12px; border: 2px solid #10151c; border-radius: 19px; background: linear-gradient(#3b4654, #232b36); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14); color: #f4f1e8; font: 400 var(--fs-base)/1 var(--display); cursor: pointer; transition: transform 0.15s, background 0.15s; }
+.mem-story-btn svg { width: 22px; height: 18px; color: #e2bd86; }
+.mem-story-btn:hover, .mem-story-btn:focus-visible { transform: translateY(-1px); background: linear-gradient(#4a5767, #2c3644); outline: none; }
+.mem-x { width: 38px; height: 38px; padding: 9px; border: 2px solid #10151c; border-radius: 50%; background: linear-gradient(#3b4654, #232b36); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14); color: #f4f1e8; cursor: pointer; transition: transform 0.15s, background 0.15s; }
+.mem-x svg { display: block; width: 100%; height: 100%; }
+.mem-x:hover, .mem-x:focus-visible { transform: scale(1.08); background: linear-gradient(#4a5767, #2c3644); outline: none; }
+
+/* ---------- the story of the place: an exhibit panel (memorialStory) ---------- */
+.mem-story-layer { position: absolute; inset: 0; z-index: 9750; display: grid; place-items: center; background: rgba(8, 12, 17, 0.62); animation: mem-in 0.35s ease; user-select: none; }
+.mem-story-layer.out { opacity: 0; transition: opacity 0.3s ease; }
+/* every part has its own fixed place: picture, text block, arrows, timeline, x. Nothing moves with the text. */
+.mem-story { position: relative; width: 800px; height: 430px; border: 3px solid #0e1218; border-radius: 10px; background: linear-gradient(#2c3541, #1b222c); box-shadow: 0 0 0 3px #a8804e, 0 0 0 6px #0e1218, 0 14px 30px rgba(0, 0, 0, 0.5); color: #f4f1e8; }
+.ms-pic { position: absolute; left: 62px; top: 34px; width: 290px; height: 290px; margin: 0; border: 3px solid #0e1218; border-radius: 6px; overflow: hidden; background: #0e1218; box-shadow: 0 0 0 2px rgba(168, 128, 78, 0.8); }
+.ms-pic img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ms-body { position: absolute; left: 382px; top: 36px; width: 356px; height: 288px; overflow: hidden; }
+.ms-kicker { font: var(--fs-sm)/1 var(--body); letter-spacing: 0.16em; text-transform: uppercase; color: #e2bd86; }
+.ms-body h2 { margin: 8px 0 12px; font: 400 30px/1.05 var(--display); color: #fbfaf6; }
+.ms-body p { margin: 0; font: var(--fs-base)/1.5 var(--body); color: rgba(244, 241, 232, 0.92); }
+.ms-nav { position: absolute; top: 160px; width: 40px; height: 40px; padding: 9px; border: 2px solid #0e1218; border-radius: 50%; background: linear-gradient(#b98d58, #8a6238); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4); color: #1d130a; cursor: pointer; transition: transform 0.15s, opacity 0.2s; }
+.ms-nav.prev { left: 10px; }
+.ms-nav.next { right: 10px; }
+.ms-nav svg { display: block; width: 100%; height: 100%; }
+.ms-nav:hover:not(:disabled), .ms-nav:focus-visible { transform: scale(1.1); outline: none; }
+.ms-nav:disabled { opacity: 0.28; cursor: default; }
+.ms-x { position: absolute; right: -16px; top: -16px; }
+/* the timeline: four stops on a bronze line, the one you're reading lit */
+.ms-rail { position: absolute; left: 62px; right: 62px; bottom: 22px; height: 54px; display: flex; justify-content: space-between; }
+.ms-rail::before { content: ''; position: absolute; left: 30px; right: 30px; top: 9px; height: 3px; border-radius: 2px; background: #5c4a33; }
+.ms-stop { position: relative; width: 84px; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 0; border: 0; background: none; color: rgba(244, 241, 232, 0.6); font: 400 var(--fs-md)/1 var(--display); cursor: pointer; transition: color 0.2s; }
+.ms-stop i { width: 20px; height: 20px; border: 3px solid #a8804e; border-radius: 50%; background: #1b222c; transition: background 0.2s, box-shadow 0.2s, transform 0.2s; }
+.ms-stop.past i { background: #a8804e; }
+.ms-stop.on { color: #fbfaf6; }
+.ms-stop.on i { background: #f1cf95; box-shadow: 0 0 0 4px rgba(241, 207, 149, 0.25); transform: scale(1.15); }
+.ms-stop:hover, .ms-stop:focus-visible { color: #fbfaf6; outline: none; }
+.ms-stop:focus-visible i { box-shadow: 0 0 0 4px rgba(255, 236, 200, 0.5); }
+
+/* good news already on its way out of the toast queue stays out of sight here; new toasts wait (engine/ui.ts) */
+.stage:has(.mem) .toasts, .stage:has(.mem) .notices { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { .mem, .mem-rose, .mem-story-layer { animation: none; } .mem-fly { transition: none; } }

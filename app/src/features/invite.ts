@@ -96,7 +96,7 @@ export function openInvite() {
         box.innerHTML = '<span>No one yet. Your first friend gets you the <b>Bring a Friend</b> stamp.</span>'
         return
       }
-      box.innerHTML = `<b>${s.count}</b> ${s.count === 1 ? 'friend has' : 'friends have'} joined through you${s.earned ? ` · <b>${s.earned}</b> coins earned` : ''}
+      box.innerHTML = `<b>${s.count}</b> ${s.count === 1 ? 'friend has' : 'friends have'} joined through you${s.earned ? ` and earned you <b>${s.earned}</b> coins` : ''}
         <ul>${s.recent.slice(0, 6).map((r) => `<li>${esc(r.name)}<small>${r.active ? '✓ playing' : 'just arrived'}</small></li>`).join('')}</ul>`
     })
     .catch(() => (p.querySelector<HTMLElement>('.inv-stats')!.textContent = ''))

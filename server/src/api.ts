@@ -88,7 +88,9 @@ const ProfileBody = z.object({
   name: z.string(),
   look: z.unknown(),
   team: z.string(),
-  /** a new New Yorker: birth month and year (checked against MIN_AGE, never stored) */
+  /** a new New Yorker: they ticked "I'm 13 or older" (no birthday is asked since 2026-11-11) */
+  ageOk: z.literal(true).optional(),
+  /** older clients: birth month and year (checked against MIN_AGE, never stored) */
   birth: z.object({ m: z.number().int(), y: z.number().int() }).optional(),
   /** a new New Yorker: the policy version they ticked "I agree" to */
   consent: z.string().max(20).optional(),
@@ -104,8 +106,8 @@ api.post('/profile', requireUser, async (c) => {
   const first = !u.profile_done
   if (first) {
     const b = body.data.birth
-    if (!b) return c.json({ error: 'age', reason: 'Please tell us your birth month and year.' }, 400)
-    if (!oldEnough(b.m, b.y)) {
+    if (!b && !body.data.ageOk) return c.json({ error: 'age', reason: `Please confirm you’re ${MIN_AGE} or older.` }, 400)
+    if (b && !oldEnough(b.m, b.y)) {
       // under 13: nothing from this visit is kept (the guest account made for it goes too)
       deleteAccount(u.id)
       deleteCookie(c, SESSION_COOKIE, { path: '/' })
@@ -210,7 +212,7 @@ api.post('/client-errors', async (c) => {
 
 // ---------- onboarding funnel events (anonymous per visit, never tied to an account; a fixed list of names) ----------
 // Pages only send them once the visitor allows analytics in the cookie banner (app/src/consent.ts).
-export const EVENT_NAMES = ['landing_view', 'landing_play', 'landing_discord', 'landing_send', 'landing_trailer', 'creator_open', 'look_preset', 'look_shuffle', 'look_tweak', 'look_colour', 'name_screen', 'name_wheel', 'name_typed', 'creator_done', 'spawned'] as const
+export const EVENT_NAMES = ['landing_view', 'landing_play', 'landing_discord', 'landing_send', 'landing_trailer', 'creator_open', 'look_preset', 'look_door', 'look_photo', 'look_shuffle', 'look_tweak', 'look_colour', 'name_screen', 'name_wheel', 'name_typed', 'name_sso', 'creator_done', 'arrival_snap', 'arrival_stamp', 'arrival_swipe', 'arrival_skip', 'arrival_done', 'spawned'] as const
 const EventsBody = z.object({
   session: z.string().min(6).max(40),
   events: z.array(z.object({ name: z.enum(EVENT_NAMES), ms: z.number().int().min(0).max(36e5).optional(), detail: z.string().max(40).optional() })).max(20),

@@ -1,0 +1,130 @@
+/* Dim sum in Chinatown (features/moments/dimSum.ts): first person at a round table in a banquet hall. Everything is
+   in stage units over the 1000 × 565 stage, stacked in one layer: the hall, the carts behind the table, the table,
+   then whatever is on it (z-index follows how near it is), then chopsticks, hands and words. */
+.ds { position: absolute; inset: 0; z-index: 9700; overflow: hidden; background: #5a1414; animation: ds-in 0.6s ease; user-select: none; -webkit-user-select: none; }
+.ds.out { opacity: 0; transition: opacity 0.6s ease; pointer-events: none; }
+@keyframes ds-in { from { opacity: 0; } }
+.ds [hidden] { display: none !important; }
+.ds-hall { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; z-index: 0; pointer-events: none; }
+/* the painting again, cut to the table: it hides the carts' wheels and the people's legs behind it */
+.ds-table { position: absolute; left: 0; top: 0; width: 1000px; height: 566px; z-index: 50; background: url('/art/places/dimsum-hall.jpg') 0 0 / 1000px 565.5px no-repeat; cursor: pointer; }
+/* what the teapot was standing in front of, painted back in (above the table's edge it sits behind the carts) */
+.ds-patch { position: absolute; pointer-events: none; }
+.ds-patch.far { z-index: 5; }
+.ds-patch.near { z-index: 60; }
+.ds-glass { position: absolute; left: 205.6px; top: 416.3px; width: 558.4px; height: 208.8px; border-radius: 50%; z-index: 70; cursor: grab; touch-action: none; }
+.ds.spinning, .ds.spinning * { cursor: grabbing !important; }
+.ds-glint { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; z-index: 72; pointer-events: none; overflow: visible; }
+.ds-glint path { fill: none; stroke: rgba(255, 255, 255, 0.75); stroke-width: 2.6; stroke-linecap: round; filter: blur(0.6px); }
+
+/* ---------- the teapot and the dishes ---------- */
+.ds-pot, .ds-dish { position: absolute; left: 0; top: 0; will-change: transform; touch-action: none; }
+.ds-pot { width: 211px; height: 137px; cursor: pointer; }
+.ds-pot-art { position: absolute; inset: 0; }
+.ds-pot-art canvas, .ds-pot-art svg { position: absolute; left: 0; top: 0; width: 211px; height: 137px; pointer-events: none; }
+.ds-pot-open { opacity: 0; transition: opacity 0.2s; }
+.ds-pot-lid { transform-origin: 152px 39px; transition: transform 0.28s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.ds-pot.lid-open .ds-pot-open { opacity: 1; }
+.ds-pot.lid-open .ds-pot-lid { transform: translate(14px, -9px) rotate(17deg); }
+.ds-pot-shadow { position: absolute; left: 30px; top: 112px; width: 150px; height: 26px; border-radius: 50%; background: radial-gradient(closest-side, rgba(20, 52, 50, 0.32), rgba(20, 52, 50, 0)); pointer-events: none; }
+.ds.pouring .ds-pot-shadow { opacity: 0; }
+.ds-pot:hover .ds-pot-art, .ds-dish.landed:hover { filter: drop-shadow(0 0 5px rgba(255, 230, 160, 0.95)); }
+.ds-dish { cursor: pointer; }
+.ds-dish::before { content: ''; position: absolute; left: 6%; right: 6%; bottom: 3%; height: 22%; border-radius: 50%; background: radial-gradient(closest-side, rgba(20, 50, 48, 0.35), transparent); }
+.ds-dish.stacked::before { display: none; }
+.ds-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* your cup's tea, and a hit area over the cup */
+.ds-cup { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; z-index: 574; pointer-events: none; }
+.ds-tea { fill: #8a4a16; transition: opacity 0.3s; }
+.ds-tea-hi { fill: rgba(255, 226, 170, 0.55); }
+.ds-cup-hit { position: absolute; left: 764px; top: 452px; width: 68px; height: 66px; z-index: 575; padding: 0; border: 0; border-radius: 40%; background: none; cursor: pointer; }
+.ds-cup-hit:focus-visible { outline: 2px solid var(--sun); }
+
+/* pouring: a thin amber stream */
+.ds-pour { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; z-index: 905; pointer-events: none; overflow: visible; }
+.ds-stream { fill: none; stroke: #b4651f; stroke-width: 3.4; stroke-linecap: round; stroke-dasharray: 6 3; opacity: 0; transition: opacity 0.15s; animation: ds-flow 0.25s linear infinite; }
+.ds-stream.on { opacity: 0.95; }
+@keyframes ds-flow { to { stroke-dashoffset: -9; } }
+.ds-drip { position: absolute; z-index: 905; width: 5px; height: 7px; margin: -2px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #b4651f; pointer-events: none; animation: ds-drip 0.6s ease-in forwards; }
+@keyframes ds-drip { to { transform: translateY(40px); opacity: 0; } }
+.ds-puff { position: absolute; z-index: 960; width: 26px; height: 26px; margin: -13px; border-radius: 50%; background: rgba(255, 255, 255, 0.75); filter: blur(5px); pointer-events: none; opacity: 0; animation: ds-puff 1.5s ease-out forwards; }
+@keyframes ds-puff { 0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 25% { opacity: 0.85; } 100% { opacity: 0; transform: translate(var(--dx), -70px) scale(2.2); } }
+
+/* ---------- the tally card: stamps on the painted card; at checkout the whole card lifts off ---------- */
+.ds-card { position: absolute; left: 0; top: 0; width: 100px; height: 120px; z-index: 640; transform-origin: 0 0; pointer-events: none; }
+.ds-card-paper { position: absolute; inset: 0; opacity: 0; border: 3.5px solid #24161a; border-radius: 3px; background: #fbf4e8; box-shadow: inset 0 0 0 9px #fbf4e8, inset 0 0 0 10.5px #9b2c2c; }
+.ds-card.solid .ds-card-paper { opacity: 1; }
+.ds-card.solid { filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.3)); }
+.ds-marks { position: absolute; inset: 0; }
+.ds-mark { position: absolute; width: 18px; height: 18px; opacity: 0.88; animation: ds-mark 0.2s ease-out; }
+.ds-mark svg { display: block; width: 100%; height: 100%; }
+@keyframes ds-mark { from { opacity: 0; scale: 1.4; } }
+.ds-cloth { position: absolute; left: 0; top: 0; width: 100px; height: 120px; z-index: 639; transform-origin: 0 0; background: #f6ede4; border-radius: 6px; box-shadow: 0 0 6px 4px #f6ede4; pointer-events: none; }
+.ds-stamper { position: absolute; z-index: 1050; width: 40px; height: 60px; pointer-events: none; }
+.ds-stamper svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.3)); }
+
+/* ---------- behind the table: the cart, the cart lady, the waiter ---------- */
+.ds-cart { position: absolute; left: 0; top: 0; width: 300px; height: 314px; z-index: 14; pointer-events: none; }
+.ds-cart img { display: block; width: 100%; height: 100%; }
+.ds-person { position: absolute; left: 0; top: 0; z-index: 12; pointer-events: none; }
+.ds-person svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ds-person .back, .ds-person.away .front { display: none; }
+.ds-person.away .back { display: block; }
+.ds-waiter { z-index: 13; }
+.ds-bubble { position: absolute; left: 50%; bottom: 100%; margin: 0 0 4px; transform: translateX(-50%); padding: 6px 12px; border-radius: 14px; background: #fbfaf6; border: 2.5px solid #1d2140; box-shadow: 0 3px 0 rgba(29, 33, 64, 0.35); color: #1d2140; font: 400 var(--fs-lg) var(--display); white-space: nowrap; z-index: 3; }
+.ds-bubble::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 11px; height: 11px; margin-left: -5.5px; background: #fbfaf6; border: solid #1d2140; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.ds-bubble.pop { animation: ds-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+@keyframes ds-pop { from { transform: translateX(-50%) scale(0.6); opacity: 0; } }
+/* the bubble rides above the head, wherever the person is: the person box is the avatar's own viewBox */
+.ds-person .ds-bubble { bottom: auto; top: -2px; transform: translate(-50%, -100%); }
+.ds-person .ds-bubble.pop { animation: ds-pop-p 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+@keyframes ds-pop-p { from { transform: translate(-50%, -100%) scale(0.6); opacity: 0; } }
+.ds-lady.away .ds-bubble { display: none; }
+
+/* what's on the cart: lids up, dishes on show */
+.ds-offer { position: absolute; z-index: 30; padding: 0; border: 0; background: none; cursor: pointer; transform: translate(-50%, -84%); animation: ds-offer 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.ds-offer > img { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 0 rgba(29, 33, 64, 0.35)); transition: transform 0.15s, filter 0.15s; }
+.ds-offer:hover > img, .ds-offer:focus-visible > img { transform: translateY(-6px) scale(1.06); filter: drop-shadow(0 0 7px rgba(255, 226, 140, 1)) drop-shadow(0 6px 0 rgba(29, 33, 64, 0.35)); }
+.ds-offer:focus-visible { outline: none; }
+.ds-offer.gone { animation: ds-offer-out 0.45s ease-in forwards; pointer-events: none; }
+@keyframes ds-offer { from { opacity: 0; transform: translate(-50%, -40%) scale(0.3); } }
+@keyframes ds-offer-out { to { opacity: 0; transform: translate(-50%, -40%) scale(0.4); } }
+.ds-tag { position: absolute; left: 50%; top: 100%; margin-top: 2px; display: flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; background: #fbfaf6; border: 2px solid #1d2140; box-shadow: 0 2px 0 rgba(29, 33, 64, 0.35); color: #1d2140; white-space: nowrap; transform: translate(-50%, 4px); opacity: 0; transition: opacity 0.15s, transform 0.15s; pointer-events: none; }
+.ds-offer:hover .ds-tag, .ds-offer:focus-visible .ds-tag { opacity: 1; transform: translate(-50%, 0); }
+.ds-tag b { font: 400 var(--fs-sm) var(--display); }
+.ds-tag em { display: flex; align-items: center; gap: 2px; font: 400 var(--fs-sm) var(--display); font-style: normal; color: #8a5a00; }
+.ds-tag em img { width: 14px; height: 14px; }
+
+/* ---------- chopsticks, a bite, a hand ---------- */
+.ds-sticks { position: absolute; left: 0; top: 0; z-index: 1000; width: 60px; height: 340px; margin: 6px 0 0 -30px; transform-origin: 30px 0; pointer-events: none; --open: 5deg; }
+.ds-sticks-svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(3px 5px 3px rgba(0, 0, 0, 0.3)); }
+.ds-stick { transform-box: view-box; transform-origin: 0 300px; }
+.ds-stick.a { transform: rotate(calc(var(--open) * -1)); }
+.ds-bite { position: absolute; z-index: 999; pointer-events: none; }
+.ds-bite canvas { display: block; width: 100%; height: 100%; }
+.ds-hand { position: absolute; z-index: 1010; pointer-events: none; transform-origin: 50% 100%; }
+.ds-hand svg { display: block; width: 100%; height: 100%; filter: drop-shadow(3px 6px 4px rgba(0, 0, 0, 0.28)); }
+.ds-tok { position: absolute; z-index: 1011; width: 40px; height: 20px; margin: -14px 0 0 -18px; pointer-events: none; animation: ds-tok 0.26s ease-out forwards; }
+.ds-tok svg { display: block; width: 100%; height: 100%; }
+@keyframes ds-tok { from { opacity: 1; transform: scale(0.7); } to { opacity: 0; transform: scale(1.25); } }
+
+/* ---------- quiet type and the way out ---------- */
+.ds-caption { position: absolute; left: 16px; top: 16px; z-index: 2000; display: flex; flex-direction: column; gap: 2px; padding: 7px 12px 8px; border-radius: 10px; background: rgba(29, 33, 64, 0.62); color: #fbfaf6; }
+.ds-caption b { font: 400 var(--fs-lg) var(--display); }
+.ds-caption span { font: var(--fs-sm) var(--body); opacity: 0.88; }
+.ds-line { position: absolute; left: 50%; top: 16px; width: 520px; margin: 0 0 0 -260px; padding: 8px 16px; border-radius: 12px; text-align: center; background: rgba(29, 33, 64, 0.66); color: #fbfaf6; font: var(--fs-lg)/1.35 var(--body); opacity: 0; transition: opacity 0.6s ease; pointer-events: none; z-index: 2000; }
+.ds-line.on { opacity: 1; }
+.ds-actions { position: absolute; right: 16px; top: 16px; z-index: 2000; display: flex; align-items: center; gap: 8px; }
+.ds-coins { display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 10px 0 6px; border-radius: 999px; background: rgba(29, 33, 64, 0.62); color: #ffd166; font: 400 var(--fs-base) var(--display); }
+.ds-coins img { width: 20px; height: 20px; }
+.ds-hint { position: absolute; z-index: 2000; transform: translate(-50%, -100%); padding: 6px 13px; border-radius: 14px; background: #fbfaf6; border: 2.5px solid #1d2140; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 var(--fs-base)/1.2 var(--display); white-space: nowrap; pointer-events: none; animation: ds-bob 1.1s ease-in-out infinite alternate; transition: opacity 0.25s; }
+.ds-hint::after { content: ''; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; margin-left: -6px; background: #fbfaf6; border: solid #1d2140; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.ds-hint span { position: relative; }
+.ds-hint.gone { opacity: 0; }
+@keyframes ds-bob { from { margin-top: 0; } to { margin-top: -6px; } }
+@media (prefers-reduced-motion: reduce) {
+  .ds, .ds-offer, .ds-offer.gone, .ds-hint, .ds-bubble.pop, .ds-person .ds-bubble.pop, .ds-mark, .ds-puff, .ds-stream { animation: none; }
+  .ds-offer.gone { opacity: 0; }
+  .ds-line, .ds-pot-lid { transition: none; }
+}

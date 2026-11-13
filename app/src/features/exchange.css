@@ -1,0 +1,96 @@
+/* ================= The Exchange trading floor (features/exchange.ts) ================= */
+
+/* the big LED screen over the podium: today's listing, the countdown, the stock trading */
+.ex-screen { position: absolute; z-index: 6; display: flex; align-items: center; gap: 10px; padding: 0 12px; overflow: hidden; pointer-events: none; color: #e8eefc; border-radius: 3px; background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0.8px, transparent 1.3px) 0 0 / 4px 4px, linear-gradient(#0f1a33, #0a1226); box-shadow: inset 0 0 16px rgba(80, 140, 255, 0.25); font-family: var(--display); }
+.ex-logo { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--c); border: 2.5px solid #fff; box-shadow: 0 0 10px var(--c); }
+.ex-logo img { width: 30px; height: 30px; }
+.ex-logo.tile { background: none; border: 0; border-radius: 12px; box-shadow: 0 0 12px rgba(255, 255, 255, 0.25); }
+.ex-logo.tile img { width: 100%; height: 100%; object-fit: contain; }
+.ex-logo.made { background: none; border-color: #fff; box-shadow: 0 0 12px rgba(255, 255, 255, 0.35); overflow: hidden; }
+.ex-logo.made .co-logo { width: 100%; height: 100%; display: block; }
+.ex-logo span { font: 400 19px/1 var(--display); color: #fff; letter-spacing: 0.02em; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35); }
+.ex-id { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1; }
+.ex-id b { font-size: 30px; font-weight: 400; color: #fff7c2; letter-spacing: 0.04em; text-shadow: 0 0 8px rgba(255, 247, 194, 0.6); }
+.ex-id span { margin-top: 4px; font-size: 12px; color: #9fd2ef; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ex-ipo { flex: none; display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+.ex-ipo em { font-style: normal; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #ffd166; color: #1d2140; letter-spacing: 0.1em; animation: ex-blink 1.2s steps(2) infinite; }
+.ex-ipo b { margin-top: 4px; font-size: 26px; font-weight: 400; color: #7cff6b; text-shadow: 0 0 8px rgba(124, 255, 107, 0.6); font-variant-numeric: tabular-nums; }
+@keyframes ex-blink { 50% { opacity: 0.45; } }
+
+.ex-screen.clock { justify-content: space-between; }
+.ex-time { flex: 1; text-align: center; font-size: 44px; font-weight: 400; color: #ffd166; letter-spacing: 0.06em; font-variant-numeric: tabular-nums; text-shadow: 0 0 12px rgba(255, 209, 102, 0.7); }
+.ex-screen.clock.now .ex-time { color: #7cff6b; text-shadow: 0 0 14px rgba(124, 255, 107, 0.9); animation: ex-blink 0.5s steps(2) infinite; }
+.ex-bellic img { width: 36px; height: 36px; }
+.ex-screen.clock.now .ex-bellic img { animation: ex-wiggle 0.25s ease-in-out infinite alternate; }
+@keyframes ex-wiggle { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+.ex-screen.nope { animation: ex-nope 0.4s; }
+@keyframes ex-nope { 20% { transform: translateX(-5px); background-color: #3a1020; } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+
+.ex-screen.opened { justify-content: center; gap: 18px; background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0.8px, transparent 1.3px) 0 0 / 4px 4px, linear-gradient(#0e3b22, #072414); }
+.ex-big { font-size: 46px; font-weight: 400; color: #fff7c2; letter-spacing: 0.06em; text-shadow: 0 0 12px rgba(255, 247, 194, 0.7); }
+.ex-flash { font-size: 40px; color: #7cff6b; letter-spacing: 0.1em; text-shadow: 0 0 14px rgba(124, 255, 107, 0.9); animation: ex-blink 0.4s steps(2) infinite; }
+
+.ex-sym { flex: none; font-size: 26px; font-weight: 400; color: #fff7c2; letter-spacing: 0.04em; }
+.ex-chart { flex: 1; min-width: 0; height: 44px; overflow: visible; }
+.ex-chart polyline { fill: none; stroke: #7cff6b; stroke-width: 2.2; vector-effect: non-scaling-stroke; stroke-linejoin: round; filter: drop-shadow(0 0 3px rgba(124, 255, 107, 0.8)); }
+.ex-px { flex: none; display: flex; flex-direction: column; align-items: flex-end; line-height: 1; font-variant-numeric: tabular-nums; }
+.ex-px b { font-size: 24px; font-weight: 400; color: #7cff6b; text-shadow: 0 0 8px rgba(124, 255, 107, 0.6); }
+.ex-px span { margin-top: 4px; font-size: 15px; color: #7cff6b; }
+.ex-screen.down .ex-chart polyline { stroke: #ff6a5c; filter: drop-shadow(0 0 3px rgba(255, 106, 92, 0.8)); }
+.ex-screen.down .ex-px b, .ex-screen.down .ex-px span { color: #ff6a5c; }
+
+/* the balcony strips reuse the Big Board's marquee (downtown.css); just a little dimmer, they're further away */
+.ex-strip { opacity: 0.94; }
+
+/* the Exchange's name on the header band over the wall */
+.ex-header { position: absolute; z-index: 6; display: grid; place-items: center; pointer-events: none; background: linear-gradient(#0b1430, #071026); border-radius: 2px; }
+.ex-header b { font: 400 15px/1 var(--display); letter-spacing: 0.32em; color: #fff; text-shadow: 0 0 8px rgba(120, 180, 255, 0.9), 0 0 2px #9cc8ff; white-space: nowrap; }
+/* the crawl under the big picture */
+.ex-crawl { position: absolute; z-index: 6; overflow: hidden; contain: paint; pointer-events: none; display: flex; align-items: center; background: #050a18; border-top: 1px solid #1f3a78; }
+.ex-crawl-run { display: inline-flex; gap: 18px; padding-left: 10px; white-space: nowrap; animation: ws-scroll 30s linear infinite; }
+.ex-crawl-run span { font: 400 13px/1 var(--display); letter-spacing: 0.04em; color: #7cff6b; }
+.ex-crawl-run span.down { color: #ff6a5c; }
+.ex-crawl-run b { font-weight: 400; color: #fff7c2; margin-right: 3px; }
+/* the pods' live candlestick charts, drawn over their painted screens */
+.ex-pod { position: absolute; z-index: 5; pointer-events: none; border-radius: 2px; background: linear-gradient(transparent 49%, rgba(90, 140, 255, 0.18) 50%, transparent 51%) 0 0 / 100% 25%, #0b2257; box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5); }
+.ex-pod svg { display: block; width: 100%; height: 100%; }
+.ex-pod .up line, .ex-pod .up rect { stroke: #5cff74; fill: #5cff74; }
+.ex-pod .dn line, .ex-pod .dn rect { stroke: #ff4d5e; fill: #ff4d5e; }
+.ex-pod line { stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+
+/* ---------- the bell ceremony, up close at the podium (a moment) ---------- */
+.moment.mo-ipo { z-index: 9700; }
+.ex-podium { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #0b1530; cursor: pointer; user-select: none; -webkit-user-select: none; animation: ex-in 0.45s ease; }
+@keyframes ex-in { from { opacity: 0; } }
+.ex-podium [hidden] { display: none !important; }
+.ex-podium-bg { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; pointer-events: none; }
+.ex-podium.jolt .ex-podium-bg { animation: ex-jolt 0.16s ease-out; }
+@keyframes ex-jolt { 40% { transform: translateY(2px); } }
+
+/* you, behind the podium: everything below the podium's top edge is hidden behind it */
+.ex-you-clip { position: absolute; left: 0; top: 0; width: 1000px; height: 246px; overflow: hidden; pointer-events: none; }
+.ex-you { position: absolute; }
+.ex-you svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* the jumbotron hangs over the flag on two cables, in a gold frame */
+.ex-jumbo-frame { position: absolute; z-index: 5; border: 3px solid #1d2140; border-radius: 6px; background: linear-gradient(#d9b25a, #a8792a); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35); pointer-events: none; }
+.ex-jumbo-frame i { position: absolute; top: -40px; width: 3px; height: 40px; background: #2a2f45; }
+.ex-jumbo-frame i:first-child { left: 30px; }
+.ex-jumbo-frame i:last-child { right: 30px; }
+.ex-podium .ex-screen { z-index: 6; }
+
+/* the brass dome on the podium's front: it glows and shivers while it rings */
+.ex-dome-glow { position: absolute; z-index: 4; width: 190px; height: 190px; margin: -95px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 238, 160, 0.75), rgba(255, 200, 80, 0) 62%); opacity: 0; transition: opacity 0.2s; pointer-events: none; mix-blend-mode: screen; }
+.ex-podium.ringing .ex-dome-glow { opacity: 1; animation: ex-buzz 0.045s linear infinite alternate; }
+@keyframes ex-buzz { from { transform: translate(-1.5px, 0) scale(0.97); } to { transform: translate(1.5px, 0) scale(1.03); } }
+.ex-wave { position: absolute; z-index: 4; width: 140px; height: 140px; margin: -70px; border: 4px solid rgba(255, 236, 150, 0.95); border-radius: 50%; pointer-events: none; animation: ex-wave 0.9s ease-out forwards; }
+@keyframes ex-wave { to { transform: scale(2.6); opacity: 0; border-width: 1px; } }
+
+/* the floor below, calling up to you */
+.ex-floor-say { position: absolute; left: 150px; bottom: 34px; z-index: 7; padding: 7px 14px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 16px 16px 16px 4px; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 var(--fs-md)/1.25 var(--display); pointer-events: none; }
+.ex-floor-say.go { animation: ex-say 2.2s ease forwards; }
+@keyframes ex-say { 0% { transform: translateY(10px) scale(0.8); opacity: 0; } 12% { transform: none; opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+.ex-actions { position: absolute; right: 16px; top: 16px; z-index: 8; }
+.ex-podium .btn { cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .ex-podium.ringing .ex-dome-glow { animation: none; } .ex-wave { display: none; } }

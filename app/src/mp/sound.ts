@@ -3,6 +3,7 @@
  * muted (the toolbar's sound button, or the one in the game's corner).
  */
 import { isMuted } from '../audio'
+import { withSamples } from '../sound/library'
 
 let ac: AudioContext | null = null
 let master: GainNode | null = null
@@ -94,7 +95,7 @@ export function slideLoop() {
   }
 }
 
-export const msfx = {
+export const msfx = withSamples('mp', {
   /** 3, 2, 1… */
   count: () => tone(NOTE(72), 0.14, 'triangle', 0.1),
   go: () => {
@@ -168,4 +169,4 @@ export const msfx = {
     tone(NOTE(83), 0.16, 'sine', 0.07, 0.08)
   },
   ready: () => tone(NOTE(81), 0.12, 'triangle', 0.08),
-}
+})

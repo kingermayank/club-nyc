@@ -25,7 +25,6 @@ Point at things in a place. Anything you can use **glows** with a white outline 
 - **Doors and shopfronts** glow a warmer gold. Click one to go inside.
 - **Some things act right away**, like hailing a taxi or reading the subway map poster.
 - **Picture cards.** Landmarks like the Opal Clock or Bow Bridge open a card with a picture, a bit of real New York history, one joke, and usually something to do: take a photo, make a wish, sit down, or pop the question to a bridge.
-- **Coming Soon.** A few spots are still being built, like Harlem (Coming Soon). Clicking one tells you what's on the way, which is the most New York thing in the game.
 
 ## Exits and Doors {#exits}
 

@@ -1247,7 +1247,7 @@ function run(ctx: MiniGameContext) {
     <div class="${P}card">
       <div class="${P}awning"></div>
       <h1 class="${P}title">Halal Rush</h1>
-      <p class="${P}sub">Lunch rush at the Adel’s Famous Halal Food cart · W 57th St &amp; 5th Ave</p>
+      <p class="${P}sub">Lunch rush at the Halal Bros cart</p>
       <div class="${P}steps">
         <div class="${P}step"><div class="${P}step-art"><img src="${ART}container.png" alt=""></div><span>Grab</span></div>
         <i class="${P}arr"></i>
@@ -1357,7 +1357,7 @@ function run(ctx: MiniGameContext) {
     ended = true
     phase = 'done'
     const coins = Math.round(cash / 5)
-    const lines = [`${served} order${served === 1 ? '' : 's'} served · ${perfect} perfect`, `$${cash} taken in ($${tips} in tips)`]
+    const lines = [`${served} order${served === 1 ? '' : 's'} served`, `${perfect} perfect`, `$${cash} taken in ($${tips} in tips)`]
     if (bestCombo >= 2) lines.push(`Best combo: ${bestCombo}`)
     if (walked) lines.push(`${walked} got tired of waiting`)
     if (touristsHandled) lines.push(`Ketchup requests politely declined: ${touristsHandled}`)

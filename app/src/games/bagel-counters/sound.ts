@@ -1,10 +1,11 @@
 // Bagel Counters: the specific sounds of the coffee delivery, on top of the game's own catch scale, thuds and chomps
 // (index.ts). Synthesized on the shared context (foley.ts), silent while sound is off.
 import { kit } from '../../foley'
+import { withSamples } from '../../sound/library'
 
 const { ctx, tone, noise, rand } = kit
 
-export const bagelSfx = {
+export const bagelSfx = withSamples('bagel', {
   /** a coffee sack lands on your stack: a soft burlap flump and the beans shifting inside */
   catchSack() {
     const a = ctx()
@@ -58,4 +59,4 @@ export const bagelSfx = {
     tone(a, 1650, t + 0.12, 0.16, 0.012, 'sine', { to: 1900, vibrato: [11, 30] })
     tone(a, 1700, t + 0.34, 0.14, 0.01, 'sine', { to: 1500, vibrato: [11, 30] })
   },
-}
+})

@@ -35,10 +35,30 @@
   color: var(--np-ink);
   font-family: var(--np-serif);
 }
-.np-sheet.turn-r { animation: turn-r 0.4s ease-out; }
-.np-sheet.turn-l { animation: turn-l 0.4s ease-out; }
-@keyframes turn-r { from { transform: perspective(1200px) rotateY(18deg); opacity: 0.4; } }
-@keyframes turn-l { from { transform: perspective(1200px) rotateY(-18deg); opacity: 0.4; } }
+/* Turning the page: the page you were reading lifts off as a leaf (a copy of it, with a plain paper back), swings over on
+   its hinge edge and lands face down out of sight, while the new edition is already lying underneath. A shadow
+   slides across the new page as the leaf passes over it, and the leaf darkens as it tilts away from the light. */
+.np-sheet { perspective: 2400px; }
+.np-leaf { position: absolute; inset: 0; z-index: 3; transform-style: preserve-3d; pointer-events: none; will-change: transform; }
+.np-leaf.fwd { transform-origin: 0 50%; animation: leaf-fwd 0.75s cubic-bezier(0.45, 0.05, 0.25, 1) forwards; }
+.np-leaf.back { transform-origin: 100% 50%; animation: leaf-back 0.75s cubic-bezier(0.45, 0.05, 0.25, 1) forwards; }
+@keyframes leaf-fwd { 0% { transform: rotateY(0) skewY(0); } 35% { transform: rotateY(-55deg) skewY(-2deg); } 100% { transform: rotateY(-178deg) skewY(0); } }
+@keyframes leaf-back { 0% { transform: rotateY(0) skewY(0); } 35% { transform: rotateY(55deg) skewY(2deg); } 100% { transform: rotateY(178deg) skewY(0); } }
+.np-leaf-face, .np-leaf-back { position: absolute; inset: 0; border-radius: 3px; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; background: var(--np-paper); }
+.np-leaf-face { padding: 18px 26px 22px; }
+.np-leaf-back { transform: rotateY(180deg); background: linear-gradient(90deg, #e6dfcb, var(--np-paper) 30%, #ece5d2); }
+/* the light on the turning page: darker toward the hinge as it lifts */
+.np-leaf-face::after, .np-leaf-back::after { content: ''; position: absolute; inset: 0; pointer-events: none; animation: leaf-shade 0.75s ease-in-out forwards; }
+.np-leaf.fwd .np-leaf-face::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0) 45%, rgba(255, 255, 255, 0.22)); }
+.np-leaf.back .np-leaf-face::after { background: linear-gradient(270deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0) 45%, rgba(255, 255, 255, 0.22)); }
+.np-leaf-back::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0)); }
+@keyframes leaf-shade { 0% { opacity: 0; } 45% { opacity: 1; } 100% { opacity: 0.6; } }
+/* the leaf's shadow on the page underneath */
+.np-under-shade { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: 3px; animation: under-shade 0.75s ease-in-out forwards; }
+.np-under-shade.fwd { background: linear-gradient(90deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0) 60%); }
+.np-under-shade.back { background: linear-gradient(270deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0) 60%); }
+@keyframes under-shade { 0% { opacity: 0.9; } 70% { opacity: 0.35; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .np-leaf, .np-under-shade { display: none; } }
 .np-scroll {
   position: absolute;
   inset: 0;
@@ -162,4 +182,8 @@
 .np-nav .btn { min-width: 150px; }
 /* on today's paper "Today's Paper" is where you are: a lit sign, not a greyed-out button */
 .np-nav .np-today.on, .np-nav .np-today.on:disabled { background: linear-gradient(#fff3c4, var(--sun)); color: var(--ink); text-shadow: none; filter: none; opacity: 1; cursor: default; transform: none; }
+/* every edition button reads clearly in every state: white only on the strong blue and green, ink on the light ones */
+.np-nav .btn.np-prev:not(:disabled), .np-nav .btn.np-next:not(:disabled) { background: linear-gradient(#5aa6f0, #1f6fd1); color: #fff; text-shadow: 0 2px 0 #0e3f80; }
+.np-nav .btn.np-today.go { background: linear-gradient(#5ccb6b, #1e8a39); color: #fff; text-shadow: 0 2px 0 #0f5222; }
+.np-nav .btn:disabled:not(.on) { background: linear-gradient(#f4f5f8, #dfe2ea); color: #4a4f66; text-shadow: none; filter: none; opacity: 1; cursor: default; transform: none; }
 .newspaper .x-btn { top: -14px; right: -14px; }

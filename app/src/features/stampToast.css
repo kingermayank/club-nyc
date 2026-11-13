@@ -1,0 +1,47 @@
+/* "Stamp earned" (features/stampToast.ts): an enamel pin flips in, clicks into place and catches the light; its name
+   sits on a tag underneath. Leaving, a copy of the pin swoops into the Stamp Book button.
+   Timeline (ms after it appears): pin flips in 0-900 (lands ~620), shine 900-1700, tag rises 850-1200. */
+.stamp-toast { --enamel: transparent; --star: #8fc3ff; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.stamp-toast.t2 { --enamel: radial-gradient(circle at 40% 30%, #5fe08f, #1c8a43 70%); --star: #9be3a6; }
+.stamp-toast.t3 { --enamel: radial-gradient(circle at 40% 30%, #fff0a0, #e0a400 70%); --star: #ffe08a; }
+
+.sp-pin { position: relative; width: 92px; height: 92px; perspective: 500px; }
+.sp-flip { position: absolute; inset: 0; transform-style: preserve-3d; animation: sp-flip 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+@keyframes sp-flip {
+  0% { opacity: 0; transform: translateY(-30px) rotateY(-540deg) scale(0.6); }
+  68% { opacity: 1; transform: translateY(0) rotateY(10deg) scale(1.07); }
+  84% { transform: rotateY(-3deg) scale(0.98); }
+  100% { transform: none; }
+}
+.sp-badge { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 6px 10px rgba(29, 33, 64, 0.38)); }
+/* the enamel, in the tier's colour (tier 1 keeps the pin's own navy) */
+.sp-tint { position: absolute; inset: 12.5%; border-radius: 50%; background: var(--enamel); box-shadow: inset 0 -5px 9px rgba(0, 0, 0, 0.22), inset 0 5px 7px rgba(255, 255, 255, 0.3); }
+.stamp-toast.t1 .sp-tint, .sp-flyer.t1 .sp-tint { box-shadow: none; }
+.sp-art { position: absolute; left: 50%; top: 50%; width: 48%; height: 48%; transform: translate(-50%, -52%); object-fit: contain; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.3)); }
+.sp-emoji { display: grid; place-items: center; font-size: 36px; line-height: 1; }
+/* one pass of light across the enamel once it has landed */
+.sp-gloss { position: absolute; inset: 9%; border-radius: 50%; overflow: hidden; }
+.sp-gloss::after { content: ''; position: absolute; inset: -20%; background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.75) 50%, transparent 60%); transform: translateX(-80%); animation: sp-gloss 0.8s 0.9s ease-in-out both; }
+@keyframes sp-gloss { to { transform: translateX(80%); } }
+
+.sp-tag { position: relative; z-index: 1; margin-top: -4px; display: flex; align-items: center; gap: 7px; padding: 6px 13px 5px; white-space: nowrap; background: var(--ink); border-radius: 999px; box-shadow: 0 3px 0 rgba(29, 33, 64, 0.3); animation: sp-rise 0.35s 0.85s both; }
+.sp-tag b { font: 400 var(--fs-base)/1 var(--display); color: #fff; }
+.sp-stars { display: inline-flex; gap: 2px; }
+.sp-stars i { width: 12px; height: 12px; background: var(--star); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+@keyframes sp-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* the flight into the Stamp Book: the flyer lives on the stage, not in the toast list */
+.sp-flyer { position: absolute; z-index: 9850; pointer-events: none; }
+.sp-flyer .sp-flip, .sp-flyer .sp-gloss::after { animation: none; }
+.sp-flyer.t2 { --enamel: radial-gradient(circle at 40% 30%, #5fe08f, #1c8a43 70%); }
+.sp-flyer.t3 { --enamel: radial-gradient(circle at 40% 30%, #fff0a0, #e0a400 70%); }
+.sp-spark { position: absolute; z-index: 9840; width: 8px; height: 8px; margin: -4px; border-radius: 50%; background: #ffe27a; box-shadow: 0 0 8px 2px rgba(255, 214, 90, 0.8); pointer-events: none; animation: sp-spark 0.6s ease-out forwards; }
+@keyframes sp-spark { to { opacity: 0; transform: translateY(10px) scale(0.3); } }
+.sp-catch { position: absolute; z-index: 9840; width: 46px; height: 46px; margin: -23px; border-radius: 50%; border: 3px solid rgba(255, 214, 90, 0.95); pointer-events: none; animation: sp-catch 0.55s ease-out forwards; }
+@keyframes sp-catch { from { opacity: 1; transform: scale(0.6); } to { opacity: 0; transform: scale(1.6); } }
+.tb-btn.st-bump { animation: st-bump 0.55s cubic-bezier(0.2, 1.8, 0.4, 1); }
+@keyframes st-bump { 0% { transform: scale(1); } 35% { transform: scale(1.22) rotate(-6deg); } 100% { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-flip, .sp-tag, .sp-gloss::after { animation-duration: 0.01s; animation-delay: 0s; }
+}

@@ -117,9 +117,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .site-nav a:hover { background: rgba(255, 255, 255, 0.16); }
 .site-header.scrolled .site-nav a:hover { background: var(--sky); }
 .header-actions { display: flex; align-items: center; gap: 10px; }
-/* hidden for now (the user's call): the header's Discord link and Join the Waitlist button, the hero's Watch the Trailer
-   and "Coming Soon" label. Delete these lines to bring them back. */
-.header-actions .discord-link, .header-actions .when-soon, .hero .btn-trailer, .hero .wl-kicker { display: none !important; }
+/* hidden for now (the user's call): the header's Join the Waitlist button, the hero's Watch the Trailer and "Coming Soon"
+   label. Delete these lines to bring them back. (The header's Discord link came back 2026-11-12, once the server had an
+   invite.) */
+.header-actions .when-soon, .hero .btn-trailer, .hero .wl-kicker { display: none !important; }
 .discord-link { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px; border-radius: 12px; color: inherit; font: 17px var(--display); text-decoration: none; }
 .discord-link svg { width: 24px; height: 24px; }
 .discord-link:hover { background: rgba(255, 255, 255, 0.16); }

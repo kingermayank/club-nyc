@@ -19,7 +19,7 @@ One World Trade Center stands 1,776 feet tall, a nod to the year of the Declarat
 
 | What | Where | Cost |
 | --- | --- | :---: |
-| Ride to Sky Deck 102 | **Sky Deck Elevators**, or **One World Trade Center**, then **Ride to the Top** | Free |
+| Ride to Sky Deck 102 | **Sky Deck Elevators**, or **One World Trade Center**, then **Ride to the Top** | 6, or 8 with the viewers. Good all day |
 | Visit the 9/11 Memorial | **9/11 Memorial** | Free |
 | Sit by the Survivor Tree | **The Survivor Tree**, then **Sit a While** | Free |
 | Coffee or a soft pretzel | **Coffee & Pretzel Cart** | 2 to 3 |
@@ -28,12 +28,16 @@ One World Trade Center stands 1,776 feet tall, a nod to the year of the Declarat
 
 ## The 9/11 Memorial {#memorial}
 
-Two reflecting pools sit in the footprints of the Twin Towers, with the names of the people killed in the attacks of 2001 and 1993 inscribed in bronze around them. Click the **9/11 Memorial** to learn about the memorial and the towers.
+Two reflecting pools sit in the footprints of the Twin Towers, each nearly an acre, with names inscribed in bronze around them. Click the **9/11 Memorial** to stand at the parapet of the North Pool, where the water falls down the far wall and disappears into the center.
 
-- **Place a White Rose:** a memorial tradition.
-- **Visit the Memorial Exhibit:** a short history, in four parts: the Twin Towers, the Memorial, the Survivor Tree and the Tribute in Light.
+The names on the parapet in Club NYC are placeholders, softened so they can't be read. No real person's name appears in the game.
 
-Visiting the memorial earns the **Never Forget** stamp.
+- **Walk along the parapet:** move your mouse left or right.
+- **Leave a white rose:** hold on a name. The memorial leaves a white rose on each name on that person's birthday.
+- **The Story of This Place:** a short history in four parts: the Twin Towers, the Memorial, the Survivor Tree and the Tribute in Light.
+- **Step Back** (or press Escape) to return to the plaza.
+
+There are no coins or confetti here. Visiting the memorial earns the **Never Forget** stamp, quietly.
 
 ## Sky Deck 102 {#sky-deck-102}
 
@@ -43,7 +47,7 @@ The elevator ride takes under a minute (your ears will notice). At the top:
 
 | What | Where | Cost |
 | --- | --- | :---: |
-| Look out over the harbor and Midtown | Two **Tower Viewers** | Free |
+| Look out over the harbor and Midtown | Two **Tower Viewers** | 1 a look, or 3 for the day |
 | Stand on a view of the street, 1,250 feet down | **The Sky Portal**: **Jump on It** or **Lie Down and Look** | Free |
 | Hot cocoa or a deli coffee, very high up | **Cloud Nine Café** | 3 |
 | A photo strip with the skyline | **Sky Deck Photo Booth** ([Photo Booths](events/photo-booths.md)) | Free |

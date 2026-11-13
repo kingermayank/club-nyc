@@ -1,5 +1,6 @@
 // A few extra cart noises (squeeze bottles, scoops, foil) on top of the shared sfx.
 import { save } from '../../state'
+import { withSamples } from '../../sound/library'
 
 let ac: AudioContext | null = null
 
@@ -44,7 +45,7 @@ function tone(a: AudioContext, t: number, type: OscillatorType, f0: number, f1: 
   o.stop(t + dur + 0.05)
 }
 
-export const snd = {
+export const snd = withSamples('halal', {
   /** squeeze bottle: a wet "pfffrt" */
   squirt(pitch = 1) {
     const a = audio()
@@ -177,4 +178,4 @@ export const snd = {
     ac = null
     if (a) void a.close().catch(() => undefined)
   },
-}
+})

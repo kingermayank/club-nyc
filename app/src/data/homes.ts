@@ -15,7 +15,6 @@ export interface HomeDef {
   perks: string[]
   /** fine print, StreetCheesy style */
   fine: string
-  soon?: boolean
 }
 
 export const HOMES: HomeDef[] = [
@@ -34,7 +33,7 @@ export const HOMES: HomeDef[] = [
     id: 'loft',
     room: 'loft',
     name: 'Cast-Iron Loft',
-    hood: 'SoHo · Greene St',
+    hood: 'SoHo',
     price: 1500,
     img: '/art/rooms/loft.jpg',
     blurb: 'Soaring arched windows, white iron columns and wide-plank floors in a landmarked cast-iron building. Artists lived here once. Now: you.',
@@ -45,24 +44,12 @@ export const HOMES: HomeDef[] = [
     id: 'penthouse',
     room: 'penthouse',
     name: 'Billionaires’ Row Penthouse',
-    hood: '57th Street · 90-something floors up',
+    hood: '57th Street',
     price: 4000,
     img: '/art/rooms/penthouse.jpg',
     blurb: 'A wraparound terrace above Central Park, a built-in bar and a DJ nook. The building sways a little in the wind. That’s normal. Probably.',
     perks: ['Party terrace', 'Whole-park views', 'Your own DJ booth'],
     fine: 'Ears pop in the elevator. Neighbors are mostly in Monaco.',
-  },
-  {
-    id: 'brownstone',
-    room: '',
-    name: 'Park Slope Brownstone',
-    hood: 'Brooklyn',
-    price: 0,
-    img: '',
-    blurb: 'Stoop, garden, a stroller in every hallway.',
-    perks: [],
-    fine: 'Brooklyn opens soon.',
-    soon: true,
   },
 ]
 export const HOME: Record<string, HomeDef> = Object.fromEntries(HOMES.map((h) => [h.id, h]))

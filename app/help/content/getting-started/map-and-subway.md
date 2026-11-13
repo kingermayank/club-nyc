@@ -18,7 +18,6 @@ Press [[M]] or click **Map** on the toolbar.
 - **Subway entrances** on the map open the subway map.
 - **The Statue of Liberty** is ferry-only, so clicking it takes you to the ferry dock at [Battery Park](places/battery-park-and-liberty-island.md).
 - **Wall Street** has its own pin, by The Bull.
-- **Places marked Coming Soon** are still being built, like Brooklyn (Coming Soon). Club NYC is Manhattan only for now.
 
 > [!NYC] Map Reading Tip
 > Uptown is up. Downtown is down. Brooklyn is "basically the same as Manhattan, just better," according to everyone who lives there.
@@ -28,6 +27,8 @@ Press [[M]] or click **Map** on the toolbar.
 Press [[U]] or click the MetroCard (**Subway**) on the toolbar. You can also read the **Subway Map** poster in the station, or click **Board the Train** in the [Times Sq–42 St Station](places/subway-station.md) and choose **Ride the Subway**.
 
 ![The Club NYC Subway map, with colored lines and stations from 86 St down to South Ferry.](/help/img/subway-map.webp "Point at a station to see where it goes, then click to ride.")
+
+From the street, you go through the station's turnstile first: drag your MetroCard through the reader (not too fast, not too slow) or click the **TAP** reader, then grab the bar and push through. Press [[Space]] to swipe for you, or [[T]] to tap. You only pay once every minute and a half, so hopping back down is free.
 
 Point at a station to see where it lets you out, then click to ride. The trip takes a few seconds in a swaying subway car, and your first ride earns the **Straphanger** [stamp](stamps.md).
 

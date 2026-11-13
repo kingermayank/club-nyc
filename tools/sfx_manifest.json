@@ -1,0 +1,848 @@
+{
+  "_about": "Real recordings for Club NYC's sounds (Epidemic Sound). Download each id (WAV, or MP3 for long ambiences) into tools/sfx_raw/<id>.wav|.mp3, then run: python3 tools/sfx_build.py. Keys match the game's sound names; a key with no file keeps its synth. start/max are seconds; fade is the fade-out in seconds. Ambience loops are made seamless (len seconds, crossfaded).",
+  "sounds": {
+    "sfx.click": {
+      "src": [
+        {
+          "id": "45c94b43-2fb0-4970-98db-cc0fe6ea3678",
+          "title": "UI Buttons, Glassy, Touch",
+          "max": 0.2
+        }
+      ],
+      "bus": "ui",
+      "vol": 0.45,
+      "gap": 45,
+      "jitter": 0.05
+    },
+    "sfx.pop": {
+      "src": [
+        {
+          "id": "b359f164-2fc5-4d46-9442-6b155977b8ac",
+          "title": "Water, Bubbles, Single Pop 02",
+          "max": 0.4
+        }
+      ],
+      "bus": "ui",
+      "vol": 0.55,
+      "gap": 60,
+      "jitter": 0.08
+    },
+    "sfx.tick": {
+      "src": [
+        {
+          "id": "aca1653c-deeb-44e0-a9a6-38fa4500a677",
+          "title": "Clocks, Old, Small Mechanism, Soft",
+          "max": 0.15
+        }
+      ],
+      "bus": "ui",
+      "vol": 0.5,
+      "gap": 60,
+      "jitter": 0.03
+    },
+    "sfx.whoosh": {
+      "src": [
+        {
+          "id": "61fa6548-f0c4-468b-8256-daaf853800b9",
+          "title": "Swish, Short, Classic, Dry",
+          "max": 0.6
+        }
+      ],
+      "bus": "ui",
+      "vol": 0.4,
+      "gap": 120,
+      "jitter": 0.06
+    },
+    "sfx.ding": {
+      "src": [
+        {
+          "id": "4877a30a-717b-4e11-ab6a-8f9d25b5f8d1",
+          "title": "Pings, Tings, Generic, High",
+          "max": 0.65
+        }
+      ],
+      "bus": "ui",
+      "vol": 0.45,
+      "gap": 120
+    },
+    "sfx.coin": {
+      "src": [
+        {
+          "id": "52bea5d4-3c9a-4ed3-bb64-6e79660f9454",
+          "title": "Coin, Money, Drop Coins",
+          "max": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6,
+      "gap": 70,
+      "jitter": 0.06
+    },
+    "sfx.register": {
+      "src": [
+        {
+          "id": "6caad476-d3e4-44ad-afa1-1e9187c46bd0",
+          "title": "Cash Register, Kaching",
+          "max": 1.6,
+          "fade": 0.4
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "gap": 300
+    },
+    "sfx.squawk": {
+      "src": [
+        {
+          "id": "4cf35e8d-35e2-448e-a9f5-c8c7858f4873",
+          "title": "UI Negative, Insufficient 12",
+          "max": 0.45
+        }
+      ],
+      "bus": "ui",
+      "vol": 0.4,
+      "gap": 300
+    },
+    "sfx.stamp": {
+      "src": [
+        {
+          "id": "d530c5b9-3047-42fe-a06a-7c479d637b60",
+          "title": "Rubber Stamp, Document 01",
+          "max": 0.22
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.7,
+      "layer": true
+    },
+    "sfx.honk": {
+      "src": [
+        {
+          "id": "83b500a0-fe49-4631-ba8b-f16b04c20c96",
+          "title": "Car Horn, City Car, Short",
+          "max": 1.1
+        },
+        {
+          "id": "074a612f-eb3e-409e-8bae-2ff8e7e2df4a",
+          "title": "Car Horn, City Car, Short",
+          "max": 1.0
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45,
+      "gap": 400,
+      "jitter": 0.03
+    },
+    "sfx.coo": {
+      "src": [
+        {
+          "id": "9c1851a6-ad26-43b8-b516-b8d6190d8417",
+          "title": "Pigeons 02",
+          "max": 1.8,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6,
+      "gap": 400
+    },
+    "sfx.quack": {
+      "src": [
+        {
+          "id": "5cbe9f2f-3c25-4a4d-a84f-1164fd886d7c",
+          "title": "Duck, Single Quack",
+          "max": 0.7
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "gap": 250,
+      "jitter": 0.06
+    },
+    "sfx.meow": {
+      "src": [
+        {
+          "id": "adf4f0ef-6ce7-48dc-a898-c21317703b11",
+          "title": "Cat, Meow, Close",
+          "max": 1.2,
+          "fade": 0.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "gap": 400,
+      "jitter": 0.05
+    },
+    "sfx.purr": {
+      "src": [
+        {
+          "id": "7bcff93d-4dba-447a-b630-a31c736f11a2",
+          "title": "Cat, Meow, High, With Purrs 03",
+          "max": 2.5,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "gap": 1500
+    },
+    "sfx.toot": {
+      "src": [
+        {
+          "id": "d481d90f-bfa1-4df5-98e5-f09e988adee6",
+          "title": "Boats, Tugboat Horn",
+          "max": 2.2,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45,
+      "gap": 800
+    },
+    "sfx.espresso": {
+      "src": [
+        {
+          "id": "60727f7e-f5b9-42e5-a3b7-d77987fdee7e",
+          "title": "Espresso, Steam Wand 01",
+          "max": 3.0,
+          "fade": 0.8
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45,
+      "gap": 1500
+    },
+    "paper.flip": {
+      "src": [
+        {
+          "id": "4cc96f50-79bf-403b-ac67-384d1947a81e",
+          "title": "Page Turn 03",
+          "max": 0.9
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6,
+      "jitter": 0.05
+    },
+    "paper.open": {
+      "src": [
+        {
+          "id": "4c83f2df-c9a0-4078-85f9-0afd842222e3",
+          "title": "Magazine, Page Turn 02",
+          "max": 1.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6
+    },
+    "subway.arrive": {
+      "src": [
+        {
+          "id": "6efb0f2a-3d55-4bf2-891d-a62c0d927449",
+          "title": "NYC Subway Train Arrival (the pull-in, 2 to 8 s)",
+          "start": 2,
+          "max": 6,
+          "fade": 1.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6
+    },
+    "subway.doorsClose": {
+      "src": [
+        {
+          "id": "40f9dbc7-d313-4a93-ad19-504b0761d880",
+          "title": "Subway, Metro, Door Close",
+          "max": 2.2,
+          "fade": 0.4
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    },
+    "subway.doorsOpen": {
+      "src": [
+        {
+          "id": "f8ddf29b-fbeb-4dee-af0b-346666a00187",
+          "title": "Subway Door Mechanism, Open",
+          "max": 1.8,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    },
+    "subway.ride": {
+      "src": [
+        {
+          "id": "604b7c22-0052-4326-b9ea-e13adda4d2ec",
+          "title": "NYC Subway Ride Blur",
+          "start": 5,
+          "loop": 12
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "arrival.clack": {
+      "src": [
+        {
+          "id": "fc947afa-f288-41ef-9966-08b61ad7969e",
+          "title": "NYC Turnstile Isolated",
+          "max": 1.2,
+          "fade": 0.25
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6
+    },
+    "cafe.espresso": {
+      "src": [
+        {
+          "id": "60727f7e-f5b9-42e5-a3b7-d77987fdee7e",
+          "title": "Espresso, Steam Wand 01",
+          "max": 3.0,
+          "fade": 0.8
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45
+    },
+    "theater.ticket": {
+      "src": [
+        {
+          "id": "e04b216c-d01b-44ba-8369-f42f9f406a89",
+          "title": "Paper Rip, Cinema Ticket",
+          "max": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.65
+    },
+    "theater.applause": {
+      "src": [
+        {
+          "id": "4ee0422a-2525-4190-9ac7-c6cbdee08c78",
+          "title": "Light Applause, Small Audience",
+          "max": 4.8,
+          "fade": 1.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    },
+    "theater.crash": {
+      "src": [
+        {
+          "id": "7122267d-614d-4b36-b9f8-32ae538240b6",
+          "title": "Cymbal Crash, Short Hit",
+          "max": 1.8,
+          "fade": 0.8
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45
+    },
+    "theater.whistle": {
+      "src": [
+        {
+          "id": "a59aba2e-353d-4a8e-a585-aa507deee020",
+          "title": "Whistle Fingers, Attention",
+          "max": 0.45
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.4
+    },
+    "arrival.shutter": {
+      "src": [
+        {
+          "id": "d8dd8d3d-9d9f-480b-8067-3db6c5fd6a8c",
+          "title": "Sony Alpha, Shutter Click",
+          "max": 0.4
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6
+    },
+    "exchange.bell": {
+      "src": [
+        {
+          "id": "d8ecb988-8ce8-404e-a685-bd1479f4415f",
+          "title": "School Bell, Classic, Ringing (the opening bell is an electric bell)",
+          "max": 9.6,
+          "fade": 0.4
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0
+    },
+    "exchange.cheer": {
+      "src": [
+        {
+          "id": "7c3d5c4c-0304-4b97-a48f-cbf2428b2a68",
+          "title": "Applause, Interior, Strong, Cheering",
+          "max": 7,
+          "fade": 2.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    },
+    "arrival.swipe": {
+      "src": [
+        {
+          "id": "3cf9b281-0545-4676-8edc-cbf621536a14",
+          "title": "Credit Card, Swipe In Machine",
+          "max": 0.35
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6
+    },
+    "ferry.horn": {
+      "src": [
+        {
+          "id": "d70c3990-a7d3-4e61-a69a-724c4f0056ce",
+          "title": "Ship Horn, Ferry, Double, Close",
+          "max": 4.0,
+          "fade": 1.0
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45
+    },
+    "ferry.splash": {
+      "src": [
+        {
+          "id": "e638ab44-bc15-49c9-8b8e-718a5b7e153b",
+          "title": "Splash, Small, Stick In Lake",
+          "max": 1.0,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.08
+    },
+    "mp.splash": {
+      "src": [
+        {
+          "id": "e638ab44-bc15-49c9-8b8e-718a5b7e153b",
+          "title": "Splash, Small, Stick In Lake",
+          "max": 1.0,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.08
+    },
+    "halal.sizzle": {
+      "src": [
+        {
+          "id": "9a27aa6e-e21c-456f-9ce5-bdd0a7a4ee8e",
+          "title": "Short Sizzle 15",
+          "max": 1.2,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45,
+      "gap": 150,
+      "jitter": 0.06
+    },
+    "slice.sizzle": {
+      "src": [
+        {
+          "id": "9a27aa6e-e21c-456f-9ce5-bdd0a7a4ee8e",
+          "title": "Short Sizzle 15",
+          "max": 1.2,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45,
+      "gap": 150,
+      "jitter": 0.06
+    },
+    "halal.squirt": {
+      "src": [
+        {
+          "id": "9c0afb8c-103f-4443-a805-7a44987627a8",
+          "title": "Ketchup Bottle, Squeeze, Squirt 03",
+          "max": 0.6
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "gap": 80,
+      "jitter": 0.1
+    },
+    "slice.squirt": {
+      "src": [
+        {
+          "id": "9c0afb8c-103f-4443-a805-7a44987627a8",
+          "title": "Ketchup Bottle, Squeeze, Squirt 03",
+          "max": 0.6
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "gap": 80,
+      "jitter": 0.1
+    },
+    "halal.bell": {
+      "src": [
+        {
+          "id": "6296619b-06fc-43f2-8bc4-306ccc252b18",
+          "title": "Service Desk Bell, Press x2",
+          "max": 1.6,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "slice.ovenDing": {
+      "src": [
+        {
+          "id": "f27bfbd6-5252-47a7-8879-f368454bc05f",
+          "title": "Small Service Bell",
+          "max": 0.8,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "slice.box": {
+      "src": [
+        {
+          "id": "7a627a67-295e-4825-8b37-775e61cd6cae",
+          "title": "Cardboard Box, Drop 03",
+          "max": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "jitter": 0.06
+    },
+    "bagel.catchBox": {
+      "src": [
+        {
+          "id": "7a627a67-295e-4825-8b37-775e61cd6cae",
+          "title": "Cardboard Box, Drop 03",
+          "max": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "jitter": 0.06
+    },
+    "bagel.wings": {
+      "src": [
+        {
+          "id": "c2d7a5b4-1494-4d6d-bf04-a59f372d6ed8",
+          "title": "Bird, Wing Flaps",
+          "max": 1.3,
+          "fade": 0.4
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    },
+    "showtime.squeak": {
+      "src": [
+        {
+          "id": "1617d847-0b11-462f-a53b-18f2be06d813",
+          "title": "Cartoon, Squeak, Slip",
+          "max": 0.35
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.08
+    },
+    "showtime.hatCoin": {
+      "src": [
+        {
+          "id": "52bea5d4-3c9a-4ed3-bb64-6e79660f9454",
+          "title": "Coin, Drop Coins",
+          "max": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6,
+      "jitter": 0.08
+    },
+    "showtime.snub": {
+      "src": [
+        {
+          "id": "4cc96f50-79bf-403b-ac67-384d1947a81e",
+          "title": "Page Turn 03",
+          "max": 0.9
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6
+    },
+    "mp.bell": {
+      "src": [
+        {
+          "id": "702bcdcf-bbb9-41c0-8881-3c915dc03208",
+          "title": "Bicycle Bell, Ring 12",
+          "max": 0.9,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45
+    },
+    "mp.whistle": {
+      "src": [
+        {
+          "id": "c2daf870-a0f2-482f-8525-08718a58fece",
+          "title": "Acme Scout Whistle, Blow 02",
+          "max": 1.0,
+          "fade": 0.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.35
+    },
+    "mp.meow": {
+      "src": [
+        {
+          "id": "adf4f0ef-6ce7-48dc-a898-c21317703b11",
+          "title": "Cat, Meow, Close",
+          "max": 1.2,
+          "fade": 0.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55,
+      "jitter": 0.05
+    },
+    "skypod.ride": {
+      "src": [
+        {
+          "id": "b02db458-0649-4977-a32f-aece7cce57b0",
+          "title": "Elevator Moving Interior (the SkyPod climbing)",
+          "start": 8,
+          "loop": 12
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "skypod.open": {
+      "src": [
+        {
+          "id": "e571d8ba-783a-4310-acc2-2ca6e4627692",
+          "title": "Elevator Door, Modern (first half: opening)",
+          "max": 3.1,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0
+    },
+    "skypod.close": {
+      "src": [
+        {
+          "id": "e571d8ba-783a-4310-acc2-2ca6e4627692",
+          "title": "Elevator Door, Modern (second half: closing)",
+          "start": 3.3,
+          "max": 3.3,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0
+    },
+    "skypod.ding": {
+      "src": [
+        {
+          "id": "06dbcd9d-b37e-4cca-bb9f-a959463fc220",
+          "title": "Call Bell, Elevator, Ding",
+          "max": 2.4,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45,
+      "jitter": 0
+    },
+    "locks.spray": {
+      "src": [
+        {
+          "id": "9544bfc6-c423-4523-96e5-f6ec16cdc4ff",
+          "title": "Aerosol Can, Spray, Medium 02",
+          "max": 2.3,
+          "fade": 0.15
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.35
+    },
+    "locks.shake": {
+      "src": [
+        {
+          "id": "b6f39324-06eb-4f38-a10d-4590ad6d4a19",
+          "title": "Spray Paint Can, Shake",
+          "max": 1.4,
+          "fade": 0.25
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45
+    },
+    "locks.shut": {
+      "src": [
+        {
+          "id": "d4ef5e99-e7b6-48c7-8f14-85581ca87a2f",
+          "title": "Padlocks, Simple, Double",
+          "max": 0.85,
+          "fade": 0.1
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.6
+    },
+    "locks.plop": {
+      "src": [
+        {
+          "id": "85c0408c-9a6f-4c7f-90c3-d657aad3bbb4",
+          "title": "Fishing Sinker Hit Water, Plop 02",
+          "max": 0.65,
+          "fade": 0.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    },
+    "locks.clink": {
+      "src": [
+        {
+          "id": "619bbc21-cfd8-4208-b466-55417a9506df",
+          "title": "Keys, Yale, Drop On Table 01",
+          "max": 0.38,
+          "fade": 0.08
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    }
+  },
+  "ambience": {
+    "times-square": {
+      "id": "c5635d89-4aa3-4105-aaee-552c92249a87",
+      "title": "NYC, Times Square 02",
+      "start": 1,
+      "len": 26,
+      "vol": 0.35
+    },
+    "times-square-2": {
+      "id": "a9857cea-a039-4718-b3ed-518437a9fc47",
+      "title": "NYC, Times Square 03",
+      "start": 1,
+      "len": 28,
+      "vol": 0.35
+    },
+    "times-square-3": {
+      "id": "336905bc-2e78-4cfc-b1fe-ba218c82d41d",
+      "title": "NYC, Times Square, Siren",
+      "start": 2,
+      "len": 40,
+      "vol": 0.33
+    },
+    "times-square-4": {
+      "id": "3a02e100-9755-44c3-95e5-a680912768bd",
+      "title": "City Square, Traffic, Pedestrians",
+      "start": 15,
+      "len": 45,
+      "vol": 0.3
+    },
+    "street": {
+      "id": "bec2f08e-3eed-4aa0-bb43-8cd174b02e30",
+      "title": "Urban City Street, Pedestrians, Traffic",
+      "start": 10,
+      "len": 40,
+      "vol": 0.3
+    },
+    "park": {
+      "id": "8001effe-5459-440e-bd8f-55478d3bf71f",
+      "title": "Central Park, NYC, Traffic, Aircraft",
+      "start": 1,
+      "len": 27,
+      "vol": 0.35
+    },
+    "harbor": {
+      "id": "c33e9af7-71af-4e60-98ff-21f1ae92dbae",
+      "title": "Harbor, Halyards, Seagulls, Distant Traffic",
+      "start": 10,
+      "len": 40,
+      "vol": 0.35
+    },
+    "rooftop": {
+      "id": "d7a09f94-ced5-46e1-b995-2568f8f6fc46",
+      "title": "City Rooftop, Distant Traffic Tone",
+      "start": 5,
+      "len": 40,
+      "vol": 0.35
+    },
+    "window": {
+      "id": "d7a09f94-ced5-46e1-b995-2568f8f6fc46",
+      "title": "City Rooftop, Distant Traffic Tone (quiet, through the window)",
+      "start": 5,
+      "len": 40,
+      "vol": 0.12
+    },
+    "subway": {
+      "id": "e4c110a2-ea48-4b22-87b5-219a6dc59ecc",
+      "title": "NYC Subway Busy Turnstiles 02",
+      "start": 20,
+      "len": 40,
+      "vol": 0.25
+    },
+    "concourse": {
+      "id": "b2b32942-fc06-4ec0-a482-8a238ae6227d",
+      "title": "Museum Entrance Hall, Walla, Movement",
+      "start": 10,
+      "len": 40,
+      "vol": 0.3
+    },
+    "museum": {
+      "id": "c6c7a3a5-d778-461c-a71c-ecc76599945b",
+      "title": "Gallery, Large Hall 01",
+      "start": 5,
+      "len": 40,
+      "vol": 0.3
+    },
+    "cafe": {
+      "id": "5679e9ae-2dcc-4fc7-a0d6-22f545cdcde6",
+      "title": "Coffee Shop, Large, Walla",
+      "start": 5,
+      "len": 40,
+      "vol": 0.28
+    },
+    "exchange": {
+      "id": "c220cf70-722d-42d7-a5af-a988ee96de75",
+      "title": "Busy Walla, English (the trading floor)",
+      "start": 5,
+      "len": 40,
+      "vol": 0.26
+    },
+    "shop": {
+      "id": "04f09132-6b55-403f-8164-7f3c5eff73fd",
+      "title": "Shopping Centre, Sunday, Quiet",
+      "start": 10,
+      "len": 40,
+      "vol": 0.2
+    }
+  }
+}

@@ -1,5 +1,7 @@
-// Tiny WebAudio synth so the prototype has sound without any asset files.
+// Tiny WebAudio synth: every sound has a synthesized version, and sound/library.ts swaps in a real recording
+// for any name that has one (public/sfx/index.json), so this is also the fallback while recordings load.
 import { cafe } from './foley'
+import { withSamples, warmSamples } from './sound/library'
 let ctx: AudioContext | null = null
 let muted = false
 
@@ -58,7 +60,7 @@ function noise(dur: number, vol = 0.1, freq = 800, delay = 0) {
 
 const NOTE = (n: number) => 440 * 2 ** ((n - 69) / 12)
 
-export const sfx = {
+export const sfx = withSamples('sfx', {
   click: () => tone(880, 0.06, 'triangle', 0.08),
   pop: () => tone(520, 0.12, 'sine', 0.12, 0, 1040),
   coin: () => {
@@ -103,6 +105,21 @@ export const sfx = {
     for (let i = 0; i < 8; i++) noise(0.12, 0.12, 200 + (i % 2) * 80, i * 0.16)
   },
   whoosh: () => noise(0.5, 0.12, 600),
+  /** a squeeze bottle: a short wet hiss with a little pitch drop */
+  squirt: () => {
+    noise(0.16, 0.07, 1400)
+    tone(330, 0.1, 'sine', 0.035, 0, 180)
+  },
+  /** one bite: a soft crunch of bun */
+  chomp: () => {
+    noise(0.06, 0.16, 520)
+    noise(0.05, 0.11, 300, 0.07)
+  },
+  /** a rubber stamp hitting paper: a low thump and a short slap */
+  thunk: () => {
+    tone(120, 0.12, 'sine', 0.22, 0, 60)
+    noise(0.05, 0.16, 1800)
+  },
   ding: () => tone(NOTE(84), 0.6, 'sine', 0.12),
   stamp: () => {
     tone(NOTE(72), 0.12, 'triangle', 0.1)
@@ -127,7 +144,12 @@ export const sfx = {
     noise(0.05, 0.3, 2500)
   },
   tick: () => tone(1000, 0.05, 'square', 0.05),
-}
+  /** a gull over the water (squawk is the "nope" sound) */
+  gull: () => tone(1200, 0.2, 'sawtooth', 0.05, 0, 700),
+})
+
+// start fetching the recordings once the player has clicked something (browsers need a gesture for audio anyway)
+if (typeof window !== 'undefined') addEventListener('pointerdown', () => warmSamples(), { once: true, capture: true })
 
 /** A simple dance beat (kick, clap, hats, bass) for flash mobs. Returns a stop function. */
 export function startBeat(bpm = 118): () => void {

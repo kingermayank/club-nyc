@@ -276,7 +276,7 @@ async def enter_city(pg, base, name):
     await pg.wait_for_selector('.si-live.busy, .si-live.quiet', timeout=15000)
     await pg.click('.si-play')
     await pg.wait_for_selector('.creator-card', timeout=30000)
-    await pg.locator('.cr-preset').nth(1).click()
+    await pg.click('.cr-door.surprise')
     await pg.click('.creator-actions .btn.go')
     await pg.wait_for_selector('.creator-name input')
     await pg.fill('.creator-name input', name)

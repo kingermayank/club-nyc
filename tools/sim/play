@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# The persona agents' controller, usable from any folder:
+#   tools/sim/play <agent> <command> [args...]      (see tools/sim/city.py for the commands)
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$ROOT" && exec .venv/bin/python tools/sim/city.py "$@"

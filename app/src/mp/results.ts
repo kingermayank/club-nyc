@@ -44,7 +44,6 @@ export function renderResults(box: HTMLElement, r: ResultsWire, act: ResultsActi
 
   // ---------- the headline ----------
   let title = 'Results'
-  let line = `${def.title} · ${r.humans} ${r.humans === 1 ? 'New Yorker' : 'New Yorkers'}${r.rows.length > r.humans ? ` and ${r.rows.length - r.humans} city ${r.rows.length - r.humans === 1 ? 'local' : 'locals'}` : ''}`
   let medal = ''
   const won = !!mine?.won
   if (r.teams) {
@@ -57,7 +56,7 @@ export function renderResults(box: HTMLElement, r: ResultsWire, act: ResultsActi
     else title = mine.place === 1 ? '1st Place!' : `${ordinal(mine.place)} Place`
     medal = mine.place <= 3 && !mine.dnf ? ['medal-gold', 'medal-silver', 'medal-bronze'][mine.place - 1] : ''
   } else title = `${r.rows[0]?.n ?? 'Someone'} Wins`
-  const head = el('div', 'mp-card mp-res-head', `${medal ? `<img class="mp-medal" src="/art/icons/e/${medal}.png" alt="">` : ''}<div><h2>${esc(title)}</h2><p>${esc(line)} · ${fmtTime(r.dur)}</p></div>`)
+  const head = el('div', 'mp-card mp-res-head', `${medal ? `<img class="mp-medal" src="/art/icons/e/${medal}.png" alt="">` : ''}<div><h2>${esc(title)}</h2></div>`)
   if (r.teams) {
     head.append(
       el(
@@ -91,9 +90,9 @@ export function renderResults(box: HTMLElement, r: ResultsWire, act: ResultsActi
   if (you && !you.void) {
     const lvl = levelOf(save.xp ?? 0)
     rew.innerHTML = `<div class="mp-gain"><div class="xp"><b>+${you.xp}</b><small>XP</small></div><div class="coins"><b><img src="/art/icons/coin.png" alt="">${you.coins}</b><small>coins</small></div></div>
-      <div class="mp-lvl"><span><b>Level ${lvl.level}</b> · ${esc(lvl.title)}</span><span class="bar"><i style="width:0%"></i></span><span>${Math.max(0, lvl.next - lvl.xp)} XP to ${esc(lvl.nextTitle)}</span></div>
+      <div class="mp-lvl"><span><b>Level ${lvl.level}</b> ${esc(lvl.title)}</span><span class="bar"><i style="width:0%"></i></span><span>${Math.max(0, lvl.next - lvl.xp)} XP to ${esc(lvl.nextTitle)}</span></div>
       ${you.best ? `<span class="mp-note best">${you.best === 'all' ? 'New personal best!' : 'Best this week!'} ${fmtBest(r.g, mine?.score ?? 0)}</span>` : ''}
-      <div class="mp-note">${you.weekRank ? `<b>#${you.weekRank}</b> this week in ${esc(def.short)} · ${you.weekWins} ${you.weekWins === 1 ? 'win' : 'wins'}` : ''}${r.humans < 2 ? '<br>Wins count on the board when you beat a real New Yorker.' : ''}${you.capped ? '<br>That’s all the game prizes for today. Your score still counts.' : ''}</div>`
+      <div class="mp-note">${you.weekRank ? `<b>#${you.weekRank}</b> this week` : ''}${r.humans < 2 ? '<br>Beat a real New Yorker for it to count.' : ''}${you.capped ? '<br>Prizes are done for today.' : ''}</div>`
     requestAnimationFrame(() => {
       const bar = rew.querySelector<HTMLElement>('.mp-lvl .bar i')
       if (bar) bar.style.width = `${Math.round(lvl.progress * 100)}%`
@@ -111,18 +110,17 @@ export function renderResults(box: HTMLElement, r: ResultsWire, act: ResultsActi
   const btns = el('div', 'mp-res-btns')
   const back = el('button', 'btn ghost back', 'Back to the City<kbd>Esc</kbd>')
   back.onclick = () => act.back()
-  const brag = el('button', 'btn small ghost', '📣 Copy Result')
+  const brag = el('button', 'btn small ghost', '<img src="/art/icons/e/megaphone.png" alt="">Copy Result')
   brag.onclick = () => {
     const what = r.g === 'sled' ? (mine && !mine.dnf ? `${fmtTime(mine.score)}` : '') : r.g === 'runner' ? `${mine?.score ?? 0} m` : ''
     act.brag(mine ? `I came ${ordinal(mine.place)} in ${def.title}${what ? ` (${what})` : ''} in Club NYC.` : `Watching ${def.title} in Club NYC.`)
   }
-  const inv = el('button', 'btn small ghost', '💌 Invite a Friend')
+  const inv = el('button', 'btn small ghost', '<img src="/art/icons/e/love-letter.png" alt="">Invite a Friend')
   inv.onclick = () => act.invite()
-  const lb = el('button', 'btn small ghost', '🏆 Leaderboard')
-  lb.onclick = () => act.board()
   const again = el('button', 'btn go', 'Play Again<kbd>Enter</kbd>')
   again.onclick = () => act.again()
-  btns.append(back, brag, inv, lb, again)
+  // (the full leaderboard is one tap away on the This Week card)
+  btns.append(back, brag, inv, again)
   view.append(btns)
 
   if (mine && !you?.void) {

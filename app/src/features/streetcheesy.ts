@@ -29,15 +29,15 @@ export function openListings() {
 function card(h: HomeDef) {
   const owned = save.homes.includes(h.id)
   const current = save.home === h.id
-  const c = el('div', 'sc-card' + (current ? ' current' : '') + (h.soon ? ' soon' : ''))
+  const c = el('div', 'sc-card' + (current ? ' current' : ''))
   c.innerHTML = `<div class="sc-photo">${h.img ? `<img src="${h.img}" alt="">` : '<span>🌉</span>'}${current ? '<em>Home</em>' : owned ? '<em class="own">Owned</em>' : ''}</div>
-    <div class="sc-info"><div class="sc-price">${h.soon ? 'Coming soon' : h.price ? `${coin}${h.price.toLocaleString('en-US')}` : 'Free · yours'}</div>
+    <div class="sc-info"><div class="sc-price">${h.price ? `${coin}${h.price.toLocaleString('en-US')}` : 'Free'}</div>
     <b class="sc-name">${h.name}</b><small class="sc-hood">📍 ${h.hood}</small><p>${h.blurb}</p>
     <div class="sc-perks">${h.perks.map((x) => `<span>${x}</span>`).join('')}</div><small class="sc-fine">${h.fine}</small></div>`
   const btn = el('button', 'btn small ' + (current ? 'ghost' : 'go'))
   // statuses are labels, not buttons that do nothing
-  if (h.soon || current) {
-    c.querySelector('.sc-info')!.append(el('span', 'pc-status', h.soon ? '🚧 Brooklyn opens soon' : '🔑 You live here'))
+  if (current) {
+    c.querySelector('.sc-info')!.append(el('span', 'pc-status', '🔑 You live here'))
     return c
   } else if (owned) {
     btn.textContent = 'Move in 🚚'
@@ -82,7 +82,7 @@ function card(h: HomeDef) {
 /** Pack up this home's furniture, unpack the next one's, and go. */
 export function moveIn(id: string) {
   const h = HOME[id]
-  if (!h || !save.homes.includes(id) || h.soon) return
+  if (!h || !save.homes.includes(id)) return
   if (save.home !== id) {
     save.homeFurniture[save.home] = save.furniture
     save.furniture = save.homeFurniture[id] ?? []

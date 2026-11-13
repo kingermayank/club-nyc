@@ -1,4 +1,5 @@
 import { sfx } from '../audio'
+import { duckAmbience } from '../sound/library'
 import { save, persist, best, bump } from '../state'
 import { el, stage, W, H } from '../engine/stage'
 import { hold, toast, confetti } from '../engine/ui'
@@ -61,7 +62,10 @@ export const endRunningGame = (r: GameResult) => import.meta.env.DEV && endRunni
 export async function playGame(id: string) {
   const entry = GAMES[id]
   if (!entry) return
-  const release = hold()
+  const held = hold()
+  // the room's background drops away under the game, and comes back after
+  duckAmbience(true)
+  const release = () => (held(), duckAmbience(false))
   const shell = el('div', 'game-shell')
   const root = el('div', 'game-root')
   const loading = el('div', 'game-loading', `<div class="spinner"></div><b>${entry.title}</b><small>${entry.blurb}</small>`)
@@ -217,7 +221,7 @@ function leaderboard(id: string): { box: HTMLElement; me: HTMLElement; load: () 
           .join('')
       : `<li class="lobby-empty">${period === 'friends' ? 'None of your friends have a score yet. Be the first!' : 'Nobody has a score yet. First place is wide open!'}</li>`
     meEl.innerHTML = me && me.rank
-      ? `You’re <b>#${me.rank}</b> of ${me.total}${me.next ? ` · beat <b>${esc(me.next.name)}</b>’s ${fmt(id, me.next.score)} to climb` : ' · 👑 top of the board!'}`
+      ? `You’re <b>#${me.rank}</b> of ${me.total}${me.next ? `. Beat <b>${esc(me.next.name)}</b>’s ${fmt(id, me.next.score)} to climb.` : ' 👑'}`
       : mine
         ? ''
         : `No score yet${period === 'all' ? '' : ' this week'}.`
@@ -258,7 +262,7 @@ function stampLine(id: string, r: GameResult) {
   const s = r.score ?? 0
   const now = !save.stamps.includes(sid) && ((id === 'slice-factory' && s >= 15) || (id === 'halal-rush' && s >= 10) || (id === 'ferry-captain' && !!r.flags?.includes('arrived')) || (id === 'bagel-counters' && s >= 40) || id === 'showtime')
   const has = save.stamps.includes(sid)
-  return `<div class="payout-stamp ${has || now ? 'lit' : ''}"><span class="ps-icon">${iconHtml(st.icon)}</span><span><b>${st.name}</b>${now ? ' <em>Stamp earned!</em>' : has ? ' <small>· collected</small>' : ''}<small>${st.desc}</small></span></div>`
+  return `<div class="payout-stamp ${has || now ? 'lit' : ''}"><span class="ps-icon">${iconHtml(st.icon)}</span><span><b>${st.name}</b>${now ? ' <em>Stamp earned!</em>' : has ? ' <small>collected</small>' : ''}<small>${st.desc}</small></span></div>`
 }
 
 function payout(id: string, title: string, r: GameResult, run: Promise<string | null> | null, done: () => void) {
@@ -284,7 +288,7 @@ function payout(id: string, title: string, r: GameResult, run: Promise<string | 
       <ul class="payout-lines">${(r.lines ?? []).map((l) => `<li>${l}</li>`).join('')}</ul>
       ${newItems.length ? `<div class="payout-reward"><small>Unlocked!</small><div class="payout-items">${newItems.map((i) => `<span>${itemIcon(i)}${ITEM[i]?.name ?? i}</span>`).join('')}</div></div>` : ''}
       ${stampLine(id, r)}
-      ${coins + save.coins > 0 ? `<div class="payout-spend"><small>Spend your coins</small><button class="spend" data-go="thread">${iconHtml('🛍')}<span>Supreme</span></button><button class="spend" data-go="iloveny">${iconHtml('🗽')}<span>Souvenirs</span></button><button class="spend" data-go="furniture">${iconHtml('🛋')}<span>Flatbush Flea</span></button></div>` : ''}
+      ${coins + save.coins > 0 ? `<div class="payout-spend"><small>Spend your coins</small><button class="spend" data-go="thread">${iconHtml('🛍')}<span>THREAD</span></button><button class="spend" data-go="iloveny">${iconHtml('🗽')}<span>Souvenirs</span></button><button class="spend" data-go="furniture">${iconHtml('🛋')}<span>Flatbush Flea</span></button></div>` : ''}
       <div class="payout-btns"><button class="btn ghost rematch">↻ Play Again</button><button class="btn go">Back to the City</button></div>
     </div>`
   stage.root.append(card)

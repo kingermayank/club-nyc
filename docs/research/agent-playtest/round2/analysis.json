@@ -1,0 +1,3431 @@
+{
+  "meta": {
+    "run": "20261111-0916",
+    "players": 24,
+    "written": "2026-11-11",
+    "unit": "distinct people per item",
+    "sources": [
+      "round2/reports/<id>.md",
+      "round2/journals/<id>.md",
+      "tools/out/sim/20261111-0916/summary.json"
+    ],
+    "notes": [
+      "quotes are verbatim; \"…\" joins two parts of the same sentence or line",
+      "active_actions is summary.json agents.<id>.actions.active_actions",
+      "test artifacts are excluded from bug counts and flagged where they appear",
+      "round 1 (primed) material is not counted anywhere in this file"
+    ]
+  },
+  "stats": {
+    "active_actions": {
+      "median": 40.5,
+      "mean": 43.8,
+      "min": 18,
+      "max": 78,
+      "median_without_safety_checks": 42,
+      "median_started_a_minigame": 64,
+      "median_other_players": 39.0
+    },
+    "scores": {
+      "fun": {
+        "mean": 6.7,
+        "median": 7.0,
+        "dist": {
+          "4": 1,
+          "5": 1,
+          "6": 9,
+          "7": 7,
+          "8": 6
+        }
+      },
+      "nyc": {
+        "mean": 7.1,
+        "median": 7.0,
+        "dist": {
+          "6": 8,
+          "7": 6,
+          "8": 10
+        }
+      },
+      "ease": {
+        "mean": 6.9,
+        "median": 7.0,
+        "dist": {
+          "5": 1,
+          "6": 6,
+          "7": 12,
+          "8": 5
+        }
+      },
+      "recommend": {
+        "mean": 6.0,
+        "median": 6.0,
+        "dist": {
+          "3": 2,
+          "4": 2,
+          "5": 5,
+          "6": 4,
+          "7": 6,
+          "8": 5
+        }
+      }
+    },
+    "exit_types": {
+      "got what they came for": [
+        "gabi",
+        "tunde",
+        "angie",
+        "sam",
+        "nora",
+        "chloe",
+        "billie",
+        "ron",
+        "ellen"
+      ],
+      "bored": [
+        "millie",
+        "marcus",
+        "tyler",
+        "maya",
+        "darnell",
+        "lukas",
+        "wei",
+        "kayla"
+      ],
+      "blocked or confused": [
+        "jiwoo",
+        "priya",
+        "aiko"
+      ],
+      "safety check done": [
+        "linda",
+        "frank",
+        "kevin"
+      ],
+      "time's up": [
+        "diego"
+      ],
+      "interrupted": []
+    },
+    "come_back": {
+      "yes": [
+        "diego"
+      ],
+      "maybe": [
+        "millie",
+        "jiwoo",
+        "gabi",
+        "marcus",
+        "maya",
+        "darnell",
+        "tunde",
+        "lukas",
+        "angie",
+        "sam",
+        "linda",
+        "wei",
+        "priya",
+        "aiko",
+        "kayla",
+        "nora",
+        "chloe",
+        "frank",
+        "billie",
+        "ron",
+        "kevin",
+        "ellen"
+      ],
+      "no": [
+        "tyler"
+      ]
+    },
+    "share": {
+      "yes": [
+        "jiwoo",
+        "gabi",
+        "marcus",
+        "maya",
+        "tunde",
+        "angie",
+        "sam",
+        "linda",
+        "wei",
+        "priya",
+        "aiko",
+        "kayla",
+        "nora",
+        "chloe",
+        "billie",
+        "diego",
+        "ron",
+        "kevin",
+        "ellen"
+      ],
+      "maybe": [
+        "tyler",
+        "lukas"
+      ],
+      "conditional": [
+        "millie"
+      ],
+      "no": [
+        "darnell",
+        "frank"
+      ]
+    },
+    "server": {
+      "peak_real_players_online": 6,
+      "chat_lines": 11,
+      "people_who_chatted": 11,
+      "friendships": 1,
+      "job_runs": 3,
+      "job_runs_with_a_logged_score": 0,
+      "carb_jitsu_matches": 4,
+      "reports_filed": 0,
+      "client_errors": 0,
+      "rooms_visited": 14,
+      "rooms_defined_in_rooms_ts": 30
+    },
+    "segments": {
+      "Natives": {
+        "members": [
+          "millie",
+          "darnell",
+          "wei",
+          "frank",
+          "maya"
+        ],
+        "fun": 5.8,
+        "nyc": 6.2,
+        "ease": 6.6,
+        "recommend": 4.6,
+        "median_active_actions": 39
+      },
+      "Transplants and students": {
+        "members": [
+          "jiwoo",
+          "tunde",
+          "priya",
+          "billie"
+        ],
+        "fun": 6.8,
+        "nyc": 6.8,
+        "ease": 6.5,
+        "recommend": 6,
+        "median_active_actions": 47.0
+      },
+      "International dreamers": {
+        "members": [
+          "gabi",
+          "lukas",
+          "aiko",
+          "diego"
+        ],
+        "fun": 7.5,
+        "nyc": 7.8,
+        "ease": 7.5,
+        "recommend": 7,
+        "median_active_actions": 41.5
+      },
+      "Domestic Americans": {
+        "members": [
+          "marcus",
+          "angie",
+          "kayla",
+          "ron"
+        ],
+        "fun": 7,
+        "nyc": 7.5,
+        "ease": 7,
+        "recommend": 6.8,
+        "median_active_actions": 53.5
+      },
+      "NYC experts": {
+        "members": [
+          "nora",
+          "sam"
+        ],
+        "fun": 7,
+        "nyc": 8,
+        "ease": 7.5,
+        "recommend": 7,
+        "median_active_actions": 36.5
+      },
+      "Gamers": {
+        "members": [
+          "tyler",
+          "chloe",
+          "maya",
+          "kayla",
+          "diego",
+          "billie"
+        ],
+        "fun": 6.7,
+        "nyc": 7.2,
+        "ease": 7.2,
+        "recommend": 6.5,
+        "median_active_actions": 49.5
+      },
+      "Parents and teachers": {
+        "members": [
+          "frank",
+          "kevin",
+          "linda"
+        ],
+        "fun": 6.3,
+        "nyc": 6.7,
+        "ease": 7.3,
+        "recommend": 5,
+        "median_active_actions": 23
+      },
+      "Older users": {
+        "members": [
+          "ron",
+          "ellen",
+          "millie",
+          "angie"
+        ],
+        "fun": 7,
+        "nyc": 7.5,
+        "ease": 6.2,
+        "recommend": 6.8,
+        "median_active_actions": 42.0
+      }
+    }
+  },
+  "people": [
+    {
+      "id": "millie",
+      "name": "Millie Arroyo",
+      "age": 61,
+      "segment": "Native",
+      "lenses": [
+        "Native",
+        "Older user"
+      ],
+      "link": "Daughter's text",
+      "active_actions": 48,
+      "left_in": "grand-central",
+      "exit_type": "bored",
+      "exit_reason": "nobody answered me and there was nothing to actually do. Bronx not on the map.",
+      "exit_also": [
+        "no reply in chat",
+        "no game or task pulled her in",
+        "no Bronx",
+        "tired"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 6,
+        "ease": 6,
+        "recommend": 5
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning no",
+      "share": "conditional",
+      "share_with": "Her daughter, only if it had the Bronx"
+    },
+    {
+      "id": "jiwoo",
+      "name": "Ji-woo Park",
+      "age": 21,
+      "segment": "Transplant/student",
+      "lenses": [
+        "Transplant/student"
+      ],
+      "link": "Instagram reel",
+      "active_actions": 60,
+      "left_in": "pizza",
+      "exit_type": "blocked or confused",
+      "exit_reason": "the card game dragged on and I couldn't tell the score … go write my essay",
+      "exit_also": [
+        "Carb-Jitsu win tally unclear",
+        "nothing near her own neighbourhood",
+        "essay"
+      ],
+      "scores": {
+        "fun": 7,
+        "nyc": 7,
+        "ease": 6,
+        "recommend": 6
+      },
+      "come_back": "maybe",
+      "come_back_note": "if someone she knows is on",
+      "share": "yes",
+      "share_with": "Her roommate Hana"
+    },
+    {
+      "id": "gabi",
+      "name": "Gabriela \"Gabi\" Moreira",
+      "age": 26,
+      "segment": "International dreamer",
+      "lenses": [
+        "International dreamer"
+      ],
+      "link": "Facebook group of Brazilians planning NYC trips",
+      "active_actions": 44,
+      "left_in": "liberty-island",
+      "exit_type": "got what they came for",
+      "exit_reason": "reached the Statue of Liberty and got my crown and stamp, that was my dream",
+      "exit_also": [
+        "goal reached",
+        "will retry on her phone"
+      ],
+      "scores": {
+        "fun": 8,
+        "nyc": 8,
+        "ease": 7,
+        "recommend": 7
+      },
+      "come_back": "maybe",
+      "come_back_note": "for Central Park in snow, on a phone",
+      "share": "yes",
+      "share_with": "Her Facebook trip group (and her mom)"
+    },
+    {
+      "id": "marcus",
+      "name": "Marcus Lee",
+      "age": 38,
+      "segment": "Domestic American",
+      "lenses": [
+        "Domestic American"
+      ],
+      "link": "Old Astoria friend in a group chat",
+      "active_actions": 65,
+      "left_in": "pizza",
+      "exit_type": "bored",
+      "exit_reason": "Manhattan-only: Queens and Brooklyn are just grey labels … that's where I lived",
+      "exit_also": [
+        "no Queens or Brooklyn",
+        "pizza game fiddly",
+        "a tourist's New York"
+      ],
+      "scores": {
+        "fun": 7,
+        "nyc": 6,
+        "ease": 7,
+        "recommend": 6
+      },
+      "come_back": "maybe",
+      "come_back_note": "not daily; if his friend is online",
+      "share": "yes",
+      "share_with": "The Astoria group chat"
+    },
+    {
+      "id": "tyler",
+      "name": "Tyler Brooks",
+      "age": 24,
+      "segment": "Gamer",
+      "lenses": [
+        "Gamer"
+      ],
+      "link": "r/WebGames post",
+      "active_actions": 25,
+      "left_in": "wall-street",
+      "exit_type": "bored",
+      "exit_reason": "Click-to-walk, no WASD, every object is a text popup. Nothing to get good at.",
+      "exit_also": [
+        "no mechanic to master",
+        "no keyboard movement",
+        "text popups"
+      ],
+      "scores": {
+        "fun": 4,
+        "nyc": 6,
+        "ease": 6,
+        "recommend": 3
+      },
+      "come_back": "no",
+      "come_back_note": "only for real competitive mini-games",
+      "share": "maybe",
+      "share_with": "Not his gamer friends; maybe his sister"
+    },
+    {
+      "id": "maya",
+      "name": "Maya Goldstein",
+      "age": 16,
+      "segment": "Native",
+      "lenses": [
+        "Native",
+        "Gamer"
+      ],
+      "link": "Classmate in the group chat",
+      "active_actions": 30,
+      "left_in": "the-met",
+      "exit_type": "bored",
+      "exit_reason": "no Central Park/UWS, nobody to talk to, and not sure what to actually do",
+      "exit_also": [
+        "no Central Park or UWS",
+        "chat unanswered",
+        "no clear next thing"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 6,
+        "ease": 7,
+        "recommend": 6
+      },
+      "come_back": "maybe",
+      "come_back_note": "if her friends were in it",
+      "share": "yes",
+      "share_with": "The class group chat, the classmate who posted it, a Roblox friend"
+    },
+    {
+      "id": "darnell",
+      "name": "Darnell Price",
+      "age": 17,
+      "segment": "Native",
+      "lenses": [
+        "Native"
+      ],
+      "link": "TikTok clip",
+      "active_actions": 39,
+      "left_in": "brooklyn-bridge",
+      "exit_type": "bored",
+      "exit_reason": "nobody real talked back, no brooklyn, took forever to start … nothing to actually play yet",
+      "exit_also": [
+        "long setup",
+        "chat unanswered",
+        "Dance Jam button seemed dead",
+        "no Brooklyn",
+        "reads as a kids' game"
+      ],
+      "scores": {
+        "fun": 5,
+        "nyc": 6,
+        "ease": 5,
+        "recommend": 3
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning no",
+      "share": "no",
+      "share_with": "Not as is; if anyone, his cousin Tay"
+    },
+    {
+      "id": "tunde",
+      "name": "Tunde Adeyemi",
+      "age": 29,
+      "segment": "Transplant/student",
+      "lenses": [
+        "Transplant/student"
+      ],
+      "link": "Classmate in the program WhatsApp group",
+      "active_actions": 33,
+      "left_in": "wall-street",
+      "exit_type": "got what they came for",
+      "exit_reason": "Seen enough: … a tourist's Manhattan with canned bots, no Harlem",
+      "exit_also": [
+        "verdict formed for the group chat",
+        "nothing pulling deeper",
+        "canned bots",
+        "no Harlem",
+        "assignment"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 6,
+        "ease": 7,
+        "recommend": 5
+      },
+      "come_back": "maybe",
+      "come_back_note": "probably not tomorrow",
+      "share": "yes",
+      "share_with": "The program WhatsApp group and classmates, not friends in Lagos"
+    },
+    {
+      "id": "lukas",
+      "name": "Lukas Becker",
+      "age": 34,
+      "segment": "International dreamer",
+      "lenses": [
+        "International dreamer"
+      ],
+      "link": "Urbanism newsletter",
+      "active_actions": 39,
+      "left_in": "the-met",
+      "exit_type": "bored",
+      "exit_reason": "I hadn't found a system with depth; the Big Board is fake",
+      "exit_also": [
+        "Big Board not tradable",
+        "the Met has no interior",
+        "back to work"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 7,
+        "ease": 8,
+        "recommend": 5
+      },
+      "come_back": "maybe",
+      "come_back_note": "if an economy system appears",
+      "share": "maybe",
+      "share_with": "A colleague who plays Cities: Skylines"
+    },
+    {
+      "id": "angie",
+      "name": "Angie Brandt",
+      "age": 53,
+      "segment": "Domestic American",
+      "lenses": [
+        "Domestic American",
+        "Older user"
+      ],
+      "link": "Daughter's text",
+      "active_actions": 42,
+      "left_in": "one-world-trade",
+      "exit_type": "got what they came for",
+      "exit_reason": "That was sweet, nicer than I expected. Going to text my daughter, dinner is waiting.",
+      "exit_also": [
+        "seen the nice parts",
+        "dinner"
+      ],
+      "scores": {
+        "fun": 7,
+        "nyc": 8,
+        "ease": 6,
+        "recommend": 7
+      },
+      "come_back": "maybe",
+      "come_back_note": "if her daughter is on",
+      "share": "yes",
+      "share_with": "Her sister (and her daughter)"
+    },
+    {
+      "id": "sam",
+      "name": "Sam Okafor",
+      "age": 28,
+      "segment": "NYC expert",
+      "lenses": [
+        "NYC expert"
+      ],
+      "link": "A viewer's DM",
+      "active_actions": 38,
+      "left_in": "brooklyn-bridge",
+      "exit_type": "got what they came for",
+      "exit_reason": "Saw the subway and Grand Central, it is charming and surprisingly accurate.",
+      "exit_also": [
+        "would return for Rush Hour Run"
+      ],
+      "scores": {
+        "fun": 7,
+        "nyc": 8,
+        "ease": 8,
+        "recommend": 7
+      },
+      "come_back": "maybe",
+      "come_back_note": "for Rush Hour Run and other stations",
+      "share": "yes",
+      "share_with": "A Mini Metro friend (maybe a video)"
+    },
+    {
+      "id": "linda",
+      "name": "Linda Alvarez",
+      "age": 44,
+      "segment": "Parent/teacher",
+      "lenses": [
+        "Parent/teacher"
+      ],
+      "link": "Colleague's email",
+      "active_actions": 33,
+      "left_in": "brooklyn-bridge",
+      "exit_type": "safety check done",
+      "exit_reason": "charming but open chat with strangers and little actual history",
+      "exit_also": [
+        "not for 13 year olds without a classroom setting"
+      ],
+      "scores": {
+        "fun": 7,
+        "nyc": 7,
+        "ease": 7,
+        "recommend": 4
+      },
+      "come_back": "maybe",
+      "come_back_note": "only with a classroom option",
+      "share": "yes",
+      "share_with": "Her colleague, with a 'not for my class' verdict"
+    },
+    {
+      "id": "wei",
+      "name": "Wei Chen",
+      "age": 20,
+      "segment": "Native",
+      "lenses": [
+        "Native"
+      ],
+      "link": "Cousin's Instagram story",
+      "active_actions": 64,
+      "left_in": "chinatown",
+      "exit_type": "bored",
+      "exit_reason": "Halal cart game was fun, rest felt like clicking shops for coins … nobody talks back",
+      "exit_also": [
+        "Halal Rush repeats",
+        "chat unanswered",
+        "no Queens or 7 train"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 6,
+        "ease": 7,
+        "recommend": 5
+      },
+      "come_back": "maybe",
+      "come_back_note": "probably not tomorrow",
+      "share": "yes",
+      "share_with": "His cousin"
+    },
+    {
+      "id": "priya",
+      "name": "Priya Raman",
+      "age": 31,
+      "segment": "Transplant/student",
+      "lenses": [
+        "Transplant/student"
+      ],
+      "link": "Instagram ad",
+      "active_actions": 49,
+      "left_in": "subway",
+      "exit_type": "blocked or confused",
+      "exit_reason": "I could not get the rhythm game to score anything",
+      "exit_also": [
+        "Showtime never scored (test artifact)",
+        "no reason to come back after ten minutes"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 7,
+        "ease": 6,
+        "recommend": 5
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning no",
+      "share": "yes",
+      "share_with": "A coworker: the Big Board screen, not the game"
+    },
+    {
+      "id": "aiko",
+      "name": "Aiko Tanaka",
+      "age": 23,
+      "segment": "International dreamer",
+      "lenses": [
+        "International dreamer"
+      ],
+      "link": "Friend's quote-post on X",
+      "active_actions": 37,
+      "left_in": "grand-central",
+      "exit_type": "blocked or confused",
+      "exit_reason": "Too much English now, I will come back later.",
+      "exit_also": [
+        "English fatigue",
+        "wanted to screenshot for a friend"
+      ],
+      "scores": {
+        "fun": 8,
+        "nyc": 8,
+        "ease": 7,
+        "recommend": 8
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning yes (this weekend)",
+      "share": "yes",
+      "share_with": "The friend who posted it"
+    },
+    {
+      "id": "kayla",
+      "name": "Kayla Johnson",
+      "age": 19,
+      "segment": "Domestic American",
+      "lenses": [
+        "Domestic American",
+        "Gamer"
+      ],
+      "link": "TikTok",
+      "active_actions": 71,
+      "left_in": "pizza",
+      "exit_type": "bored",
+      "exit_reason": "I ran out of things I care about: only a few outfit pieces, no shop",
+      "exit_also": [
+        "fashion ran out",
+        "lost to a bot"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 8,
+        "ease": 8,
+        "recommend": 6
+      },
+      "come_back": "maybe",
+      "come_back_note": "if there is a fashion update",
+      "share": "yes",
+      "share_with": "Her roommate"
+    },
+    {
+      "id": "nora",
+      "name": "Nora Castellano",
+      "age": 34,
+      "segment": "NYC expert",
+      "lenses": [
+        "NYC expert"
+      ],
+      "link": "Former tour client's email",
+      "active_actions": 35,
+      "left_in": "brooklyn-bridge",
+      "exit_type": "got what they came for",
+      "exit_reason": "Seen what I wanted: the facts held up and the details are charming.",
+      "exit_also": [
+        "no goal to stay for",
+        "tour at noon"
+      ],
+      "scores": {
+        "fun": 7,
+        "nyc": 8,
+        "ease": 7,
+        "recommend": 7
+      },
+      "come_back": "maybe",
+      "come_back_note": "once, to check other places",
+      "share": "yes",
+      "share_with": "The client who sent it and a fellow guide (not first-time tourists)"
+    },
+    {
+      "id": "chloe",
+      "name": "Chloé Martin",
+      "age": 27,
+      "segment": "Gamer",
+      "lenses": [
+        "Gamer"
+      ],
+      "link": "Cozy-games Discord server",
+      "active_actions": 54,
+      "left_in": "apartment",
+      "exit_type": "got what they came for",
+      "exit_reason": "That was a really sweet 10 minutes; I have my apartment sorted",
+      "exit_also": [
+        "dress-up and decorate loop seen",
+        "coins low for the next item"
+      ],
+      "scores": {
+        "fun": 8,
+        "nyc": 8,
+        "ease": 7,
+        "recommend": 8
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning yes, to earn coins",
+      "share": "yes",
+      "share_with": "Her cozy-games Discord"
+    },
+    {
+      "id": "frank",
+      "name": "Frank Russo",
+      "age": 47,
+      "segment": "Parent/teacher",
+      "lenses": [
+        "Parent/teacher",
+        "Native"
+      ],
+      "link": "His daughter showed him",
+      "active_actions": 18,
+      "left_in": "times-square",
+      "exit_type": "safety check done",
+      "exit_reason": "She can play with me sitting next to her, not alone yet.",
+      "exit_also": [
+        "open chat with strangers",
+        "checkbox age gate",
+        "selfie option"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 7,
+        "ease": 8,
+        "recommend": 4
+      },
+      "come_back": "maybe",
+      "come_back_note": "only to check on her",
+      "share": "no",
+      "share_with": "Probably not other parents until safety is tighter"
+    },
+    {
+      "id": "billie",
+      "name": "Nabila \"Billie\" Hossain",
+      "age": 26,
+      "segment": "Transplant/student",
+      "lenses": [
+        "Transplant/student",
+        "Gamer"
+      ],
+      "link": "College friend in Discord",
+      "active_actions": 45,
+      "left_in": "pizza",
+      "exit_type": "got what they came for",
+      "exit_reason": "going to paste the lobby link in the Discord and see if anyone bites",
+      "exit_also": [
+        "won a Carb-Jitsu table",
+        "share link in hand"
+      ],
+      "scores": {
+        "fun": 8,
+        "nyc": 7,
+        "ease": 7,
+        "recommend": 8
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning yes, on Friday with friends",
+      "share": "yes",
+      "share_with": "Her college Discord, with a lobby link"
+    },
+    {
+      "id": "diego",
+      "name": "Diego Hernández",
+      "age": 15,
+      "segment": "International dreamer",
+      "lenses": [
+        "International dreamer",
+        "Gamer"
+      ],
+      "link": "Cousin on WhatsApp",
+      "active_actions": 78,
+      "left_in": "pizza",
+      "exit_type": "time's up",
+      "exit_reason": "ya jugué un buen rato, el juego de cartas estuvo chido. Me toca cenar",
+      "exit_also": [
+        "dinner",
+        "natural stopping point after Carb-Jitsu"
+      ],
+      "scores": {
+        "fun": 8,
+        "nyc": 8,
+        "ease": 8,
+        "recommend": 8
+      },
+      "come_back": "yes",
+      "come_back_note": "probably tomorrow, for a rematch",
+      "share": "yes",
+      "share_with": "His cousin and school friends"
+    },
+    {
+      "id": "ron",
+      "name": "Ron Whitaker",
+      "age": 67,
+      "segment": "Older user",
+      "lenses": [
+        "Older user",
+        "Domestic American"
+      ],
+      "link": "Grandson's email",
+      "active_actions": 42,
+      "left_in": "the-met",
+      "exit_type": "got what they came for",
+      "exit_reason": "That was a nice half hour. Real history, pretty pictures. Lunch is ready",
+      "exit_also": [
+        "nothing pulled him on",
+        "lunch"
+      ],
+      "scores": {
+        "fun": 8,
+        "nyc": 8,
+        "ease": 7,
+        "recommend": 8
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning yes, for facts and the next newspaper",
+      "share": "yes",
+      "share_with": "Old teaching colleagues (and his wife)"
+    },
+    {
+      "id": "kevin",
+      "name": "Kevin O'Brien",
+      "age": 41,
+      "segment": "Parent/teacher",
+      "lenses": [
+        "Parent/teacher"
+      ],
+      "link": "Son mentioned it at dinner",
+      "active_actions": 23,
+      "left_in": "times-square",
+      "exit_type": "safety check done",
+      "exit_reason": "Got what I came for: 13+, filtered chat, report/block, nothing to buy",
+      "exit_also": [
+        "couldn't verify the Report button"
+      ],
+      "scores": {
+        "fun": 6,
+        "nyc": 6,
+        "ease": 7,
+        "recommend": 7
+      },
+      "come_back": "maybe",
+      "come_back_note": "to check the report flow",
+      "share": "yes",
+      "share_with": "Other parents"
+    },
+    {
+      "id": "ellen",
+      "name": "Ellen Park",
+      "age": 72,
+      "segment": "Older user",
+      "lenses": [
+        "Older user"
+      ],
+      "link": "Niece's email",
+      "active_actions": 39,
+      "left_in": "grand-central",
+      "exit_type": "got what they came for",
+      "exit_reason": "That was lovely, Grand Central especially. … come back another day to look for Bellevue.",
+      "exit_also": [
+        "nobody answered",
+        "few people online"
+      ],
+      "scores": {
+        "fun": 7,
+        "nyc": 8,
+        "ease": 6,
+        "recommend": 7
+      },
+      "come_back": "maybe",
+      "come_back_note": "leaning yes, if someone else is on",
+      "share": "yes",
+      "share_with": "Her niece"
+    }
+  ],
+  "leaving": [
+    {
+      "label": "Nothing pulled them onward (no game, goal or next thing)",
+      "count": 13,
+      "names": [
+        "millie",
+        "jiwoo",
+        "tyler",
+        "maya",
+        "darnell",
+        "tunde",
+        "lukas",
+        "wei",
+        "priya",
+        "kayla",
+        "nora",
+        "diego",
+        "ron"
+      ],
+      "quote": "nothing pulled me toward the next thing",
+      "quote_by": "ron"
+    },
+    {
+      "label": "Right after reaching the thing they came for",
+      "count": 9,
+      "names": [
+        "gabi",
+        "tunde",
+        "angie",
+        "sam",
+        "nora",
+        "chloe",
+        "billie",
+        "ron",
+        "ellen"
+      ],
+      "quote": "I left because I had seen what I came for (subway and landmarks), not because I was bored or annoyed.",
+      "quote_by": "sam"
+    },
+    {
+      "label": "During or one step after their first mini-game",
+      "count": 7,
+      "names": [
+        "jiwoo",
+        "kayla",
+        "billie",
+        "diego",
+        "wei",
+        "priya",
+        "marcus"
+      ],
+      "quote": "After the second halal order I realised the loop was the same order again",
+      "quote_by": "wei"
+    },
+    {
+      "label": "On seeing their own part of the city is missing",
+      "count": 7,
+      "names": [
+        "millie",
+        "jiwoo",
+        "marcus",
+        "maya",
+        "darnell",
+        "tunde",
+        "wei"
+      ],
+      "quote": "The map prints \"QUEENS\" and \"BROOKLYN\" in grey letters and you can't go to either.",
+      "quote_by": "marcus"
+    },
+    {
+      "label": "After a chat line nobody answered",
+      "count": 6,
+      "names": [
+        "millie",
+        "maya",
+        "darnell",
+        "tunde",
+        "wei",
+        "ellen"
+      ],
+      "quote": "I asked a real question in chat and got nothing back",
+      "quote_by": "darnell"
+    }
+  ],
+  "fun": [
+    {
+      "label": "Times Square on arrival (the art)",
+      "count": 23,
+      "names": [
+        "millie",
+        "jiwoo",
+        "gabi",
+        "marcus",
+        "tyler",
+        "maya",
+        "darnell",
+        "tunde",
+        "lukas",
+        "angie",
+        "sam",
+        "linda",
+        "wei",
+        "priya",
+        "aiko",
+        "kayla",
+        "nora",
+        "chloe",
+        "frank",
+        "billie",
+        "diego",
+        "ron",
+        "ellen"
+      ],
+      "quote": "This is my Instagram New York.",
+      "quote_by": "gabi"
+    },
+    {
+      "label": "\"Please swipe again at this turnstile\"",
+      "count": 20,
+      "names": [
+        "millie",
+        "jiwoo",
+        "gabi",
+        "marcus",
+        "maya",
+        "darnell",
+        "lukas",
+        "angie",
+        "sam",
+        "linda",
+        "wei",
+        "priya",
+        "aiko",
+        "kayla",
+        "nora",
+        "chloe",
+        "billie",
+        "diego",
+        "ron",
+        "ellen"
+      ],
+      "quote": "That was the moment I thought the people who made this have lived there.",
+      "quote_by": "marcus"
+    },
+    {
+      "label": "Photo booth and stamping the MetroCard (\"No refunds for blinking\")",
+      "count": 20,
+      "names": [
+        "jiwoo",
+        "gabi",
+        "marcus",
+        "maya",
+        "darnell",
+        "tunde",
+        "lukas",
+        "angie",
+        "sam",
+        "linda",
+        "wei",
+        "priya",
+        "aiko",
+        "kayla",
+        "nora",
+        "chloe",
+        "billie",
+        "diego",
+        "ron",
+        "ellen"
+      ],
+      "quote": "the MetroCard stamp with a number (No. 0016) felt like a real keepsake.",
+      "quote_by": "kayla"
+    },
+    {
+      "label": "Quick rewards: level-ups, coins, stamps, confetti",
+      "count": 15,
+      "names": [
+        "jiwoo",
+        "gabi",
+        "maya",
+        "darnell",
+        "tunde",
+        "priya",
+        "aiko",
+        "kayla",
+        "chloe",
+        "frank",
+        "wei",
+        "diego",
+        "tyler",
+        "ron",
+        "angie"
+      ],
+      "quote": "The XP, level-up and stamp toasts all feel generous and not spammy.",
+      "quote_by": "chloe",
+      "note": "4 others found them unearned (section 4)"
+    },
+    {
+      "label": "The island map art",
+      "count": 12,
+      "names": [
+        "tyler",
+        "gabi",
+        "jiwoo",
+        "angie",
+        "kayla",
+        "aiko",
+        "ron",
+        "ellen",
+        "maya",
+        "diego",
+        "billie",
+        "priya"
+      ],
+      "quote": "The map in particular made me want to go there.",
+      "quote_by": "kayla"
+    },
+    {
+      "label": "Rosa, \"your building's super\"",
+      "count": 9,
+      "names": [
+        "millie",
+        "jiwoo",
+        "marcus",
+        "maya",
+        "tunde",
+        "nora",
+        "chloe",
+        "kevin",
+        "ellen"
+      ],
+      "quote": "My father was the super in our building, so that hit me.",
+      "quote_by": "millie"
+    },
+    {
+      "label": "The avatar creator",
+      "count": 8,
+      "names": [
+        "jiwoo",
+        "maya",
+        "aiko",
+        "kayla",
+        "chloe",
+        "gabi",
+        "marcus",
+        "nora"
+      ],
+      "quote": "Cute, no reading needed.",
+      "quote_by": "aiko"
+    },
+    {
+      "label": "Grand Central: clock, ceiling, Whispering Gallery",
+      "count": 7,
+      "names": [
+        "millie",
+        "tunde",
+        "sam",
+        "aiko",
+        "nora",
+        "ron",
+        "ellen"
+      ],
+      "quote": "Someone knows the real place.",
+      "quote_by": "tunde",
+      "reach": "7 of 7 visitors",
+      "note": "the whisper itself: tunde, aiko, ron, ellen"
+    },
+    {
+      "label": "The Club NYC Times (newspaper)",
+      "count": 6,
+      "names": [
+        "millie",
+        "tunde",
+        "lukas",
+        "linda",
+        "ron",
+        "ellen"
+      ],
+      "quote": "A teacher would use this.",
+      "quote_by": "ron",
+      "reach": "6 of 6 who opened it"
+    },
+    {
+      "label": "Chinatown block and Joe's details",
+      "count": 4,
+      "names": [
+        "jiwoo",
+        "marcus",
+        "billie",
+        "wei"
+      ],
+      "quote": "Someone actually knows how you eat them.",
+      "quote_by": "wei",
+      "reach": "4 of 6 visitors"
+    },
+    {
+      "label": "The apartment: radiator, decorating",
+      "count": 4,
+      "names": [
+        "millie",
+        "chloe",
+        "diego",
+        "ellen"
+      ],
+      "quote": "The Pepperoni Rug and Everything Bagel Bag are exactly my humour.",
+      "quote_by": "chloe",
+      "reach": "4 of 4 visitors"
+    },
+    {
+      "label": "Carb-Jitsu at Joe's Pizza",
+      "count": 4,
+      "names": [
+        "jiwoo",
+        "kayla",
+        "billie",
+        "diego"
+      ],
+      "quote": "This is what I came for.",
+      "quote_by": "diego",
+      "reach": "4 of 4 players"
+    },
+    {
+      "label": "Free welcome gift at Sal's cart",
+      "count": 4,
+      "names": [
+        "millie",
+        "gabi",
+        "angie",
+        "diego"
+      ],
+      "quote": "Instant reward, no cost.",
+      "quote_by": "angie"
+    },
+    {
+      "label": "Brooklyn Bridge: art and fact card",
+      "count": 3,
+      "names": [
+        "darnell",
+        "linda",
+        "nora"
+      ],
+      "quote": "21 elephants were all correct, with a good dry tag line.",
+      "quote_by": "nora",
+      "reach": "3 of 5 visitors"
+    },
+    {
+      "label": "Wall Street Big Board jokes",
+      "count": 3,
+      "names": [
+        "tyler",
+        "priya",
+        "lukas"
+      ],
+      "quote": "As a tech worker these landed.",
+      "quote_by": "priya",
+      "reach": "3 of 4 visitors"
+    },
+    {
+      "label": "Subway station and line diagram",
+      "count": 3,
+      "names": [
+        "sam",
+        "priya",
+        "lukas"
+      ],
+      "quote": "Correct, and nobody checks that.",
+      "quote_by": "sam"
+    },
+    {
+      "label": "A real player answering, waving or befriending",
+      "count": 3,
+      "names": [
+        "billie",
+        "diego",
+        "aiko"
+      ],
+      "quote": "Felt like real people.",
+      "quote_by": "diego"
+    },
+    {
+      "label": "Dancing in Times Square (press D)",
+      "count": 2,
+      "names": [
+        "darnell",
+        "angie"
+      ],
+      "quote": "That looked exactly like the TikTok.",
+      "quote_by": "darnell"
+    },
+    {
+      "label": "9/11 Memorial and One WTC plaza",
+      "count": 2,
+      "names": [
+        "angie",
+        "priya"
+      ],
+      "quote": "This is what made me trust the place.",
+      "quote_by": "angie",
+      "reach": "2 of 2 visitors"
+    },
+    {
+      "label": "The Met scene",
+      "count": 2,
+      "names": [
+        "maya",
+        "lukas"
+      ],
+      "quote": "It looks like a real place.",
+      "quote_by": "maya",
+      "reach": "2 of 3 visitors"
+    },
+    {
+      "label": "Chat filter hiding a phone number",
+      "count": 2,
+      "names": [
+        "kevin",
+        "ron"
+      ],
+      "quote": "Typing a phone number and seeing it turn into \"[removed]\" instantly was the best moment for me.",
+      "quote_by": "kevin"
+    },
+    {
+      "label": "Statue of Liberty in a foam crown",
+      "count": 1,
+      "names": [
+        "gabi"
+      ],
+      "quote": "I am at the Statue of Liberty in 7 minutes.",
+      "quote_by": "gabi",
+      "reach": "1 of 1 visitor"
+    },
+    {
+      "label": "Halal Rush",
+      "count": 1,
+      "names": [
+        "wei"
+      ],
+      "quote": "Overcooked-lite, and white sauce / hot sauce is correct.",
+      "quote_by": "wei",
+      "reach": "1 of 1 player"
+    },
+    {
+      "label": "Carb-Jitsu share flow (Copy Result, lobby link)",
+      "count": 1,
+      "names": [
+        "billie"
+      ],
+      "quote": "Built for Discord people.",
+      "quote_by": "billie"
+    },
+    {
+      "label": "Slice Factory (mixed)",
+      "count": 1,
+      "names": [
+        "marcus"
+      ],
+      "quote": "Still: fun in principle.",
+      "quote_by": "marcus",
+      "reach": "1 of 1 player"
+    }
+  ],
+  "static": [
+    {
+      "label": "People in the rooms (city locals and other players)",
+      "count": 16,
+      "names": [
+        "millie",
+        "jiwoo",
+        "gabi",
+        "maya",
+        "darnell",
+        "tunde",
+        "lukas",
+        "angie",
+        "wei",
+        "priya",
+        "kayla",
+        "nora",
+        "chloe",
+        "frank",
+        "ellen",
+        "billie"
+      ],
+      "quote": "just stand there or loop a canned line. They don't talk back.",
+      "quote_by": "millie",
+      "hoped": "Someone who answers or reacts; a clear sign of who is a real person"
+    },
+    {
+      "label": "\"New in Town\" checklist and quest chips",
+      "count": 9,
+      "names": [
+        "millie",
+        "tyler",
+        "maya",
+        "wei",
+        "priya",
+        "aiko",
+        "billie",
+        "angie",
+        "jiwoo"
+      ],
+      "quote": "It feels like homework in a world with nothing pulling me in.",
+      "quote_by": "maya",
+      "hoped": "Goals that are play, not chores; a tick when done; out of the way once moving"
+    },
+    {
+      "label": "Landing page bits that look live (bubbles, name tags, \"Dancing...\", city-so-far board) or go unread",
+      "count": 7,
+      "names": [
+        "jiwoo",
+        "gabi",
+        "lukas",
+        "linda",
+        "priya",
+        "aiko",
+        "ellen"
+      ],
+      "quote": "Weak proof that it is a living place.",
+      "quote_by": "linda",
+      "hoped": "Proof the city is alive, or just the Play button"
+    },
+    {
+      "label": "Rosa's welcome and tour card (and \"How to Play\" reopening it)",
+      "count": 6,
+      "names": [
+        "jiwoo",
+        "tyler",
+        "aiko",
+        "chloe",
+        "diego",
+        "ron"
+      ],
+      "quote": "I wanted it to walk me to the things, so I skipped it.",
+      "quote_by": "chloe",
+      "hoped": "Be walked to things; a glowing arrow or picture; the controls explained"
+    },
+    {
+      "label": "\"Join the Dance Jam\" button and countdown banner",
+      "count": 6,
+      "names": [
+        "darnell",
+        "angie",
+        "tunde",
+        "lukas",
+        "ron",
+        "ellen"
+      ],
+      "quote": "I wanted a clear \"you joined\" and a visible dance.",
+      "quote_by": "angie",
+      "hoped": "A clear \"you joined\" and a visible dance, or a dance battle",
+      "status": "verified in code: works, no confirmation"
+    },
+    {
+      "label": "Chat to the room",
+      "count": 6,
+      "names": [
+        "millie",
+        "maya",
+        "darnell",
+        "tunde",
+        "wei",
+        "ellen"
+      ],
+      "quote": "I asked a question and nothing happened.",
+      "quote_by": "maya",
+      "hoped": "A reply, or at least a sign someone saw it"
+    },
+    {
+      "label": "The island map",
+      "count": 5,
+      "names": [
+        "marcus",
+        "darnell",
+        "tunde",
+        "sam",
+        "tyler"
+      ],
+      "quote": "Nothing to learn from it, just a teleport menu.",
+      "quote_by": "sam",
+      "hoped": "Walk between neighbourhoods; something to read about each place; a real map"
+    },
+    {
+      "label": "The subway ride",
+      "count": 5,
+      "names": [
+        "sam",
+        "linda",
+        "nora",
+        "lukas",
+        "wei"
+      ],
+      "quote": "The subway ride is a title card plus a station name.",
+      "quote_by": "linda",
+      "hoped": "A fact about the line, the real route, or a skip"
+    },
+    {
+      "label": "The MetroCard intro chain before you can walk",
+      "count": 4,
+      "names": [
+        "tyler",
+        "darnell",
+        "kayla",
+        "diego"
+      ],
+      "quote": "Cute once, but I just wanted to move.",
+      "quote_by": "darnell",
+      "hoped": "Be in the city sooner; skip it on a replay",
+      "note": "6 more said elsewhere that it ran long (10 in all)"
+    },
+    {
+      "label": "Confetti, levels and stamps for walking and arriving",
+      "count": 4,
+      "names": [
+        "millie",
+        "marcus",
+        "tunde",
+        "lukas"
+      ],
+      "quote": "It felt like a free confetti machine, so it didn't feel earned.",
+      "quote_by": "marcus",
+      "hoped": "Rewards for real achievements"
+    },
+    {
+      "label": "Carb-Jitsu seat filled by a city local (bot)",
+      "count": 3,
+      "names": [
+        "jiwoo",
+        "kayla",
+        "billie"
+      ],
+      "quote": "Joe's Pizza table said nobody is playing, so it is just me vs a bot.",
+      "quote_by": "kayla",
+      "hoped": "A real person across the table"
+    },
+    {
+      "label": "Shops and stalls are menus (I ♥ NY catalog, painter's stall, furniture catalog)",
+      "count": 3,
+      "names": [
+        "wei",
+        "linda",
+        "diego"
+      ],
+      "quote": "Painter and furniture catalog are menus: pick, pay, done.",
+      "quote_by": "diego",
+      "hoped": "Walk around and mess with stuff; the bridge's story at the painter's stall"
+    },
+    {
+      "label": "The Met: doors do nothing, no interior",
+      "count": 2,
+      "names": [
+        "lukas",
+        "maya"
+      ],
+      "quote": "The big doors do nothing and there is no interior.",
+      "quote_by": "lukas",
+      "hoped": "Walk into the museum"
+    },
+    {
+      "label": "Wall Street Big Board",
+      "count": 2,
+      "names": [
+        "tyler",
+        "lukas"
+      ],
+      "quote": "Big Board: a popup of prices I cannot trade.",
+      "quote_by": "tyler",
+      "hoped": "Buy and sell; a mini stock game"
+    },
+    {
+      "label": "Exchange door and the Oculus",
+      "count": 2,
+      "names": [
+        "tyler",
+        "priya"
+      ],
+      "quote": "a tap gives a text card. I wanted to go inside or do something.",
+      "quote_by": "priya",
+      "hoped": "Go inside; the Oculus leading to PATH"
+    },
+    {
+      "label": "Viewers: Statue tower viewer, Empire State binoculars",
+      "count": 2,
+      "names": [
+        "gabi",
+        "maya"
+      ],
+      "quote": "instead I only moved the mouse around.",
+      "quote_by": "maya",
+      "hoped": "See the city, click a landmark, keep a photo"
+    },
+    {
+      "label": "Safety page",
+      "count": 2,
+      "names": [
+        "frank",
+        "kevin"
+      ],
+      "quote": "The Safety page reads like a rules poster.",
+      "quote_by": "kevin",
+      "hoped": "Parent-facing answers: who runs it, what is logged, can chat be turned off"
+    },
+    {
+      "label": "\"Save My Card\" and the booth photo",
+      "count": 2,
+      "names": [
+        "chloe",
+        "kayla"
+      ],
+      "quote": "I didn't know what saving does.",
+      "quote_by": "chloe",
+      "hoped": "Know what saving does"
+    },
+    {
+      "label": "Grand Central departures board",
+      "count": 1,
+      "names": [
+        "millie"
+      ],
+      "quote": "I wanted to see trains and times, or pick a train home.",
+      "quote_by": "millie",
+      "hoped": "See trains and times, pick a train home"
+    },
+    {
+      "label": "The newspaper as a wall of text",
+      "count": 1,
+      "names": [
+        "millie"
+      ],
+      "quote": "I wanted short headlines I could tap.",
+      "quote_by": "millie",
+      "hoped": "Short headlines to tap"
+    },
+    {
+      "label": "Opal Clock card",
+      "count": 1,
+      "names": [
+        "aiko"
+      ],
+      "quote": "I wanted one short line plus a picture or a sound.",
+      "quote_by": "aiko",
+      "hoped": "One short line plus a picture or sound"
+    },
+    {
+      "label": "Whispering Gallery",
+      "count": 1,
+      "names": [
+        "nora"
+      ],
+      "quote": "I hoped for the real trick: two people at opposite corners hearing each other.",
+      "quote_by": "nora",
+      "hoped": "The real trick: two people at opposite corners"
+    },
+    {
+      "label": "Grand Central ceiling",
+      "count": 1,
+      "names": [
+        "nora"
+      ],
+      "quote": "Grand Central ceiling: not clickable.",
+      "quote_by": "nora",
+      "hoped": "The backwards-zodiac story (sam did open that card)"
+    },
+    {
+      "label": "Ordering a slice at Joe's",
+      "count": 1,
+      "names": [
+        "marcus"
+      ],
+      "quote": "No slice in my hand, no fold, no bite.",
+      "quote_by": "marcus",
+      "hoped": "See, fold and eat the slice"
+    },
+    {
+      "label": "Pretzel cart at the Met",
+      "count": 1,
+      "names": [
+        "ron"
+      ],
+      "quote": "I wanted to see the pretzel, a short scene, or a fact.",
+      "quote_by": "ron",
+      "hoped": "See the pretzel, a short scene, or a fact"
+    },
+    {
+      "label": "Taxi in Times Square",
+      "count": 1,
+      "names": [
+        "gabi"
+      ],
+      "quote": "nothing happened, I hoped to ride it or see a yellow cab drive.",
+      "quote_by": "gabi",
+      "hoped": "Ride it, or see a cab drive"
+    },
+    {
+      "label": "Brooklyn Bridge right-edge arrow",
+      "count": 1,
+      "names": [
+        "darnell"
+      ],
+      "quote": "looked like a way out, did nothing when I clicked.",
+      "quote_by": "darnell",
+      "hoped": "A way into Brooklyn"
+    },
+    {
+      "label": "Joe's Shanghai and Ten Ren storefronts",
+      "count": 1,
+      "names": [
+        "wei"
+      ],
+      "quote": "click, one line, coins. A picture with text.",
+      "quote_by": "wei",
+      "hoped": "Something to do in Chinatown"
+    },
+    {
+      "label": "Soda fridge at Joe's",
+      "count": 1,
+      "names": [
+        "billie"
+      ],
+      "quote": "Cute but a dead end.",
+      "quote_by": "billie",
+      "hoped": "More than a one-line joke"
+    },
+    {
+      "label": "\"Visit their place\" on a player card",
+      "count": 1,
+      "names": [
+        "billie"
+      ],
+      "quote": "Fair, but nothing to do instead.",
+      "quote_by": "billie",
+      "hoped": "Something to do when the door is closed"
+    },
+    {
+      "label": "\"Their Style\" items on a local's card",
+      "count": 1,
+      "names": [
+        "kayla"
+      ],
+      "quote": "clicking Cargo Pants (Supreme) or Slides (Nike) does nothing.",
+      "quote_by": "kayla",
+      "hoped": "\"Get this\" or \"where to buy\""
+    },
+    {
+      "label": "\"Beat It\" notice (a leaderboard)",
+      "count": 1,
+      "names": [
+        "diego"
+      ],
+      "quote": "I expected a game.",
+      "quote_by": "diego",
+      "hoped": "A game"
+    },
+    {
+      "label": "Walking to a coin",
+      "count": 1,
+      "names": [
+        "diego"
+      ],
+      "quote": "Walking to a coin on the ground took long and nothing much happened.",
+      "quote_by": "diego",
+      "hoped": "Something on arrival"
+    },
+    {
+      "label": "Times Square crowd",
+      "count": 1,
+      "names": [
+        "marcus"
+      ],
+      "quote": "Empty and clean.",
+      "quote_by": "marcus",
+      "hoped": "Crowds, costumed characters, someone handing out a CD"
+    },
+    {
+      "label": "Showtime (test artifact, verify on a real browser)",
+      "count": 1,
+      "names": [
+        "priya"
+      ],
+      "quote": "Showtime: score 0 with no feedback",
+      "quote_by": "priya",
+      "hoped": "Feedback on hit or miss"
+    }
+  ],
+  "wanted": [
+    {
+      "label": "A place or route from their own life",
+      "count": 13,
+      "names": [
+        "millie",
+        "jiwoo",
+        "marcus",
+        "maya",
+        "darnell",
+        "tunde",
+        "wei",
+        "aiko",
+        "nora",
+        "billie",
+        "diego",
+        "ellen",
+        "priya"
+      ],
+      "quote": "The map said \"Map of Manhattan\" and stopped.",
+      "quote_by": "millie",
+      "note": "Bronx, Brooklyn, Queens and the 7, Staten Island, Harlem, UWS, the Village, Bellevue, PATH (section 6)"
+    },
+    {
+      "label": "Someone real who answers, and a way to tell who is real",
+      "count": 11,
+      "names": [
+        "millie",
+        "jiwoo",
+        "maya",
+        "darnell",
+        "tunde",
+        "wei",
+        "priya",
+        "kayla",
+        "nora",
+        "billie",
+        "ellen"
+      ],
+      "quote": "To chat with a real person and see it was a real person.",
+      "quote_by": "priya"
+    },
+    {
+      "label": "Something to do early: a game, a goal or a system",
+      "count": 11,
+      "names": [
+        "tyler",
+        "darnell",
+        "millie",
+        "angie",
+        "priya",
+        "diego",
+        "lukas",
+        "ron",
+        "nora",
+        "jiwoo",
+        "wei"
+      ],
+      "quote": "A game within the first minutes.",
+      "quote_by": "diego"
+    },
+    {
+      "label": "Skip or shorten the intro",
+      "count": 7,
+      "names": [
+        "millie",
+        "jiwoo",
+        "billie",
+        "wei",
+        "ellen",
+        "darnell",
+        "diego"
+      ],
+      "quote": "Skip on the intro after the first time",
+      "quote_by": "billie"
+    },
+    {
+      "label": "Things that already exist but were not found",
+      "count": 7,
+      "names": [
+        "maya",
+        "gabi",
+        "kayla",
+        "darnell",
+        "marcus",
+        "angie",
+        "millie"
+      ],
+      "quote": "No clear sign of where Central Park is on the map (it is there but not named).",
+      "quote_by": "gabi",
+      "note": "Central Park (maya, gabi), SoHo with Supreme and Nike (kayla, darnell), Adel's halal cart (marcus), a short quiz, Flag Roll Call (angie, millie); checked in code"
+    },
+    {
+      "label": "An avatar that looks like them, and real clothes",
+      "count": 6,
+      "names": [
+        "darnell",
+        "kayla",
+        "angie",
+        "ellen",
+        "diego",
+        "aiko"
+      ],
+      "quote": "Pick a character that looks like me (middle-aged woman)",
+      "quote_by": "angie"
+    },
+    {
+      "label": "Share or screenshot tools",
+      "count": 5,
+      "names": [
+        "gabi",
+        "aiko",
+        "kayla",
+        "billie",
+        "linda"
+      ],
+      "quote": "A way to show off my crown and stamps to my friends (a share picture).",
+      "quote_by": "gabi"
+    },
+    {
+      "label": "Do the thing the object shows (ride, eat, trade, go inside)",
+      "count": 4,
+      "names": [
+        "gabi",
+        "marcus",
+        "tyler",
+        "lukas"
+      ],
+      "quote": "To see and eat the slice",
+      "quote_by": "marcus"
+    },
+    {
+      "label": "Their language, simpler English, bigger text",
+      "count": 4,
+      "names": [
+        "gabi",
+        "aiko",
+        "ron",
+        "ellen"
+      ],
+      "quote": "Japanese (or simpler English) option, or a translate button.",
+      "quote_by": "aiko"
+    },
+    {
+      "label": "The story behind places",
+      "count": 4,
+      "names": [
+        "nora",
+        "linda",
+        "ron",
+        "tunde"
+      ],
+      "quote": "A tour/history mode: a short guided walk with the story behind each place",
+      "quote_by": "nora"
+    },
+    {
+      "label": "Clearer mini-games: running score, difficulty, rematch, feedback",
+      "count": 4,
+      "names": [
+        "jiwoo",
+        "marcus",
+        "diego",
+        "priya"
+      ],
+      "quote": "A running score or win tracker in Carb-Jitsu",
+      "quote_by": "jiwoo"
+    },
+    {
+      "label": "Parent or classroom controls",
+      "count": 3,
+      "names": [
+        "frank",
+        "kevin",
+        "linda"
+      ],
+      "quote": "A teacher or class mode: private room, no stranger chat, or chat off.",
+      "quote_by": "linda"
+    },
+    {
+      "label": "Keyboard movement",
+      "count": 2,
+      "names": [
+        "tyler",
+        "darnell"
+      ],
+      "quote": "WASD or arrow movement.",
+      "quote_by": "tyler"
+    },
+    {
+      "label": "The subway as a real system",
+      "count": 2,
+      "names": [
+        "sam",
+        "lukas"
+      ],
+      "quote": "A real route: pick a start and end, see the transfers, ride in the correct car.",
+      "quote_by": "sam"
+    },
+    {
+      "label": "Order real food",
+      "count": 2,
+      "names": [
+        "jiwoo",
+        "marcus"
+      ],
+      "quote": "Korean food / bubble tea to actually order something.",
+      "quote_by": "jiwoo"
+    },
+    {
+      "label": "More from decorating",
+      "count": 1,
+      "names": [
+        "chloe"
+      ],
+      "quote": "A preview of the room before buying furniture",
+      "quote_by": "chloe"
+    },
+    {
+      "label": "A phone version",
+      "count": 1,
+      "names": [
+        "gabi"
+      ],
+      "quote": "A phone version (I am mostly a phone gamer).",
+      "quote_by": "gabi"
+    }
+  ],
+  "nyc_true": [
+    {
+      "label": "The turnstile \"swipe again\"",
+      "count": 20,
+      "names": [
+        "millie",
+        "jiwoo",
+        "gabi",
+        "marcus",
+        "maya",
+        "darnell",
+        "lukas",
+        "angie",
+        "sam",
+        "linda",
+        "wei",
+        "priya",
+        "aiko",
+        "kayla",
+        "nora",
+        "chloe",
+        "billie",
+        "diego",
+        "ron",
+        "ellen"
+      ],
+      "quote": "every New Yorker knows the MetroCard swipe struggle",
+      "quote_by": "nora"
+    },
+    {
+      "label": "Hot dog, pretzel and halal carts",
+      "count": 19,
+      "names": [
+        "millie",
+        "gabi",
+        "tyler",
+        "maya",
+        "darnell",
+        "tunde",
+        "lukas",
+        "angie",
+        "linda",
+        "priya",
+        "aiko",
+        "kayla",
+        "chloe",
+        "billie",
+        "diego",
+        "frank",
+        "ron",
+        "marcus",
+        "wei"
+      ],
+      "quote": "The Met's steps with hot dog and pretzel carts, autumn leaves, yellow cabs.",
+      "quote_by": "ron"
+    },
+    {
+      "label": "Pigeons",
+      "count": 12,
+      "names": [
+        "jiwoo",
+        "gabi",
+        "tyler",
+        "maya",
+        "darnell",
+        "tunde",
+        "aiko",
+        "chloe",
+        "billie",
+        "diego",
+        "frank",
+        "marcus"
+      ],
+      "quote": "Pigeons everywhere made me laugh.",
+      "quote_by": "aiko"
+    },
+    {
+      "label": "Times Square: red steps, souvenir shops, lights, bucket-hat tourists",
+      "count": 11,
+      "names": [
+        "marcus",
+        "gabi",
+        "tunde",
+        "chloe",
+        "kayla",
+        "nora",
+        "darnell",
+        "aiko",
+        "angie",
+        "priya",
+        "tyler"
+      ],
+      "quote": "Roughly the real feel of Times Square.",
+      "quote_by": "priya"
+    },
+    {
+      "label": "Rosa the super with a boiler to fix",
+      "count": 8,
+      "names": [
+        "millie",
+        "jiwoo",
+        "maya",
+        "tunde",
+        "marcus",
+        "nora",
+        "chloe",
+        "ellen"
+      ],
+      "quote": "Very true.",
+      "quote_by": "tunde"
+    },
+    {
+      "label": "Yellow cabs",
+      "count": 8,
+      "names": [
+        "tyler",
+        "aiko",
+        "frank",
+        "kayla",
+        "angie",
+        "billie",
+        "ron",
+        "marcus"
+      ],
+      "quote": "a yellow cab at the edge of Times Square",
+      "quote_by": "billie"
+    },
+    {
+      "label": "Grand Central details",
+      "count": 7,
+      "names": [
+        "millie",
+        "tunde",
+        "sam",
+        "aiko",
+        "nora",
+        "ron",
+        "ellen"
+      ],
+      "quote": "They got the clock.",
+      "quote_by": "ron",
+      "reach": "7 of 7 visitors"
+    },
+    {
+      "label": "Rats, pizza rat",
+      "count": 7,
+      "names": [
+        "marcus",
+        "angie",
+        "sam",
+        "priya",
+        "nora",
+        "wei",
+        "diego"
+      ],
+      "quote": "A rat in the corner of the platform. Obviously.",
+      "quote_by": "marcus"
+    },
+    {
+      "label": "Subway bullets and diagram",
+      "count": 6,
+      "names": [
+        "lukas",
+        "sam",
+        "linda",
+        "darnell",
+        "priya",
+        "millie"
+      ],
+      "quote": "The line and station logic is surprisingly credible.",
+      "quote_by": "lukas"
+    },
+    {
+      "label": "Subway car and announcements",
+      "count": 6,
+      "names": [
+        "marcus",
+        "sam",
+        "nora",
+        "chloe",
+        "jiwoo",
+        "ellen"
+      ],
+      "quote": "Subway tile walls, orange and yellow seats, line strip, \"Stand clear of the closing doors, please\".",
+      "quote_by": "marcus"
+    },
+    {
+      "label": "Chinatown block: Joe's Shanghai, Ten Ren, the arch",
+      "count": 6,
+      "names": [
+        "jiwoo",
+        "marcus",
+        "billie",
+        "wei",
+        "kayla",
+        "linda"
+      ],
+      "quote": "is Mott St.",
+      "quote_by": "billie"
+    },
+    {
+      "label": "Food lines: soup dumplings, \"folded, never forked\"",
+      "count": 5,
+      "names": [
+        "tunde",
+        "lukas",
+        "linda",
+        "ron",
+        "wei"
+      ],
+      "quote": "\"folded, never forked\" all ring true.",
+      "quote_by": "linda"
+    },
+    {
+      "label": "The walk-up: radiator, heat season, fire escape",
+      "count": 4,
+      "names": [
+        "millie",
+        "chloe",
+        "diego",
+        "ellen"
+      ],
+      "quote": "Heat season facts (68 degrees, Oct 1 to May 31) are right",
+      "quote_by": "millie",
+      "reach": "4 of 4 visitors"
+    },
+    {
+      "label": "1904 subway history in the newspaper",
+      "count": 3,
+      "names": [
+        "millie",
+        "ron",
+        "ellen"
+      ],
+      "quote": "correct as I taught it.",
+      "quote_by": "ron"
+    },
+    {
+      "label": "The Met steps, carts and leaves",
+      "count": 3,
+      "names": [
+        "lukas",
+        "maya",
+        "ron"
+      ],
+      "quote": "this is actually accurate and pretty.",
+      "quote_by": "maya",
+      "reach": "3 of 3 visitors"
+    },
+    {
+      "label": "Brooklyn Bridge facts, locks, keychains",
+      "count": 3,
+      "names": [
+        "nora",
+        "darnell",
+        "linda"
+      ],
+      "quote": "love locks on rail (illegal, but real).",
+      "quote_by": "nora"
+    },
+    {
+      "label": "Map layout: Grand Central east of Times Square, High Line west",
+      "count": 3,
+      "names": [
+        "marcus",
+        "sam",
+        "nora"
+      ],
+      "quote": "The map layout: Grand Central east of Times Square, High Line on the west side.",
+      "quote_by": "nora"
+    },
+    {
+      "label": "WTC memorial pool and Oculus",
+      "count": 2,
+      "names": [
+        "angie",
+        "priya"
+      ],
+      "quote": "that is my actual commute.",
+      "quote_by": "priya",
+      "reach": "2 of 2 visitors"
+    },
+    {
+      "label": "Borough tags and rent cards in Carb-Jitsu",
+      "count": 2,
+      "names": [
+        "billie",
+        "diego"
+      ],
+      "quote": "funny and sting a little as a renter.",
+      "quote_by": "billie"
+    }
+  ],
+  "nyc_wrong": [
+    {
+      "label": "MetroCard, not OMNY tap",
+      "count": 5,
+      "names": [
+        "millie",
+        "marcus",
+        "nora",
+        "ron",
+        "ellen"
+      ],
+      "quote": "MetroCards. They're gone. We tap OMNY.",
+      "quote_by": "millie",
+      "kind": "error"
+    },
+    {
+      "label": "Times Sq-42 St shows too few lines",
+      "count": 3,
+      "names": [
+        "marcus",
+        "sam",
+        "nora"
+      ],
+      "quote": "Times Sq has only 1 2 N on the diagram (really also 3 7 Q R W S A C E)",
+      "quote_by": "sam",
+      "kind": "error"
+    },
+    {
+      "label": "Intro rides the 1 from Times Sq to Times Sq; car strip mixes 13 lines",
+      "count": 3,
+      "names": [
+        "marcus",
+        "sam",
+        "nora"
+      ],
+      "quote": "Nobody rides a car with those lines.",
+      "quote_by": "marcus",
+      "kind": "error"
+    },
+    {
+      "label": "Charging Bull in front of the NYSE",
+      "count": 2,
+      "names": [
+        "tunde",
+        "priya"
+      ],
+      "quote": "the Charging Bull standing in front of the NYSE (it's at Bowling Green)",
+      "quote_by": "tunde",
+      "kind": "error"
+    },
+    {
+      "label": "Whispering Gallery on the main concourse",
+      "count": 2,
+      "names": [
+        "sam",
+        "nora"
+      ],
+      "quote": "Whispering Gallery sits on the main level; it's on the lower dining concourse near the Oyster Bar.",
+      "quote_by": "nora",
+      "kind": "error"
+    },
+    {
+      "label": "The 7 is in the intro and rides but not on the subway map",
+      "count": 2,
+      "names": [
+        "wei",
+        "sam"
+      ],
+      "quote": "The intro board lists the 7 but the map has no 7.",
+      "quote_by": "wei",
+      "kind": "error"
+    },
+    {
+      "label": "Rockefeller Center station shown with the 1 and N",
+      "count": 1,
+      "names": [
+        "sam"
+      ],
+      "quote": "the subway diagram puts the 1 and N at Rockefeller Center (that is B/D/F/M)",
+      "quote_by": "sam",
+      "kind": "error"
+    },
+    {
+      "label": "Grand Central departures board on the wrong wall",
+      "count": 1,
+      "names": [
+        "sam"
+      ],
+      "quote": "the departures board is placed on the wrong wall",
+      "quote_by": "sam",
+      "kind": "error"
+    },
+    {
+      "label": "A 4 train from Times Square",
+      "count": 1,
+      "names": [
+        "linda"
+      ],
+      "quote": "The 4 does not stop at Times Square",
+      "quote_by": "linda",
+      "kind": "error"
+    },
+    {
+      "label": "A 2 train to Chinatown",
+      "count": 1,
+      "names": [
+        "wei"
+      ],
+      "quote": "the 2 does not go to Canal St that way",
+      "quote_by": "wei",
+      "kind": "error"
+    },
+    {
+      "label": "The B at Wall St",
+      "count": 1,
+      "names": [
+        "lukas"
+      ],
+      "quote": "B doesn't serve Wall St",
+      "quote_by": "lukas",
+      "kind": "error"
+    },
+    {
+      "label": "$.99 slices",
+      "count": 1,
+      "names": [
+        "jiwoo"
+      ],
+      "quote": "$.99 slices (not for years)",
+      "quote_by": "jiwoo",
+      "kind": "error"
+    },
+    {
+      "label": "Joe's Pizza placed in Little Italy",
+      "count": 1,
+      "names": [
+        "nora"
+      ],
+      "quote": "Joe's Pizza is in Greenwich Village, not Little Italy",
+      "quote_by": "nora",
+      "kind": "error"
+    },
+    {
+      "label": "Opal clock \"valued 10 to 20 million dollars\" as fact",
+      "count": 1,
+      "names": [
+        "nora"
+      ],
+      "quote": "I'd say \"reputedly\"",
+      "quote_by": "nora",
+      "kind": "error"
+    },
+    {
+      "label": "Barnum's elephants without the stampede; no Emily Roebling",
+      "count": 1,
+      "names": [
+        "nora"
+      ],
+      "quote": "no Emily Roebling!",
+      "quote_by": "nora",
+      "kind": "error"
+    },
+    {
+      "label": "Slice shop with tablecloths, pies behind glass, seated diners",
+      "count": 1,
+      "names": [
+        "marcus"
+      ],
+      "quote": "Real slice shops don't have tablecloth tables and whole pies behind glass.",
+      "quote_by": "marcus",
+      "kind": "error"
+    },
+    {
+      "label": "No PATH; the Oculus leads to Wall Street",
+      "count": 1,
+      "names": [
+        "priya"
+      ],
+      "quote": "There is no PATH anywhere, so an entire class of commuters is missing.",
+      "quote_by": "priya",
+      "kind": "error"
+    },
+    {
+      "label": "Brooklyn Bridge scene has a \"Wall St\" sign",
+      "count": 1,
+      "names": [
+        "darnell"
+      ],
+      "quote": "Brooklyn Bridge in the game has a \"Wall St\" sign and tourists",
+      "quote_by": "darnell",
+      "kind": "error"
+    },
+    {
+      "label": "Studio rent of 3,554 coins a month",
+      "count": 1,
+      "names": [
+        "lukas"
+      ],
+      "quote": "which is oddly cheap given what I remember.",
+      "quote_by": "lukas",
+      "kind": "error"
+    },
+    {
+      "label": "Walk-up too big and sunny",
+      "count": 1,
+      "names": [
+        "chloe"
+      ],
+      "quote": "the apartment is a bit big and sunny for an East Village fifth-floor walk-up.",
+      "quote_by": "chloe",
+      "kind": "error"
+    },
+    {
+      "label": "Squashed geography (Liberty at the Battery, Central Park tiny)",
+      "count": 8,
+      "names": [
+        "jiwoo",
+        "gabi",
+        "marcus",
+        "tunde",
+        "lukas",
+        "sam",
+        "priya",
+        "nora"
+      ],
+      "quote": "Fine for a cartoon, but I'd notice it.",
+      "quote_by": "marcus",
+      "kind": "style"
+    },
+    {
+      "label": "Too clean, cheerful and quiet",
+      "count": 8,
+      "names": [
+        "marcus",
+        "jiwoo",
+        "angie",
+        "priya",
+        "billie",
+        "diego",
+        "ron",
+        "darnell"
+      ],
+      "quote": "Everyone is in a cartoon world with no one rude, which is not New York.",
+      "quote_by": "priya",
+      "kind": "style"
+    },
+    {
+      "label": "Tourist Manhattan, not where New Yorkers live",
+      "count": 7,
+      "names": [
+        "millie",
+        "maya",
+        "tunde",
+        "marcus",
+        "wei",
+        "darnell",
+        "frank"
+      ],
+      "quote": "It is the visitor's New York.",
+      "quote_by": "tunde",
+      "kind": "style"
+    }
+  ],
+  "nyc_missing": [
+    {
+      "label": "Any outer borough",
+      "count": 10,
+      "names": [
+        "millie",
+        "marcus",
+        "darnell",
+        "tunde",
+        "wei",
+        "nora",
+        "billie",
+        "diego",
+        "frank",
+        "lukas"
+      ],
+      "quote": "As a Staten Islander, I noticed nothing about my borough.",
+      "quote_by": "frank"
+    },
+    {
+      "label": "Queens",
+      "count": 6,
+      "names": [
+        "marcus",
+        "wei",
+        "nora",
+        "billie",
+        "diego",
+        "lukas"
+      ],
+      "quote": "Queens. Jackson Heights, the 7 train, Ridgewood.",
+      "quote_by": "billie"
+    },
+    {
+      "label": "Brooklyn beyond the bridge",
+      "count": 4,
+      "names": [
+        "marcus",
+        "darnell",
+        "tunde",
+        "lukas"
+      ],
+      "quote": "Brooklyn. Or any borough that isn't Manhattan.",
+      "quote_by": "darnell"
+    },
+    {
+      "label": "The Bronx",
+      "count": 2,
+      "names": [
+        "millie",
+        "tunde"
+      ],
+      "quote": "The Bronx: the 4 train, Yankee Stadium, Arthur Avenue, the Concourse.",
+      "quote_by": "millie"
+    },
+    {
+      "label": "Staten Island (and its ferry)",
+      "count": 2,
+      "names": [
+        "nora",
+        "frank"
+      ],
+      "quote": "Staten Island and Queens (my home borough).",
+      "quote_by": "nora"
+    },
+    {
+      "label": "The 7 train",
+      "count": 4,
+      "names": [
+        "wei",
+        "billie",
+        "diego",
+        "sam"
+      ],
+      "quote": "Queens, the 7 train, Flushing Meadows on the map.",
+      "quote_by": "diego"
+    },
+    {
+      "label": "Residential and uptown Manhattan (UWS, Harlem, the Village, Bellevue)",
+      "count": 4,
+      "names": [
+        "jiwoo",
+        "maya",
+        "tunde",
+        "ellen"
+      ],
+      "quote": "Harlem, Washington Heights, the Bronx, Brooklyn neighbourhoods beyond the bridge; Columbia.",
+      "quote_by": "tunde"
+    },
+    {
+      "label": "Bodegas (and the chopped cheese, egg and cheese)",
+      "count": 3,
+      "names": [
+        "millie",
+        "marcus",
+        "darnell"
+      ],
+      "quote": "Bodegas, a bodega cat, a deli sandwich (\"chopped cheese\"), an egg-and-cheese.",
+      "quote_by": "marcus"
+    },
+    {
+      "label": "Central Park as a place to go (it exists, not found)",
+      "count": 2,
+      "names": [
+        "maya",
+        "gabi"
+      ],
+      "quote": "Central Park (a place to just hang out)",
+      "quote_by": "maya"
+    },
+    {
+      "label": "PATH",
+      "count": 1,
+      "names": [
+        "priya"
+      ],
+      "quote": "Oculus to lead to PATH, which is the thing I actually ride.",
+      "quote_by": "priya"
+    },
+    {
+      "label": "Fashion and music (SoHo exists, not found)",
+      "count": 1,
+      "names": [
+        "kayla"
+      ],
+      "quote": "Fashion and music, the reasons I want to move there, are not represented yet.",
+      "quote_by": "kayla"
+    },
+    {
+      "label": "Crowds and costumed characters in Times Square",
+      "count": 1,
+      "names": [
+        "marcus"
+      ],
+      "quote": "No crowd, no costumed characters, no one trying to hand me a CD.",
+      "quote_by": "marcus"
+    },
+    {
+      "label": "Thanksgiving parade",
+      "count": 1,
+      "names": [
+        "angie"
+      ],
+      "quote": "Would like to see the Thanksgiving parade.",
+      "quote_by": "angie"
+    },
+    {
+      "label": "A Sex and the City brownstone or cupcake shop",
+      "count": 1,
+      "names": [
+        "aiko"
+      ],
+      "quote": "I did not see a Sex and the City place (a brownstone or cupcake shop?) and wanted one.",
+      "quote_by": "aiko"
+    },
+    {
+      "label": "Snow in Central Park",
+      "count": 1,
+      "names": [
+        "gabi"
+      ],
+      "quote": "Central Park in snow (my dream).",
+      "quote_by": "gabi"
+    }
+  ],
+  "bugs": [
+    {
+      "label": "Toolbar icons have no labels until hover; guessed clicks walk the avatar",
+      "count": 13,
+      "names": [
+        "millie",
+        "jiwoo",
+        "tyler",
+        "maya",
+        "tunde",
+        "angie",
+        "priya",
+        "kayla",
+        "nora",
+        "chloe",
+        "diego",
+        "ron",
+        "ellen"
+      ],
+      "quote": "I found My Apartment only by trying one.",
+      "quote_by": "chloe",
+      "where": "Bottom bar",
+      "severity": "major",
+      "status": "plausible"
+    },
+    {
+      "label": "Swipe speed window narrow for trackpads and slow hands; unclear guidance",
+      "count": 14,
+      "names": [
+        "millie",
+        "jiwoo",
+        "gabi",
+        "maya",
+        "lukas",
+        "angie",
+        "linda",
+        "wei",
+        "priya",
+        "aiko",
+        "kayla",
+        "nora",
+        "ron",
+        "ellen"
+      ],
+      "quote": "A 13 year old on a trackpad would be stuck.",
+      "quote_by": "linda",
+      "where": "MetroCard intro",
+      "severity": "major",
+      "status": "verified in code (first fail is by design); later fails plausible",
+      "note": "9 failed twice or more: jiwoo, gabi, darnell, linda, wei, priya, aiko, ellen, ron"
+    },
+    {
+      "label": "Rosa's welcome card pops over the first click or the scene; tutorials back to back",
+      "count": 7,
+      "names": [
+        "tyler",
+        "linda",
+        "priya",
+        "gabi",
+        "tunde",
+        "kayla",
+        "ron"
+      ],
+      "quote": "Rosa's tour popped up unprompted right after the first move.",
+      "quote_by": "priya",
+      "where": "Times Square arrival",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "\"Join the Dance Jam\" gives no confirmation, so it looks broken",
+      "count": 6,
+      "names": [
+        "darnell",
+        "angie",
+        "tunde",
+        "lukas",
+        "ron",
+        "ellen"
+      ],
+      "quote": "\"Join the Dance Jam\" button did nothing on click (twice).",
+      "quote_by": "darnell",
+      "where": "Times Square",
+      "severity": "major",
+      "status": "verified in code (works, no confirmation)",
+      "note": "darnell, angie and tunde clicked it; lukas, ron and ellen never understood the banner"
+    },
+    {
+      "label": "Real players and city locals look alike until clicked",
+      "count": 6,
+      "names": [
+        "millie",
+        "gabi",
+        "priya",
+        "chloe",
+        "frank",
+        "billie"
+      ],
+      "quote": "I could not tell who is a real person and who is not until I clicked.",
+      "quote_by": "frank",
+      "where": "All rooms",
+      "severity": "major",
+      "status": "plausible"
+    },
+    {
+      "label": "Chat gives no sign of who can hear you (unanswered lines in empty rooms)",
+      "count": 6,
+      "names": [
+        "millie",
+        "maya",
+        "darnell",
+        "tunde",
+        "wei",
+        "ellen"
+      ],
+      "quote": "Chat question got no response and no feedback on whether anyone saw it.",
+      "quote_by": "maya",
+      "where": "Chat",
+      "severity": "major",
+      "status": "plausible (server: all six lines were typed in rooms with no other real player)"
+    },
+    {
+      "label": "\"Use a Photo\" selfie is the first option, with no word on where the photo goes",
+      "count": 7,
+      "names": [
+        "frank",
+        "kevin",
+        "linda",
+        "millie",
+        "marcus",
+        "lukas",
+        "aiko"
+      ],
+      "quote": "\"Use a Photo / selfie\" is the first option for a 13-year-old. Bad look.",
+      "quote_by": "frank",
+      "where": "Character creator",
+      "severity": "major",
+      "status": "plausible (design); used by 0 of 24"
+    },
+    {
+      "label": "Age gate is a self-declared checkbox",
+      "count": 3,
+      "names": [
+        "frank",
+        "kevin",
+        "linda"
+      ],
+      "quote": "Age gate is self-declared checkbox only.",
+      "quote_by": "kevin",
+      "where": "Name step",
+      "severity": "major",
+      "status": "plausible (design)"
+    },
+    {
+      "label": "Filter passed \"whats your real name and what school do you go to\"",
+      "count": 2,
+      "names": [
+        "frank",
+        "billie"
+      ],
+      "quote": "Chat let through \"whats your real name and what school do you go to\" with no warning or block.",
+      "quote_by": "frank",
+      "where": "Chat, Times Square",
+      "severity": "major",
+      "status": "plausible (server chat log shows it unfiltered; billie and diego were in the room)"
+    },
+    {
+      "label": "Clicking a player or door you stand on opens your own card or wardrobe; Escape does not close it",
+      "count": 2,
+      "names": [
+        "kevin",
+        "lukas"
+      ],
+      "quote": "Clicking RonInTucson (the only real player) opened my own wardrobe panel instead of his player card, so I never saw Report/Block.",
+      "quote_by": "kevin",
+      "where": "Times Square, the Met",
+      "severity": "major",
+      "status": "plausible (also in round 1, primed)"
+    },
+    {
+      "label": "Carb-Jitsu shows no running tally; the 3-boroughs rule is only in the pre-game text",
+      "count": 1,
+      "names": [
+        "jiwoo"
+      ],
+      "quote": "3 pizza wins did not end the match.",
+      "quote_by": "jiwoo",
+      "where": "Joe's Pizza",
+      "severity": "major",
+      "status": "plausible (server logs her match at 95 s, the others 30 to 50 s)"
+    },
+    {
+      "label": "Map click lands somewhere else (Central Park to the Empire State; One WTC tower to Wall Street); labels only on hover",
+      "count": 2,
+      "names": [
+        "maya",
+        "priya"
+      ],
+      "quote": "Clicking the Central Park area on the map took me to the Empire State Building.",
+      "quote_by": "maya",
+      "where": "Island map, One World Trade",
+      "severity": "major",
+      "status": "checked in code: labels are hover-only; Empire State cut-out overlaps Central Park's edge (plausible); the Oculus is an exit to Wall Street (verified)"
+    },
+    {
+      "label": "\"Take a Walk\" did not tick",
+      "count": 4,
+      "names": [
+        "angie",
+        "billie",
+        "ron",
+        "lukas"
+      ],
+      "quote": "The \"New in Town 0/5\" list still showed 0/5 and \"Take a Walk\" after I had clicked the ground and earned stamps.",
+      "quote_by": "ron",
+      "where": "Quest panel",
+      "severity": "minor",
+      "status": "verified in code (only empty-ground clicks count)"
+    },
+    {
+      "label": "Coin balance jumps on a small purchase with no toast",
+      "count": 3,
+      "names": [
+        "chloe",
+        "diego",
+        "wei"
+      ],
+      "quote": "Coins went to 171 right after buying a 15 coin painting (level-up bonus, I guess, but it looked odd).",
+      "quote_by": "diego",
+      "where": "Shops, carts",
+      "severity": "polish",
+      "status": "verified in code (level-up reward lands at the same moment)"
+    },
+    {
+      "label": "\"Show Me\" does not clearly point at the target",
+      "count": 2,
+      "names": [
+        "marcus",
+        "wei"
+      ],
+      "quote": "\"Show Me\" in the quest panel did not visibly point to the hot dog cart.",
+      "quote_by": "wei",
+      "where": "Quest panel",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "\"Save My Card\" purpose unclear (fear it asks for email)",
+      "count": 4,
+      "names": [
+        "gabi",
+        "angie",
+        "chloe",
+        "marcus"
+      ],
+      "quote": "I did not dare click \"Save My Card\", unsure if it asks for email.",
+      "quote_by": "gabi",
+      "where": "MetroCard intro",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Surprise Me gives a mismatched look; no clothes in the creator",
+      "count": 4,
+      "names": [
+        "darnell",
+        "angie",
+        "ellen",
+        "diego"
+      ],
+      "quote": "Surprise Me gave a girl avatar in a skirt; Roll Again did the same.",
+      "quote_by": "darnell",
+      "where": "Character creator",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Skip Intro is small and easy to miss",
+      "count": 3,
+      "names": [
+        "darnell",
+        "ellen",
+        "millie"
+      ],
+      "quote": "\"Skip Intro\" is in a corner and easy to miss",
+      "quote_by": "darnell",
+      "where": "MetroCard intro",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Hard words for B1/A2 readers (\"Waddle\", \"super\", \"boiler\", \"Day-Tripper\", Roman numerals)",
+      "count": 2,
+      "names": [
+        "gabi",
+        "aiko"
+      ],
+      "quote": "\"Waddle\", \"super\", \"boiler\", \"Day-Tripper\", \"Lox Pink\" (avatar name), \"Roman numerals\" all hard for B1 English.",
+      "quote_by": "gabi",
+      "where": "Throughout",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Small text, no text-size setting, welcome box fades over a moving crowd",
+      "count": 2,
+      "names": [
+        "ron",
+        "ellen"
+      ],
+      "quote": "Bigger text option; the character maker labels and Skip Intro are small with reading glasses.",
+      "quote_by": "ellen",
+      "where": "Creator, Times Square",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "No keyboard movement and no hint that it is click-to-walk",
+      "count": 2,
+      "names": [
+        "tyler",
+        "darnell"
+      ],
+      "quote": "WASD and arrow keys do nothing, and there is no hint that movement is click-only.",
+      "quote_by": "tyler",
+      "where": "Movement",
+      "severity": "minor",
+      "status": "plausible (design)"
+    },
+    {
+      "label": "Decorate tray covers half the room; items spawn at your feet; catalog reopens",
+      "count": 2,
+      "names": [
+        "chloe",
+        "diego"
+      ],
+      "quote": "Items spawn at my feet, not where I want them",
+      "quote_by": "chloe",
+      "where": "Apartment",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Subway diagram disagrees with itself (legend, tooltips, the 7)",
+      "count": 2,
+      "names": [
+        "sam",
+        "wei"
+      ],
+      "quote": "Tooltip bullets and drawn lines disagree (J/Z/5/7 appear only in the tooltip).",
+      "quote_by": "sam",
+      "where": "Subway map",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Cookie banner covers Play Now on first load",
+      "count": 2,
+      "names": [
+        "darnell",
+        "aiko"
+      ],
+      "quote": "Cookie banner covers the Play Now area on first load.",
+      "quote_by": "darnell",
+      "where": "Landing page",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Carb-Jitsu lobby: Ready toggled off, host \"Reconnecting...\", countdown stopped",
+      "count": 1,
+      "names": [
+        "billie"
+      ],
+      "quote": "my click toggled me to Not ready, the host (PeachATL) showed \"Reconnecting...\" and then vanished, and I became host.",
+      "quote_by": "billie",
+      "where": "Joe's Pizza",
+      "severity": "minor",
+      "status": "plausible (the host, kayla, closed her tab that minute)"
+    },
+    {
+      "label": "Slice Factory: sauce bar unclear, belt fast, sandwich board looks like the job",
+      "count": 1,
+      "names": [
+        "marcus"
+      ],
+      "quote": "I couldn't tell how much to scribble sauce for the bar to count.",
+      "quote_by": "marcus",
+      "where": "Joe's Pizza",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Brooklyn Bridge right-edge arrow looks like an exit and does nothing",
+      "count": 1,
+      "names": [
+        "darnell"
+      ],
+      "quote": "Right-edge arrow on Brooklyn Bridge did not move me anywhere.",
+      "quote_by": "darnell",
+      "where": "Brooklyn Bridge",
+      "severity": "minor",
+      "status": "verified in code (no right-hand exit)"
+    },
+    {
+      "label": "\"How to Play\" reopens Rosa, not the controls",
+      "count": 1,
+      "names": [
+        "tyler"
+      ],
+      "quote": "\"How to Play?\" in the phone menu just reopened the Rosa intro instead of explaining controls.",
+      "quote_by": "tyler",
+      "where": "Phone menu",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Quest card points back to Times Square with no way there",
+      "count": 1,
+      "names": [
+        "nora"
+      ],
+      "quote": "persisted while I was in other places with no direction on how to get back.",
+      "quote_by": "nora",
+      "where": "Quest panel",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Skin choice lost when \"That's Me\" advanced",
+      "count": 1,
+      "names": [
+        "ellen"
+      ],
+      "quote": "Skin colour click was lost",
+      "quote_by": "ellen",
+      "where": "Character creator",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Landed in the apartment after Rosa's \"Let's Go!\" with no explanation",
+      "count": 1,
+      "names": [
+        "ellen"
+      ],
+      "quote": "I suddenly was in my apartment with a newspaper open and a level-up toast; I did not know how I got there.",
+      "quote_by": "ellen",
+      "where": "Tour",
+      "severity": "minor",
+      "status": "plausible"
+    },
+    {
+      "label": "Taxi click shows no response",
+      "count": 1,
+      "names": [
+        "gabi"
+      ],
+      "quote": "Taxi click does nothing, no feedback.",
+      "quote_by": "gabi",
+      "where": "Times Square",
+      "severity": "polish",
+      "status": "checked in code: Hail a Taxi honks, then opens the map; her first click met Rosa's card"
+    },
+    {
+      "label": "Welcome-gift task ticked without visiting the cart",
+      "count": 1,
+      "names": [
+        "chloe"
+      ],
+      "quote": "The welcome-gift task got ticked off without me clicking Sal's hot dog cart (I never did it).",
+      "quote_by": "chloe",
+      "where": "Quest panel",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "\"Their Style\" items look clickable and are dead ends",
+      "count": 1,
+      "names": [
+        "kayla"
+      ],
+      "quote": "Clicking items in \"Their Style\" is a dead end (no feedback).",
+      "quote_by": "kayla",
+      "where": "Player card",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Face tab thumbnails look identical",
+      "count": 1,
+      "names": [
+        "kayla"
+      ],
+      "quote": "Face tab: options all look nearly identical in the thumbnails",
+      "quote_by": "kayla",
+      "where": "Character creator",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Souvenir shop exit door sits on the walking path",
+      "count": 1,
+      "names": [
+        "wei"
+      ],
+      "quote": "Souvenir shop exit door is huge and sits where I walked when leaving; I re-entered the shop by accident.",
+      "quote_by": "wei",
+      "where": "I ♥ NY Souvenirs",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Mid-game notification with a Go button you cannot use",
+      "count": 1,
+      "names": [
+        "jiwoo"
+      ],
+      "quote": "came up mid-game, with a Go button I could not use because the game was a full-screen panel.",
+      "quote_by": "jiwoo",
+      "where": "Carb-Jitsu",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Grand Central ceiling hard to hit (sam opened it, nora could not)",
+      "count": 1,
+      "names": [
+        "nora"
+      ],
+      "quote": "tried the ceiling (nothing)",
+      "quote_by": "nora",
+      "where": "Grand Central",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Mail badge \"1\" and \"2\" with no visible reason",
+      "count": 1,
+      "names": [
+        "aiko"
+      ],
+      "quote": "No visible reason for the \"1\" and \"2\" mail badge",
+      "quote_by": "aiko",
+      "where": "HUD",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "\"Snap!\" pause with nothing saying wait",
+      "count": 1,
+      "names": [
+        "ellen"
+      ],
+      "quote": "Snap! step has a pause with nothing saying wait.",
+      "quote_by": "ellen",
+      "where": "Photo booth",
+      "severity": "polish",
+      "status": "plausible"
+    },
+    {
+      "label": "Showtime score stays at 0",
+      "count": 1,
+      "names": [
+        "priya"
+      ],
+      "quote": "Showtime score stayed 0 after several presses and I couldn't tell why.",
+      "quote_by": "priya",
+      "where": "Subway station",
+      "severity": "n/a",
+      "status": "test artifact, verify on a real browser"
+    },
+    {
+      "label": "\"[CONTACT EMAIL]\" placeholder on the Safety section",
+      "count": 1,
+      "names": [
+        "frank"
+      ],
+      "quote": "Safety page says \"email [CONTACT EMAIL]\", a placeholder left in",
+      "quote_by": "frank",
+      "where": "Landing page",
+      "severity": "n/a",
+      "status": "test artifact (unset in the private test city; set in production)"
+    },
+    {
+      "label": "Share text copies a localhost URL",
+      "count": 1,
+      "names": [
+        "billie"
+      ],
+      "quote": "The share text copies a localhost URL in this build",
+      "quote_by": "billie",
+      "where": "Carb-Jitsu result",
+      "severity": "n/a",
+      "status": "test artifact (local build); check the production link"
+    },
+    {
+      "label": "\"unknown agent\" cutoffs",
+      "count": 3,
+      "names": [
+        "ron",
+        "diego",
+        "ellen"
+      ],
+      "quote": "Test-tool glitch, not a game bug",
+      "quote_by": "ron",
+      "where": "Test controller",
+      "severity": "n/a",
+      "status": "test artifact (tool glitch; all three resumed)"
+    }
+  ]
+}

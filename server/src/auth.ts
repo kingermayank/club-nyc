@@ -180,7 +180,8 @@ auth.get('/:provider{google|x|discord}/callback', async (c) => {
   }
   const known = q.get<{ user_id: string }>('SELECT user_id FROM identities WHERE provider = ? AND subject = ?', provider, prof.subject)
   const playing = currentUser(c)
-  if (known && playing && playing.id !== known.user_id) {
+  // a guest still in the creator (no New Yorker yet) has nothing to leave behind: they just become the account's owner
+  if (known && playing && playing.id !== known.user_id && (playing.profile_done || !playing.is_guest)) {
     // this sign-in already belongs to another New Yorker: ask first, since switching leaves the one you're playing
     // behind (a guest has no other way back to theirs)
     const token = randomBytes(24).toString('base64url')

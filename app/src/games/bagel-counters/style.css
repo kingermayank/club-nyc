@@ -401,7 +401,10 @@
   transform: rotate(-2deg);
 }
 .bagel-counters-title span {
-  -webkit-text-stroke: 9px #1d2140;
+  /* letters sit a half-stroke apart, or each one's fill paints over its neighbour's outline */
+  letter-spacing: 0.08em;
+  margin-right: -0.08em;
+  -webkit-text-stroke: 8px #1d2140;
   paint-order: stroke fill;
   text-shadow: 0 6px 0 #1d2140;
 }

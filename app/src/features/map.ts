@@ -1,4 +1,6 @@
 import { sfx } from '../audio'
+import { save } from '../state'
+import { headPortrait } from '../avatar/render'
 import { el } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton, toast } from '../engine/ui'
 import { world, goto } from '../engine/world'
@@ -10,11 +12,11 @@ const MAP_W = 1000
 const MAP_H = 664
 
 /** Landmarks on the island map. Shapes come from tools/rooms/map.json (traced with SAM). */
-const SPOTS: { id: string; label: string; room?: string; soon?: boolean; note?: 'subway' | 'ferry' | 'snack' }[] = [
+const SPOTS: { id: string; label: string; room?: string; note?: 'subway' | 'ferry' | 'snack' }[] = [
   { id: 'central-park', label: 'Central Park', room: 'central-park' },
   { id: 'the-met', label: 'The Met', room: 'the-met' },
   { id: 'times-square', label: 'Times Square', room: 'times-square' },
-  { id: 'empire-state', label: 'Empire State Building', room: 'empire-deck' },
+  { id: 'empire-state', label: 'Empire State Building', room: 'empire-street' },
   { id: 'rockefeller', label: 'Rockefeller Center', room: 'rockefeller' },
   { id: 'grand-central', label: 'Grand Central', room: 'grand-central' },
   { id: 'fifth-ave', label: 'Fifth Avenue', room: 'fifth-ave' },
@@ -25,21 +27,16 @@ const SPOTS: { id: string; label: string; room?: string; soon?: boolean; note?: 
   { id: 'chinatown', label: 'Chinatown & Little Italy', room: 'chinatown' },
   { id: 'hotdog', label: 'Hot Dog Cart', note: 'snack' },
   { id: 'brooklyn-bridge', label: 'Brooklyn Bridge', room: 'brooklyn-bridge' },
-  { id: 'brooklyn', label: 'Brooklyn', soon: true },
   { id: 'liberty', label: 'Statue of Liberty', note: 'ferry' },
   { id: 'battery-park', label: 'Battery Park Ferry', room: 'battery-park' },
+  { id: 'wall-street', label: 'Wall Street', room: 'wall-street' },
   { id: 'subway-1', label: 'Subway', note: 'subway' },
   { id: 'subway-2', label: 'Subway', note: 'subway' },
   { id: 'subway-3', label: 'Subway', note: 'subway' },
   { id: 'subway-4', label: 'Subway', note: 'subway' },
-  { id: 'subway-5', label: 'Subway', note: 'subway' },
 ]
 
-/** Places the map art doesn't draw (newer parts of the city): a round pin on the spot, in map coordinates. */
-const PINS: { id: string; label: string; room: string; at: [number, number]; icon: string }[] = [
-  { id: 'wall-street', label: 'Wall Street', room: 'wall-street', at: [562, 498], icon: '🐂' },
-]
-/** a place opens on the map as soon as its room exists; until then it's Coming Soon */
+/** a place is on the map once its room exists */
 const open = (room?: string) => !!room && !!ROOMS[room]
 
 interface Shape {
@@ -74,7 +71,8 @@ export function openMap() {
   const shapes: Shape[] = []
   for (const spot of SPOTS) {
     const c = cut[spot.id]
-    if (!c) continue
+    // a landmark whose room isn't built isn't on the map
+    if (!c || (spot.room && !open(spot.room))) continue
     const [x, y, w, h] = c.rect
     const img = el('img', 'map-cut') as HTMLImageElement
     img.src = `/art/cutouts/map/${spot.id}.png`
@@ -86,8 +84,11 @@ export function openMap() {
     alphaOf(s)
     shapes.push(s)
     if (spot.id === here || (spot.room && spot.room === here)) {
-      const pin = el('div', 'you-are-here', '<span>You are here</span>')
-      // the pill hangs above this point: keep it inside the frame for landmarks on the top edge (Central Park, the Met)
+      // you, on the map: your own face in a pin over where you're standing (no words needed)
+      const pin = el('div', 'you-are-here', `<span class="yah-pin">${headPortrait(save.look, 'grin')}</span><i class="yah-ring"></i>`)
+      pin.setAttribute('aria-label', 'You are here')
+      pin.setAttribute('role', 'img')
+      // the pin hangs above this point: keep it inside the frame for landmarks on the top edge (Central Park, the Met)
       pin.style.cssText = `left:${(Math.min(Math.max(x + w / 2, 70), MAP_W - 70) / MAP_W) * 100}%;top:${(Math.max(y + h * 0.3, 52) / MAP_H) * 100}%`
       art.append(pin)
     }
@@ -108,8 +109,6 @@ export function openMap() {
     }
     return null
   }
-  /** a landmark is Coming Soon if it's marked so, or its room doesn't exist yet */
-  const soonOf = (spot: (typeof SPOTS)[number]) => !!spot.soon || (!!spot.room && !open(spot.room))
   /**
    * The hover label goes above its landmark, or below it when there's no room above (Central Park and the Met sit at
    * the top edge), and slides sideways to stay inside the map: it's never cut off by the frame.
@@ -140,7 +139,7 @@ export function openMap() {
     art.classList.toggle('pointing', !!s)
     if (!s) return tip.classList.remove('show')
     s.img.classList.add('hover')
-    showTip(soonOf(s.spot) ? `${s.spot.label} (Coming Soon)` : s.spot.label, s.rect)
+    showTip(s.spot.label, s.rect)
     sfx.tick()
   }
   art.onpointerleave = () => {
@@ -153,8 +152,6 @@ export function openMap() {
     if (!s) return
     const spot = s.spot
     sfx.click()
-    if (spot.id === 'brooklyn') return toast('Brooklyn is Coming Soon. Club NYC is Manhattan only for now (Brooklyn says it was cool first anyway).', '🚧')
-    if (soonOf(spot)) return toast(`${spot.label} is Coming Soon. Still under construction. Very New York of it.`, '🚧')
     if (spot.note === 'subway') {
       closeOverlay()
       return void import('./subway').then((m) => m.openSubway())
@@ -172,39 +169,8 @@ export function openMap() {
   }
   art.append(tip)
 
-  // newer places as round pins (same hover label and click as the landmarks drawn on the map)
-  for (const pin of PINS) {
-    if (!open(pin.room)) continue
-    const [px, py] = pin.at
-    const b = el('button', 'map-pin', `<span>${pin.icon}</span>`) as HTMLButtonElement
-    b.setAttribute('aria-label', pin.label)
-    b.style.left = `${(px / MAP_W) * 100}%`
-    b.style.top = `${(py / MAP_H) * 100}%`
-    if (pin.room === here) {
-      const you = el('div', 'you-are-here', '<span>You are here</span>')
-      you.style.cssText = `left:${(px / MAP_W) * 100}%;top:${((py - 22) / MAP_H) * 100}%`
-      art.append(you)
-    }
-    b.onpointerenter = () => {
-      hovered?.img.classList.remove('hover')
-      hovered = null
-      showTip(pin.label, [px - 22, py - 22, 44, 44])
-      sfx.tick()
-    }
-    b.onpointerleave = () => tip.classList.remove('show')
-    b.onpointermove = (e) => e.stopPropagation()
-    b.onclick = (e) => {
-      e.stopPropagation()
-      sfx.click()
-      if (pin.room === world.room.id) return toast(`You’re already at ${pin.label}! Fastest commute in New York history. Pick somewhere else to go.`, '📍')
-      closeOverlay()
-      goto(pin.room)
-    }
-    art.append(b)
-  }
-
   if (partyOn()) {
-    const party = el('button', 'map-party', '<span>🎃</span><b>Halloween Parade</b><small>Sixth Ave · now!</small>')
+    const party = el('button', 'map-party', '<span>🎃</span><b>Halloween Parade</b><small>Sixth Ave</small>')
     party.onclick = (e) => {
       e.stopPropagation()
       sfx.click()

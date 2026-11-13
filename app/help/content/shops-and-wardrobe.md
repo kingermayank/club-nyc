@@ -12,10 +12,10 @@ Your New Yorker can wear hats, glasses, scarves, tops, bottoms, shoes and someth
 | Shop | Where | What's there | Prices |
 | --- | --- | --- | :---: |
 | **I ♥ NY Souvenirs** | [Times Square](places/times-square.md#i-love-ny-souvenirs) (also the Souvenir Stand on the [Brooklyn Bridge](places/brooklyn-bridge.md)) | Tees and hoodies, hats and crowns, snow globes, toys and minis, balloons, gifts and gear | 3 to 35 |
-| **Supreme** | [SoHo](places/soho.md#supreme) | Tops and dresses, jackets and coats, denim and bottoms, accessories | 5 to 70 |
-| **Nike** | [SoHo](places/soho.md#nike) | Sneakers and shoes, plus extras | 12 to 55 |
-| **Louis Vuitton** | [Fifth Avenue](places/fifth-avenue.md#louis-vuitton) | Designer bags, ready-to-wear, jewelry and shades | 80 to 260 |
-| **Saks Fifth Avenue** | [Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) | The 10022-SHOE floor, coats and jackets, jewelry and shades | 15 to 260 |
+| **THREAD** | [SoHo](places/soho.md#supreme) | This week's drop (Box Logo Hoodie, brick, Oreos), tops, jackets, denim, accessories | 5 to 800 |
+| **Sneaker Vault** | [SoHo](places/soho.md#sneaker-vault) | Sky Highs, Lows, Stoop Ones Uptowns, more shoes, extras | 12 to 230 |
+| **Louis Vuittown** | [Fifth Avenue](places/fifth-avenue.md#louis-vuitton) | Designer bags, ready-to-wear, jewelry and shades | 80 to 260 |
+| **Snacks Fifth Avenue** | [Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) | The 10022-SHOE floor, coats and jackets, jewelry and shades | 15 to 260 |
 | **Liberty Island Kiosk** | [Liberty Island](places/battery-park-and-liberty-island.md#liberty-island) | Foam crowns and torches | 10 to 12 |
 | **Rink Rentals** | [Rockefeller Center](places/rockefeller-center.md) | Ice skates | 15 |
 
@@ -53,7 +53,7 @@ Not everything costs coins:
 | A welcome gift (cap, beanie, shades, foam crown or lanyard) | Sal's hot dog cart in [Times Square](places/times-square.md), once. |
 | Paper Party Hat | Collect 5 [stamps](stamps.md). |
 | Chef Hat and Chef Whites | Your first [Slice Factory](jobs/slice-factory.md) shift. |
-| Adel's Apron | Your first [Halal Rush](jobs/halal-rush.md) shift. |
+| Halal Bros Apron | Your first [Halal Rush](jobs/halal-rush.md) shift. |
 | Barista Apron | Your first [Bagel Counters](jobs/bagel-counters.md) shift. |
 | Ferry Captain Hat | Your first [Ferry Captain](jobs/ferry-captain.md) trip. |
 | Playbill | Your first [Broadway show](places/times-square.md#broadway-theater). |
@@ -64,7 +64,7 @@ Not everything costs coins:
 | Stamp | How |
 | --- | --- |
 | Fashionista | Own 20 clothing items. |
-| Big Spender | Buy something at Louis Vuitton. |
+| Big Spender | Buy something at Louis Vuittown. |
 
 > [!NYC] Style Note
 > The SoHo street vendor's designer shades are definitely real. Definitely. Don't ask the vendor any follow-up questions.

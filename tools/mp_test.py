@@ -30,15 +30,16 @@ async def shot(pg, name):
 
 async def onboard(pg, name, team_index, shots=False):
     await pg.goto(BASE + '/play', wait_until='networkidle')
-    await pg.wait_for_selector('.si-live.busy, .si-live.quiet', timeout=5000)
+    # (the "who's in the city" pill only shows when someone is online, so wait for the door itself)
+    await pg.wait_for_selector('.si-play', timeout=5000)
     if shots:
         await pg.wait_for_timeout(400)
         await shot(pg, '0a-sign-in')
     await pg.click('.si-play')
     await pg.wait_for_selector('.creator-card', timeout=10000)
     nxt = '.creator-actions .btn.go'
-    # screen 1: pick a ready-made look, then "That's me"
-    await pg.locator('.cr-preset').nth(team_index % 8).click()
+    # screen 1: a door (Surprise Me), then the look screen's "That's me"
+    await pg.click('.cr-door.surprise')
     await pg.wait_for_timeout(250)
     await pg.click(nxt)
     # screen 2: name, 13+, "Walk into the city" (claims the name)
@@ -47,7 +48,7 @@ async def onboard(pg, name, team_index, shots=False):
     await pg.wait_for_selector('.cr-avail.ok', timeout=5000)
     if shots:
         await shot(pg, '0b-name-check')
-    await pg.select_option('.cr-month', '6'); await pg.select_option('.cr-year', '2000'); await pg.click('.cr-age input')  # I'm 13 or older
+    await pg.click('.cr-age input')  # I'm 13 or older
     await pg.click(nxt)
     await pg.wait_for_selector('.online-pill.on', timeout=10000)
     # brand-new players get Rosa's first-day tour; skip it so the test can drive the city

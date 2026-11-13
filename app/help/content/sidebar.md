@@ -41,7 +41,6 @@
   * [Battery Park & Liberty Island](places/battery-park-and-liberty-island.md)
   * [One World Trade & Sky Deck 102](places/one-world-trade.md)
   * [Wall Street](places/wall-street.md)
-  * [Coming Soon](places/coming-soon.md)
 
 ## Jobs & Games
 

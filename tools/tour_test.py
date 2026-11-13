@@ -39,15 +39,15 @@ async def onboard(pg, name):
     await pg.click('.si-play')
     await pg.wait_for_selector('.creator-card', timeout=10000)
     nxt = '.creator-actions .btn.go'
-    # screen 1: pick a ready-made look, then "That's me"
-    await pg.locator('.cr-preset').nth(1).click()
+    # screen 1: a door (Surprise Me), then the look screen's "That's me"
+    await pg.click('.cr-door.surprise')
     await pg.wait_for_timeout(250)
     await pg.click(nxt)
     # screen 2: name, 13+, "Walk into the city" (claims the name)
     await pg.wait_for_selector('.creator-name input')
     await pg.fill('.creator-name input', name)
     await pg.wait_for_selector('.cr-avail.ok', timeout=5000)
-    await pg.select_option('.cr-month', '6'); await pg.select_option('.cr-year', '2000'); await pg.click('.cr-age input')
+    await pg.click('.cr-age input')
     await pg.click(nxt)  # Walk into the city
 
 
@@ -100,6 +100,7 @@ async def main():
         check('the tour is gone when it ends', not await pg.evaluate("!!document.querySelector('.tour')"))
 
         # ---------- "Show me" on the first-day list ----------
+        await pg.evaluate("document.querySelector('.quests.open') || document.querySelector('.quests .q-head').click()")  # the list is a closed pill by default
         await pg.click('.q-show')
         await pg.wait_for_selector('.tour-card', timeout=4000)
         await pg.wait_for_timeout(300)
@@ -112,8 +113,10 @@ async def main():
         await pg.evaluate("""() => { const s = clubNyc.save; s.stats.walks = 1; s.stats.clicks = 1; s.stats.snacks = 1; if (!s.owned.includes('nyc-cap')) s.owned.push('nyc-cap')
           const r = clubNyc.residents?.[0]?.id ?? null; if (r && !s.friends.includes(r)) s.friends.push(r); else if (!r) s.friends.push(s.friends[0] ?? 'local'); if (!s.stamps.includes('straphanger')) s.stamps.push('straphanger') }""")
         await pg.evaluate("clubNyc.api.goto('central-park')")
+        await pg.evaluate("document.querySelector('.quests.open') || document.querySelector('.quests .q-head').click()")  # the list is a closed pill by default
         await pg.wait_for_function("() => document.querySelector('.q-now b')?.textContent === 'Work a Shift'", timeout=8000)
         await pg.wait_for_timeout(1500)
+        await pg.evaluate("document.querySelector('.quests.open') || document.querySelector('.quests .q-head').click()")  # the list is a closed pill by default
         await pg.click('.q-show')
         await pg.wait_for_selector('.tour-card', timeout=4000)
         # Show Me for a job that's elsewhere takes you there in one click, then points at the counter

@@ -115,7 +115,7 @@ export function openPartyPanel() {
       <div class="pp-actions"></div>`
     const list = p.querySelector('.pp-tracks')!
     for (const t of TRACKS) {
-      const b = el('button', 'pp-track' + (t.id === track ? ' on' : ''), `<span class="pp-em">${t.emoji}</span><span><b>${t.title}</b><small>${t.by} · ${t.vibe}</small></span>`)
+      const b = el('button', 'pp-track' + (t.id === track ? ' on' : ''), `<span class="pp-em">${t.emoji}</span><span><b>${t.title}</b><small>${t.by}</small></span>`)
       b.onclick = () => {
         sfx.click()
         track = t.id
@@ -198,12 +198,12 @@ function renderChip() {
   if (!party) return
   chip?.remove()
   const t = TRACK[party.track]
-  chip = el('button', 'party-chip', `<span class="pc-eq"><i></i><i></i><i></i></span><span><b>${t?.title ?? 'Music'}</b><small>${esc(party.h === ME() ? 'Your party' : `${party.n}’s party`)} · ${THEMES[party.theme]?.emoji ?? '🎉'} ${THEMES[party.theme]?.name ?? ''}</small></span>`)
+  chip = el('button', 'party-chip', `<span class="pc-eq"><i></i><i></i><i></i></span><span><b>${t?.title ?? 'Music'}</b><small>${esc(party.h === ME() ? 'Your party' : `${party.n}’s party`)}</small></span>`)
   chip.title = isHosting() ? 'DJ controls' : 'Now playing'
   chip.onclick = (e) => {
     e.stopPropagation()
     if (isHosting()) openPartyPanel()
-    else toast(`🎵 ${t?.title} · ${t?.by}`, '🎶')
+    else toast(`🎵 ${t?.title}`, '🎶')
   }
   stage.root.append(chip)
 }

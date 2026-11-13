@@ -1,3 +1,4 @@
+import './catalog.css'
 import { sfx } from '../audio'
 import { save, bump } from '../state'
 import { ITEMS, SHOPS, ITEM, type ItemDef } from '../avatar/items'
@@ -10,6 +11,7 @@ const PER_PAGE = 6
 const chevron = (d: string) => `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 const CHEVRON_LEFT = chevron('M8 2 L4 6 L8 10')
 const CHEVRON_RIGHT = chevron('M4 2 L8 6 L4 10')
+const CHECK = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5 L8.5 14.5 L15.5 6" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
 /** Each shop is split into sections, and each shelf in the room opens its own section. */
 const SECTIONS: Record<string, { id: string; label: string; has: (i: ItemDef) => boolean }[]> = {
@@ -22,13 +24,16 @@ const SECTIONS: Record<string, { id: string; label: string; has: (i: ItemDef) =>
     { id: 'gifts', label: 'Gifts & Gear', has: (i) => !['body', 'head'].includes(i.slot) && !i.id.includes('globe') && !i.id.startsWith('toy-') && i.id !== 'teddy' && !i.id.includes('balloon') },
   ],
   thread: [
-    { id: 'tops', label: 'Tops & Dresses', has: (i) => i.slot === 'body' && !['puffer', 'sig-puffer', 'denim-jacket', 'leather-jacket', 'varsity', 'trench'].includes(i.id) },
+    { id: 'drops', label: 'This Week’s Drop', has: (i) => i.id.startsWith('sup-') },
+    { id: 'tops', label: 'Tops & Dresses', has: (i) => i.slot === 'body' && !i.id.startsWith('sup-') && !['puffer', 'sig-puffer', 'denim-jacket', 'leather-jacket', 'varsity', 'trench'].includes(i.id) },
     { id: 'jackets', label: 'Jackets & Coats', has: (i) => ['puffer', 'sig-puffer', 'denim-jacket', 'leather-jacket', 'varsity', 'trench'].includes(i.id) },
     { id: 'bottoms', label: 'Denim & Bottoms', has: (i) => i.slot === 'legs' },
-    { id: 'accessories', label: 'Accessories', has: (i) => !['body', 'legs'].includes(i.slot) },
+    { id: 'accessories', label: 'Accessories', has: (i) => !['body', 'legs'].includes(i.slot) && !i.id.startsWith('sup-') },
   ],
   sneakers: [
-    { id: 'kicks', label: 'Sneakers & Shoes', has: (i) => i.slot === 'feet' },
+    { id: 'jordans', label: 'Sky Highs', has: (i) => i.id.startsWith('aj') },
+    { id: 'classics', label: 'Lows & Uptowns', has: (i) => i.id === 'dunk-panda' || i.id === 'af1-uptowns' },
+    { id: 'kicks', label: 'More Shoes', has: (i) => i.slot === 'feet' && !i.id.startsWith('aj') && i.id !== 'dunk-panda' && i.id !== 'af1-uptowns' },
     { id: 'extras', label: 'Extras', has: (i) => i.slot !== 'feet' },
   ],
   maison: [
@@ -36,7 +41,7 @@ const SECTIONS: Record<string, { id: string; label: string; has: (i: ItemDef) =>
     { id: 'wear', label: 'Ready-to-Wear', has: (i) => i.slot === 'body' || i.slot === 'feet' },
     { id: 'jewelry', label: 'Jewelry & Shades', has: (i) => i.slot === 'neck' || i.slot === 'face' },
   ],
-  // Saks Fifth Avenue (shop id 'toys' from its toy-store days): a department store stocked from the other shops' racks
+  // Snacks Fifth Avenue (shop id 'toys' from its toy-store days): a department store stocked from the other shops' racks
   toys: [
     { id: 'shoes', label: 'The 10022-SHOE Floor', has: (i) => i.slot === 'feet' },
     { id: 'coats', label: 'Coats & Jackets', has: (i) => i.slot === 'body' },
@@ -87,11 +92,15 @@ export function openCatalog(shopId: string, section?: string) {
     }
     const grid = mag.querySelector('.cat-grid')!
     for (const it of slice) {
-      const owned = save.owned.includes(it.id)
-      const card = el('div', 'cat-item' + (owned ? ' owned' : ''))
-      card.innerHTML = `<div class="cat-icon">${itemIcon(it.id, save.look.color)}</div><b>${it.name}</b>`
-      const btn = el('button', 'btn small', owned ? 'Wear' : `<img src="/art/icons/coin.png" alt=""> ${it.price}`)
+      // yours if you bought it, and also if you're wearing it right now (a gift, an old save): it's on your feet
+      const worn = save.look.items[it.slot] === it.id
+      const owned = worn || save.owned.includes(it.id)
+      const card = el('div', 'cat-item' + (owned ? ' owned' : '') + (worn ? ' worn' : ''))
+      card.innerHTML = `${owned ? `<i class="cat-own" role="img" aria-label="Owned">${CHECK}</i>` : ''}<div class="cat-icon">${itemIcon(it.id, save.look.color)}</div><b>${it.name}</b>`
+      const btn = el('button', 'btn small' + (owned ? ' cat-wear' : ''), worn ? 'Wearing' : owned ? 'Wear' : `<img src="/art/icons/coin.png" alt=""> ${it.price}`)
+      if (worn) btn.setAttribute('aria-pressed', 'true')
       btn.onclick = async () => {
+        if (worn) return
         if (owned) {
           api.wear(it.id)
           sfx.pop()

@@ -1,0 +1,65 @@
+/* One World Trade's SkyPod ride (features/skypod.ts). Everything is in stage units over the 1000 x 565 stage. */
+.skp { position: absolute; inset: 0; z-index: 9800; overflow: hidden; user-select: none; }
+.skp.inside { background: #04060a; }
+.skp.leaving { background: none; pointer-events: none; }
+
+/* the steel doors that close on the room you're leaving */
+.skp-doors { position: absolute; inset: 0; pointer-events: none; transition: opacity 0.45s ease; }
+.skp-doors i { position: absolute; top: 0; width: 50.2%; height: 100%; background: linear-gradient(90deg, #5d6877, #aab4c1 18%, #7b8695 50%, #a3adba 82%, #586271), repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 5px); background-blend-mode: overlay; box-shadow: inset 0 0 0 3px #1d2140, inset 0 0 40px rgba(10, 16, 30, 0.35); transition: transform 0.95s cubic-bezier(0.6, 0, 0.3, 1); }
+.skp-doors i::after { content: ''; position: absolute; top: 0; bottom: 0; width: 5px; background: #1d2140; }
+.skp-doors .l { left: 0; transform: translateX(-101%); }
+.skp-doors .l::after { right: 0; }
+.skp-doors .r { right: 0; transform: translateX(101%); }
+.skp-doors .r::after { left: 0; }
+.skp.shut .skp-doors i { transform: none; }
+.skp.inside .skp-doors { opacity: 0; }
+
+/* inside: the camera (it pushes in toward the front screen as the cab gets going) */
+.skp-cam { position: absolute; inset: 0; isolation: isolate; background: #04060a; opacity: 0; transform-origin: 500px 222px; transition: opacity 0.45s ease, transform 2.6s cubic-bezier(0.3, 0, 0.2, 1); }
+.skp.inside .skp-cam { opacity: 1; }
+.skp.moving .skp-cam { animation: skp-shake 0.17s linear infinite; }
+@keyframes skp-shake { 0%, 100% { translate: 0 0; } 50% { translate: 0 0.7px; } }
+
+/* the screens: the front wall, flat, and the two side walls in the cab's perspective (matrix3d from the quads) */
+.skp-front { position: absolute; overflow: hidden; background: #000; }
+.skp-lift { position: absolute; inset: 0; overflow: hidden; transition: transform 1.15s cubic-bezier(0.6, 0, 0.25, 1); }
+.skp-feed { position: absolute; inset: 0; transform-origin: 50% 40%; will-change: transform; }
+.skp-feed img, .skp-feed video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.skp-feed video { opacity: 0; transition: opacity 0.3s; }
+.skp-feed video.on { opacity: 1; }
+.skp-year { position: absolute; left: 14px; bottom: 8px; color: #fff; font: 400 38px/1 var(--display); letter-spacing: 0.02em; text-shadow: 0 2px 0 rgba(10, 20, 40, 0.55), 0 0 14px rgba(10, 20, 40, 0.5); }
+.skp-wall { position: absolute; left: 0; top: 0; width: 240px; height: 300px; transform-origin: 0 0; }
+.skp-wall canvas { display: block; width: 100%; height: 100%; filter: brightness(0.8) blur(0.6px); }
+/* what's really up there: Sky Deck 102's windows, behind the screen until it lifts */
+.skp-real { position: absolute; inset: 0; background: url(/art/rooms/sky-deck.jpg) -150px -8px / 880px auto no-repeat; }
+.skp.down .skp-real { display: none; }
+.skp.up.reveal .skp-lift { transform: translateY(-102%); }
+
+/* the cab painting: its screens are painted black, so it's laid over them as light (black adds nothing) */
+.skp-cab { position: absolute; inset: 0; background: url(/art/downtown/skypod-cab.jpg) 0 0 / 1000px 565px no-repeat; mix-blend-mode: screen; pointer-events: none; }
+/* floors going by: light running down the screen frames, faster in the middle of the shaft */
+.skp-streak { position: absolute; top: 84px; width: 12px; height: 276px; overflow: hidden; opacity: calc(var(--speed, 0) * 0.9); pointer-events: none; }
+.skp-streak.l { left: 270px; }
+.skp-streak.r { left: 718px; }
+.skp-streak::before { content: ''; position: absolute; left: 0; width: 100%; top: -120px; height: calc(100% + 240px); background: repeating-linear-gradient(transparent 0 50px, #bfe9ff 50px 74px, transparent 74px 120px); }
+.skp.moving.up .skp-streak::before { animation: skp-pass 0.24s linear infinite; }
+.skp.moving.down .skp-streak::before { animation: skp-pass 0.24s linear infinite reverse; }
+@keyframes skp-pass { to { transform: translateY(120px); } }
+
+/* the floor, on the display in the ceiling trim */
+.skp-floor { position: absolute; left: 432px; top: 47px; width: 136px; height: 22px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #a9e6ff; text-shadow: 0 0 8px rgba(120, 210, 255, 0.9); }
+.skp-floor small { font: 400 9px/1 var(--display); letter-spacing: 0.18em; opacity: 0.8; }
+.skp-floor b { min-width: 30px; font: 400 16px/1 var(--display); letter-spacing: 0.04em; text-align: left; }
+
+/* you, from behind, watching the walls */
+.skp-rider { position: absolute; left: 410px; top: 270px; width: 180px; height: 288px; overflow: visible; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.5)); pointer-events: none; }
+
+.skp-skip { position: absolute; right: 14px; bottom: 14px; width: 40px; height: 40px; padding: 9px; border: 2px solid #0b1120; border-radius: 50%; background: rgba(20, 30, 48, 0.82); color: #dff3ff; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.15s; }
+.skp-skip svg { display: block; width: 100%; height: 100%; }
+.skp.moving .skp-skip { opacity: 0.85; pointer-events: auto; }
+.skp-skip:hover, .skp-skip:focus-visible { opacity: 1; transform: scale(1.08); outline: none; }
+
+/* stepping out: through the front wall and onto the deck (or the plaza) */
+.skp.leaving .skp-cam { transform: scale(3.2) !important; opacity: 0; transition: transform 0.95s cubic-bezier(0.5, 0, 0.7, 1), opacity 0.85s ease 0.1s; }
+.skp.leaving .skp-skip { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .skp.moving .skp-cam, .skp.moving .skp-streak::before { animation: none; } .skp-cam, .skp-lift, .skp-doors i { transition-duration: 0.1s; } }

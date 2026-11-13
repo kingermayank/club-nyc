@@ -1,0 +1,23 @@
+/* Starducks Coffee: a forest-green menu board over the counter, cream lettering, a brass rule (features/ralphs.ts) */
+.panel.ralphs { width: 620px; max-width: 94%; padding: 18px 20px 16px; background: #1d4a33; border: 4px solid #2a1d12; box-shadow: inset 0 0 0 3px #c9a45a, 0 8px 0 rgba(0, 0, 0, 0.3); color: #f4efe2; display: flex; flex-direction: column; gap: 10px; }
+.rc-head { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 8px; border-bottom: 2px solid #c9a45a; }
+.rc-head b { font: 400 30px/1 var(--display); letter-spacing: 0.5px; color: #f4efe2; }
+.rc-head span { font: var(--fs-sm) var(--body); opacity: 0.8; }
+.rc-sec h3 { margin: 0 0 6px; font: 400 var(--fs-lg) var(--display); color: #e6c98a; text-transform: uppercase; letter-spacing: 1px; }
+.rc-items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.rc-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 6px 7px; border: 2px solid rgba(244, 239, 226, 0.25); border-radius: 10px; background: rgba(0, 0, 0, 0.16); color: #f4efe2; cursor: pointer; transition: transform 0.12s, background 0.12s, border-color 0.12s; }
+.rc-item:hover, .rc-item:focus-visible { transform: translateY(-2px); background: rgba(244, 239, 226, 0.1); border-color: #e6c98a; outline: none; }
+.rc-icon { width: 54px; height: 54px; display: grid; place-items: center; background: #f4efe2; border-radius: 50%; border: 2px solid #2a1d12; }
+.rc-icon svg { width: 40px; height: 40px; }
+.rc-item b { font: 400 var(--fs-sm) var(--display); text-align: center; line-height: 1.1; }
+.rc-item small { font: 11px var(--body); opacity: 0.75; text-align: center; }
+.rc-item i { position: absolute; top: 6px; right: 7px; font: 400 var(--fs-sm) var(--display); font-style: normal; color: #e6c98a; }
+.rc-work { align-self: center; color: #f4efe2; }
+
+/* Cloud Nine Café (Sky Deck 102): the same board in the deck's dusk colors, three to a row */
+.panel.ralphs.cloud9 { width: 520px; background: linear-gradient(#2b2f6b, #1c2150); box-shadow: inset 0 0 0 3px #ffc978, 0 8px 0 rgba(0, 0, 0, 0.3); border-color: #12142e; }
+.cloud9 .rc-head { border-bottom-color: #ffc978; }
+.cloud9 .rc-sec h3, .cloud9 .rc-item i { color: #ffd596; }
+.cloud9 .rc-items { grid-template-columns: repeat(3, 1fr); }
+.cloud9 .rc-item:hover, .cloud9 .rc-item:focus-visible { border-color: #ffd596; }
+.cloud9 .rc-icon { border-color: #12142e; background: #fff4e0; }

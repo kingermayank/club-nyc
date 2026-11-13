@@ -15,13 +15,69 @@
 @keyframes ws-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .ws-run { animation-duration: 90s; } }
 
-/* the Pizza Index table inside its card */
-.ws-index { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; margin: 0 0 var(--sp-3); padding: 8px 10px; background: #0f1317; border: 3px solid var(--ink); border-radius: 12px; }
-.ws-index div { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 6px; min-width: 0; color: #7cff6b; font: var(--fs-sm) var(--display); }
-.ws-index div.down { color: #ff6a5c; }
-.ws-index b { font-weight: 400; color: #fff7c2; }
-.ws-index span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--fs-2xs)/1.45 var(--body); color: #c9cfe0; }
-.ws-index em { font-style: normal; }
+/* The Big Board up close (bigBoard): the LED wall as its own panel, not an info card. A header with the live clock,
+   ten tiles in a 5 × 2 grid (every tile the same size, so ticking prices never move anything), the Call It bar and the
+   news crawl, all full width. */
+.panel.wsb { width: 900px; max-width: 94%; padding: 0; gap: 0; display: grid; grid-template-rows: auto auto auto auto; overflow: hidden; background: #0d1117; color: #e8eefc; border: 4px solid var(--ink); border-radius: 22px; text-align: left; }
+.panel.wsb > .x-btn { top: 10px; right: 12px; }
+.wsb-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 12px 64px 12px 20px; background: #161c27; border-bottom: 3px solid var(--ink); }
+.wsb-head h2 { margin: 0; font: 26px/1 var(--display); color: #ffd166; letter-spacing: 0.02em; text-shadow: 0 0 10px rgba(255, 209, 102, 0.45); text-transform: uppercase; }
+.wsb-sub { font: var(--fs-sm) var(--body); color: #9fb1cc; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wsb-live { display: inline-flex; align-items: center; gap: 6px; font: var(--fs-sm)/1 var(--display); color: #ff8a7a; letter-spacing: 0.08em; }
+.wsb-live i { width: 9px; height: 9px; border-radius: 50%; background: #ff5a4a; box-shadow: 0 0 8px #ff5a4a; animation: wsb-live 1.4s ease-in-out infinite; }
+.wsb-live em { font-style: normal; color: #e8eefc; font-variant-numeric: tabular-nums; }
+@keyframes wsb-live { 50% { opacity: 0.35; } }
+
+.wsb-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; padding: 16px 18px; }
+.wsb-tile { position: relative; display: grid; grid-template-rows: auto auto auto 24px; gap: 3px; padding: 10px 11px 9px; min-width: 0; text-align: left; color: inherit; background: #121923; border: 2.5px solid #263142; border-radius: 13px; cursor: pointer; font: inherit; transition: border-color 0.15s, transform 0.15s, background 0.3s; }
+.wsb-tile:hover { border-color: #3d4d66; transform: translateY(-2px); }
+.wsb-tile:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+.wsb-top { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.wsb-top b { font: 17px/1 var(--display); font-weight: 400; color: #fff7c2; letter-spacing: 0.03em; }
+.wsb-logo { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border: 2px solid #000; border-radius: 50%; background: var(--c); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25); }
+.wsb-logo img { width: 15px; height: 15px; object-fit: contain; }
+.wsb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--fs-2xs)/1.25 var(--body); color: #8f9bb3; }
+.wsb-price { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
+.wsb-price em { font: 21px/1.05 var(--display); font-style: normal; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wsb-price small { font: var(--fs-2xs)/1 var(--display); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.wsb-tile.up .wsb-price, .wsb-tile.up .wsb-spark { color: #7cff6b; text-shadow: 0 0 6px rgba(124, 255, 107, 0.45); }
+.wsb-tile.down .wsb-price, .wsb-tile.down .wsb-spark { color: #ff6a5c; text-shadow: 0 0 6px rgba(255, 106, 92, 0.45); }
+.wsb-tile.flat .wsb-price, .wsb-tile.flat .wsb-spark { color: #9fb1cc; }
+.wsb-spark { width: 100%; height: 24px; }
+.wsb-tile.tick-up .wsb-price em { animation: wsb-tick-up 0.6s; }
+.wsb-tile.tick-down .wsb-price em { animation: wsb-tick-down 0.6s; }
+@keyframes wsb-tick-up { from { background: rgba(124, 255, 107, 0.28); } }
+@keyframes wsb-tick-down { from { background: rgba(255, 106, 92, 0.28); } }
+.wsb-spark polyline { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.wsb-tile.sel { border-color: #ffd166; box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.28); }
+.wsb-tile.called { border-color: #ffd166; animation: wsb-called 0.9s ease-in-out infinite alternate; }
+@keyframes wsb-called { to { box-shadow: 0 0 0 5px rgba(255, 209, 102, 0.35), 0 0 18px rgba(255, 209, 102, 0.35); } }
+.wsb-tile.hit { background: #123b22; border-color: #3cb371; }
+.wsb-tile.miss { background: #3b1414; border-color: #e5483b; }
+.wsb-tile.flat.flat { background: #1d2430; }
+
+.wsb-call { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 18px; padding: 12px 20px; background: #161c27; border-top: 3px solid var(--ink); }
+.wsb-msg { margin: 0; display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.wsb-msg b { flex: none; font: 20px/1 var(--display); font-weight: 400; color: #ffd166; text-transform: uppercase; letter-spacing: 0.04em; }
+.wsb-msg span { font: var(--fs-md)/1.3 var(--body); color: #dbe6ff; }
+.wsb-btns { display: flex; gap: 10px; }
+.wsb-btns button { min-width: 104px; padding: 9px 16px 10px; font: var(--fs-lg)/1 var(--display); color: #fff; border: 3px solid var(--ink); border-radius: 14px; box-shadow: 0 4px 0 var(--ink); cursor: pointer; }
+.wsb-up { background: linear-gradient(#45c97f, #2f9e62); }
+.wsb-down { background: linear-gradient(#f2675b, #c9372b); }
+.wsb-btns button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.wsb-btns button:disabled { opacity: 0.35; cursor: default; }
+.wsb-btns button:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+.wsb-streak { display: grid; justify-items: center; line-height: 1; min-width: 64px; }
+.wsb-streak small { font: var(--fs-2xs) var(--body); color: #9fb1cc; text-transform: uppercase; letter-spacing: 0.08em; }
+.wsb-streak b { font: 28px/1.05 var(--display); font-weight: 400; color: #ffd166; font-variant-numeric: tabular-nums; }
+
+.wsb-crawl { overflow: hidden; padding: 8px 0 9px; background: #0a0d12; border-top: 3px solid var(--ink); color: #ffd166; font: var(--fs-sm)/1.3 var(--display); white-space: nowrap; }
+.wsb-crawl-run { display: inline-block; padding-left: var(--sp-4); animation: wsb-crawl 48s linear infinite; }
+/* a gap between headlines */
+.wsb-crawl-run i { display: inline-block; width: 40px; }
+.wsb-crawl-run span { margin: 0 12px; padding: 1px 7px; border-radius: 5px; background: #e5483b; color: #fff; }
+@keyframes wsb-crawl { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .wsb-crawl-run { animation-duration: 160s; } .wsb-live i, .wsb-tile.called { animation: none; } }
 
 /* rubbing The Bull: his nose shines */
 .cutout.ws-shine { animation: ws-shine 1.3s ease-out; }

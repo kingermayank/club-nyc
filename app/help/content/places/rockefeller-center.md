@@ -19,7 +19,7 @@ Midtown's favorite rink. Walk onto the ice to skate, wave on live TV, and count 
 
 | What | Where | Cost |
 | --- | --- | :---: |
-| Skate | Walk onto the ice, or click **The Rink** and **Skate a Lap** | Free |
+| Skate | Click anywhere on the ice and walk out through the gate | Free |
 | Rent Ice Skates | **Skate Rentals** | 15 |
 | Wave on live TV | **TV Studio · Wave on Air!** | Free |
 | Strike Prometheus's pose, or toss a coin in his fountain | **Prometheus** | Free, or 1 for a wish |
@@ -28,7 +28,7 @@ Midtown's favorite rink. Walk onto the ice to skate, wave on live TV, and count 
 
 ### Skating {#skating}
 
-Walk onto the ice and you start skating, a bit faster than walking. For a proper lap, click **The Rink** (or the **Rink Gate**) and choose **Skate a Lap**: your New Yorker circles the rink by themselves. Click anywhere to stop. **Do a Spin** is also available, results may vary.
+Click anywhere on the ice and you walk out through the gate and start skating, a bit faster than walking. Keep clicking to glide around. Want a full lap without steering? **Skate a Lap** at Skate Rentals sends your New Yorker around the rink by themselves.
 
 The **Ice Skates** from Skate Rentals (15 coins) are yours to keep and wear anywhere. If you don't own skates yet, a tip pops up when you arrive.
 

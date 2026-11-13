@@ -1,0 +1,155 @@
+/* ---------- The Vault, Sneaker Vault SoHo (features/moments/vault.ts): crack the dial, walk into the grail room ---------- */
+.mo-vault { overflow: hidden; background: #0a1030; }
+.vt-x { position: absolute; top: 14px; right: 14px; z-index: 30; width: 38px; height: 38px; padding: 8px; }
+
+/* the door, close up */
+.vt-front { position: absolute; inset: 0; transform-origin: 500px 284px; transition: transform 0.85s cubic-bezier(0.5, 0, 0.8, 0.4), opacity 0.6s 0.25s; }
+.vt-front.in { transform: scale(3.2); opacity: 0; pointer-events: none; }
+.vt-wall { position: absolute; inset: 0; cursor: pointer; background:
+  radial-gradient(circle at 500px 284px, rgba(63, 160, 255, 0.34) 0, rgba(63, 160, 255, 0) 330px),
+  repeating-linear-gradient(90deg, rgba(8, 12, 40, 0.55) 0 4px, transparent 4px 250px),
+  linear-gradient(180deg, transparent 0 505px, #3fd0ff 505px 510px, #0a1030 510px),
+  linear-gradient(180deg, #1a2452, #232f66 60%, #151d47); }
+.vt-wall::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, #5d6a94 0 3px, transparent 3.5px) 0 0 / 250px 94px; background-position: 14px 20px; opacity: 0.8; }
+.vt-lamp { position: absolute; left: 148px; top: 44px; width: 26px; height: 26px; background: radial-gradient(circle at 35% 30%, #ffb3a8, #e53935 60%); border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 0 22px rgba(229, 57, 53, 0.8); animation: vt-lamp 1.6s ease-in-out infinite alternate; }
+@keyframes vt-lamp { from { opacity: 0.55; } to { opacity: 1; } }
+.vt-frame { position: absolute; left: 300px; top: 84px; width: 400px; height: 400px; perspective: 1300px; }
+.vt-frame::before { content: ''; position: absolute; inset: -22px; background: linear-gradient(135deg, #6f7b9c, #3a4567); border: 5px solid var(--ink); border-radius: 50%; box-shadow: 0 10px 0 rgba(8, 12, 40, 0.5), 0 0 60px rgba(63, 160, 255, 0.35); }
+.vt-hole { position: absolute; inset: 8px; overflow: hidden; border: 5px solid var(--ink); border-radius: 50%; background: radial-gradient(circle at 50% 62%, #dff4ff 0, #6fc3ff 26%, #2a57c9 58%, #101a4a 100%); }
+.vt-hole i { position: absolute; left: 0; right: 0; height: 6px; background: rgba(210, 242, 255, 0.85); box-shadow: 0 0 14px #9be0ff; }
+.vt-hole i:nth-child(1) { top: 28%; } .vt-hole i:nth-child(2) { top: 46%; } .vt-hole i:nth-child(3) { top: 64%; }
+.vt-hinge { position: absolute; left: -30px; width: 38px; height: 44px; box-sizing: border-box; background: linear-gradient(#aab5d0, #6a7697); border: 4px solid var(--ink); border-radius: 8px; }
+.vt-hinge.a { top: 96px; } .vt-hinge.b { bottom: 96px; }
+.vt-door { position: absolute; inset: 0; transform-origin: 0 50%; transition: transform 1.15s cubic-bezier(0.5, 0, 0.3, 1); filter: drop-shadow(0 8px 0 rgba(8, 12, 40, 0.45)); }
+.vt-door > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.vt-front.open .vt-door { transform: rotateY(-112deg); }
+.vt-door.vt-thunk { animation: vt-thunk 0.28s ease-out; }
+@keyframes vt-thunk { 30% { transform: translateY(3px); } 60% { transform: translateY(-1px); } }
+
+/* three little windows: today's numbers drop into them */
+.vt-wins { position: absolute; left: 0; right: 0; top: 46px; display: flex; justify-content: center; gap: 10px; }
+.vt-wins b { position: relative; overflow: hidden; box-sizing: border-box; width: 48px; height: 36px; display: grid; place-items: center; background: #10163a; border: 3px solid var(--ink); border-radius: 9px; box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.45); font: 400 var(--fs-2xl)/1 var(--display); color: #8dffb0; }
+.vt-wins b span { position: relative; }
+.vt-wins b u { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #ffb629; }
+.vt-wins b.now { box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.45), 0 0 0 3px #ffd166; }
+.vt-wins b.ghost { color: rgba(141, 255, 176, 0.42); }
+.vt-wins b.set { background: #0f5a33; color: #b8ffd0; text-shadow: 0 0 8px #5dff9a; animation: vt-set 0.3s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.vt-wins b.set u { display: none; }
+@keyframes vt-set { from { transform: scale(1.35); } }
+
+/* the dial: warm rim when you're close, green when you're on it */
+.vt-dial, .vt-heat { position: absolute; left: 114px; top: 114px; width: 172px; height: 172px; border-radius: 50%; }
+.vt-heat { --heat: 0; box-shadow: 0 0 calc(var(--heat) * 34px) calc(var(--heat) * 12px) rgba(255, 182, 41, calc(var(--heat) * 0.95)); pointer-events: none; }
+.vt-heat.on { box-shadow: 0 0 34px 14px rgba(93, 255, 154, 0.95); }
+.vt-dial { cursor: grab; touch-action: none; outline: none; }
+.vt-dial.held { cursor: grabbing; }
+.vt-dial svg { display: block; width: 100%; height: 100%; pointer-events: none; }
+.vt-dial text { font: 400 15px var(--display); fill: #fff; }
+.vt-dial.vt-nudge svg { animation: vt-nudge 0.16s ease-out; }
+@keyframes vt-nudge { 40% { transform: scale(0.955); } }
+.vt-dial.spin { transition: transform 0.5s cubic-bezier(0.3, 0, 0.2, 1); transform: rotate(-540deg) !important; pointer-events: none; }
+
+/* inside: the grail room */
+.vt-room { position: absolute; inset: 0; background: linear-gradient(180deg, #0c1238 0, #16226a 66%, #0b1030 66%); animation: vt-enter 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+@keyframes vt-enter { from { opacity: 0; transform: scale(0.82); } }
+.vt-shelves { position: absolute; left: 0; right: 0; top: 0; height: 373px; background:
+  repeating-linear-gradient(90deg, rgba(120, 214, 255, 0.75) 0 4px, transparent 4px 100px),
+  repeating-linear-gradient(0deg, rgba(120, 214, 255, 0.75) 0 4px, transparent 4px 62px),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='124'%3E%3Crect x='24' y='34' width='52' height='28' rx='3' fill='%233b56b8' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='22' y='30' width='56' height='10' rx='3' fill='%234f6ed6' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='42' y='46' width='16' height='8' rx='2' fill='%23fff' opacity='.8'/%3E%3Crect x='124' y='34' width='52' height='28' rx='3' fill='%23b8413b' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='122' y='30' width='56' height='10' rx='3' fill='%23d85a52' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='142' y='46' width='16' height='8' rx='2' fill='%23fff' opacity='.8'/%3E%3Crect x='224' y='34' width='52' height='28' rx='3' fill='%232b3566' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='222' y='30' width='56' height='10' rx='3' fill='%233d4a8a' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='242' y='46' width='16' height='8' rx='2' fill='%23fff' opacity='.8'/%3E%3Cg transform='translate(0 62)'%3E%3Crect x='24' y='34' width='52' height='28' rx='3' fill='%23c9862a' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='22' y='30' width='56' height='10' rx='3' fill='%23e6a53e' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='42' y='46' width='16' height='8' rx='2' fill='%23fff' opacity='.8'/%3E%3Crect x='124' y='34' width='52' height='28' rx='3' fill='%232b3566' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='122' y='30' width='56' height='10' rx='3' fill='%233d4a8a' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='142' y='46' width='16' height='8' rx='2' fill='%23fff' opacity='.8'/%3E%3Crect x='224' y='34' width='52' height='28' rx='3' fill='%236a45b8' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='222' y='30' width='56' height='10' rx='3' fill='%238660d8' stroke='%231d2140' stroke-width='3'/%3E%3Crect x='242' y='46' width='16' height='8' rx='2' fill='%23fff' opacity='.8'/%3E%3C/g%3E%3C/svg%3E") 0 2px / 300px 124px,
+  radial-gradient(ellipse at 50% 100%, rgba(120, 200, 255, 0.4), transparent 70%) 0 0 / 100px 62px,
+  #121c52; }
+.vt-shelves::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8, 12, 44, 0.25), rgba(8, 12, 44, 0.72)); }
+.vt-floor { position: absolute; left: 0; right: 0; top: 373px; bottom: 0; background:
+  linear-gradient(90deg, transparent, rgba(120, 214, 255, 0.16) 30%, rgba(120, 214, 255, 0.05) 55%, rgba(200, 160, 255, 0.14) 80%, transparent),
+  linear-gradient(180deg, #2a3a86, #0d1338); border-top: 4px solid #78d6ff; box-shadow: 0 -2px 22px rgba(120, 214, 255, 0.7); }
+
+/* a pedestal: light from above, the pair under glass, a small plate */
+.vt-ped { position: absolute; bottom: 62px; width: 136px; height: 250px; margin-left: -68px; padding: 0; border: 0; background: none; cursor: pointer; animation: vt-rise 0.55s cubic-bezier(0.2, 1.2, 0.4, 1) both; -webkit-tap-highlight-color: transparent; }
+@keyframes vt-rise { from { opacity: 0; transform: translateY(46px); } }
+.vt-cone { position: absolute; left: 50%; bottom: 84px; width: 190px; height: 420px; margin-left: -95px; background: linear-gradient(180deg, transparent, var(--glow)); clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%); opacity: 0.26; pointer-events: none; transition: opacity 0.25s; }
+.vt-block { position: absolute; left: 3px; right: 3px; bottom: 0; height: 88px; box-sizing: border-box; display: flex; align-items: flex-start; justify-content: center; padding-top: 12px; background: linear-gradient(90deg, #dfe5f7, #ffffff 30%, #c1cae6); border: 3px solid var(--ink); border-radius: 10px 10px 4px 4px; box-shadow: 0 5px 0 rgba(8, 12, 40, 0.55), 0 0 26px var(--glow); }
+.vt-block::before { content: ''; position: absolute; left: -9px; right: -9px; top: -11px; height: 12px; box-sizing: border-box; background: #f4f6ff; border: 3px solid var(--ink); border-radius: 6px; }
+.vt-block em { box-sizing: border-box; max-width: 100%; padding: 4px 9px; background: var(--ink); border-radius: 6px; font: 400 var(--fs-xs)/1.2 var(--display); font-style: normal; color: #fff; white-space: nowrap; }
+.vt-shoe { position: absolute; left: 50%; bottom: 102px; width: 118px; margin-left: -59px; filter: drop-shadow(0 6px 4px rgba(8, 12, 40, 0.45)); transition: transform 0.25s cubic-bezier(0.2, 1.5, 0.4, 1), opacity 0.25s; animation: vt-float 2.4s ease-in-out infinite alternate; }
+.vt-shoe { perspective: 420px; }
+.vt-shoe img { display: block; width: 100%; transform-origin: 50% 60%; animation: vt-spin 5s ease-in-out infinite alternate; }
+@keyframes vt-float { from { translate: 0 0; } to { translate: 0 -6px; } }
+/* on a pedestal the pair sways like it's on a slow turntable */
+@keyframes vt-spin { from { transform: rotateY(-22deg) rotateZ(-2deg); } to { transform: rotateY(22deg) rotateZ(2deg); } }
+.vt-dome { position: absolute; left: 3px; right: 3px; bottom: 97px; height: 142px; box-sizing: border-box; background: linear-gradient(115deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.03) 38%, rgba(255, 255, 255, 0.1) 80%); border: 3px solid rgba(255, 255, 255, 0.8); border-radius: 65px 65px 6px 6px; pointer-events: none; transition: transform 0.4s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.35s; }
+.vt-ped:hover .vt-cone, .vt-ped:focus-visible .vt-cone { opacity: 0.5; }
+.vt-ped:hover .vt-shoe, .vt-ped:focus-visible .vt-shoe { transform: scale(1.1) rotate(-5deg); }
+.vt-ped:focus-visible { outline: none; }
+.vt-ped:focus-visible .vt-block { box-shadow: 0 0 0 3px #fff, 0 0 26px var(--glow); }
+.vt-ped.picked { cursor: default; }
+.vt-ped.picked .vt-dome { transform: translateY(-96px); opacity: 0; }
+.vt-ped.picked .vt-shoe { transform: translateY(-30px) scale(0.6); opacity: 0.18; animation: none; }
+.vt-ped.picked .vt-cone { opacity: 0.6; }
+/* the fourth pedestal changes every day: taller, gold, a turning star */
+.vt-ped.daily { height: 274px; }
+.vt-ped.daily .vt-block { height: 112px; background: linear-gradient(90deg, #f0b93a, #fff0b0 30%, #d99412); }
+.vt-ped.daily .vt-block::before { background: #ffe9a0; }
+.vt-ped.daily .vt-shoe { bottom: 124px; }
+.vt-ped.daily .vt-dome { bottom: 121px; }
+.vt-ped.daily .vt-cone { bottom: 108px; opacity: 0.42; }
+.vt-star { position: absolute; left: 50%; bottom: 14px; width: 30px; height: 30px; margin-left: -15px; background: #fff; clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: vt-star 6s linear infinite; }
+@keyframes vt-star { to { rotate: 360deg; } }
+
+/* the mirror: you, in the pair you picked */
+.vt-mirror { --glow: #78d6ff; position: absolute; left: 730px; bottom: 58px; width: 186px; height: 348px; box-sizing: border-box; overflow: hidden; background: linear-gradient(160deg, #dff4ff, #9fd0ff 45%, #6c9bea); border: 5px solid var(--ink); border-radius: 93px 93px 12px 12px; box-shadow: 0 0 0 5px #f4f6ff, 0 0 0 9px var(--ink), 0 0 38px var(--glow); animation: vt-rise 0.55s 0.5s cubic-bezier(0.2, 1.2, 0.4, 1) both; transition: box-shadow 0.3s; }
+.vt-glass { position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.55) 38%, transparent 46%, transparent 56%, rgba(255, 255, 255, 0.3) 60%, transparent 66%); pointer-events: none; }
+.vt-me { position: absolute; left: 0; right: 0; bottom: 6px; height: 292px; }
+.vt-me svg { display: block; width: 100%; height: 100%; }
+.vt-mirror.flash .vt-glass { animation: vt-flash 0.6s ease-out; }
+@keyframes vt-flash { 0% { background-color: rgba(255, 255, 255, 0.95); } 100% { background-color: rgba(255, 255, 255, 0); } }
+/* a look down at your feet, then back up */
+.vt-me { transform-origin: 50% 97%; transition: transform 0.5s cubic-bezier(0.3, 0, 0.2, 1); }
+.vt-me.feet { transform: scale(2.7); }
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-lamp, .vt-shoe, .vt-star { animation: none; }
+  .vt-door, .vt-front { transition-duration: 0.01s; }
+}
+
+/* today's drop: a gold tag on the plinth */
+.vt-drop { position: absolute; top: -26px; left: 50%; translate: -50% 0; padding: 2px 10px 1px; border: 2.5px solid var(--ink); border-radius: 999px; background: linear-gradient(#fff3b0, #f0b93a); font: 400 var(--fs-xs)/1.2 var(--display); letter-spacing: 1.5px; color: var(--ink); box-shadow: 0 0 14px rgba(255, 210, 80, 0.8); }
+
+/* ---------- the spotlight: one pair up close ---------- */
+.vt-spot { --glow: #ffd23f; position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; background: radial-gradient(ellipse at 34% 56%, color-mix(in srgb, var(--glow) 34%, #141b52) 0%, #0b1030 62%, #060a22 100%); animation: vt-spot-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.vt-spot.out { opacity: 0; transition: opacity 0.25s; }
+@keyframes vt-spot-in { from { opacity: 0; transform: scale(1.06); } }
+.vt-stage { position: relative; width: 600px; height: 100%; perspective: 900px; cursor: grab; }
+.vt-rays { position: absolute; left: 50%; top: 50%; width: 720px; height: 720px; margin: -380px 0 0 -360px; background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--glow) 22%, transparent) 0 8deg, transparent 8deg 22deg); mask-image: radial-gradient(circle, #000 18%, transparent 62%); -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 62%); animation: vt-rays 30s linear infinite; pointer-events: none; }
+@keyframes vt-rays { to { rotate: 360deg; } }
+.vt-plinth { position: absolute; left: 50%; top: 382px; width: 360px; height: 54px; margin-left: -180px; border-radius: 50%; background: radial-gradient(ellipse, color-mix(in srgb, var(--glow) 55%, #fff) 0%, rgba(255, 255, 255, 0.08) 58%, transparent 72%); }
+.vt-float { position: absolute; left: 50%; top: 92px; width: 400px; margin-left: -200px; animation: vt-hover 3s ease-in-out infinite alternate; }
+@keyframes vt-hover { from { translate: 0 0; } to { translate: 0 -14px; } }
+.vt-turn { position: relative; transform-style: preserve-3d; transition: transform 0.25s ease-out; animation: vt-idle 7s ease-in-out infinite alternate; }
+.vt-stage:hover .vt-turn { animation: none; }
+@keyframes vt-idle { from { transform: rotateY(-16deg) rotateX(4deg); } to { transform: rotateY(16deg) rotateX(-2deg); } }
+.vt-big { display: block; width: 100%; filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.45)) brightness(var(--lit, 1)); user-select: none; }
+.vt-reflect { position: absolute; left: 50%; top: 392px; width: 400px; margin-left: -200px; transform: scaleY(-0.42); transform-origin: 50% 0; opacity: 0.22; filter: blur(2px); mask-image: linear-gradient(transparent 40%, #000); -webkit-mask-image: linear-gradient(transparent 40%, #000); pointer-events: none; }
+.vt-info { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; width: 340px; color: #fff; }
+.vt-mark { display: flex; align-items: center; gap: 8px; font: 400 var(--fs-md) var(--display); letter-spacing: 2px; color: #fff; opacity: 0.92; }
+.vt-mark .vt-stripes { width: 30px; height: 16px; color: var(--glow); }
+.vt-mark i { font-style: normal; opacity: 0.7; }
+.vt-mark .collab { padding: 1px 8px; border: 2px solid #fff; letter-spacing: 1px; }
+.vt-info h2 { margin: 0; font: 400 46px/1 var(--display); color: #fff; text-shadow: 0 4px 0 var(--ink), 3px 0 0 var(--ink), -3px 0 0 var(--ink), 0 -3px 0 var(--ink), 0 0 30px color-mix(in srgb, var(--glow) 60%, transparent); }
+.vt-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.vt-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 8px; border: 3px solid var(--ink); border-radius: 999px; background: #fff; font: 400 var(--fs-lg) var(--display); color: var(--ink); }
+.vt-tag img { width: 22px; height: 22px; object-fit: contain; }
+.vt-tag.price { background: linear-gradient(#fff6cf, #ffd75a); }
+.vt-acts { display: flex; gap: 10px; margin-top: 4px; }
+.vt-acts .btn { flex-direction: row; gap: 8px; }
+.vt-cost { display: inline-flex; align-items: center; gap: 4px; margin-left: 4px; padding: 2px 8px 1px 5px; border-radius: 8px; background: rgba(10, 20, 50, 0.3); font-size: var(--fs-base); }
+.vt-cost img { width: 18px; height: 18px; }
+.vt-spot.copped .vt-plinth { animation: vt-copped 0.9s ease-out; }
+@keyframes vt-copped { 30% { transform: scale(1.5); filter: brightness(2); } }
+.vt-back { position: absolute; left: 16px; top: 16px; z-index: 2; width: 42px; height: 42px; padding: 9px; border: 3px solid var(--ink); border-radius: 50%; background: linear-gradient(#78c2ff, var(--blue)); box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+@media (prefers-reduced-motion: reduce) {
+  .vt-shoe img, .vt-rays, .vt-float, .vt-turn { animation: none; }
+}
+.vt-tag.vt-need { background: #ffe1dc; animation: vt-pop 0.3s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes vt-pop { from { scale: 0.6; } }
+.vt-shake { animation: vt-shake 0.35s; }
+@keyframes vt-shake { 20%, 60% { translate: -4px 0; } 40%, 80% { translate: 4px 0; } }

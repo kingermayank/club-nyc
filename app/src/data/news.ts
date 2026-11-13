@@ -116,14 +116,14 @@ const LEADS: Story[] = [
   },
   {
     kicker: 'FOOD',
-    headline: 'Adel’s Famous Halal Food Serves 300 Platters in an Hour; Line Reaches the Next Avenue',
+    headline: 'Halal Bros Serves 300 Platters in an Hour; Line Reaches the Next Avenue',
     deck: 'Chicken over rice, lamb over rice, and one brave man who asked for “light sauce.” He has not been seen since.',
     img: '/art/news/halal-line.jpg',
     caption: 'Lunch on Fifth Avenue. Everyone said “extra white sauce.” Everyone.',
     body: [
-      'FIFTH AVENUE: The Adel’s Famous Halal Food cart set a new lunch-rush record this week, serving 300 platters in a single hour while the line curled past two pretzel carts and a man selling umbrellas to people who did not need umbrellas.',
+      'FIFTH AVENUE: The Halal Bros cart set a new lunch-rush record this week, serving 300 platters in a single hour while the line curled past two pretzel carts and a man selling umbrellas to people who did not need umbrellas.',
       '“Red sauce is a commitment,” warned the grill cook, who has seen grown adults weep. “White sauce is a lifestyle.”',
-      'Adel’s is famous for its cart at Sixth Avenue and 49th Street, where the line runs well past midnight. This one is on Fifth Avenue at 57th, and the line seems to have followed it.',
+      'Halal Bros is famous for its cart at Sixth Avenue and 49th Street, where the line runs well past midnight. This one is on Fifth Avenue at 57th, and the line seems to have followed it.',
       'The cart is hiring for the lunch rush, and the pay is real coins. Find it on Fifth Avenue and ask about Halal Rush. Every coin you earn there counts for your neighborhood this week.',
     ],
   },
@@ -146,7 +146,7 @@ const LEADS: Story[] = [
     img: '/art/news/hiring.jpg',
     caption: 'The belt waits for no one. Neither does the oven.',
     body: [
-      'LITTLE ITALY: Joe’s Pizza is hiring for its Slice Factory line, where a conveyor belt delivers fresh dough at a pace the owner calls “brisk” and new hires call “a lot.”',
+      'LITTLE ITALY: 99¢ Slice is hiring for its Slice Factory line, where a conveyor belt delivers fresh dough at a pace the owner calls “brisk” and new hires call “a lot.”',
       '“Read the ticket, sauce it, cheese it, top it, oven,” explained a veteran slicer, with flour in places flour should not be. “Don’t burn it. If you burn it, everybody knows.”',
       'Shifts pay coins, and the fastest slicers make the weekly leaderboard. Apply at the counter in Little Italy. Aprons provided. Forks, absolutely not.',
     ],
@@ -177,12 +177,12 @@ const LEADS: Story[] = [
   },
   {
     kicker: 'STYLE',
-    headline: 'Nike Drop Draws Line Around the Block; Line Develops Its Own Economy',
+    headline: 'Sneaker Vault Drop Draws Line Around the Block; Line Develops Its Own Economy',
     deck: 'By hour three, people were trading folding chairs, phone chargers and theories.',
     img: '/art/news/sneaker-line.jpg',
     caption: 'Greene Street at dawn. Several of these people have been here since yesterday.',
     body: [
-      'SOHO: The newest drop at Nike drew a line that wrapped around the block twice, past the street vendor, the bike rack and a man who was in line for something else entirely and decided to stay.',
+      'SOHO: The newest drop at Sneaker Vault drew a line that wrapped around the block twice, past the street vendor, the bike rack and a man who was in line for something else entirely and decided to stay.',
       '“I don’t even know what size I am,” admitted one fan. “I just know I need them.” The store’s foot measurer says 9½, wide.',
       'The grails in the back vault are still not for sale. Not even for you.',
     ],
@@ -231,7 +231,7 @@ const LEADS: Story[] = [
     caption: 'The steps of the Met on Fifth Avenue. Free seating, excellent views.',
     body: [
       'UPPER EAST SIDE: A man who sat down on the steps of the Met “for a second” one morning this week got back up six hours later, having watched what he described as “the whole city walk by.”',
-      '“I had a pretzel. Then another pretzel. I made a wish in the fountain,” he said. “I never went inside. I’ll go inside next time.” The sign on the doors says the galleries are opening soon.',
+      '“I had a pretzel. Then another pretzel. I made a wish in the fountain,” he said. “I never went inside. I’ll go inside next time.”',
       'The fountains out front take one coin per wish. Results not guaranteed.',
     ],
   },
@@ -268,7 +268,7 @@ const LEADS: Story[] = [
     body: [
       'CHINATOWN: The day’s first soup-dumpling incident was reported at 11:04 AM, when a visitor bit into a fresh one whole and discovered, as everyone eventually does, that the soup is hot.',
       '“Nobody warned me,” he said, though several people had. Down the block, the boba line moved briskly, and the fruit stand sold a dragon fruit for one coin to a man who did not know what a dragon fruit was.',
-      'Joe’s Shanghai, which made the soup dumpling famous in New York, teaches the method to anyone who asks: nibble, sip, then eat. Then walk over to Little Italy for a slice. Folded, never forked.',
+      'Golden Dumpling, which made the soup dumpling famous in New York, teaches the method to anyone who asks: nibble, sip, then eat. Then walk over to Little Italy for a slice. Folded, never forked.',
     ],
   },
   {
@@ -280,7 +280,7 @@ const LEADS: Story[] = [
     body: [
       'BROOKLYN BRIDGE: Walkers and cyclists on the promenade have agreed, again, to stay on their own sides of the line, a historic peace that lasted until a tour group stopped to take a photo.',
       'The bridge opened in 1883, the first steel-wire suspension bridge. A year later P.T. Barnum marched 21 elephants across it to prove it was safe. The elephants stayed in their lane.',
-      'A painter on the promenade sells skyline paintings for your apartment, 8 coins each. The Brooklyn side is still being built: Brooklyn (Coming Soon).',
+      'A painter on the promenade sells skyline paintings for your apartment, 8 coins each.',
     ],
   },
   {
@@ -292,18 +292,18 @@ const LEADS: Story[] = [
     body: [
       'SOHO: A street vendor on Greene Street has confirmed that his designer sunglasses are “totally real,” “definitely real” and “the realest ones on the block,” in that order.',
       '“Ten coins,” he told a customer. “For you, five.” Asked whether the brand name was spelled correctly, he said “close enough,” which in SoHo counts as a warranty.',
-      'The cobblestones are beautiful and the heels are a mistake. Ralph’s Coffee has coffee, and Supreme and Nike are there if you’re dressing to be seen.',
+      'The cobblestones are beautiful and the heels are a mistake. Starducks Coffee has coffee, and THREAD and Sneaker Vault are there if you’re dressing to be seen.',
     ],
   },
   {
     kicker: 'FIFTH AVENUE',
-    headline: 'Saks Fifth Avenue Shoe Floor Has Its Own Zip Code; Mail Carrier Asks for a Map',
+    headline: 'Snacks Fifth Avenue Shoe Floor Has Its Own Zip Code; Mail Carrier Asks for a Map',
     deck: '10022-SHOE is a real zip code. It is also, according to one shopper, a lifestyle.',
     img: '/art/rooms/toy-palace.jpg',
-    caption: 'Saks Fifth Avenue. The shoes have their own floor, and the floor has its own zip code.',
+    caption: 'Snacks Fifth Avenue. The shoes have their own floor, and the floor has its own zip code.',
     body: [
-      'FIFTH AVENUE: The shoe floor at Saks Fifth Avenue is so big that the Postal Service gave it its own zip code in 2007: 10022-SHOE. Shoppers say it is the only zip code in Manhattan where nobody complains about the rent.',
-      'Saks opened on Fifth Avenue in 1924, across from St. Patrick’s Cathedral. Every holiday season the whole facade lights up in a light show, and the sidewalk fills with people who came for one photo and stayed for twelve.',
+      'FIFTH AVENUE: The shoe floor at Snacks Fifth Avenue is so big that the Postal Service gave it its own zip code in 2007: 10022-SHOE. Shoppers say it is the only zip code in Manhattan where nobody complains about the rent.',
+      'Snacks opened on Fifth Avenue in 1924, across from St. Patrick’s Cathedral. Every holiday season the whole facade lights up in a light show, and the sidewalk fills with people who came for one photo and stayed for twelve.',
       'Looking for the toy taxis, robots and balloons? They moved to I ♥ NY Souvenirs in Times Square.',
     ],
   },
@@ -371,24 +371,24 @@ const BRIEFS: Story[] = [
   },
   {
     kicker: 'STYLE',
-    headline: 'Louis Vuitton’s Velvet Rope Now Has Its Own Velvet Rope',
+    headline: 'Louis Vuittown’s Velvet Rope Now Has Its Own Velvet Rope',
     img: '/art/rooms/maison-malle.jpg',
     body: ['Shoppers outside the trunk-stacked boutique on Fifth Avenue report a waitlist for the waitlist. The upstairs salon remains by appointment only. The chandelier, staff confirm, costs more than your rent.'],
   },
   {
     kicker: 'COFFEE',
-    headline: 'Ralph’s Coffee Barista Spells a Name Right; Investigation Underway',
+    headline: 'Starducks Coffee Barista Spells a Name Right; Investigation Underway',
     body: ['The green cups are as green as ever, and so are the creative spellings. One customer named Kate received a cup reading “KHAITE.” She has framed it.'],
   },
   {
     kicker: 'NOW HIRING',
-    headline: 'Ralph’s Coffee Needs Delivery Help; Pigeons Need Nothing, Take Everything',
+    headline: 'Starducks Coffee Needs Delivery Help; Pigeons Need Nothing, Take Everything',
     img: '/art/rooms/coffee.jpg',
     body: ['The SoHo coffee shop is short-handed on deliveries. Catch the coffee sacks off the truck, stack them high and keep the pigeons away from the bagels. Ask at the counter about Bagel Counters.'],
   },
   {
     kicker: 'FOOD',
-    headline: 'White Sauce Shortage Feared; Adel’s Says “Never”',
+    headline: 'White Sauce Shortage Feared; Halal Bros Says “Never”',
     img: '/art/news/halal-line.jpg',
     body: ['Rumors of a citywide white sauce shortage swept Fifth Avenue this week until the cart’s grill cook held up a squeeze bottle the size of a fire extinguisher. Order resumed. The line did not shrink.'],
   },
@@ -475,11 +475,11 @@ const BRIEFS: Story[] = [
   {
     kicker: 'COFFEE',
     headline: 'Deli Coffee Cup Says It Is “Happy to Serve You”; Studies Confirm It Means It',
-    body: ['The blue paper cup with the Greek key pattern has been promising happiness to New Yorkers for decades. Ralph’s Coffee in SoHo pours the classic for 3 coins, even though its own cups are green. Light and sweet, obviously.'],
+    body: ['The blue paper cup with the Greek key pattern has been promising happiness to New Yorkers for decades. Starducks Coffee in SoHo pours the classic for 3 coins, even though its own cups are green. Light and sweet, obviously.'],
   },
   {
     kicker: 'BAGELS',
-    headline: 'Toasting a Fresh Bagel Ruled “Bold” by Ralph’s Coffee Staff',
+    headline: 'Toasting a Fresh Bagel Ruled “Bold” by Starducks Coffee Staff',
     body: ['Asked about the practice, a staffer said only “bold,” then walked away. An everything bagel is 2 coins. What you do with it is between you and your conscience.'],
   },
   {
@@ -512,7 +512,7 @@ const BRIEFS: Story[] = [
     kicker: 'LITTLE ITALY',
     headline: 'Man Orders Slice With Fork and Knife; Pizzeria Falls Silent',
     img: '/art/rooms/pizza.jpg',
-    body: ['A gasp rippled through Joe’s Pizza at lunchtime when a customer asked for a fork. Staff have agreed to pretend it never happened. Plain slices are one coin. Fold it.'],
+    body: ['A gasp rippled through 99¢ Slice at lunchtime when a customer asked for a fork. Staff have agreed to pretend it never happened. Plain slices are one coin. Fold it.'],
   },
   {
     kicker: 'THE HARBOR',
@@ -528,7 +528,7 @@ const BRIEFS: Story[] = [
   {
     kicker: 'SNEAKERS',
     headline: 'Size 9½ Wide Declared the Most Common Foot in SoHo',
-    body: ['That is according to the foot measurer at Nike, which says 9½ wide to almost everyone. Customers find it comforting. The turntable in the corner helps.'],
+    body: ['That is according to the foot measurer at Sneaker Vault, which says 9½ wide to almost everyone. Customers find it comforting. The turntable in the corner helps.'],
   },
 ]
 
@@ -805,7 +805,7 @@ const MOMENTS: Moment[] = [
     deck: 'A wooden roller coaster by the sea, still screaming.',
     body: [
       'The Cyclone opened at Coney Island on June 26, 1927, and its wooden track has been rattling riders by the boardwalk ever since.',
-      'Coney Island is in Brooklyn, which in Club NYC is still under construction: Brooklyn (Coming Soon). Save us a seat in the front car.',
+      'It is still one of the oldest wooden coasters running anywhere. Save us a seat in the front car.',
     ],
   },
   {
@@ -846,7 +846,7 @@ const SPORTS: Story[] = [
   {
     kicker: 'DELIVERIES',
     headline: 'Bagel Counters Crew Posts Personal Best; Pigeon Ejected for Interference',
-    body: ['The Ralph’s Coffee delivery team stacked coffee sacks a record height before a pigeon swooped in for the bagels. Officials ruled the play dead. The pigeon has been banned from SoHo for one afternoon.'],
+    body: ['The Starducks Coffee delivery team stacked coffee sacks a record height before a pigeon swooped in for the bagels. Officials ruled the play dead. The pigeon has been banned from SoHo for one afternoon.'],
   },
   {
     kicker: 'HARBOR',
@@ -910,7 +910,7 @@ const LETTERS: Letter[] = [
   },
   {
     q: 'Dear Bodega Cat, my friend says bagels should be toasted. Signed, Torn on Twenty-Third',
-    a: 'A fresh bagel is never toasted. A day-old bagel is a different conversation, and we don’t have it in front of the children. Get yours at Ralph’s Coffee in SoHo or Bagel Bros in Chelsea Market.',
+    a: 'A fresh bagel is never toasted. A day-old bagel is a different conversation, and we don’t have it in front of the children. Get yours at Starducks Coffee in SoHo or Bagel Bros in Chelsea Market.',
   },
   {
     q: 'Dear Bodega Cat, how do I get on TV? Signed, Ready for My Close-Up',
@@ -987,21 +987,21 @@ const CLASSIFIEDS: [string, string][] = [
   ['SERVICES', 'Skyline portraits painted while you wait. Brooklyn Bridge promenade. Very cheap, very good.'],
   ['LOST', 'One glove. Left. Last seen on the downtown local. The right one misses it terribly.'],
   ['FOUND', 'A MetroCard with exactly one ride left. Will return to whoever can describe the swipe.'],
-  ['FOR SALE', 'Folding chair, used once, outside Supreme. Has seen things.'],
+  ['FOR SALE', 'Folding chair, used once, outside THREAD. Has seen things.'],
   ['ROOMMATE WANTED', '1BR (the bedroom is also the living room). Must love radiators and cats who sit on newspapers.'],
   ['SERVICES', 'Parallel parking coach. 30 years’ experience. Has never actually found a spot.'],
   ['FREE', 'Couch on the curb, corner of Mott and Grand. Comfortable. Free. Probably fine.'],
   ['MISSED CONNECTION', 'You: held the subway doors for me. Me: too shy to say thank you. The doors: closing. Thank you.'],
-  ['MISSED CONNECTION', 'We both reached for the last everything bagel at Ralph’s Coffee. You let me have it. I think about it daily.'],
+  ['MISSED CONNECTION', 'We both reached for the last everything bagel at Starducks Coffee. You let me have it. I think about it daily.'],
   ['FOR RENT', 'Closet with a window. Or a window with a closet. Prime SoHo location. Bring your own hanger.'],
   ['HELP WANTED', 'Ferry captains, Battery Park. Must love seagulls, or at least tolerate them.'],
-  ['HELP WANTED', 'Pizza makers, Joe’s Pizza, Little Italy. Fast hands, steady sauce, no forks.'],
-  ['HELP WANTED', 'Lunch-rush crew, Adel’s Famous Halal Food, Fifth Avenue. White sauce experience a plus.'],
-  ['HELP WANTED', 'Delivery help, Ralph’s Coffee, SoHo. Catch the coffee, dodge the pigeons.'],
+  ['HELP WANTED', 'Pizza makers, 99¢ Slice, Little Italy. Fast hands, steady sauce, no forks.'],
+  ['HELP WANTED', 'Lunch-rush crew, Halal Bros, Fifth Avenue. White sauce experience a plus.'],
+  ['HELP WANTED', 'Delivery help, Starducks Coffee, SoHo. Catch the coffee, dodge the pigeons.'],
   ['LESSONS', 'Learn to fold a slice like a local. One lesson. It’s just folding. 1 coin.'],
   ['FOR SALE', 'Snow globe of the Empire State Building. Shake gently. It has feelings.'],
   ['LOST', 'Tourist, last seen asking which way is uptown. Answers to “excuse me.”'],
-  ['SERVICES', 'Professional line-stander. Will hold your spot at Supreme or the Adel’s cart. Bring snacks.'],
+  ['SERVICES', 'Professional line-stander. Will hold your spot at THREAD or the Halal Bros cart. Bring snacks.'],
   ['NOTICE', 'The radiator in 5C will begin clanking at 6 AM sharp. This is not a request.'],
   ['ADOPT', 'Bodega cats seeking corner stores. Must have a sunny window and a stack of bread.'],
   ['FOR SALE', 'Foam Liberty crown, gently used, emotionally significant. I ♥ NY Souvenirs has new ones.'],
@@ -1018,7 +1018,7 @@ const OVERHEARD: Overheard[] = [
   { q: '“It’s not a big apartment, but the radiator is very passionate.”', where: 'A fifth-floor stairwell' },
   { q: '“The train isn’t late. We’re just early for the next one.”', where: 'Times Sq–42 St' },
   { q: '“Is this the line?” “No.” “It is now.”', where: 'Greene Street, SoHo' },
-  { q: '“I came for the bagel and stayed for the bagel.”', where: 'Ralph’s Coffee' },
+  { q: '“I came for the bagel and stayed for the bagel.”', where: 'Starducks Coffee' },
   { q: '“Fold it! Why are you holding it like a sandwich?”', where: 'Little Italy' },
   { q: '“The pigeon took my pretzel, and honestly, I respect him.”', where: 'The Met steps' },
   { q: '“Every time I look up I trip, and every time I look down I miss something.”', where: 'Grand Central' },

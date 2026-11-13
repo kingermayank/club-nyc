@@ -1,0 +1,42 @@
+/* ---------- Lanterns, Mott Street: light the string before the wind (features/moments/lanterns.ts) ---------- */
+.mln-dusk { position: absolute; inset: 0; background: linear-gradient(rgba(16, 18, 62, 0.72), rgba(32, 22, 70, 0.5) 60%, rgba(40, 24, 60, 0.42)); animation: fade-in 0.6s; transition: background 0.8s; }
+.mln-dusk.warm { background: linear-gradient(rgba(120, 40, 20, 0.34), rgba(90, 30, 40, 0.22) 60%, rgba(60, 20, 50, 0.2)); }
+.mo-lanterns { cursor: none; touch-action: none; }
+
+/* a lantern: dark until the flame warms it (--h), then it glows through the dusk */
+.mln-lamp { position: absolute; z-index: 9; width: 0; height: 0; transform-origin: 0 -14px; pointer-events: none; --h: 0; }
+.mln-lamp b { position: absolute; left: -15px; top: -14px; width: 30px; height: 28px; border-radius: 46%; background: radial-gradient(circle at 50% 55%, #fff6c0 0 18%, #ffb347 45%, #ff5a36 80%); border: 3px solid var(--ink); box-sizing: border-box; opacity: calc(var(--h) * 0.65); box-shadow: 0 0 calc(var(--h) * 14px) #ffb347; }
+.mln-lamp::before { content: ''; position: absolute; left: -70px; top: -70px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 196, 92, 0.75) 0, rgba(255, 120, 60, 0.3) 38%, transparent 70%); mix-blend-mode: screen; opacity: 0; transform: scale(0.3); transition: opacity 0.25s, transform 0.35s cubic-bezier(0.2, 1.5, 0.4, 1); }
+/* the ring that shows where to hold the flame */
+.mln-lamp::after { content: ''; position: absolute; left: -21px; top: -20px; width: 42px; height: 40px; box-sizing: border-box; border: 3px dashed rgba(255, 255, 255, 0.75); border-radius: 50%; animation: mln-ring 6s linear infinite; }
+@keyframes mln-ring { to { transform: rotate(360deg); } }
+.mln-lamp.lit b { opacity: 1; box-shadow: 0 0 16px #ffb347, 0 0 4px #fff; animation: mln-flicker 0.9s ease-in-out infinite alternate; }
+.mln-lamp.lit::before { opacity: 1; transform: none; }
+.mln-lamp.lit::after { display: none; }
+@keyframes mln-flicker { from { filter: brightness(1); } to { filter: brightness(1.18); } }
+.mln-lamp.sway { animation: mln-sway 0.9s ease-out; }
+@keyframes mln-sway { 20% { transform: rotate(16deg); } 50% { transform: rotate(-10deg); } 75% { transform: rotate(5deg); } }
+.mln-lamp.puff b { animation: mln-puff 0.45s ease-out; }
+@keyframes mln-puff { 0% { opacity: 1; background: #dfe4ee; transform: scale(1.5); } 100% { opacity: 0; transform: scale(2.2) translateY(-14px); } }
+.mln-lamp.party { animation: mln-party 0.5s ease-in-out infinite alternate; }
+.mln-lamp.party:nth-child(odd) { animation-delay: -0.25s; }
+@keyframes mln-party { from { transform: rotate(-9deg) scale(1); } to { transform: rotate(9deg) scale(1.15); } }
+
+/* the taper: the flame is the pointer, the stick is the clock (it burns down) */
+.mln-taper { position: absolute; left: 0; top: 0; z-index: 14; width: 0; height: 0; pointer-events: none; --len: 1; }
+.mln-stick { position: absolute; left: -4px; top: 6px; width: 9px; height: calc(10px + var(--len) * 78px); box-sizing: border-box; background: linear-gradient(90deg, #fffdf6 0 50%, #e2d6b8 50%); border: 3px solid var(--ink); border-radius: 3px 3px 5px 5px; transform: rotate(-16deg); transform-origin: 50% 0; }
+.mln-flame { position: absolute; left: -11px; top: -24px; width: 22px; height: 30px; box-sizing: border-box; background: radial-gradient(circle at 50% 72%, #fff 0 16%, #ffe27a 36%, #ff8a2a 74%); border: 3px solid var(--ink); border-radius: 50% 50% 50% 50% / 68% 68% 32% 32%; box-shadow: 0 0 18px 6px rgba(255, 190, 90, 0.7); transform-origin: 50% 100%; animation: mln-lick 0.28s ease-in-out infinite alternate; }
+@keyframes mln-lick { from { transform: scale(1, 1) rotate(-4deg); } to { transform: scale(0.9, 1.12) rotate(5deg); } }
+.mln-taper.dead .mln-flame { animation: none; background: #cfd4e0; box-shadow: none; opacity: 0.55; transform: scale(0.7) translateY(-10px); border-color: transparent; border-radius: 50%; transition: all 0.5s; }
+
+/* a gust: three streaks blowing down the string */
+.mln-gust { position: absolute; left: -120px; top: 6px; z-index: 12; width: 120px; height: 70px; pointer-events: none; opacity: 0.9; background:
+  linear-gradient(90deg, transparent, #fff) 0 8px / 100% 5px no-repeat,
+  linear-gradient(90deg, transparent, #fff) 30px 32px / 75% 5px no-repeat,
+  linear-gradient(90deg, transparent, #fff) 10px 56px / 85% 5px no-repeat; filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8)); border-radius: 4px; }
+.mln-gust.rev { left: 0; }
+.mln-x { position: absolute; z-index: 13; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mln-lamp::after, .mln-lamp.lit b, .mln-lamp.sway, .mln-lamp.party, .mln-flame { animation: none; }
+}

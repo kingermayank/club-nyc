@@ -1,7 +1,8 @@
 import './downtown.css'
 import { sfx } from '../audio'
+import { save, persist } from '../state'
 import { el, stage } from '../engine/stage'
-import { hold, toast, closeOverlay, openOverlay, closeButton } from '../engine/ui'
+import { toast, openOverlay, closeButton } from '../engine/ui'
 import { world, onRoom, chatterOk, spawnResident } from '../engine/world'
 import { Actor } from '../engine/actor'
 import { RESIDENTS, SLOT_MS, locationOf } from '../social/residents'
@@ -9,10 +10,10 @@ import { hash } from '../social/rng'
 import type { Look } from '../avatar/look'
 import type { Game } from '../types'
 import type { Pt } from '../geometry'
-import { picCard } from './infocard'
+import { todaysIpo, loadMarket } from '../data/ipos'
 
 /**
- * Lower Manhattan: Wall Street (The Bull, the pizza-price ticker, a broker who only speaks in stock jargon),
+ * Lower Manhattan: Wall Street (The Bull, the Big Board of tech stocks, a broker who only speaks in stock jargon),
  * the One World Trade plaza (the elevator to the top, the 9/11 Memorial) and Sky Deck 102 up top.
  * Room hooks register on import (game.ts imports this before the first room is built).
  */
@@ -44,27 +45,31 @@ export function quadMatrix(w: number, h: number, q: [Pt, Pt, Pt, Pt]): string {
   return `matrix3d(${[t[0], t[3], 0, t[6], t[1], t[4], 0, t[7], 0, 0, 1, 0, t[2], t[5], 0, t[8]].map((v) => +v.toFixed(8)).join(',')})`
 }
 
-// ---------- Wall Street: the Pizza Index ----------
-interface Tick { sym: string; name: string; price: number; move: number; unit?: string }
-/** fake markets, real New York truths */
+// ---------- Wall Street: the Big Board ----------
+interface Tick { sym: string; name: string; price: number; move: number }
+/**
+ * The companies the startup world won't stop talking about (the AI labs, the IPO class of 2025 and 2026) and the
+ * rent. Prices are made up and in Club NYC coins, never dollars: it's a joke board, not a quote.
+ */
 function market(): Tick[] {
-  const wob = (n: number, spread: number) => Math.round((n + (Math.random() - 0.5) * spread) * 100) / 100
-  const t = (sym: string, name: string, base: number, spread: number, unit = '$'): Tick => {
-    const price = wob(base, spread)
-    return { sym, name, price, move: Math.round((price - base) * 100) / 100 || 0.01, unit }
+  const t = (sym: string, name: string, base: number, spread: number): Tick => {
+    const price = Math.round((base + (Math.random() - 0.5) * spread) * 100) / 100
+    return { sym, name, price, move: Math.round((price - base) * 100) / 100 || 0.01 }
   }
   return [
-    t('SLICE', 'Dollar slice', 1.5, 0.3),
-    t('MTA', 'Subway fare', 2.9, 0.12),
-    t('BAGEL', 'Bagel, plain', 1.75, 0.3),
-    t('HALAL', 'Chicken over rice', 9, 1.2),
-    t('COFFEE', 'Deli coffee', 2.25, 0.4),
+    t('AI', 'The whole AI trade', 100, 24),
+    t('ANTHRPC', 'Anthropic', 420, 60),
+    t('OPENAI', 'OpenAI', 850, 90),
+    t('RAMP', 'Ramp', 32, 6),
+    t('SPACEX', 'SpaceX', 750, 120),
+    t('FIGMA', 'Figma', 38, 10),
+    t('CRWV', 'CoreWeave', 110, 30),
+    t('KLARNA', 'Klarna', 36, 8),
+    t('GPU', 'GPUs in stock', 0, 0),
     t('RENT', 'Studio, monthly', 3450, 260),
-    { sym: 'PIGEON', name: 'Pigeons per bench', price: 4, move: 1, unit: '' },
-    { sym: 'BDGCAT', name: 'Bodega cats', price: 1, move: 0.01, unit: '' },
-  ]
+  ].map((x) => (x.sym === 'GPU' ? { ...x, price: 0, move: -0.01 } : x.sym === 'RENT' ? { ...x, move: Math.abs(x.move) } : x))
 }
-const money = (t: Tick) => (t.unit === '$' ? `$${t.price >= 100 ? Math.round(t.price).toLocaleString('en-US') : t.price.toFixed(2)}` : String(t.price))
+const money = (t: Tick) => (t.price >= 1000 ? Math.round(t.price).toLocaleString('en-US') : t.price.toFixed(2))
 const arrow = (m: number) => (m >= 0 ? '▲' : '▼')
 
 /** The live LED ticker across the board on the right of Wall Street. */
@@ -80,7 +85,7 @@ function mountTicker(scene: HTMLElement) {
   const render = () => {
     const ticks = market()
     const items = ticks.map((t) => `<span class="${t.move >= 0 ? 'up' : 'down'}"><b>${t.sym}</b> ${money(t)} ${arrow(t.move)}${Math.abs(t.move) >= 1 ? Math.round(Math.abs(t.move)) : Math.abs(t.move).toFixed(2)}</span>`).join('')
-    board.innerHTML = row('top', items) + row('bottom', '<span class="note">PIZZA INDEX</span><span class="note dim">SLICE TRACKS THE SUBWAY FARE SINCE THE 1960s</span><span class="note">MARKET OPEN</span><span class="note dim">PIGEONS: BULLISH</span>')
+    board.innerHTML = row('top', items) + row('bottom', `<span class="note">TODAY’S IPO: ${todaysIpo().sym}</span>` + '<span class="note">THE BIG BOARD</span><span class="note dim">PRICES IN CLUB NYC COINS</span><span class="note">IPO SEASON</span><span class="note dim">GPUS: SOLD OUT</span><span class="note">PIGEONS: BULLISH ON BREAD</span>')
   }
   render()
   scene.append(board)
@@ -88,42 +93,214 @@ function mountTicker(scene: HTMLElement) {
   return () => clearInterval(timer)
 }
 
-/** Clicking the board: the Pizza Index, plus a no-stakes "call the market" guess. */
-export function pizzaIndex() {
+/**
+ * Each row's emblem: one of our own city icons on a colored coin, a nod to what the company does. Never the
+ * company's real logo (those are their trademarks; the board is a parody).
+ */
+const EMBLEM: Record<string, [icon: string, color: string]> = {
+  AI: ['sparkles', '#7b5cff'], ANTHRPC: ['idea', '#d9774b'], OPENAI: ['chat', '#2fa98c'], RAMP: ['tag', '#d8c22f'],
+  SPACEX: ['moon', '#3c4a7a'], FIGMA: ['palette', '#e0559a'], CRWV: ['construction', '#3f7fe8'], KLARNA: ['shopping-bag', '#f2a7c3'],
+  GPU: ['joystick', '#5b6475'], RENT: ['key', '#e5483b'],
+}
+/** the news crawl across the top of the card (a few at a time, so it reads fresh) */
+const HEADLINES = [
+  'Every company on this board is an AI company now. Even the rent.',
+  'Another AI lab raised another round this morning. The bodega cat is still not taking meetings.',
+  'SpaceX went public and went to space. Rent still went up more.',
+  'Figma went public. The logo is still in review.',
+  'Ramp expensed the ticker tape. And the pretzel.',
+  'GPUs in stock: zero. Same as yesterday. Strong buy.',
+  'Klarna lets you pay for this headline in four installments.',
+  'Analysts upgrade pigeons to Strong Buy. Pigeons upgrade analysts to Bread Source.',
+  'CoreWeave sells shovels. Everyone else is digging.',
+]
+/** a tile's line chart of its last prices */
+const spark = (h: number[]) => {
+  const lo = Math.min(...h), hi = Math.max(...h), span = hi - lo || 1
+  const pts = h.map((v, i) => `${((i / (h.length - 1)) * 100).toFixed(1)},${(21 - ((v - lo) / span) * 18).toFixed(1)}`).join(' ')
+  return `<svg class="wsb-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}"/></svg>`
+}
+const pct = (t: Tick, from: number) => (from ? ((t.price - from) / from) * 100 : 0)
+const BEST = 'board:best'
+const CALL_MS = 6000
+
+/**
+ * Clicking the board: the LED wall up close, ten tiles ticking live, and Call It: pick a stock, call it up or down,
+ * and six seconds later the board settles it. A streak, a best and a stamp; no coins ride on it (it's a board, not a
+ * casino). GPUs are sold out, so there's nothing to call, and calling the rent doesn't count: it only goes up.
+ */
+export function bigBoard() {
   const ticks = market()
-  const table = el('div', 'ws-index')
-  table.innerHTML = ticks.map((t) => `<div class="${t.move >= 0 ? 'up' : 'down'}"><b>${t.sym}</b><span>${t.name}</span><em>${money(t)} ${arrow(t.move)}</em></div>`).join('')
-  const call = (dir: 1 | -1) => {
-    const real: 1 | -1 = Math.random() < 0.5 ? 1 : -1
-    const slice = ticks[0]
-    const move = Math.round((0.01 + Math.random() * 0.24) * 100) / 100
-    slice.price = Math.round((slice.price + real * move) * 100) / 100
-    sfx.tick()
-    const out = table.querySelector('div')!
-    out.className = real > 0 ? 'up' : 'down'
-    out.querySelector('em')!.textContent = `${money(slice)} ${arrow(real)}`
-    setTimeout(() => {
-      if (dir === real) {
-        sfx.ding()
-        toast(pick(['Called it. Please don’t quit your day job.', 'Nailed it. The pigeons are taking notes.', 'Right again. Somebody get this New Yorker a corner office.']), '📈')
-      } else {
-        sfx.squawk()
-        toast(pick(['Wrong call. The slice did what the slice wanted.', 'Missed it. Even the pros get it wrong. Mostly the pros.', 'Nope. The market is like the subway: it moves when it wants to.']), '📉')
-      }
-    }, 450)
+  const open = ticks.map((t) => t.price - t.move)
+  // a short made-up history per tile, so every sparkline has a shape from the start
+  const hist = ticks.map((t) => Array.from({ length: 13 }, (_, i) => (t.sym === 'GPU' ? 0 : t.price - t.move * (1 - i / 12) + (Math.random() - 0.5) * Math.abs(t.move))).concat(t.price))
+  const clock = () => new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' })
+  let best = save.stats[BEST] ?? 0
+  const tile = (t: Tick, i: number) => {
+    const [icon, color] = EMBLEM[t.sym] ?? ['coin', '#7b5cff']
+    return `<button class="wsb-tile" type="button" role="option" aria-selected="false" data-i="${i}">
+        <span class="wsb-top"><i class="wsb-logo" style="--c:${color}"><img src="/art/icons/e/${icon}.png" alt="" draggable="false"></i><b>${t.sym}</b></span>
+        <span class="wsb-name">${t.name}</span>
+        <span class="wsb-price"></span>
+        <span class="wsb-tag"></span>
+      </button>`
   }
-  picCard({
-    title: 'The Pizza Index',
-    kicker: 'Wall Street · Live-ish',
-    pic: { room: 'wall-street', rect: [700, 40, 300, 190] },
-    text: 'Since the 1960s the price of a New York slice has tracked the subway fare almost exactly. Economists call it the <b>Pizza Principle</b>. Down here it’s on the big board, between the rent and the pigeons.',
-    joke: 'RENT is up again. RENT is always up again.',
-    extra: table,
-    actions: [
-      { label: 'SLICE Goes Up', note: 'call it', stay: true, act: () => call(1) },
-      { label: 'SLICE Goes Down', note: 'call it', stay: true, act: () => call(-1) },
-    ],
-  })
+  const news = pick([HEADLINES.slice(0, 5), HEADLINES.slice(4)]).join('<i></i>')
+  const p = el('div', 'panel wsb')
+  p.innerHTML = `<header class="wsb-head"><h2>The Big Board</h2><span class="wsb-sub">Prices in Club NYC coins</span><span class="wsb-live"><i></i>LIVE <em>${clock()}</em></span></header>
+    <div class="wsb-grid" role="listbox" aria-label="Pick a stock to call">${ticks.map(tile).join('')}</div>
+    <div class="wsb-call" aria-live="polite">
+      <p class="wsb-msg"><b>Call It</b><span>Pick a stock, then call it: up or down.</span></p>
+      <div class="wsb-btns"><button class="wsb-up" type="button" disabled>▲ Up</button><button class="wsb-down" type="button" disabled>▼ Down</button></div>
+      <div class="wsb-streak"><small>Streak</small><b>0</b><small class="wsb-best">Best ${best}</small></div>
+    </div>
+    <div class="wsb-crawl" aria-hidden="true"><div class="wsb-crawl-run"><span>BREAKING</span>${news}<span>BREAKING</span>${news}</div></div>`
+  const tiles = [...p.querySelectorAll<HTMLButtonElement>('.wsb-tile')]
+  const msg = p.querySelector<HTMLElement>('.wsb-msg span')!
+  const up = p.querySelector<HTMLButtonElement>('.wsb-up')!
+  const down = p.querySelector<HTMLButtonElement>('.wsb-down')!
+  const streakEl = p.querySelector<HTMLElement>('.wsb-streak b')!
+  const bestEl = p.querySelector<HTMLElement>('.wsb-best')!
+  const clockEl = p.querySelector<HTMLElement>('.wsb-live em')!
+
+  /** one tile's price, change on the day and sparkline (fixed sizes, so ticking never moves the layout) */
+  const paint = (i: number, by = ticks[i].move) => {
+    const t = ticks[i]
+    const day = pct(t, open[i])
+    // the tile's color is its change on the day (like the real boards); each tick blinks its own direction
+    const dir = t.sym === 'GPU' ? 'flat' : day >= 0 ? 'up' : 'down'
+    tiles[i].classList.remove('up', 'down', 'flat', 'tick-up', 'tick-down')
+    tiles[i].classList.add(dir)
+    if (t.sym !== 'GPU' && by !== t.move) {
+      void tiles[i].offsetWidth
+      tiles[i].classList.add(by >= 0 ? 'tick-up' : 'tick-down')
+    }
+    tiles[i].querySelector('.wsb-price')!.innerHTML = `<em>${money(t)}</em><small>${t.sym === 'GPU' ? 'SOLD OUT' : `${day >= 0 ? '▲' : '▼'} ${Math.abs(day).toFixed(1)}%`}</small>`
+    const old = tiles[i].querySelector('.wsb-spark')
+    if (old) old.outerHTML = spark(hist[i])
+    else tiles[i].insertAdjacentHTML('beforeend', spark(hist[i]))
+  }
+  const move = (i: number, by: number) => {
+    const t = ticks[i]
+    if (t.sym === 'GPU') return
+    if (t.sym === 'RENT') by = Math.abs(by)
+    t.price = Math.max(0.01, Math.round((t.price + by) * 100) / 100)
+    hist[i] = [...hist[i].slice(1), t.price]
+    paint(i, by)
+  }
+  ticks.forEach((_, i) => paint(i))
+
+  // ---------- Call It ----------
+  let sel = -1
+  let streak = 0
+  let call: { i: number; dir: 1 | -1; from: number; end: number } | null = null
+  const select = (i: number) => {
+    if (call) return
+    if (ticks[i].sym === 'GPU') {
+      sfx.click()
+      msg.textContent = 'GPUs: sold out. Nothing to call. Same as yesterday.'
+      return
+    }
+    sfx.tick()
+    sel = i
+    tiles.forEach((b, k) => {
+      b.classList.toggle('sel', k === i)
+      b.setAttribute('aria-selected', String(k === i))
+    })
+    up.disabled = down.disabled = false
+    msg.textContent = `${ticks[i].sym} at ${money(ticks[i])}. Up or down in the next six seconds?`
+  }
+  const settle = () => {
+    if (!call || !p.isConnected) return
+    const { i, dir, from } = call
+    const t = ticks[i]
+    const diff = Math.round((t.price - from) * 100) / 100
+    tiles[i].classList.remove('called')
+    let out: 'hit' | 'miss' | 'flat' = diff === 0 ? 'flat' : Math.sign(diff) === dir ? 'hit' : 'miss'
+    if (t.sym === 'RENT') {
+      msg.textContent = dir === 1 ? 'Rent went up. Everyone called that. Doesn’t count.' : 'Rent went up. Rent always goes up.'
+      out = dir === 1 ? 'flat' : 'miss'
+      if (out === 'miss') streak = 0
+    } else if (out === 'flat') msg.textContent = `${t.sym} closed flat at ${money(t)}. Nobody wins. Very Wall Street.`
+    else if (out === 'hit') {
+      streak++
+      msg.textContent = `Called it. ${t.sym} ${dir === 1 ? 'up' : 'down'} to ${money(t)}.${streak > 1 ? ` That’s ${streak} in a row.` : ''}`
+    } else {
+      streak = 0
+      msg.textContent = `Missed. ${t.sym} went ${dir === 1 ? 'down' : 'up'} to ${money(t)}. The market does what it wants.`
+    }
+    if (out === 'hit') {
+      sfx.ding()
+      if (streak > best) {
+        best = streak
+        save.stats[BEST] = best
+        persist()
+        bestEl.textContent = `Best ${best}`
+      }
+      if (streak >= 5) world.api.stamp('called-it')
+    } else if (out === 'miss') sfx.pop()
+    streakEl.textContent = String(streak)
+    tiles[i].classList.add(out)
+    setTimeout(() => tiles[i].classList.remove('hit', 'miss', 'flat'), 900)
+    call = null
+    up.disabled = down.disabled = sel < 0
+  }
+  const makeCall = (dir: 1 | -1) => {
+    if (sel < 0 || call) return
+    sfx.click()
+    const t = ticks[sel]
+    call = { i: sel, dir, from: t.price, end: performance.now() + CALL_MS }
+    tiles[sel].classList.add('called')
+    up.disabled = down.disabled = true
+    msg.textContent = `Called: ${t.sym} ${dir === 1 ? '▲ up' : '▼ down'} from ${money(t)}…`
+  }
+  tiles.forEach((b, i) => (b.onclick = () => select(i)))
+  up.onclick = () => makeCall(1)
+  down.onclick = () => makeCall(-1)
+
+  // live: a couple of tiles move every second; the called one moves every second until it's settled
+  const live = window.setInterval(() => {
+    if (!p.isConnected) {
+      clearInterval(live)
+      window.removeEventListener('keydown', keys, true)
+      return
+    }
+    clockEl.textContent = clock()
+    for (let k = 0; k < 2; k++) {
+      const i = Math.floor(Math.random() * ticks.length)
+      if (call?.i === i) continue
+      move(i, Math.round((Math.random() - 0.45) * ticks[i].price * 0.012 * 100) / 100 || 0.01)
+    }
+    if (call) {
+      const t = ticks[call.i]
+      move(call.i, Math.round((Math.random() - 0.5) * t.price * 0.02 * 100) / 100 || 0.01)
+      const left = Math.ceil((call.end - performance.now()) / 1000)
+      if (left <= 0) settle()
+      else {
+        sfx.tick()
+        msg.textContent = `Called: ${t.sym} ${call.dir === 1 ? '▲ up' : '▼ down'} from ${money({ ...t, price: call.from })}, ${left}s left`
+      }
+    }
+  }, 1000)
+  const keys = (e: KeyboardEvent) => {
+    if (!p.isConnected) return
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      e.stopPropagation()
+      makeCall(e.key === 'ArrowUp' ? 1 : -1)
+    } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !call) {
+      e.preventDefault()
+      e.stopPropagation()
+      const n = ticks.length
+      let i = sel < 0 ? 0 : (sel + (e.key === 'ArrowRight' ? 1 : n - 1)) % n
+      if (ticks[i].sym === 'GPU') i = (i + (e.key === 'ArrowRight' ? 1 : n - 1)) % n
+      select(i)
+      tiles[i].focus({ preventScroll: true })
+    }
+  }
+  window.addEventListener('keydown', keys, true)
+  p.append(closeButton())
+  openOverlay(p)
 }
 
 // ---------- Wall Street: BullMarketBrad, who only speaks in stock jargon ----------
@@ -132,7 +309,7 @@ const JARGON = [
   'Synergy. Leverage. Lunch.', 'My portfolio is 90% bagels.', 'Bullish on pigeons. Bearish on Mondays.',
   'Can we take this offline? We’re literally outside.', 'Rent’s up 12% quarter over quarter. Sell!', 'Diversify your snacks.',
   'Buy low, sell high, fold your slice in between.', 'That’s a big ask. Let’s table it.', 'The market’s volatile. So is the 4 train.',
-  'I’m not lost. I’m pivoting.', 'SLICE is testing a historic support level.', 'Let’s touch base at the hot dog cart.',
+  'I’m not lost. I’m pivoting.', 'AI is testing a historic support level.', 'Is it an AI company? Then I’m in.', 'My seed round is my Venmo.', 'We’re pre-revenue. Post-vibes.', 'Let’s touch base at the hot dog cart.',
   'Per my last email: hi.', 'Moving the needle. Mostly the coffee needle.', 'I rub the bull every morning. Fiduciary duty.',
 ]
 const BRAD: Look = { skin: 2, hair: 'short', hairColor: 1, items: { body: 'suit', legs: 'black-jeans', feet: 'loafers', hand: 'coffee' } }
@@ -173,7 +350,7 @@ function spawnBrad() {
  * day already takes them to the neighbors (Battery Park, the Brooklyn Bridge, Chinatown). The same few for everyone
  * in each 4-minute slot. They wander, sit, and only say this place's own lines (at the World Trade Center: no bits).
  */
-function passersBy(room: string, n: number) {
+export function passersBy(room: string, n: number) {
   const nav = world.nav
   if (!nav) return () => {}
   if (world.npcs.some((a) => a.remote)) n -= 1
@@ -216,6 +393,8 @@ function passersBy(room: string, n: number) {
 }
 
 onRoom('wall-street', ({ scene }) => {
+  // the real IPO calendar, so the board names today's listing (it re-renders every 20 s)
+  void loadMarket()
   const offTicker = mountTicker(scene)
   const offBrad = spawnBrad()
   const offLocals = passersBy('wall-street', 2)
@@ -253,126 +432,16 @@ export function rubBull(g: Game) {
 }
 
 // ---------- One World Trade: the elevator to the top ----------
-interface Era { year: number; text: string }
-const ERAS: Era[] = [
-  { year: 1500, text: 'Mannahatta: forests, streams and Lenape trails. No rent yet.' },
-  { year: 1626, text: 'New Amsterdam: a Dutch trading post at the tip of the island.' },
-  { year: 1653, text: 'A wooden wall goes up on the north edge of town. Guess what they named the street.' },
-  { year: 1883, text: 'The Brooklyn Bridge opens across the East River.' },
-  { year: 1931, text: 'The Empire State Building opens. Tallest in the world for 40 years.' },
-  { year: 1973, text: 'The Twin Towers open here, 110 stories each.' },
-  { year: 2001, text: 'September 11, 2001. The towers are lost. We remember.' },
-  { year: 2014, text: 'One World Trade Center opens: 1,776 feet.' },
-]
-
-const SKYLINE = `<svg class="er-skyline" viewBox="0 0 600 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-  <g class="er-era on" data-y="1500"><path d="M0 230 Q60 200 120 222 T240 214 T360 226 T480 210 T600 222 V260 H0Z" fill="#3f8f4f"/><circle cx="80" cy="212" r="16" fill="#2f7a40"/><circle cx="170" cy="216" r="13" fill="#2f7a40"/><circle cx="470" cy="206" r="15" fill="#2f7a40"/></g>
-  <g class="er-era" data-y="1626"><rect x="62" y="212" width="18" height="16" fill="#c98f45" stroke="#1d2140" stroke-width="2"/><path d="M60 212 L71 202 L82 212Z" fill="#a8121f" stroke="#1d2140" stroke-width="2"/><rect x="88" y="208" width="16" height="20" fill="#e3c08a" stroke="#1d2140" stroke-width="2"/><path d="M40 228 V196 M40 196 l-10 -10 M40 196 l10 -10 M40 196 l-10 10 M40 196 l10 10" stroke="#1d2140" stroke-width="3"/></g>
-  <g class="er-era" data-y="1653"><path d="M116 228 V214 M126 228 V212 M136 228 V214 M146 228 V212 M156 228 V214 M166 228 V212" stroke="#7a4b2a" stroke-width="6" stroke-linecap="round"/></g>
-  <g class="er-era" data-y="1883"><path d="M470 228 V160 M540 228 V160" stroke="#a87a4a" stroke-width="12"/><path d="M430 200 Q470 150 470 160 Q505 205 540 160 Q560 190 600 196" fill="none" stroke="#1d2140" stroke-width="2.5"/><rect x="420" y="200" width="180" height="6" fill="#7a5a3a"/></g>
-  <g class="er-era" data-y="1931"><path d="M300 228 V120 H312 V96 H318 V70 H322 V40 H324 V70 H328 V96 H334 V120 H346 V228Z" fill="#c9ccd6" stroke="#1d2140" stroke-width="3"/><rect x="356" y="160" width="30" height="68" fill="#9aa6c4" stroke="#1d2140" stroke-width="3"/><rect x="262" y="176" width="28" height="52" fill="#b7c2dd" stroke="#1d2140" stroke-width="3"/></g>
-  <g class="er-era er-twins" data-y="1973" data-until="2001"><rect x="186" y="74" width="26" height="154" fill="#d6dbe8" stroke="#1d2140" stroke-width="3"/><rect x="220" y="80" width="26" height="148" fill="#c3c9da" stroke="#1d2140" stroke-width="3"/></g>
-  <g class="er-era er-beams" data-y="2001" data-until="2014"><rect x="190" y="0" width="18" height="228" fill="#bfe6ff" opacity=".55"/><rect x="224" y="0" width="18" height="228" fill="#bfe6ff" opacity=".55"/></g>
-  <g class="er-era" data-y="2014"><path d="M196 228 L204 70 L216 56 L228 70 L236 228Z" fill="#7fb2ff" stroke="#1d2140" stroke-width="3"/><path d="M216 56 V18" stroke="#1d2140" stroke-width="3"/><path d="M204 70 L236 228 M228 70 L196 228" stroke="#cfe8ff" stroke-width="2"/></g>
-  <rect x="0" y="228" width="600" height="32" fill="#2a7bd5"/><path d="M0 238 Q20 234 40 238 T80 238 T120 238 T160 238 T200 238 T240 238 T280 238 T320 238 T360 238 T400 238 T440 238 T480 238 T520 238 T560 238 T600 238" fill="none" stroke="#9fd2ef" stroke-width="3"/>
-</svg>`
-
-const mix = (a: string, b: string, k: number) => {
-  const p = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
-  const [x, y] = [p(a), p(b)]
-  return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * k)).join(',')})`
-}
-
-/** Up to Sky Deck 102: the skyline grows outside the elevator window, five hundred years in a few seconds. */
+/** Up to Sky Deck 102 in the SkyPod: the island grows up outside the cab's walls as you climb (features/skypod.ts). */
 export function elevatorUp(g: Game) {
-  const release = hold()
-  sfx.ding()
-  const car = el('div', 'elevator-ride', `<div class="er-window"><div class="er-sky"></div>${SKYLINE}</div>
-    <div class="er-panel"><small>FLOOR</small><b class="er-floor">1</b><span class="er-year">1500</span></div>
-    <div class="er-caption"></div><button class="btn small ghost er-skip">Skip Ride</button>`)
-  stage.root.append(car)
-  const floor = car.querySelector<HTMLElement>('.er-floor')!
-  const yearEl = car.querySelector<HTMLElement>('.er-year')!
-  const caption = car.querySelector<HTMLElement>('.er-caption')!
-  const sky = car.querySelector<HTMLElement>('.er-sky')!
-  const eras = [...car.querySelectorAll<SVGGElement>('.er-era')]
-  const STEP = 650
-  const timers: number[] = []
-  let done = false
-  const finish = () => {
-    if (done) return
-    done = true
-    timers.forEach(clearTimeout)
-    clearInterval(counter)
-    car.classList.add('out')
-    sfx.ding()
-    g.goto('sky-deck', 'one-world-trade')
-    setTimeout(() => {
-      car.remove()
-      release()
-    }, 650)
-  }
-  car.querySelector<HTMLButtonElement>('.er-skip')!.onclick = (e) => {
-    e.stopPropagation()
-    sfx.click()
-    finish()
-  }
-  const t0 = performance.now()
-  const total = STEP * ERAS.length + 600
-  const counter = window.setInterval(() => {
-    const k = Math.min(1, (performance.now() - t0) / total)
-    floor.textContent = String(Math.max(1, Math.round(k * 102)))
-  }, 50)
-  ERAS.forEach((era, i) =>
-    timers.push(
-      window.setTimeout(() => {
-        yearEl.textContent = String(era.year)
-        caption.innerHTML = `<b>${era.year}</b> ${era.text}`
-        caption.classList.remove('show')
-        void caption.offsetWidth
-        caption.classList.add('show')
-        const k = i / (ERAS.length - 1)
-        sky.style.background = `linear-gradient(180deg, ${mix('#7cc4ff', '#f08a4b', k)}, ${mix('#e3f4ff', '#ffd27a', k)})`
-        for (const e of eras) {
-          const from = +(e.dataset.y ?? 0)
-          const until = +(e.dataset.until ?? 99999)
-          e.classList.toggle('on', era.year >= from && era.year < until)
-        }
-        sfx.tick()
-      }, 300 + i * STEP),
-    ),
-  )
-  timers.push(window.setTimeout(() => {
-    caption.innerHTML = '<b>Floor 102.</b> Welcome to Sky Deck 102. Mind the view.'
-  }, 300 + ERAS.length * STEP))
-  timers.push(window.setTimeout(finish, 300 + ERAS.length * STEP + 1300))
+  void import('./skypod').then((m) => m.rideSkyPod(true, () => g.goto('sky-deck', 'one-world-trade')))
 }
 
 /** Back down to the plaza (shorter: what goes up must come down, ears first). */
 export function elevatorDown(g: Game) {
-  const release = hold()
-  sfx.ding()
-  const car = el('div', 'elevator-ride down', `<div class="er-doors"><i></i><i></i></div>
-    <div class="er-panel"><small>FLOOR</small><b class="er-floor">102</b></div>
-    <div class="er-caption show">Going down. Your ears will pop in 3, 2, 1…</div>`)
-  stage.root.append(car)
-  const floor = car.querySelector<HTMLElement>('.er-floor')!
-  const t0 = performance.now()
-  const counter = window.setInterval(() => {
-    const k = Math.min(1, (performance.now() - t0) / 2200)
-    floor.textContent = String(Math.max(1, Math.round(102 - k * 101)))
-  }, 50)
-  setTimeout(() => {
-    clearInterval(counter)
-    car.classList.add('out')
-    sfx.ding()
-    g.goto('one-world-trade', 'sky-deck')
-    setTimeout(() => {
-      car.remove()
-      release()
-      g.say(pick(['*pop* There go my ears.', 'Back on the ground. The ground feels short now.', 'That was faster than my commute.']))
-    }, 650)
-  }, 2600)
+  void import('./skypod')
+    .then((m) => m.rideSkyPod(false, () => g.goto('one-world-trade', 'sky-deck')))
+    .then(() => g.say(pick(['*pop* There go my ears.', 'Back on the ground. The ground feels short now.', 'That was faster than my commute.'])))
 }
 
 // ---------- the Brooklyn Bridge's way back down to Wall Street ----------
@@ -411,7 +480,7 @@ onRoom('one-world-trade', ({ scene }) => {
 onRoom('sky-deck', () => passersBy('sky-deck', 2))
 
 /** A white rose on the parapet: the memorial places one on each person's name on their birthday. */
-export function placeRose(_g: Game) {
+export function placeRose(_g: Game, quiet = false) {
   const p = world.player.pos
   // just beside you on the parapet (right where you stand, you'd hide it)
   const x = Math.max(24, Math.min(286, p[0] - 30))
@@ -421,56 +490,10 @@ export function placeRose(_g: Game) {
   const img = el('div', 'wtc-rose new', ROSE_SVG)
   img.style.cssText = `left:${r.x}px;top:${r.y}px`
   stage.scene.append(img)
-  toast('A white rose, for the names.', '🕊️')
+  if (!quiet) toast('A white rose, for the names.', '🕊️')
 }
 
-const EXHIBIT = [
-  { img: 'towers', title: 'The Twin Towers', kicker: '1973 to 2001', text: 'For nearly 30 years the Twin Towers of the World Trade Center stood here, 110 stories each. On September 11, 2001, terrorist attacks destroyed them. 2,977 people were killed that day in New York, at the Pentagon and in Pennsylvania, including more than 400 first responders.' },
-  { img: 'today', title: 'The Memorial', kicker: 'Opened 2011', text: 'Two reflecting pools sit in the towers’ footprints, each nearly an acre, with the largest man-made waterfalls in North America. The names of the 2,983 people killed in the attacks of 2001 and 1993 are inscribed in bronze around them.' },
-  { img: 'survivor', title: 'The Survivor Tree', kicker: 'Replanted 2010', text: 'A Callery pear found in the rubble in October 2001, burned, with one living branch. It was nursed back to health in the Bronx and replanted here. It blooms white every spring, and its seedlings go to communities around the world that have lived through hard times.' },
-  { img: 'tribute', title: 'Tribute in Light', kicker: 'Every September 11', text: 'Every year on the evening of September 11, two beams of light shine about four miles into the sky from Lower Manhattan, one for each tower.' },
-]
-
-/** The memorial exhibit: four quiet pages, Back and Next, always a way out. */
+/** The memorial's story, as an exhibit panel over the room (the same one the parapet scene opens: features/memorial.ts). */
 export function memorialExhibit(start = 0) {
-  let i = start
-  const box = el('div', 'panel ic-card quiet wtc-exhibit')
-  const render = () => {
-    const page = EXHIBIT[i]
-    box.innerHTML = `<figure class="ic-frame"><div class="ic-pic is-src cover"><img src="/art/memorial/${page.img}.jpg" alt="" draggable="false"></div><figcaption>${i + 1} of ${EXHIBIT.length}</figcaption></figure>
-      <div class="ic-body"><div class="ic-kicker">${page.kicker}</div><h2>${page.title}</h2><p class="ic-text">${page.text}</p><div class="ic-actions"></div></div>`
-    const bar = box.querySelector<HTMLElement>('.ic-actions')!
-    const btn = (label: string, cls: string, fn: () => void, off = false) => {
-      const b = el('button', 'btn small ' + cls, label) as HTMLButtonElement
-      b.disabled = off
-      b.onclick = () => {
-        sfx.click()
-        fn()
-      }
-      bar.append(b)
-    }
-    btn('Back', 'ghost', () => ((i = Math.max(0, i - 1)), render()), i === 0)
-    if (i < EXHIBIT.length - 1) btn('Next', 'go', () => ((i += 1), render()))
-    else btn('Close', 'go', () => closeOverlay())
-    box.append(closeButton())
-  }
-  render()
-  openOverlay(box)
-  world.api.stamp('remember')
+  void import('./memorial').then((m) => m.memorialStory(stage.root, start))
 }
-
-// ---------- Sky Deck 102 ----------
-/** Walk onto the glass disc in the floor: it's a live picture of the street, not a hole. Your knees disagree. */
-export function skyPortalJump(g: Game) {
-  g.emote('jump', 2)
-  sfx.whoosh()
-  const portal = [...stage.scene.querySelectorAll<HTMLImageElement>('.cutout')].find((i) => i.src.includes('/sky-deck/portal.png'))
-  if (portal) {
-    portal.classList.remove('sd-wobble')
-    void portal.offsetWidth
-    portal.classList.add('sd-wobble')
-    setTimeout(() => portal.classList.remove('sd-wobble'), 900)
-  }
-  setTimeout(() => g.say(pick(['I looked down. I regret looking down.', 'Those taxis look like Tic Tacs. Yellow ones.', 'The floor held. My dignity, less so.', 'Okay. Okay. I’m fine. I’m totally fine.'])), 500)
-}
-

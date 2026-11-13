@@ -134,7 +134,7 @@ export function openCommunity(tab: Tab = lastTab) {
     void import('../net/multiplayer').then(({ mp }) => {
       c.textContent = String(mp.friends.size)
       c.classList.toggle('alert', mp.incoming.size > 0)
-      if (mp.incoming.size) c.textContent = `${mp.friends.size} · ${mp.incoming.size} new`
+      if (mp.incoming.size) c.textContent = `${mp.incoming.size} new`
     })
   }
   count()
@@ -160,7 +160,7 @@ const esc = (t: string) => t.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 const faceOf = (look: Look | null) => (look ? headPortrait(look) : '')
 const teamLine = (team: string, extra = '') => {
   const t = TEAMS[team as TeamId]
-  return t ? `<i style="background:${t.color}"></i>${t.name}${extra}` : extra.replace(/^ · /, '')
+  return t ? `<i style="background:${t.color}"></i>${t.name}${extra}` : extra
 }
 
 async function renderCity(body: HTMLElement, live: () => boolean) {
@@ -241,8 +241,9 @@ async function renderFriendsOnline(body: HTMLElement, rerender: () => void, live
     }
   }
   const list = [...mp.friends.values()].sort((a, b) => Number(b.online) - Number(a.online) || a.name.localeCompare(b.name))
-  body.append(el('h4', 'cm-sub', `Friends · ${list.filter((f) => f.online).length} Online`))
-  if (!list.length)
+  // the heading only when there are friends to count (with none, the empty state below says it all)
+  if (list.length) body.append(el('h4', 'cm-sub', `Friends${list.some((f) => f.online) ? ` <small>${list.filter((f) => f.online).length} online</small>` : ''}`))
+  else
     body.append(el('div', 'cm-empty', `<div class="cm-empty-art">🤝</div><b>No Friends Yet</b><p>Click anyone in the city and hit <b>Add Friend</b>. When they accept, you’ll see where they are and can jump straight to them. Or bring someone you already know: they’ll land right next to you.</p>`))
   // the friends list is where people think about friends: the invite link lives here too
   const invite = el('button', 'btn small cm-invite', list.length ? '💌 Invite Someone from Outside the City' : '💌 Invite a Friend')
@@ -270,7 +271,7 @@ async function renderFriendsOnline(body: HTMLElement, rerender: () => void, live
   // people you've blocked (with a way back)
   if (mp.blocked.size) {
     const blockedBox = el('div', 'cm-blocked')
-    const head = el('button', 'cm-sub cm-blocked-head', `Blocked · ${mp.blocked.size} <i>▾</i>`)
+    const head = el('button', 'cm-sub cm-blocked-head', `Blocked <small>${mp.blocked.size}</small> <i>▾</i>`)
     head.onclick = async () => {
       sfx.click()
       if (blockedBox.querySelector('.cm-row')) return blockedBox.querySelectorAll('.cm-row').forEach((r) => r.remove())
@@ -293,7 +294,7 @@ async function renderFriendsOnline(body: HTMLElement, rerender: () => void, live
   // real people in this room you could add
   const here = [...mp.players.values()].filter((a) => a.remote && !mp.friends.has(a.remote.id))
   if (here.length) {
-    body.append(el('h4', 'cm-sub', `People Here Now · ${world.room.name}`))
+    body.append(el('h4', 'cm-sub', 'People Here Now'))
     for (const a of here) {
       const id = a.remote!.id
       const row = el('div', 'cm-row', `<span class="cm-face">${headPortrait(a.look)}</span><span class="cm-who"><b>${esc(a.name)}</b><small>${teamLine(a.remote!.team)}</small></span>`)
@@ -342,7 +343,7 @@ async function renderBoardsOnline(body: HTMLElement, rerender: () => void, live:
     chips.append(b)
   }
   const g = BOARD[lastGame]
-  const meta = el('div', 'cm-meta', `<span>${allTime ? 'All-time bests · real players' : `This week · real players · resets in ${resetIn()}`}</span>`)
+  const meta = el('div', 'cm-meta', `<span>${allTime ? 'All-time bests' : `Resets in ${resetIn()}`}</span>`)
   const toggles = el('span', 'cm-toggles')
   const period = el('button', 'cm-filter', allTime ? '🏛️ All Time' : '📅 This Week')
   period.title = 'Switch between this week and all time'
@@ -382,7 +383,7 @@ async function renderBoardsOnline(body: HTMLElement, rerender: () => void, live:
   }
   if (!rows.length) table.append(el('div', 'cm-empty', `<p>${friendsOnly ? 'None of your friends have played' : 'Nobody has played'} ${g.title} this week. First place is wide open!</p>`))
   foot.innerHTML = r.me.rank
-    ? `<span>${allTime ? 'All time: ' : ''}You’re <b>#${r.me.rank}</b> of ${r.me.total}${r.me.next ? ` · beat <b>${esc(r.me.next.name)}</b>’s ${fmt(lastGame, r.me.next.score)} to climb` : ' · 👑 top of the board!'}</span>`
+    ? `<span>${allTime ? 'All time: ' : ''}You’re <b>#${r.me.rank}</b> of ${r.me.total}${r.me.next ? `. Beat <b>${esc(r.me.next.name)}</b>’s ${fmt(lastGame, r.me.next.score)} to climb.` : ' 👑'}</span>`
     : `<span>You haven’t played ${g.title} ${allTime ? 'yet' : 'this week'}.</span>`
   const play = el('button', 'btn go', `Play ${g.title}`)
   play.onclick = () => {
@@ -414,7 +415,7 @@ async function renderTeamsOnline(body: HTMLElement, rerender: () => void, live: 
     .map((t) => ({ team: TEAMS[t.team as TeamId], players: t.players, points: t.points + (r.npcBaseline ? localsPoints(t.team as TeamId) : 0) }))
     .sort((a, b) => b.points - a.points)
   const max = Math.max(1, ...rows.map((x) => x.points))
-  body.append(el('div', 'cm-meta', `<span>Neighborhood Wars · this week · resets in ${resetIn()}</span>`))
+  body.append(el('div', 'cm-meta', `<span>Resets in ${resetIn()}</span>`))
   const bars = el('div', 'cm-teams')
   rows.forEach((row, i) => {
     const t = row.team
@@ -428,7 +429,7 @@ function personRow(r: Resident, extra = '') {
   const loc = locationOf(r)
   const t = TEAMS[r.team]
   return `<span class="cm-face">${headPortrait(r.look)}</span>
-    <span class="cm-who"><b>${r.name}</b><small><i style="background:${t.color}"></i>${t.name}${r.title ? ` · ${r.title}` : ''}</small></span>
+    <span class="cm-who"><b>${r.name}</b><small><i style="background:${t.color}"></i>${t.name}</small></span>
     <span class="cm-where ${loc ? 'on' : ''}">${loc ? `📍 ${roomName(loc)}` : '💤 Offline'}</span>${extra}`
 }
 
@@ -463,7 +464,7 @@ function renderFriends(body: HTMLElement, rerender: () => void) {
   // people around you right now
   const nearby = world.npcs.map((a) => a.resident).filter((r): r is Resident => !!r && !isFriend(r.id))
   if (nearby.length) {
-    body.append(el('h4', 'cm-sub', `People Here Now · ${world.room.name}`))
+    body.append(el('h4', 'cm-sub', 'People Here Now'))
     for (const r of nearby) {
       const row = el('div', 'cm-row', personRow(r))
       const add = el('button', 'btn small go', '+ Add Friend')
@@ -505,7 +506,7 @@ function renderBoards(body: HTMLElement, rerender: () => void) {
   }
   const g = BOARD[lastGame]
   const rows = board(lastGame, friendsOnly)
-  const meta = el('div', 'cm-meta', `<span>This week · resets in ${resetIn()}</span>`)
+  const meta = el('div', 'cm-meta', `<span>Resets in ${resetIn()}</span>`)
   const filter = el('button', 'cm-filter', friendsOnly ? '★ Friends' : '🌎 Everyone')
   filter.onclick = () => {
     friendsOnly = !friendsOnly
@@ -557,7 +558,7 @@ function renderTeams(body: HTMLElement, rerender: () => void) {
   }
   const s = standings()
   const max = Math.max(...s.map((x) => x.points))
-  body.append(el('div', 'cm-meta', `<span>Neighborhood Wars · this week · resets in ${resetIn()}</span>`))
+  body.append(el('div', 'cm-meta', `<span>Resets in ${resetIn()}</span>`))
   const bars = el('div', 'cm-teams')
   s.forEach((row, i) => {
     const t = row.team

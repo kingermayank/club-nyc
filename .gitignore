@@ -27,3 +27,15 @@ app/public/art/preview/
 
 # design-lab clips (npm --prefix video run clips makes them again)
 app/lab/clips/
+
+# test photos for the photo-match lab (app/lab/match.html)
+app/lab/_faces/
+
+# licensed sound originals (tools/sfx_build.py makes app/public/sfx from them)
+tools/sfx_raw/
+
+# playtest bot output (screenshots, reports)
+tools/playtest/out/
+
+# the full-frame source animations for the subway train (38 MB; tools/subway_train.py cuts the game clips from them)
+app/public/art/raw/train/*.mp4

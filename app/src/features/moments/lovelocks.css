@@ -1,0 +1,116 @@
+/* Love Locks (moments/lovelocks.ts): the railing and the souvenir stand, first person, in stage units over 1000 × 565 */
+.mo-lovelocks { background: #0b1835; overflow: hidden; touch-action: none; user-select: none; }
+.ll-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.ll-layer { position: absolute; inset: 0; }
+/* the railing on its own, over a key that has gone over the top */
+.ll-rail { position: absolute; left: 0; top: 240px; width: 1000px; height: auto; pointer-events: none; }
+.stand .ll-rail { display: none; }
+
+/* ---------- a lock ---------- */
+.ll-lock { position: absolute; transform-origin: 50% 11.7%; filter: drop-shadow(0 2px 0 rgba(29, 33, 64, 0.35)); }
+.ll-lock .ll-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.ll-lock .ll-shackle { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.ll-lock.open .ll-shackle { transform: translateY(-16%); }
+.ll-layer .ll-lock { cursor: pointer; }
+.ll-layer .ll-lock:hover { filter: drop-shadow(0 0 0 #fff) drop-shadow(0 0 5px rgba(255, 230, 140, 0.95)) drop-shadow(0 2px 0 rgba(29, 33, 64, 0.35)); }
+.ll-layer .ll-lock.mine::after { content: ''; position: absolute; left: 50%; top: -9px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--sun); border: 2px solid var(--ink); animation: ll-blink 1.6s ease-in-out infinite; }
+@keyframes ll-blink { 50% { transform: scale(0.6); opacity: 0.6; } }
+.ll-lock.fresh { animation: ll-clip 0.35s cubic-bezier(0.3, 1.5, 0.5, 1); }
+@keyframes ll-clip { from { transform: translateY(-14px) scale(1.15); } }
+/* unlocked with a key: the shackle springs up and the lock drops away */
+.ll-lock.opened { pointer-events: none; animation: ll-off 0.7s cubic-bezier(0.5, 0, 0.8, 0.4) forwards; }
+.ll-lock.opened .ll-shackle { transform: translateY(-18%); }
+@keyframes ll-off { 25% { transform: translateY(-6px) rotate(-8deg); } 100% { transform: translateY(160px) rotate(40deg); opacity: 0; } }
+
+/* the one in your hand, open, following you along the railing */
+.ll-lock.held { left: 0; top: 0; z-index: 900; pointer-events: none; filter: drop-shadow(0 6px 0 rgba(29, 33, 64, 0.35)); }
+/* where it would clip on */
+.ll-ring { position: absolute; left: 0; top: 0; z-index: 890; width: 26px; height: 26px; margin: -13px 0 0 -13px; border: 3px dashed #fff; border-radius: 50%; box-shadow: 0 0 10px rgba(255, 224, 102, 0.9); opacity: 0; pointer-events: none; transition: opacity 0.12s; animation: ll-spin 3s linear infinite; }
+.ll-ring.on { opacity: 1; }
+.ll-ring.taken { border-color: #ff6a5c; box-shadow: 0 0 10px rgba(255, 90, 60, 0.9); }
+@keyframes ll-spin { to { rotate: 360deg; } }
+
+.ll-tip { position: absolute; z-index: 950; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; padding: 4px 10px 5px; background: #fff; border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--ink); font: var(--fs-sm)/1.15 var(--display); color: var(--ink); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.12s; }
+.ll-tip.on { opacity: 1; }
+.ll-tip span { font: var(--fs-2xs) var(--body); opacity: 0.7; }
+
+.ll-menu { position: absolute; z-index: 960; transform: translateX(-50%); animation: pop-in 0.2s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.ll-menu .btn img { width: 18px; height: auto; vertical-align: -3px; margin-right: 4px; }
+
+/* ---------- the top: how many locks, what's in your pocket, coins and Step Out ---------- */
+.ll-top { position: absolute; left: 16px; top: 16px; z-index: 970; display: flex; gap: 8px; }
+.ll-count, .ll-chip, .ll-coins { display: flex; align-items: center; gap: 5px; padding: 4px 11px 4px 7px; background: #fbfaf6; border: 2.5px solid var(--ink); border-radius: 999px; box-shadow: 0 2px 0 var(--ink); font: 400 var(--fs-md)/1 var(--display); color: var(--ink); }
+.ll-count b, .ll-coins b { font-weight: 400; }
+.ll-pocket { display: flex; gap: 8px; }
+.stand .ll-count { display: none; }
+.ll-chip img { width: 26px; height: auto; }
+.ll-ico { display: inline-block; width: 16px; height: 18px; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'%3E%3Cpath d='M31 64V33a19 19 0 0 1 38 0v31' fill='none' stroke='%231d2140' stroke-width='14' stroke-linecap='round'/%3E%3Crect x='12' y='52' width='76' height='62' rx='13' fill='%23e8b33a' stroke='%231d2140' stroke-width='8'/%3E%3C/svg%3E"); }
+.ll-actions { position: absolute; right: 16px; top: 16px; z-index: 970; display: flex; align-items: center; gap: 8px; }
+.ll-coins img { width: 20px; height: 20px; }
+.ll-bar { position: absolute; left: 50%; bottom: 16px; z-index: 970; transform: translateX(-50%); display: flex; gap: 10px; }
+.mo-lovelocks .ll-hint { z-index: 975; }
+
+/* ---------- the key ---------- */
+.ll-key { position: absolute; left: 0; top: 0; z-index: 940; width: 118px; height: auto; cursor: grab; filter: drop-shadow(0 4px 0 rgba(29, 33, 64, 0.35)); transition: opacity 0.2s; }
+.ll-key:active { cursor: grabbing; }
+.ll-key.drop { transition: transform 0.6s cubic-bezier(0.5, 0, 0.7, 1.4); }
+.ll-key.pocket { transition: transform 0.45s ease-in, opacity 0.45s; transform: translate(120px, 30px) scale(0.3) !important; opacity: 0; }
+.ll-key.gone { opacity: 0; pointer-events: none; }
+.ll-splash { position: absolute; z-index: 930; transform: translate(-50%, -50%) scale(var(--s)); pointer-events: none; }
+.ll-splash i { position: absolute; left: -30px; top: -9px; width: 60px; height: 18px; border: 3px solid #fff; border-radius: 50%; animation: ll-ring 1.2s ease-out forwards; }
+.ll-splash i + i { animation-delay: 0.18s; }
+@keyframes ll-ring { from { transform: scale(0.2); opacity: 1; } to { transform: scale(1.9); opacity: 0; } }
+.ll-splash b { position: absolute; left: -4px; top: -4px; width: 8px; height: 10px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #d8f1ff; border: 2px solid #1d2140; animation: ll-drop 0.7s cubic-bezier(0.3, 0.6, 0.6, 1) forwards; }
+.ll-splash b:nth-of-type(1) { --x: -26px; }
+.ll-splash b:nth-of-type(2) { --x: 2px; animation-duration: 0.8s; }
+.ll-splash b:nth-of-type(3) { --x: 24px; }
+@keyframes ll-drop { 0% { transform: translate(0, 0); opacity: 1; } 45% { transform: translate(calc(var(--x) * 0.6), -34px); } 100% { transform: translate(var(--x), 6px); opacity: 0; } }
+
+/* ---------- the souvenir stand ---------- */
+.ll-tray { position: absolute; z-index: 20; padding: 0; border: 0; border-radius: 16px; background: none; cursor: pointer; }
+.ll-tray:hover, .ll-tray.glow, .ll-spare:hover, .ll-spare.glow { box-shadow: 0 0 0 3px #fff, 0 0 18px 4px rgba(255, 214, 80, 0.95); }
+.ll-tray.glow, .ll-spare.glow { animation: ll-glow 1s ease-in-out infinite alternate; }
+@keyframes ll-glow { from { box-shadow: 0 0 0 3px #fff, 0 0 6px 2px rgba(255, 214, 80, 0.6); } }
+.ll-tag { position: absolute; display: flex; align-items: center; gap: 3px; padding: 2px 8px 2px 4px; background: #fff8e6; border: 2.5px solid var(--ink); border-radius: 8px 8px 8px 2px; box-shadow: 0 2px 0 var(--ink); font: var(--fs-md)/1 var(--display); color: var(--ink); rotate: -6deg; }
+.ll-tag img { width: 18px; height: 18px; }
+.ll-tray .ll-tag { right: -10px; top: -14px; }
+.ll-spare { position: absolute; left: 40px; top: 458px; z-index: 20; width: 112px; height: 52px; padding: 4px; border: 0; border-radius: 14px; background: none; cursor: pointer; }
+.ll-spare > img { width: 92px; height: auto; rotate: -8deg; filter: drop-shadow(0 3px 0 rgba(29, 33, 64, 0.35)); }
+.ll-spare .ll-tag { right: -14px; top: -10px; }
+
+.ll-lock.big { z-index: 10; filter: drop-shadow(0 8px 0 rgba(29, 33, 64, 0.25)); }
+.ll-lock.big.arrive { animation: ll-arrive 0.55s cubic-bezier(0.25, 1.3, 0.5, 1); }
+@keyframes ll-arrive { from { transform: translate(-380px, -40px) scale(0.3) rotate(-30deg); opacity: 0; } }
+.spraying .ll-lock.big { cursor: crosshair; }
+
+.ll-chips { position: absolute; left: 226px; top: 286px; z-index: 12; display: grid; grid-template-columns: repeat(4, 34px); gap: 8px; }
+.ll-chip-c { width: 34px; height: 34px; padding: 0; border: 3px solid var(--ink); border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.75), transparent 45%), var(--c); box-shadow: 0 3px 0 var(--ink); cursor: pointer; transition: transform 0.1s; }
+.ll-chip-c:hover { transform: translateY(-2px); }
+.ll-chip-c.on { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--ink); }
+.ll-shapes { position: absolute; left: 232px; top: 430px; z-index: 12; display: flex; gap: 10px; }
+.ll-shape { width: 46px; height: 42px; padding: 4px; border: 3px solid var(--ink); border-radius: 12px; background: #fffaf0; box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+.ll-shape svg { width: 100%; height: 100%; }
+.ll-shape path { fill: #e8b33a; stroke: #1d2140; stroke-width: 6; }
+.ll-shape.on { background: var(--sun); }
+.ll-initials { position: absolute; left: 232px; top: 484px; z-index: 12; width: 158px; height: 34px; padding: 0 8px; border: 3px solid var(--ink); border-radius: 10px; background: linear-gradient(#fff3c4, #e8b33a); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 3px 0 var(--ink); font: var(--fs-lg) var(--display); color: var(--ink); text-align: center; letter-spacing: 2px; text-transform: uppercase; outline: none; user-select: text; }
+.ll-initials::placeholder { color: rgba(29, 33, 64, 0.35); }
+.ll-initials:focus { box-shadow: 0 0 0 3px #fff, 0 3px 0 var(--ink); }
+.ll-cans { position: absolute; left: 690px; top: 382px; z-index: 12; display: flex; align-items: flex-end; gap: 6px; }
+.ll-can { width: 36px; height: auto; cursor: pointer; filter: drop-shadow(0 4px 0 rgba(29, 33, 64, 0.3)); transition: transform 0.15s, opacity 0.15s; }
+.ll-can:hover { transform: translateY(-5px) rotate(-4deg); }
+.ll-can.up { opacity: 0.25; transform: translateY(-4px); }
+.ll-wipe { position: absolute; left: 780px; top: 478px; z-index: 12; }
+/* the can in your hand: its nozzle (top left of the picture) is the pointer */
+.ll-can-hand { position: absolute; left: 0; top: 0; z-index: 920; width: 50px; height: auto; pointer-events: none; transform-origin: 6px 8px; filter: drop-shadow(0 6px 0 rgba(29, 33, 64, 0.35)); }
+.hissing .ll-can-hand { animation: ll-shake 0.08s linear infinite alternate; }
+@keyframes ll-shake { to { translate: 1px -1px; } }
+.ll-mist { position: absolute; z-index: 915; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--c); opacity: 0.45; filter: blur(3px); pointer-events: none; animation: ll-mist 0.6s ease-out forwards; }
+@keyframes ll-mist { to { transform: translate(var(--dx), var(--dy)) scale(2.6); opacity: 0; } }
+
+/* ---------- the room: the locks on the mesh you can see from the promenade ---------- */
+.ll-mini { position: absolute; z-index: 6; width: 7px; height: 8px; margin: -3px 0 0 -3.5px; border: 1px solid rgba(29, 33, 64, 0.85); border-radius: 1.5px; background: var(--c); pointer-events: none; }
+.ll-mini.mine { box-shadow: 0 0 4px 1px rgba(255, 224, 102, 0.95); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-ring, .ll-layer .ll-lock.mine::after, .ll-tray.glow, .ll-spare.glow, .hissing .ll-can-hand { animation: none; }
+}

@@ -1,0 +1,40 @@
+/* ---------- The busker's guitar: play the riff back (features/moments/riff.ts) ---------- */
+.rf-guitar { position: absolute; z-index: 10; width: 0; height: 0; transform-origin: 0 0; pointer-events: none; animation: rf-rise 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) backwards; }
+@keyframes rf-rise { from { translate: 20px 70px; scale: 0.3; opacity: 0; } }
+.rf-guitar svg { position: absolute; left: -90px; top: -90px; width: 560px; height: 180px; overflow: visible; filter: drop-shadow(0 6px 0 rgba(29, 33, 64, 0.3)); }
+.rf-guitar svg * { stroke: var(--ink); stroke-width: 3.5; stroke-linejoin: round; }
+.rf-body { fill: #e9a23b; }
+.rf-hole { fill: #3a2414; }
+.rf-neck { fill: #6b4226; }
+.rf-head { fill: #4a2c18; }
+.rf-bridge { fill: #4a2c18; }
+.rf-fret { fill: none; stroke: #d9dde8 !important; stroke-width: 3 !important; }
+
+.rf-string { position: absolute; z-index: 2; height: 5px; margin-top: -2.5px; box-sizing: border-box; background: var(--c); border: 1.5px solid var(--ink); border-radius: 3px; transform-origin: 50% 50%; }
+.rf-string.twang { animation: rf-twang 0.32s ease-out; }
+.rf-string.lit { box-shadow: 0 0 0 3px #fff, 0 0 16px 6px var(--c); z-index: 3; }
+@keyframes rf-twang { 0% { transform: translateY(-5px) scaleY(1.5); } 25% { transform: translateY(4px); } 50% { transform: translateY(-3px); } 75% { transform: translateY(2px); } 100% { transform: none; } }
+.rf-peg { position: absolute; z-index: 3; width: 16px; height: 16px; margin: -8px; box-sizing: border-box; background: var(--c); border: 3px solid var(--ink); border-radius: 50%; }
+
+.rf-pad { position: absolute; z-index: 4; left: -30px; top: -52px; width: 430px; height: 104px; pointer-events: auto; cursor: pointer; touch-action: none; }
+.rf-guitar.yours .rf-string { animation: rf-ready 0.6s ease-in-out infinite alternate; }
+.rf-guitar.yours .rf-string.twang { animation: rf-twang 0.32s ease-out; }
+@keyframes rf-ready { from { filter: brightness(1); } to { filter: brightness(1.25); } }
+.rf-guitar.sour { animation: rf-sour 0.4s ease-in-out; }
+@keyframes rf-sour { 20% { translate: -6px 0; } 45% { translate: 5px 0; } 70% { translate: -3px 0; } }
+
+.rf-dots { position: absolute; z-index: 5; left: -62px; top: -20px; width: 40px; display: flex; flex-wrap: wrap; gap: 5px; }
+.rf-dots i { width: 14px; height: 14px; box-sizing: border-box; background: #fff6d6; border: 3px solid var(--ink); border-radius: 50%; }
+.rf-dots i.on { background: var(--c); animation: rf-dot 0.25s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes rf-dot { from { transform: scale(0.4); } }
+
+.rf-note { position: absolute; z-index: 13; width: 13px; height: 10px; margin: -5px -6px; box-sizing: border-box; background: var(--c); border: 2.5px solid var(--ink); border-radius: 50%; pointer-events: none; animation: rf-note 0.85s ease-out forwards; }
+.rf-note::after { content: ''; position: absolute; right: -2.5px; bottom: 3px; width: 3px; height: 18px; background: var(--ink); border-radius: 2px; }
+@keyframes rf-note { from { transform: translateY(0) rotate(-12deg); opacity: 1; } to { transform: translate(14px, -46px) rotate(10deg); opacity: 0; } }
+
+.rf-coin { position: absolute; z-index: 14; width: 18px; height: 18px; margin: -9px; box-sizing: border-box; background: radial-gradient(circle at 35% 30%, #fff6c4, #ffd166 45%, #e09a1a); border: 3px solid var(--ink); border-radius: 50%; pointer-events: none; animation: rf-coin 0.55s cubic-bezier(0.3, 0, 0.7, 1) backwards; opacity: 0; }
+@keyframes rf-coin { 0% { transform: translate(var(--fx), var(--fy)); opacity: 1; } 60% { transform: translate(calc(var(--fx) * 0.3), calc(var(--fy) * 0.3 - 50px)); opacity: 1; } 100% { transform: none; opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rf-guitar, .rf-guitar.yours .rf-string, .rf-guitar.sour { animation: none; }
+}

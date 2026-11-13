@@ -6,7 +6,7 @@ import { hold, toast } from '../engine/ui'
 import { world, walkTo, sitPlayer } from '../engine/world'
 import type { Game } from '../types'
 import type { Pt } from '../geometry'
-import { picCard, flash, type Pic, type CardAction } from './infocard'
+import { flash } from './infocard'
 
 /** Small things to DO all over the city: photos, sitting down with a snack, laps, rides, climbs. */
 
@@ -37,11 +37,6 @@ export function kneel(g: Game, line: string, hearts = false) {
   setTimeout(() => g.say(line), 600)
 }
 
-/** A place that isn't open yet: say so plainly, with a reason to come back. */
-export function comingSoon(o: { name: string; text: string; joke?: string; pic?: Pic; kicker?: string; actions?: CardAction[] }) {
-  sfx.ding()
-  picCard({ title: `${o.name} (Coming Soon)`, kicker: o.kicker, pic: o.pic, text: o.text, joke: o.joke, actions: o.actions })
-}
 
 const FOOD = ['hotdog', 'pretzel', 'pizza-slice', 'bagel', 'donut', 'gelato', 'dumplings', 'cocoa']
 /** Central Park squirrels fear nothing: hold a snack near one at your own risk. */
@@ -71,17 +66,51 @@ export function skateLap(g: Game) {
   const p = world.player.pos
   const k = ring.reduce((b, q, i) => (Math.hypot(q[0] - p[0], q[1] - p[1]) < Math.hypot(ring[b][0] - p[0], ring[b][1] - p[1]) ? i : b), 0)
   const path = [...ring.slice(k), ...ring.slice(0, k), ring[k]]
-  if (save.look.items.feet !== 'skates') g.say('Skating in sneakers. Bold choice.')
+  // own skates? lace them up for the lap (no skates: it still works, with commentary)
+  const laced = laceUp(g)
+  if (!laced) g.say('Skating in sneakers. Bold choice.')
   let i = 0
+  const mid = Math.floor(path.length / 2)
   const next = () => {
     if (world.room.id !== 'rockefeller') return
     if (i >= path.length) {
-      g.emote('dance', 2)
-      return g.say(pick(['Triple axel! (It was a single. Don’t tell anyone.)', 'Nailed the landing. Mostly.', 'One lap. My legs say that was ten.']))
+      g.emote('cheer', 2)
+      g.confetti(18)
+      return g.say(pick(['Nailed the landing. Mostly.', 'One lap. My legs say that was ten.', 'Prometheus is proud.']))
+    }
+    // halfway round: a show-off spin on skates, a wobble in sneakers
+    if (i === mid) {
+      if (laced) g.emote('dance', 1.6)
+      else world.player.emote('sit', 1.4)
     }
     walkTo(path[i++], next)
   }
   next()
+}
+
+function laceUp(g: Game): boolean {
+  if (save.look.items.feet === 'skates') return true
+  if (!g.owns('skates')) return false
+  g.wear('skates')
+  return true
+}
+
+/** A spin on the ice: walks you out first; in sneakers it becomes a sit-spin. */
+export function skateSpin(g: Game) {
+  const ice = world.geo?.ice
+  if (!ice || world.room.id !== 'rockefeller') return
+  if (!world.player.skating) {
+    const cx = ice.reduce((s, p) => s + p[0], 0) / ice.length
+    const cy = ice.reduce((s, p) => s + p[1], 0) / ice.length
+    return walkTo([cx, cy], () => world.player.skating && skateSpin(g))
+  }
+  sfx.whoosh()
+  if (save.look.items.feet !== 'skates') {
+    world.player.emote('sit', 2)
+    return g.say('Spin… sit. Classic sneaker technique.')
+  }
+  g.emote('dance', 2.4)
+  setTimeout(() => g.say(pick(['Triple axel! (It was a single.)', 'Prometheus just nodded. Or the wind.'])), 500)
 }
 
 /** the giant floor piano (from the Fifth Avenue toy-store days): walk it from end to end. */

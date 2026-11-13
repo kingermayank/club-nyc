@@ -1,5 +1,5 @@
 /**
- * Carb-Jitsu, in the browser: the table in the back of Joe’s Pizza, the bodega cat presiding. Pick a card (click or
+ * Carb-Jitsu, in the browser: the table in the back of 99¢ Slice, the bodega cat presiding. Pick a card (click or
  * 1-5) before the clock runs out; both cards flip at once; the server says who won the round and why. Spectators see
  * both trays and every reveal. Everything is decided on the server (server/src/game/mp/duel.ts).
  */
@@ -17,12 +17,12 @@ const FOOD_IMG = ['/art/mp/card-pizza.png', '/art/mp/card-pretzel.png', '/art/mp
 
 export function cardHtml(c: CardWire, cls = ''): string {
   const b = BOROUGHS[c.c] ?? BOROUGHS[0]
-  return `<span class="cj-card ${cls}${c.fx ? ' fx' : ''}" style="--bc:${b.hex};--bd:${b.dark}" title="${FOODS[c.e].name} ${c.p} · ${b.name}${c.fx ? ` · ${FX[c.fx].name}: ${FX[c.fx].text}` : ''}">
+  return `<span class="cj-card ${cls}${c.fx ? ' fx' : ''}" style="--bc:${b.hex};--bd:${b.dark}" title="${b.name} ${FOODS[c.e].name} ${c.p}${c.fx ? `. ${FX[c.fx].name}: ${FX[c.fx].text}` : ''}">
     <span class="cj-num">${c.p}</span><img src="${FOOD_IMG[c.e]}" alt="${FOODS[c.e].name}"><span class="cj-boro">${b.short}</span>${c.fx ? `<span class="cj-fx">${FX[c.fx].name}</span>` : ''}</span>`
 }
 const chip = (c: CardWire, hot = false) => {
   const b = BOROUGHS[c.c] ?? BOROUGHS[0]
-  return `<span class="cj-chip${hot ? ' hot' : ''}" style="--bc:${b.hex}" title="${FOODS[c.e].name} · ${b.name}"><img src="${FOOD_IMG[c.e]}" alt=""></span>`
+  return `<span class="cj-chip${hot ? ' hot' : ''}" style="--bc:${b.hex}" title="${b.name} ${FOODS[c.e].name}"><img src="${FOOD_IMG[c.e]}" alt=""></span>`
 }
 
 export function start(ctx: GameCtx): RunningGame {
@@ -60,7 +60,7 @@ export function start(ctx: GameCtx): RunningGame {
 
   // the intro: who's playing who
   banner.hidden = false
-  banner.innerHTML = `<b>${esc(players[0].n)}</b><span>vs</span><b>${esc(players[1].n)}</b><small>Carb-Jitsu · first to three of a kind or one of each</small>`
+  banner.innerHTML = `<b>${esc(players[0].n)}</b><span>vs</span><b>${esc(players[1].n)}</b><small>First to three of a kind or one of each</small>`
   msfx.join()
   setTimeout(() => {
     if (!state) return

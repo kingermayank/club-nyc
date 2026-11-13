@@ -1,0 +1,93 @@
+/* Swiping in at the turnstile (features/turnstile.ts). Everything is in stage units over the 1000 × 565 art. */
+.ts { position: absolute; inset: 0; z-index: 9640; overflow: hidden; background: #0b0d14; animation: fade-in 0.3s; }
+.ts.out { opacity: 0; transition: opacity 0.25s; }
+.ts-world { position: absolute; inset: 0; transform-origin: 22% 52%; touch-action: none; }
+/* through the bar: a short, gentle step forward (not a lunge), and the scene fades as you go */
+.ts-world.walk { transform: scale(1.12) translate(1.5%, -1%); opacity: 0.85; transition: transform 0.7s cubic-bezier(0.4, 0, 0.4, 1), opacity 0.7s; }
+.ts-world.can-grab { cursor: grab; }
+.ts-world.grab { cursor: grabbing; }
+.ts-bg { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; }
+
+/* the reader's little screen: LED dots, amber, then green for GO */
+.ts-screen { position: absolute; left: 0; top: 0; width: 160px; height: 68px; display: grid; place-items: center; transform-origin: 0 0; border-radius: 4px; background: radial-gradient(ellipse at 30% 20%, #1d211c, #0a0c09 70%); box-shadow: inset 0 0 0 2px #050605, inset 0 3px 6px rgba(0, 0, 0, 0.7); }
+/* the lettering is made of LED dots (only the letters are dotted, the glass behind them stays solid) */
+.ts-dots { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; mask-image: radial-gradient(circle, #000 1.25px, transparent 1.75px); mask-size: 3.6px 3.6px; -webkit-mask-image: radial-gradient(circle, #000 1.25px, transparent 1.75px); -webkit-mask-size: 3.6px 3.6px; }
+.ts-led { font: 700 21px/1 Helvetica, Arial, sans-serif; letter-spacing: 1.2px; color: #ffa418; text-shadow: 0 0 3px rgba(255, 150, 0, 0.9); white-space: nowrap; }
+.ts-led.long { font-size: 17px; letter-spacing: 0.6px; }
+.ts-led-sub { font: 700 12px/1 Helvetica, Arial, sans-serif; letter-spacing: 1px; color: #ffa418; opacity: 0.9; white-space: nowrap; }
+.ts-screen.go .ts-led { font-size: 38px; color: #3eff7c; text-shadow: 0 0 5px rgba(60, 255, 120, 0.9); }
+.ts-screen.go .ts-led-sub { color: #3eff7c; }
+.ts-screen.bad .ts-led, .ts-screen.bad .ts-led-sub { color: #ff6a4a; text-shadow: 0 0 3px rgba(255, 90, 60, 0.9); }
+.ts-screen.shake { animation: ts-shake 0.35s; }
+@keyframes ts-shake { 20%, 60% { translate: -2px 0; } 40%, 80% { translate: 2px 0; } }
+
+/* the bar */
+.ts-bar { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.ts-push { position: absolute; left: 0; top: 0; pointer-events: none; }
+.ts-push span { position: absolute; left: -26px; top: -46px; padding: 3px 10px 4px; background: var(--sun); border: 3px solid var(--ink); border-radius: 12px; font: var(--fs-sm) var(--display); color: var(--ink); white-space: nowrap; animation: ts-nudge 1s ease-in-out infinite; }
+.ts-push span::after { content: ''; position: absolute; left: 50%; bottom: -9px; width: 10px; height: 10px; background: var(--sun); border: solid var(--ink); border-width: 0 3px 3px 0; transform: translateX(-50%) rotate(45deg); }
+@keyframes ts-nudge { 50% { translate: -5px -4px; } }
+
+/* your MetroCard */
+.ts-card { position: absolute; left: 0; top: 0; z-index: 2; width: 112px; height: 70px; display: flex; flex-direction: column; overflow: hidden; border: 3px solid var(--ink); border-radius: 7px; background: linear-gradient(165deg, #fbeccd 0%, #f3d79c 34%, #e9b552 70%, #dfa43a 100%); box-shadow: 0 6px 0 rgba(29, 33, 64, 0.35), 0 10px 18px rgba(0, 0, 0, 0.35); transform-origin: 0 100%; cursor: grab; touch-action: none; user-select: none; --sink: 0%; clip-path: inset(-20px -20px var(--sink) -20px round 7px); }
+.ts-card.snap { transition: transform 0.24s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.3s; }
+.ts-card.in-slot { --sink: 34%; cursor: grabbing; box-shadow: none; }
+.ts-card.in-slot::after { content: ''; position: absolute; left: 0; right: 0; bottom: 34%; height: 10px; background: linear-gradient(transparent, rgba(0, 0, 0, 0.35)); }
+.ts-card.away { opacity: 0; pointer-events: none; }
+/* while you carry the card: the reader's groove glows where it goes in */
+.ts-glow { position: absolute; left: 0; top: 0; width: var(--len); height: 10px; border-radius: 6px; background: rgba(255, 224, 102, 0.9); box-shadow: 0 0 14px 4px rgba(255, 210, 80, 0.75); transform-origin: 0 50%; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.ts.holding .ts-glow { opacity: 1; animation: ts-glow 0.9s ease-in-out infinite alternate; }
+@keyframes ts-glow { from { filter: brightness(0.75); } to { filter: brightness(1.15); } }
+.ts-card:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+/* the real New York MetroCard: a gold card, the big rising blue "MetroCard" with its pale echo, a gold seal in the
+   corner (ours says NYC) and the black magnetic stripe */
+/* the printed face (the hand holding the card sits outside it, so only the face is clipped to the card) */
+.ts-mc-face { position: absolute; inset: 0; overflow: hidden; border-radius: 4px; }
+.ts-mc-gloss { position: absolute; inset: 0; background: linear-gradient(118deg, transparent 28%, rgba(255, 255, 255, 0.5) 44%, transparent 60%); pointer-events: none; }
+.ts-mc-seal { position: absolute; left: -8px; top: -15px; width: 36px; height: 36px; display: grid; place-items: end; padding: 0 8px 9px 0; border-radius: 50%; background: linear-gradient(135deg, #eab24a, #d4952a); color: #fbecc6; font: 400 8.5px/1 var(--display); font-style: italic; letter-spacing: -0.3px; }
+.ts-mc-word, .ts-mc-echo { position: absolute; left: -2px; top: 17px; font: 400 21px/1 var(--display); letter-spacing: -1px; white-space: nowrap; transform-origin: 0 100%; transform: rotate(-12deg) skewX(-8deg); }
+.ts-mc-word { color: #2459a8; z-index: 1; text-shadow: 0.6px 0.8px 0.6px rgba(23, 63, 128, 0.45); }
+.ts-mc-echo { top: 28px; color: rgba(255, 248, 228, 0.55); transform: rotate(-12deg) skewX(-8deg) scaleY(-0.55); filter: blur(0.3px); }
+.ts-mc-mag { position: absolute; left: 0; right: 0; top: 68%; height: 20%; background: linear-gradient(#2b2b30, #1b1b1f 45%, #26262b 55%, #141417); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18); }
+
+.ts-hint { position: absolute; left: 50%; top: 18px; z-index: 3; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 18px 9px; background: rgba(255, 252, 240, 0.94); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); text-align: center; pointer-events: none; }
+.ts-hint b { font: var(--fs-lg) var(--display); color: var(--ink); }
+.ts-hint span { font: var(--fs-sm) var(--body); color: var(--ink); opacity: 0.8; }
+.ts-back { position: absolute; right: 16px; top: 16px; z-index: 3; }
+
+/* the arrival story's swipe sits above the arrival scene (features/arrival.ts) */
+.ts.intro { z-index: 9760; }
+
+/* the station's sign, hanging from the ceiling over the turnstiles: black, a thin white rule, the line bullets */
+.ts-sign { position: absolute; left: 150px; top: 100px; z-index: 1; display: flex; align-items: center; gap: 12px; padding: 9px 12px 7px 14px; border: 3px solid var(--ink); border-radius: 5px; background: linear-gradient(#15171c 0 4px, #f2f2f2 4px 6px, #15171c 6px); box-shadow: 0 6px 0 rgba(0, 0, 0, 0.28); color: #fff; white-space: nowrap; pointer-events: none; }
+.ts-sign::before, .ts-sign::after { content: ''; position: absolute; top: -78px; width: 5px; height: 75px; background: linear-gradient(90deg, #6b7383, #3b414f); border: 2px solid var(--ink); border-bottom: 0; }
+.ts-sign::before { left: 16%; }
+.ts-sign::after { right: 16%; }
+.ts-sign-name { font: 19px/1 Helvetica, Arial, sans-serif; font-weight: 700; letter-spacing: 0.2px; }
+.ts-lines { display: flex; gap: 3px; }
+.ts-lines .bullet { display: inline-grid; place-items: center; border-radius: 50%; font-family: Helvetica, Arial, sans-serif; font-weight: 700; line-height: 1; }
+
+/* the tap reader standing on the cabinet's front corner */
+.ts-tap { position: absolute; z-index: 1; width: 62px; height: 76px; margin: -76px 0 0 -31px; padding: 0; display: grid; place-items: center; align-content: center; gap: 3px; border: 3px solid var(--ink); border-radius: 12px 12px 7px 7px; background: linear-gradient(#323744, #15171d 70%); box-shadow: 0 5px 0 rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.18); color: #e9f4ff; font: 12px/1 var(--display); letter-spacing: 1.5px; cursor: pointer; transform: rotate(-4deg); }
+.ts-tap svg { width: 32px; height: 32px; }
+.ts-tap::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -12px; height: 9px; border: 3px solid var(--ink); border-top: 0; border-radius: 0 0 5px 5px; background: #4a5060; }
+.ts-tap:hover { filter: brightness(1.2); }
+.ts-tap:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.ts-tap.tapped { animation: ts-tapped 0.6s; color: #3eff7c; }
+@keyframes ts-tapped { from { box-shadow: 0 0 0 0 rgba(62, 255, 124, 0.85), 0 5px 0 rgba(0, 0, 0, 0.35); } to { box-shadow: 0 0 0 20px rgba(62, 255, 124, 0), 0 5px 0 rgba(0, 0, 0, 0.35); } }
+
+/* your hand round the card (first person): the card shows its own corners, the hand reaches past them */
+/* (the card's clip-path sinks it into the slot; in your hand it opens downward so the hand shows) */
+.ts-card { overflow: visible; --sink: -190px; }
+
+.ts-hand { position: absolute; left: 40px; top: 6px; width: 150px; height: 230px; pointer-events: none; overflow: visible; }
+.ts-hand .skin { fill: var(--skin, #e6ad80); stroke: var(--ink); stroke-width: 3.5; stroke-linejoin: round; }
+.ts-hand .sleeve { fill: #2f4f8f; stroke: var(--ink); stroke-width: 3.5; stroke-linejoin: round; }
+.ts-hand .cuff { fill: #24407a; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+.ts-hand .crease, .ts-hand .nail, .ts-hand .shade { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; opacity: 0.4; }
+.ts-hand .shade { opacity: 0.22; stroke-width: 5; }
+/* mid-swipe the card is all you see going through the reader */
+.ts-card.in-slot .ts-hand, .ts-card.away .ts-hand { display: none; }
+
+/* the arrival: one way in (swipe the card), so the tap reader isn't offered */
+.ts.intro .ts-tap { display: none; }

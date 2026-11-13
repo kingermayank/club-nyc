@@ -28,7 +28,7 @@ export function desktopOnly(root: HTMLElement, carryOn: () => void) {
       </div>
       <img src="/art/rooms/times-square-v2.jpg" alt="Times Square in Club NYC" class="do-art">
       <button class="do-anyway">Try It Anyway</button>
-      <nav class="do-legal"><a href="/rules.html">Rules</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></nav>
+      <nav class="do-legal"><a href="/rules.html">Rules</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></nav>
     </div>`
   root.append(page)
   page.querySelector<HTMLAnchorElement>('.do-cal')!.href = reminder(url)

@@ -25,7 +25,7 @@ export const TEAMS: Record<TeamId, Team> = {
   midtown: {
     id: 'midtown', name: 'Midtown Lights', emoji: '✨', color: '#f2b632', dark: '#a87610',
     pitch: 'Times Square, Broadway & Fifth. Big lights, bigger dreams.',
-    turf: ['times-square', 'broadway', 'iloveny', 'rockefeller', 'fifth-ave', 'toy-palace', 'maison-malle', 'grand-central', 'empire-deck', 'subway'],
+    turf: ['times-square', 'broadway', 'iloveny', 'rockefeller', 'fifth-ave', 'toy-palace', 'maison-malle', 'grand-central', 'empire-deck', 'empire-street', 'empire-lobby', 'subway'],
     scarf: 'team-scarf-midtown',
   },
   uptown: {

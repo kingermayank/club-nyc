@@ -105,7 +105,7 @@ export function openBoard(game: MpGameId, o: { period?: Period; by?: By; friends
         )
       })
     }
-    foot.innerHTML = `<span>${r.me && r.me.rank ? `You’re <b>#${r.me.rank}</b> · ${r.me.wins} ${r.me.wins === 1 ? 'win' : 'wins'} · ${r.me.played} played` : `You haven’t played ${def.short} ${period === 'week' ? 'this week' : 'yet'}.`}${period === 'week' ? ` · resets in ${resetIn()}` : ''}</span>`
+    foot.innerHTML = `<span>${r.me && r.me.rank ? `You’re <b>#${r.me.rank}</b> with ${r.me.wins} ${r.me.wins === 1 ? 'win' : 'wins'} in ${r.me.played} played.` : `You haven’t played ${def.short} ${period === 'week' ? 'this week' : 'yet'}.`}${period === 'week' ? ` Resets in ${resetIn()}.` : ''}</span>`
   }
   void load()
   if (shellOpen()) return openSub(card)

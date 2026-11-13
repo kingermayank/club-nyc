@@ -7,7 +7,7 @@ import { api } from '../game'
 import { EARN, QUEST_REWARDS, nycDay, weekStart, WELCOME_GIFTS } from '../data/economy'
 
 /**
- * "New in Town": five first steps (a walk, the welcome gift, a friend, a job, the subway), each with a "Show me".
+ * "New in Town": five first steps (a walk, the welcome gift, a friend, a job, the subway); "Show Me" points at the next one.
  * Then "Today in the City": three small challenges a day, the same three for everyone (so there's
  * always something to do together), reset at midnight New York time.
  */
@@ -45,7 +45,7 @@ const DAILY: Daily[] = [
   { id: 'jam', text: 'Dance at the Dance Jam', hint: 'Times Square, every 8 minutes. Get on the floor and press D.', metric: 'jams', target: 1 },
   { id: 'snacks', text: 'Grab 2 NYC Snacks', hint: 'Hot dogs, pretzels, slices, boba. A balanced diet.', metric: 'snacks', target: 2 },
   { id: 'photo', text: 'Take a Group Photo', hint: 'Find a photo booth (the I ♥ NY shop in Times Square has one). Everyone nearby squeezes in.', metric: 'photos', target: 1 },
-  { id: 'shop', text: 'Buy Something New to Wear', hint: 'Supreme in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
+  { id: 'shop', text: 'Buy Something New to Wear', hint: 'THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
   { id: 'sign', text: 'Sign a Guestbook', hint: 'Visit someone’s apartment and leave a note. Compliment the square footage.', metric: 'signs', target: 1 },
   { id: 'share', text: 'Share Your Invite Link', hint: 'Phone → Invite friends. They land right next to you.', metric: 'shares', target: 1 },
   { id: 'rides', text: 'Ride the Subway Twice', hint: 'Click the MetroCard on your toolbar.', metric: 'rides', target: 2 },
@@ -86,15 +86,10 @@ function rollDay() {
 
 const progress = (d: Daily) => Math.max(0, Math.min(d.target, metricNow(d.metric) - (d.metric === 'places' ? 0 : save.daily.base[d.metric] ?? 0)))
 
-function msToMidnightNyc(): number {
-  const now = new Date()
-  const nyc = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }))
-  const next = new Date(nyc)
-  next.setHours(24, 0, 0, 0)
-  return next.getTime() - nyc.getTime()
-}
 
 // ---------- the HUD box ----------
+// Tucked away by default: a small pill with one pip per step and the count. Clicking it opens the short list;
+// clicking it again, or anywhere else, puts it away (the old always-open card covered a corner of every place).
 const box = el('div', 'quests')
 let open = false
 
@@ -108,19 +103,32 @@ function render() {
   renderDaily()
 }
 
+const pips = (done: boolean[]) => `<span class="q-pips">${done.map((d) => `<i${d ? ' class="on"' : ''}></i>`).join('')}</span>`
+/** the bar: closed it's the whole pill (pips and a count), open it's the card's title */
+const head = (title: string, done: boolean[], extra = '') => {
+  const count = `${done.filter(Boolean).length}/${done.length}`
+  return open
+    ? `<button class="q-head" aria-expanded="true"><b>${title}</b>${extra}<span>${count}</span></button>`
+    : `<button class="q-head" aria-expanded="false" aria-label="${title}: ${count}" title="${title}">${pips(done)}<span>${count}</span></button>`
+}
+
 function renderStarter(q: Quest) {
-  const doneCount = QUESTS.filter((x) => save.quests[x.id]).length
-  box.className = 'quests' + (save.questsHidden ? ' min' : '')
-  if (save.questsHidden) return headOnly('New in Town', `${doneCount}/${QUESTS.length}`)
-  box.innerHTML = `<button class="q-head"><b>New in Town</b><span>${doneCount}/${QUESTS.length}</span><i>${open ? '▴' : '▾'}</i></button>${HIDE_BTN}
-    <div class="q-now"><span class="q-dot"></span><div class="q-text"><b>${q.text}</b><small>${q.hint}</small><button class="q-show">Show Me</button></div><em>+${reward(q)}</em></div>
-    ${open ? `<ul class="q-list">${QUESTS.map((x) => `<li class="${save.quests[x.id] ? 'done' : x === q ? 'now' : ''}">${save.quests[x.id] ? '✓' : '○'} ${x.text}</li>`).join('')}</ul>` : ''}`
+  box.className = 'quests' + (open ? ' open' : '')
+  box.innerHTML =
+    head('New in Town', QUESTS.map((x) => !!save.quests[x.id])) +
+    (open
+      ? `<ul class="q-list">${QUESTS.map((x) => (x === q ? `<li class="q-now"><i></i><b>${x.text}</b><em>+${reward(x)}</em></li>` : `<li${save.quests[x.id] ? ' class="done"' : ''}><i></i><b>${x.text}</b></li>`)).join('')}</ul>
+    <button class="q-show">Show Me</button>`
+      : '')
   bindHead()
-  box.querySelector<HTMLButtonElement>('.q-show')!.onclick = (e) => {
-    e.stopPropagation()
-    sfx.click()
-    void showMe(q.id)
-  }
+  const show = box.querySelector<HTMLButtonElement>('.q-show')
+  if (show)
+    show.onclick = (e) => {
+      e.stopPropagation()
+      sfx.click()
+      setOpen(false)
+      void showMe(q.id)
+    }
 }
 
 /**
@@ -162,7 +170,7 @@ async function showMe(id: string) {
       if (!here(jobs)) await arrive('pizza')
       const h = here(jobs)
       if (h) return t.pointAt(h, 'Work a Shift', 'Click it and choose “Work a Shift”. Every job has a weekly leaderboard.')
-      return t.pointAt(t.toolbarButton('Map'), 'Work a Shift', 'Jobs: Joe’s Pizza in Little Italy, the Adel’s Famous Halal Food cart on Fifth Avenue, Ralph’s Coffee in SoHo, the ferry at Battery Park and Showtime in the subway.')
+      return t.pointAt(t.toolbarButton('Map'), 'Work a Shift', 'Jobs: 99¢ Slice in Little Italy, the Halal Bros cart on Fifth Avenue, Starducks Coffee in SoHo, the ferry at Battery Park and Showtime in the subway.')
     }
   }
 }
@@ -181,57 +189,30 @@ function renderDaily() {
   rollDay()
   const picks = save.daily.picks.map((id) => DAILY_BY_ID[id]).filter(Boolean)
   const done = save.daily.done.length
-  const hrs = Math.max(1, Math.round(msToMidnightNyc() / 3600_000))
-  box.className = 'quests daily' + (done === picks.length ? ' all-done' : '') + (save.questsHidden ? ' min' : '')
-  if (save.questsHidden) return headOnly('Today in the City', `${done}/${picks.length}`)
-  const next = picks.find((d) => !save.daily.done.includes(d.id))
-  box.innerHTML = `<button class="q-head"><b>Today in the City</b>${weekChip()}<span>${done}/${picks.length}</span><i>${open ? '▴' : '▾'}</i></button>${HIDE_BTN}
-    ${
-      next && !open
-        ? `<div class="q-now"><span class="q-dot"></span><div><b>${next.text}</b><small>${progress(next)}/${next.target} · ${next.hint}</small></div><em>+${DAILY_REWARD}</em></div>`
-        : ''
-    }
-    ${
-      open || !next
-        ? `<ul class="q-list daily-list">${picks
-            .map((d) => {
-              const p = progress(d)
-              const ok = save.daily.done.includes(d.id)
-              return `<li class="${ok ? 'done' : ''}"><span>${ok ? '✓' : '○'} ${d.text}</span><i style="--p:${(p / d.target) * 100}%"></i><small>${ok ? `+${DAILY_REWARD}` : `${p}/${d.target}`}</small></li>`
-            })
-            .join('')}</ul>
-          <small class="q-reset">${done === picks.length ? `All done! +${DAILY_BONUS} bonus · ` : `Finish all 3 for +${DAILY_BONUS} bonus · `}new challenges in ~${hrs}h</small>`
-        : ''
-    }`
+  box.className = 'quests daily' + (done === picks.length ? ' all-done' : '') + (open ? ' open' : '')
+  box.innerHTML =
+    head('Today in the City', picks.map((d) => save.daily.done.includes(d.id)), weekChip()) +
+    (open
+      ? `<ul class="q-list daily-list">${picks
+          .map((d) => {
+            const p = progress(d)
+            const ok = save.daily.done.includes(d.id)
+            return `<li class="${ok ? 'done' : ''}"><span>${d.text}</span><small>${ok ? `+${DAILY_REWARD}` : `${p}/${d.target}`}</small><i style="--p:${(p / d.target) * 100}%"></i></li>`
+          })
+          .join('')}<li class="q-bonus${done === picks.length ? ' done' : ''}"><span>All ${picks.length}</span><small>+${DAILY_BONUS}</small></li></ul>`
+      : '')
   bindHead()
 }
 
-const HIDE_BTN = '<button class="q-hide" aria-label="Hide (click the bar to bring it back)" title="Hide"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6h7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>'
-/** tucked away: just the title bar and the count; clicking it brings the card back */
-function headOnly(title: string, count: string) {
-  box.innerHTML = `<button class="q-head" aria-label="Show ${title}"><b>${title}</b><span>${count}</span><i>▾</i></button>`
-  box.querySelector<HTMLButtonElement>('.q-head')!.onclick = (e) => {
-    e.stopPropagation()
-    sfx.click()
-    save.questsHidden = false
-    persist()
-    render()
-  }
+function setOpen(v: boolean) {
+  open = v
+  render()
 }
 function bindHead() {
   box.querySelector<HTMLButtonElement>('.q-head')!.onclick = (e) => {
     e.stopPropagation()
-    open = !open
     sfx.click()
-    render()
-  }
-  box.querySelector<HTMLButtonElement>('.q-hide')!.onclick = (e) => {
-    e.stopPropagation()
-    sfx.click()
-    save.questsHidden = true
-    open = false
-    persist()
-    render()
+    setOpen(!open)
   }
 }
 
@@ -296,6 +277,13 @@ function check() {
 
 export function startQuests() {
   stage.hud.append(box)
+  // a click anywhere else (the ground, a panel, another button) or any key puts the list away
+  window.addEventListener('pointerdown', (e) => {
+    if (open && !box.contains(e.target as Node)) setOpen(false)
+  })
+  window.addEventListener('keydown', () => {
+    if (open) setOpen(false)
+  })
   if (!current()) rollDay()
   render()
   setInterval(check, 1500)

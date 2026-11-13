@@ -26,16 +26,17 @@ export function hold(): () => void {
 }
 
 // ---------- toasts ----------
-// Small confirmations and good news, at most two on screen: a burst (a stamp, coins, a refill) plays as a short calm
+// Small confirmations and good news, one on screen at a time (the user asked: "just one thing at a time"): a burst (a stamp, coins, a refill) plays as a short calm
 // sequence instead of a pile. The same line twice shows once, and at most two wait their turn: the oldest small news
 // gives way, but news about people (a friend accepting) is kept and always gets its turn.
-const MAX_TOASTS = 2
+const MAX_TOASTS = 1
 const toastQueue: { node: HTMLElement; ms: number }[] = []
 const showing = () => [...stage.toasts.children].filter((n) => !n.classList.contains('out'))
 let pumpLater = 0
 function pumpToasts() {
-  // while Rosa is talking (the tour, a "Show me"), good news waits its turn: one voice at a time
-  if (stage.root.querySelector('.tour')) {
+  // while Rosa is talking (the tour, a "Show me"), good news waits its turn: one voice at a time. At the 9/11
+  // Memorial it waits until you step back (features/memorial.ts): no "STAMP EARNED" at the pools.
+  if (stage.root.querySelector('.tour, .mem')) {
     if (toastQueue.length && !pumpLater) pumpLater = window.setTimeout(() => ((pumpLater = 0), pumpToasts()), 700)
     return
   }
@@ -43,9 +44,10 @@ function pumpToasts() {
     const { node, ms } = toastQueue.shift()!
     stage.toasts.append(node)
     setTimeout(() => node.classList.add('out'), ms)
+    // a breath between one piece of news and the next
     setTimeout(() => {
       node.remove()
-      pumpToasts()
+      setTimeout(pumpToasts, 500)
     }, ms + 300)
   }
 }

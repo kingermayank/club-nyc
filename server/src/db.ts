@@ -267,6 +267,25 @@ const MIGRATIONS = [
   // reports keep the page's path but not what followed the ? (it can hold a preview code or a sign-in token)
   `UPDATE events SET user_id = NULL;
    UPDATE client_errors SET url = substr(url, 1, instr(url, '?') - 1) WHERE instr(url, '?') > 0;`,
+  // v16: love locks on the Brooklyn Bridge railing, shared by everyone. A lock is bought at the souvenir stand (a
+  // 'lovelock' line in the ledger), painted, hung at a spot on the railing (x, y in the railing picture's 1000 x 565
+  // units), and its key thrown in the river or kept. removed: 'owner' (unlocked with a key) or 'city' (bolt cutters)
+  `CREATE TABLE love_locks (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     x REAL NOT NULL,
+     y REAL NOT NULL,
+     body INTEGER NOT NULL,
+     shape TEXT NOT NULL,
+     initials TEXT NOT NULL DEFAULT '',
+     paint TEXT,
+     kept_key INTEGER NOT NULL DEFAULT 0,
+     removed TEXT,
+     created_at INTEGER NOT NULL,
+     removed_at INTEGER
+   );
+   CREATE INDEX love_locks_live ON love_locks(removed, created_at);
+   CREATE INDEX love_locks_user ON love_locks(user_id, removed);`,
 ]
 
 function migrate() {

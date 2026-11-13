@@ -864,7 +864,7 @@ function play(ctx: MiniGameContext, root: HTMLElement, art: Art, cleanups: (() =
     const pct = Math.floor(clamp(dist / TRIP, 0, 1) * 100)
     const fished = `${coins} coin${coins === 1 ? '' : 's'} fished from the harbor`
     const lines = arrived
-      ? [`Docked at Liberty Island! +${ARRIVAL_BONUS}`, fished, bumps === 0 ? `Not a scratch · ${fmtTime(playTime)}` : `${bumps} bump${bumps === 1 ? '' : 's'} · ${fmtTime(playTime)}`]
+      ? [`Docked at Liberty Island! +${ARRIVAL_BONUS}`, fished, bumps === 0 ? 'Not a scratch' : `${bumps} bump${bumps === 1 ? '' : 's'}`, fmtTime(playTime)]
       : [`Turned back to port at ${pct}%`, fished]
     for (const f of cleanups.splice(0)) f()
     ctx.end({ coins: coins + (arrived ? ARRIVAL_BONUS : 0), score: coins, lines, flags: arrived ? ['arrived'] : [] })

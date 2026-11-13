@@ -1,11 +1,11 @@
 ---
 title: Chinatown & Little Italy
-description: Soup dumplings at Joe's Shanghai, boba at Ten Ren Tea, a one-coin dragon fruit, and Joe's Pizza, home of the Slice Factory job.
+description: Soup dumplings at Golden Dumpling, boba at Boba Bay, a one-coin dragon fruit, and 99¢ Slice, home of the Slice Factory job.
 icon: dumpling
 updated: 2026-10-23
 ---
 
-![Chinatown and Little Italy in Club NYC: Joe's Shanghai, Ten Ren Tea, a fruit stand, lanterns and Joe's Pizza.](/help/img/place-chinatown.webp "Mott St and Mulberry St.")
+![Chinatown and Little Italy in Club NYC: Golden Dumpling, Boba Bay, a fruit stand, lanterns and 99¢ Slice.](/help/img/place-chinatown.webp "Mott St and Mulberry St.")
 
 Two neighborhoods, one block, too many good snacks. This is where you come hungry.
 
@@ -19,17 +19,17 @@ Two neighborhoods, one block, too many good snacks. This is where you come hungr
 
 | What | Where | Cost |
 | --- | --- | :---: |
-| Soup dumplings | **Joe's Shanghai** | 3 |
-| Brown sugar boba | **Ten Ren Tea** | 4 |
+| Soup dumplings | **Golden Dumpling** | 3 |
+| Brown sugar boba | **Boba Bay** | 4 |
 | A dragon fruit | **Fruit Stand** | 1 |
-| A slice, a soda or a job | **Joe's Pizza** (door) | 1 |
+| A slice, a soda or a job | **99¢ Slice** (door) | 1 |
 | Learn about Little Italy and the lanterns | The **Little Italy** arch, the **Lanterns** | Free |
 
-## Joe's Pizza {#joes-pizza}
+## 99¢ Slice {#joes-pizza}
 
-![Inside Joe's Pizza: the counter, the pizza oven, the soda fridge and a wall of signed headshots.](/help/img/place-pizza.webp "Everything is 1 coin.")
+![Inside 99¢ Slice: the counter, the pizza oven, the soda fridge and a wall of signed headshots.](/help/img/place-pizza.webp "Everything is 1 coin.")
 
-The first Joe's Pizza opened on Carmine Street in 1975. This one is in Little Italy. Click **Order a Slice**:
+A plain slice, folded, eaten standing up. This one is in Little Italy. Click **Order a Slice**:
 
 - **Plain Slice (1).** Fold it like a local. Earns the **Slice of Life** stamp.
 - **Work a Shift.** Starts the [Slice Factory](jobs/slice-factory.md) job. They're short-staffed.
@@ -46,7 +46,7 @@ The **Soda Fridge** sells an ice-cold soda for 1 coin, and there are four tables
 
 | Stamp | How |
 | --- | --- |
-| Slice of Life | Buy a plain slice at Joe's Pizza. |
+| Slice of Life | Buy a plain slice at 99¢ Slice. |
 | Pizza Pro | Make 15 pizzas in one Slice Factory shift. |
 
 > [!NYC] Fun Fact

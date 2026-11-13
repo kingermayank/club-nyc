@@ -1,0 +1,33 @@
+/* ---------- The Chandelier, Broadway: catch the crystals in a top hat (features/moments/chandelier.ts) ---------- */
+.mo-chandelier { cursor: ew-resize; touch-action: none; }
+.cutout.mch-shiver { animation: mch-shiver 0.5s linear infinite; filter: brightness(1.12) drop-shadow(0 0 10px rgba(255, 226, 150, 0.8)); }
+@keyframes mch-shiver { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-1.5px, 0.5px); } 50% { transform: translate(1.5px, -0.5px); } 75% { transform: translate(-1px, 1px); } }
+.cutout.mch-dark { filter: brightness(0.7) saturate(0.7); }
+
+/* a crystal off the chandelier */
+.mch-drop { position: absolute; left: 0; top: 0; z-index: 12; width: 0; height: 0; pointer-events: none; }
+.mch-drop::before { content: ''; position: absolute; left: -11px; top: -14px; width: 22px; height: 28px; box-sizing: border-box; background: linear-gradient(120deg, #fff 0 30%, #bfe9ff 30% 62%, #7cc4f2 62%); border: 3px solid var(--ink); border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.9); }
+.mch-drop.star::before { left: -15px; top: -15px; width: 30px; height: 30px; border: 0; border-radius: 0; background: var(--sun); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); box-shadow: none; }
+.mch-drop.star { filter: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink)) drop-shadow(0 0 8px #ffe27a); }
+/* where it is going to land */
+.mch-shadow { position: absolute; top: 462px; z-index: 8; width: 46px; height: 14px; margin: -7px -23px; background: rgba(29, 33, 64, 0.6); border-radius: 50%; opacity: 0; pointer-events: none; }
+.mch-shards { position: absolute; z-index: 9; width: 44px; height: 14px; margin: -8px -22px; pointer-events: none; background:
+  linear-gradient(60deg, transparent 40%, #dff3ff 40% 60%, transparent 60%) 0 0 / 14px 14px no-repeat,
+  linear-gradient(-50deg, transparent 40%, #fff 40% 60%, transparent 60%) 15px 2px / 14px 12px no-repeat,
+  linear-gradient(80deg, transparent 40%, #bfe9ff 40% 60%, transparent 60%) 30px 0 / 14px 14px no-repeat; filter: drop-shadow(0 0 0 var(--ink)) drop-shadow(1.5px 1.5px 0 var(--ink)) drop-shadow(-1.5px -1px 0 var(--ink)); animation: mch-shards 0.3s ease-out; }
+@keyframes mch-shards { from { transform: scale(0.3, 1.8); } }
+
+/* the top hat, mouth up; the number on the band is what's in it */
+.mch-hat { position: absolute; left: 0; top: 0; z-index: 13; width: 0; height: 0; pointer-events: none; }
+.mch-brim { position: absolute; left: -52px; top: -9px; width: 104px; height: 18px; box-sizing: border-box; background: radial-gradient(ellipse at 50% 60%, #0d1024 0 52%, #2c3157 54%); border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink); }
+.mch-crown { position: absolute; left: -34px; top: 2px; width: 68px; height: 50px; box-sizing: border-box; background: linear-gradient(90deg, #3a4070, #2c3157 40%, #1d2140); border: 3px solid var(--ink); border-top: 0; border-radius: 0 0 12px 12px / 0 0 8px 8px; box-shadow: 0 3px 0 var(--ink); z-index: -1; }
+.mch-crown::before { content: ''; position: absolute; left: 0; right: 0; top: 12px; height: 22px; background: var(--red); border: solid var(--ink); border-width: 3px 0; box-sizing: border-box; }
+.mch-crown b { position: absolute; left: 0; right: 0; top: 12px; height: 22px; display: grid; place-items: center; font: var(--fs-lg) var(--display); font-weight: 400; color: #fff; }
+.mch-hat.gulp .mch-brim, .mch-hat.gulp .mch-crown { animation: mch-gulp 0.22s ease-out; }
+@keyframes mch-gulp { 40% { transform: translateY(5px) scale(1.08, 0.9); } }
+.mch-hat.bow .mch-crown b { color: var(--sun); }
+.mch-x { position: absolute; z-index: 14; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cutout.mch-shiver, .mch-shards { animation: none; }
+}

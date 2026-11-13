@@ -16,11 +16,11 @@ export interface ObjDef {
   label: string
   /** walk to a room. `room` id; you arrive next to whatever links back. */
   go?: string
+  /** a way of getting to `go` that plays first (the elevator): call `arrive` when it's time to change rooms */
+  ride?: (arrive: () => Promise<unknown>) => void
   act?: (g: Game) => void
   /** fire without walking over first (things you look at from afar) */
   instant?: boolean
-  /** under construction */
-  soon?: boolean
   /** clicking it sits you on the nearest seat */
   sit?: boolean
   /** not interactive, just occludes/decor */
@@ -61,7 +61,8 @@ export interface Game {
   spend(n: number, reason: string): boolean
   /** buy clothing or a treat you hold — online, the server checks the price and adds it to your wardrobe */
   buy(item: string): Promise<boolean>
-  stamp(id: string): void
+  /** `quiet` keeps the stamp with no chime, toast, XP or bonus (the 9/11 Memorial) */
+  stamp(id: string, opts?: { quiet?: boolean }): void
   give(item: string): void
   owns(item: string): boolean
   wear(item: string): void

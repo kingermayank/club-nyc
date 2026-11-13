@@ -325,7 +325,7 @@ let releaseHold: (() => void) | null = null
 function renderTray() {
   if (!tray) return
   const counts = save.storage.reduce<Record<string, number>>((a, id) => ((a[id] = (a[id] ?? 0) + 1), a), {})
-  tray.innerHTML = `<div class="tray-head"><b>Decorating</b><span>Click an item to place it · drag to move · double-click to flip · drag down here to put away</span></div>`
+  tray.innerHTML = `<div class="tray-head"><b>Decorating</b><span>Click to place, drag to move, double-click to flip</span></div>`
   const row = el('div', 'tray-row')
   for (const [id, n] of Object.entries(counts)) {
     const f = FDEF[id]

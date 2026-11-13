@@ -68,7 +68,7 @@ You choose your name when you make your New Yorker, and it's yours. You can't ch
 ## Age and Agreeing to the Rules {#age}
 
 - Club NYC is for ages **13 and up**.
-- We ask for your **birth month and year** once, to check. We don't keep them.
+- When you make your New Yorker, you tick a box to confirm you're **13 or older**.
 - You agree to the [Terms](/terms.html), [Privacy Policy](/privacy.html) and [Community Rules](/rules.html) when you make your New Yorker. When they change in a way that matters, you'll be asked to agree again the next time you play.
 
 ## Playing on More Than One Device {#devices}
@@ -77,7 +77,7 @@ With a linked account, sign in on any computer and your New Yorker is there. You
 
 ## Moving Offline Progress Online {#offline-to-online}
 
-Played offline first? When you come online, your progress comes with you (up to 1,000 coins of it). You'll be asked for your birthday and to agree to the rules, and to pick a new name if yours is taken.
+Played offline first? When you come online, your progress comes with you (up to 1,000 coins of it). You'll be asked to confirm you're 13 or older and agree to the rules, and to pick a new name if yours is taken.
 
 ## Deleting Your Account {#delete}
 

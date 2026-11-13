@@ -30,7 +30,7 @@ No. Press **Play Now** and you're in as a guest. To keep your New Yorker on ever
 :::
 
 :::details How old do I need to be?
-13 or older. When you make your New Yorker we ask for your birth month and year to check, and we don't keep them.
+13 or older. When you make your New Yorker, you tick a box to confirm it.
 :::
 
 :::details Can I play right now?
@@ -42,7 +42,7 @@ We save your email address and may ask you to confirm it with one click. When th
 :::
 
 :::details Is the game finished?
-Club NYC is in early access: new places and features land all the time. See [What's New](whats-new.md) and [Coming Soon](places/coming-soon.md).
+Club NYC is in early access: new places and features land all the time. See [What's New](whats-new.md).
 :::
 
 ## Playing {#playing}

@@ -1,0 +1,45 @@
+/* ---------- Climb to the Crown, Liberty Island: the spiral stair inside her, on the beat ---------- */
+.mo-crown { overflow: hidden; background: #1f6f66; cursor: pointer; }
+.cc-wall, .cc-stone { position: absolute; inset: 0; }
+/* copper skin from the inside, held up by an iron lattice */
+.cc-wall { background:
+  repeating-linear-gradient(60deg, transparent 0 58px, rgba(13, 40, 48, 0.55) 58px 66px),
+  repeating-linear-gradient(-60deg, transparent 0 58px, rgba(13, 40, 48, 0.55) 58px 66px),
+  radial-gradient(ellipse at 50% 50%, #3fae95 0%, #2a8676 45%, #174f52 100%); background-size: 152px 132px, 152px 132px, 100% 100%; }
+/* the pedestal you start in: granite blocks */
+.cc-stone { background:
+  repeating-linear-gradient(0deg, transparent 0 60px, rgba(72, 58, 40, 0.5) 60px 64px),
+  repeating-linear-gradient(90deg, transparent 0 124px, rgba(72, 58, 40, 0.35) 124px 128px),
+  radial-gradient(ellipse at 50% 50%, #d9c7a2 0%, #b59e78 55%, #7d6a4c 100%); background-size: 100% 64px, 128px 128px, 100% 100%; }
+.mo-crown::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(8, 20, 34, 0.62) 100%); pointer-events: none; z-index: 6; }
+.cc-world { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 2; will-change: transform; }
+.cc-col { position: absolute; left: -17px; width: 34px; top: -2600px; height: 3200px; z-index: 2; background: linear-gradient(90deg, #26323f, #5d6f80 40%, #2b3744); border: solid var(--ink); border-width: 0 3px; }
+.cc-tread { position: absolute; z-index: 3; width: var(--w); height: 12px; margin: 0 0 0 calc(var(--w) / -2); background: linear-gradient(#8fa1b3, #5c6e80); border: 3px solid var(--ink); border-radius: 5px; box-shadow: 0 4px 0 rgba(13, 24, 40, 0.55); }
+.cc-tread.back { background: #3c4a59; filter: brightness(0.8); height: 10px; }
+.cc-tread.land { height: 14px; background: linear-gradient(#f3d58a, #c9973a); }
+.cc-me { position: absolute; left: -20px; top: -58px; width: 40px; height: 60px; transform-origin: 50% 100%; pointer-events: none; }
+.cc-me svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.cc-cue { position: absolute; left: -26px; top: -32px; z-index: 4; width: 52px; height: 52px; border: 4px dashed rgba(255, 255, 255, 0.9); border-radius: 50%; pointer-events: none; }
+.cc-cue.now { border-style: solid; border-color: var(--sun); box-shadow: 0 0 16px var(--sun); }
+.cc-cue i { position: absolute; inset: -4px; border: 5px solid var(--sun); border-radius: 50%; box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px var(--ink); }
+/* the crown's windows, waiting at the top */
+.cc-top { position: absolute; left: -250px; width: 500px; height: 190px; z-index: 0; display: flex; gap: 14px; align-items: flex-end; justify-content: center; }
+.cc-top i { width: 70px; height: 150px; background: linear-gradient(#bfe7ff, #fff8d6); border: 5px solid var(--ink); border-radius: 36px 36px 6px 6px; box-shadow: 0 0 40px rgba(255, 248, 214, 0.9); }
+.cc-top i:nth-child(2), .cc-top i:nth-child(4) { height: 170px; }
+.cc-top i:nth-child(3) { height: 190px; }
+.cc-meter { position: absolute; left: 842px; top: 150px; z-index: 8; width: 76px; height: 188px; pointer-events: none; }
+.cc-meter img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 0 var(--ink)) drop-shadow(0 3px 0 rgba(8, 20, 34, 0.5)); }
+.cc-meter i { position: absolute; left: 50%; width: 16px; height: 16px; margin: -8px; background: var(--sun); border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 0 10px var(--sun); }
+.cc-count { position: absolute; left: 880px; top: 350px; z-index: 8; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.cc-count b { font: var(--fs-7xl) / 1 var(--display); font-weight: 400; color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill; font-variant-numeric: tabular-nums; }
+.cc-count.bad b { animation: cc-bad 0.4s ease-out; }
+@keyframes cc-bad { 0%, 60% { color: #ff9c8f; transform: translateY(5px); } 100% { color: #fff; transform: none; } }
+.cc-flash { position: absolute; inset: 0; z-index: 20; background: #fffbe6; opacity: 0; pointer-events: none; }
+.mo-crown.top .cc-flash { animation: cc-flash 1.5s ease-in forwards; }
+@keyframes cc-flash { 0%, 35% { opacity: 0; } 100% { opacity: 1; } }
+.mo-crown .mo-hint { z-index: 9; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-count.bad b { animation: none; }
+  .mo-crown.top .cc-flash { animation-duration: 0.3s; }
+}

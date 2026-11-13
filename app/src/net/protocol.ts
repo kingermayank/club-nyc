@@ -15,6 +15,14 @@ export interface LookWire {
   hair: string
   hairColor: number
   color?: number
+  shape?: number
+  eyes?: number
+  brows?: number
+  nose?: number
+  beard?: number
+  specs?: number
+  freckles?: number
+  lashes?: number
   items: Record<string, string>
 }
 

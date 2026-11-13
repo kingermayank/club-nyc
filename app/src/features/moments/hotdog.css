@@ -1,0 +1,124 @@
+/* The hot dog cart (features/moments/hotdog.ts): first person over a painting of the cart top, in stage units over
+   the 1000 × 565 stage. Same family as 99¢ Slice: the painting, a live vendor behind the counter, price tags on
+   the food, coins and Step Out top right. */
+.moment.mo-cart { z-index: 9700; }
+.hc { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #2c4a6e; user-select: none; -webkit-user-select: none; animation: hc-in 0.45s ease; }
+@keyframes hc-in { from { opacity: 0; } }
+.hc [hidden] { display: none !important; }
+.hc button { font: inherit; color: inherit; }
+.hc-bg { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; pointer-events: none; }
+
+/* steam off the hot water well */
+.hc-steam { position: absolute; left: 70px; top: 150px; width: 170px; height: 80px; pointer-events: none; }
+.hc-steam i { position: absolute; bottom: 0; width: 26px; height: 60px; border-radius: 50%; background: radial-gradient(ellipse at 50% 60%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%); filter: blur(2px); animation: hc-steam 3.2s ease-in infinite; }
+.hc-steam i:nth-child(1) { left: 20px; }
+.hc-steam i:nth-child(2) { left: 72px; animation-delay: 1.1s; }
+.hc-steam i:nth-child(3) { left: 124px; animation-delay: 2.1s; }
+@keyframes hc-steam { 0% { transform: translateY(20px) scaleX(0.7); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-46px) scaleX(1.3); opacity: 0; } }
+
+/* the vendor stands in the gap between the well and the warmer; the cart's back rail hides him from the waist */
+.hc-guy { position: absolute; left: 418px; top: 62px; width: 242px; height: 200px; overflow: hidden; pointer-events: none; }
+.hc-guy-body { position: absolute; left: 25px; top: 0; width: 192px; transition: transform 0.42s cubic-bezier(0.45, 0.05, 0.3, 1); transform-origin: 50% 100%; animation: hc-breathe 2.8s ease-in-out infinite; }
+.hc-guy-body svg { display: block; width: 192px; height: 304px; overflow: visible; }
+@keyframes hc-breathe { 50% { translate: 0 2px; } }
+.hc-guy.reach-l .hc-guy-body { transform: translateX(-46px) rotate(-11deg); }
+.hc-guy.reach-r .hc-guy-body { transform: translateX(48px) rotate(10deg); }
+.hc-guy.staring .hc-guy-body { transform: translateY(6px) scale(1.05); transition-duration: 1.4s; }
+.hc-guy.nod .hc-guy-body { animation: hc-nod 0.5s ease-in-out 2, hc-breathe 2.8s 1s ease-in-out infinite; }
+@keyframes hc-nod { 50% { transform: translateY(5px) rotate(2deg); } }
+.hc-guy.hop .hc-guy-body { animation: hc-hop 0.42s ease-out, hc-breathe 2.8s 0.42s ease-in-out infinite; }
+@keyframes hc-hop { 40% { translate: 0 -9px; } }
+
+.hc-bubble { position: absolute; left: 640px; top: 86px; z-index: 6; max-width: 210px; margin: 0; padding: 8px 14px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 16px 16px 16px 4px; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 var(--fs-md)/1.25 var(--display); pointer-events: none; animation: hc-pop 0.28s cubic-bezier(0.2, 1.6, 0.4, 1); transition: opacity 0.25s; }
+.hc-bubble.out { opacity: 0; }
+@keyframes hc-pop { from { transform: scale(0.6) translateY(8px); opacity: 0; } }
+
+/* things to point at, traced from the painting: the glow follows the real edge */
+.hc-shapes { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; z-index: 3; overflow: visible; pointer-events: none; }
+.hc-shape { fill: rgba(255, 209, 102, 0); stroke: #ffd166; stroke-width: 3; stroke-linejoin: round; stroke-opacity: 0; pointer-events: all; cursor: pointer; transition: fill 0.15s, stroke-opacity 0.15s; }
+.hc-shape:hover { fill: rgba(255, 220, 130, 0.16); stroke-opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 209, 102, 0.95)); }
+.hc-shape.off { pointer-events: none; }
+.hc.holding .hc-shape[data-id='well'], .hc.holding .hc-shape[data-id='warmer'], .hc.served .hc-shape[data-id='well'], .hc.served .hc-shape[data-id='warmer'] { pointer-events: none; }
+.hc.holding .hc-shape { cursor: none; }
+/* what it is, on hover: a small dark pill over the thing */
+.hc-label { position: absolute; z-index: 8; margin: 0; transform: translate(-50%, -100%); padding: 4px 11px 5px; background: rgba(29, 33, 64, 0.9); border-radius: 999px; color: #fff; font: 400 var(--fs-sm)/1.2 var(--display); white-space: nowrap; pointer-events: none; }
+
+/* the vendor's question: three pictures to pick from */
+.hc-menu { position: absolute; left: 652px; top: 70px; z-index: 7; padding: 10px 12px 12px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 18px 18px 18px 5px; box-shadow: 0 4px 0 #1d2140, 0 12px 26px rgba(10, 20, 40, 0.3); animation: hc-pop 0.32s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.hc-menu > b { display: block; margin: 0 0 8px 2px; color: #1d2140; font: 400 var(--fs-lg)/1.2 var(--display); }
+.hc-picks { display: flex; gap: 8px; }
+.hc-pick { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 92px; padding: 6px 4px 7px; background: #fff; border: 2.5px solid #1d2140; border-radius: 14px; box-shadow: 0 3px 0 #1d2140; cursor: pointer; transition: transform 0.12s, background 0.12s; }
+.hc-pick:hover { transform: translateY(-3px); background: #fff4c9; }
+.hc-pick:active { transform: translateY(1px); box-shadow: 0 1px 0 #1d2140; }
+.hc-pick > img { width: 76px; height: 46px; object-fit: contain; }
+.hc-pick span { color: #1d2140; font: 400 var(--fs-sm)/1.2 var(--display); }
+.hc-pick em { display: flex; align-items: center; gap: 2px; font: 400 var(--fs-sm)/1 var(--display); font-style: normal; color: #1d2140; }
+.hc-pick em img { width: 15px; height: 15px; }
+
+/* paying, then eating here or taking it with you */
+.hc-pay { position: absolute; left: 452px; top: 498px; z-index: 6; transform: translateX(-50%); }
+.hc .hc-paybtn { flex-direction: row; gap: 5px; padding: 8px 26px; white-space: nowrap; animation: hc-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.hc-paybtn img { width: 20px; height: 20px; }
+.hc-after { position: absolute; left: 452px; top: 506px; z-index: 6; display: flex; gap: 8px; transform: translateX(-50%); animation: hc-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.hc-after .btn { min-width: 112px; }
+
+/* where you are in it: Order, Toppings, Pay, Eat */
+.hc-steps { position: absolute; right: 16px; bottom: 14px; z-index: 6; display: flex; gap: 6px; margin: 0; padding: 5px; list-style: none; counter-reset: s; background: rgba(29, 33, 64, 0.72); border-radius: 999px; }
+.hc-steps li { counter-increment: s; display: flex; align-items: center; gap: 6px; padding: 4px 11px 5px 5px; border-radius: 999px; color: rgba(255, 255, 255, 0.6); font: 400 var(--fs-sm)/1.2 var(--display); }
+.hc-steps li::before { content: counter(s); display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); font-size: var(--fs-xs); }
+.hc-steps li.now { background: #fff; color: #1d2140; }
+.hc-steps li.now::before { background: #ffd166; color: #1d2140; }
+.hc-steps li.done { color: #9fe3b5; }
+.hc-steps li.done::before { content: '✓'; background: #2fae4a; color: #fff; }
+
+/* the guide you trace the first time */
+.hc-guide-dash { animation: hc-dash 0.8s linear infinite; }
+@keyframes hc-dash { to { stroke-dashoffset: -30; } }
+
+/* the paper boat and the food on it */
+.hc-plate { position: absolute; inset: 0; pointer-events: none; z-index: 2; transition: transform 0.45s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.45s; transform-origin: 452px 430px; }
+.hc-plate.done { transform: scale(0.2) rotate(-25deg) translate(-900px, 300px); opacity: 0; }
+.hc-boat { position: absolute; filter: drop-shadow(0 6px 4px rgba(20, 30, 50, 0.28)); }
+.hc-food { position: absolute; transform-origin: 50% 80%; filter: drop-shadow(0 3px 2px rgba(20, 30, 50, 0.25)); }
+.hc.served:not(.holding) .hc-food { pointer-events: auto; cursor: pointer; }
+.hc.served:not(.holding) .hc-food:hover { filter: drop-shadow(0 3px 2px rgba(20, 30, 50, 0.25)) drop-shadow(0 0 10px rgba(255, 209, 102, 0.8)); }
+.hc-fly { position: absolute; z-index: 5; pointer-events: none; filter: drop-shadow(0 8px 6px rgba(20, 30, 50, 0.3)); }
+
+/* the squeeze bottles stand in the caddy; carried, the nozzle is the pointer */
+.hc-bottle { position: absolute; z-index: 4; width: 44px; height: 115px; cursor: grab; transition: transform 0.18s cubic-bezier(0.3, 1.4, 0.5, 1), filter 0.15s, translate 0.15s; transform-origin: 50% 0; filter: drop-shadow(0 3px 2px rgba(20, 30, 50, 0.3)); }
+.hc-bottle[data-t='mustard'] { left: 619px; top: 256px; }
+.hc-bottle[data-t='ketchup'] { left: 678px; top: 256px; }
+/* standing in the caddy, the hole's front rim hides the bottom of the bottle */
+.hc-bottle:not(.held) { clip-path: polygon(0 0, 100% 0, 100% 80%, 84% 84.5%, 50% 86.5%, 16% 84.5%, 0 80%); }
+.hc-bottle:not(.held):hover { filter: drop-shadow(0 3px 2px rgba(20, 30, 50, 0.3)) drop-shadow(0 0 8px #ffd166); translate: 0 -6px; }
+.hc-bottle.held { left: -22px; top: 0; z-index: 9; cursor: none; pointer-events: none; transition: transform 0.08s linear; filter: drop-shadow(0 10px 8px rgba(20, 30, 50, 0.35)); }
+.hc-bottle.off { opacity: 0.35; pointer-events: none; }
+.hc.holding { cursor: none; }
+
+/* the spoon: bowl at the pointer, with a heap of whatever you scooped */
+.hc-spoon { position: absolute; left: -22px; top: -80px; z-index: 9; width: 110px; height: 98px; pointer-events: none; transform-origin: 22px 80px; transition: transform 0.08s linear; filter: drop-shadow(0 10px 8px rgba(20, 30, 50, 0.35)); }
+.hc-spoon img { width: 110px; height: 98px; }
+.hc-spoon i { position: absolute; left: 6px; top: 64px; width: 34px; height: 22px; border-radius: 50%; border: 2px solid rgba(29, 33, 64, 0.7); transition: transform 0.15s; }
+
+.hc-crumb { position: absolute; z-index: 6; border-radius: 2px; border: 1px solid rgba(29, 33, 64, 0.5); pointer-events: none; }
+
+/* the reward word */
+.hc-shout { position: absolute; z-index: 8; margin: 0; transform: translateX(-50%); color: #fff; font: 400 48px/1.2 var(--display); -webkit-text-stroke: 8px #1d2140; paint-order: stroke fill; letter-spacing: 1.5px; white-space: nowrap; pointer-events: none; text-shadow: 0 4px 0 #1d2140; }
+.hc-shout.go { animation: hc-shout 1.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+@keyframes hc-shout { 0% { transform: translateX(-50%) scale(0.3) rotate(-8deg); opacity: 0; } 18% { transform: translateX(-50%) scale(1.12) rotate(3deg); opacity: 1; } 30% { transform: translateX(-50%) scale(1) rotate(-2deg); } 80% { opacity: 1; } 100% { transform: translateX(-50%) translateY(-26px) scale(1); opacity: 0; } }
+
+/* a hint bubble pointing down at the thing */
+.hc-hint { position: absolute; z-index: 7; margin: 0; transform: translate(-50%, -100%); padding: 6px 13px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 14px; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 16px/1.25 var(--display); white-space: nowrap; pointer-events: none; animation: hc-bob 1.1s ease-in-out infinite alternate; transition: opacity 0.25s; }
+.hc-hint::after { content: ''; position: absolute; z-index: -1; left: 50%; bottom: -9px; width: 13px; height: 13px; margin-left: -6.5px; background: #fbfaf6; border: solid #1d2140; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.hc-hint span { position: relative; z-index: 1; }
+.hc-hint.out { opacity: 0; }
+@keyframes hc-bob { to { translate: 0 -5px; } }
+
+/* the corner: where you are, your coins, the way out */
+.hc-caption { position: absolute; left: 16px; top: 14px; z-index: 8; display: flex; flex-direction: column; padding: 6px 14px 7px; background: rgba(29, 33, 64, 0.72); border-radius: 12px; color: #fff; pointer-events: none; }
+.hc-caption b { font: 400 var(--fs-lg)/1.2 var(--display); }
+.hc-caption span { font: 500 var(--fs-xs)/1.3 var(--body); opacity: 0.8; }
+.hc-actions { position: absolute; right: 16px; top: 16px; z-index: 8; display: flex; align-items: center; gap: 8px; }
+.hc-coins { display: flex; align-items: center; gap: 4px; padding: 3px 10px 3px 5px; background: #fbfaf6; border: 2.5px solid #1d2140; border-radius: 999px; color: #1d2140; font: 400 15px/1 var(--display); }
+.hc-coins img { width: 20px; height: 20px; }
+.hc-coins b { font-weight: 400; }

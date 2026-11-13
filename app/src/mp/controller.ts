@@ -128,8 +128,7 @@ function reopen() {
 function chipHtml(l: LobbyWire): string {
   const def = MP_GAMES[l.g]
   const present = l.seats.filter((s) => !s.o && !s.a).length
-  const auto = l.auto ? ` · starts in ${Math.ceil(l.auto / 1000)}s` : ''
-  return `${def.icon} ${esc(def.short)} · ${present} of ${l.max}${l.st === 'playing' ? ' · a round is on' : auto} <small>Open</small>`
+  return `${def.icon} ${esc(def.short)} ${present}/${l.max} <small>${l.st !== 'playing' && l.auto ? `Starts in ${Math.ceil(l.auto / 1000)}s` : 'Open'}</small>`
 }
 
 // ---------- screens ----------

@@ -7,15 +7,14 @@ updated: 2026-10-20
 
 The toolbar runs along the bottom of the screen. Point at any button to see its name and its key.
 
-![The toolbar along the bottom of the game screen: emotes, moves, the chat box, map, subway, newspaper, phone, friends, player card, stamp book, apartment and sound buttons.](/help/img/toolbar.webp "The toolbar, left to right.")
+![The toolbar along the bottom of the game screen: moves, the chat box, map, subway, newspaper, phone, friends, player card, stamp book, apartment and sound buttons.](/help/img/toolbar.webp "The toolbar, left to right.")
 
 ## Every Button {#every-button}
 
 | Button | Name | Key | What it does |
 | :---: | --- | :---: | --- |
-| {tb:emote} | **Emotes** | | Pops an emoji over your head: a smile, a slice, a taxi, a heart and more. |
 | {tb:dance} | **Moves** | | Dance [[D]], Wave [[W]], Cheer [[C]], Jump [[J]] and Sit [[S]]. Each move shows a little picture of you doing it. |
-| {tb:chat} | **Chat** | [[Enter]] | The chat box. Type and press [[Enter]] to talk to everyone in the place. [More on chat](getting-started/chat-and-emotes.md) |
+| {tb:chat} | **Chat** | [[Enter]] | The chat box. Type and press [[Enter]] to talk to everyone in the place. The smiley beside it pops an emoji over your head. [More on chat](getting-started/chat-and-emotes.md) |
 | {tb:map} | **Map** | [[M]] | The city map. Click a place to go there. [Map, Subway & Taxis](getting-started/map-and-subway.md) |
 | {tb:metrocard} | **Subway** | [[U]] | The subway map. Click a station to ride there. |
 | {tb:news} | **Club NYC Times** | [[N]] | The city paper: news, the bodega cat's advice and this week's leaders. [The Club NYC Times](events/club-nyc-times.md) |

@@ -102,8 +102,8 @@ async def onboard(pg, name, team_index, url=BASE + '/play', age=True, from_creat
         await pg.click('.si-play')
     await pg.wait_for_selector('.creator-card', timeout=10000)
     nxt = '.creator-actions .btn.go'
-    # screen 1: pick a ready-made look, then "That's me"
-    await pg.locator('.cr-preset').nth(team_index % 8).click()
+    # screen 1: a door (Surprise Me), then the look screen's "That's me"
+    await pg.click('.cr-door.surprise')
     await pg.wait_for_timeout(250)
     await pg.click(nxt)
     # screen 2: name, 13+, "Walk into the city" (claims the name)
@@ -111,7 +111,7 @@ async def onboard(pg, name, team_index, url=BASE + '/play', age=True, from_creat
     await pg.fill('.creator-name input', name)
     await pg.wait_for_selector('.cr-avail.ok', timeout=5000)
     if age:
-        await pg.select_option('.cr-month', '6'); await pg.select_option('.cr-year', '2000'); await pg.click('.cr-age input')
+        await pg.click('.cr-age input')
     await pg.click(nxt)  # Walk into the city -> claim
 
 
@@ -217,7 +217,8 @@ async def main():
             check(('city' in live.lower() or 'pigeons' in live.lower()) and not await A.evaluate("!!document.querySelector('.si-founding')"), 'the front door shows who’s in the city (no founding-member countdown)', live)
             await A.click('.si-play')
             await A.wait_for_selector('.creator-card', timeout=10000)
-            await A.click('.creator-actions .btn.go')  # screen 1: That's me
+            await A.click('.cr-door.build')  # the doors: Build My Own
+            await A.click('.creator-actions .btn.go')  # the look screen: That's me
             await A.wait_for_selector('.creator-name input')
             await A.click('.creator-actions .btn.go')  # screen 2, without a birthday or "I agree"
             await A.wait_for_timeout(500)

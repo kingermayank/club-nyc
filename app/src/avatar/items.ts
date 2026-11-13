@@ -1,4 +1,5 @@
 import { OUTLINE as O, shade, tint, type Slot } from './look'
+import { GRAILS, grailItemId } from './grails'
 
 /** Everything a drawing function needs to know about the avatar being drawn. */
 export interface Ctx {
@@ -67,6 +68,10 @@ export interface TopStyle {
   front?: (c: Ctx) => string
   /** drawn behind the head (hoods, high collars) */
   collar?: (c: Ctx) => string
+  /** the back of the top, seen from behind (a hood hanging down, apron ties). Without it the back is plain. */
+  rear?: (c: Ctx) => string
+  /** `front` is an all-over pattern (stripes, tie-dye), so it is drawn on the back too */
+  wraps?: boolean
   /** takes the wearer's signature colour instead of `color` (front/collar get it via ctx.sig) */
   signature?: boolean
 }
@@ -94,8 +99,12 @@ export interface ItemDef {
   draw?: (c: Ctx) => string
   /** hats drawn behind the head (e.g. the back of a brim) */
   drawBack?: (c: Ctx) => string
+  /** neck items seen from behind (the band of a scarf, the outside of a cape). Without it nothing shows. */
+  drawRear?: (c: Ctx) => string
   /** hats that flatten tall hair (bun, curly) */
   flattensHair?: boolean
+  /** a hat that covers the top of the head: hair above this height (local y) is tucked under it, so any hairstyle fits */
+  covers?: number
 }
 
 // ---------- tops ----------
@@ -104,9 +113,13 @@ const lapels = (col: string) =>
   P('M -9 -73 L -3 -56 L -11 -50 L -16 -66 Z', shade(col, 0.12)) + P('M 9 -73 L 3 -56 L 11 -50 L 16 -66 Z', shade(col, 0.12))
 const buttons = (x: number, ys: number[], col = '#f4d35e') => ys.map((y) => `<circle cx="${x}" cy="${y}" r="1.7" fill="${col}" stroke="${O}" stroke-width="1"/>`).join('')
 const hood = (col: string) => () => P('M -17 -70 C -20 -82 -10 -86 0 -86 C 10 -86 20 -82 17 -70 Z', shade(col, 0.1))
+/** a hood from behind: it hangs down between the shoulders */
+const hoodRear = (col: string) => P('M -16 -74 C -18 -58 -8 -52 0 -52 C 8 -52 18 -58 16 -74 Z', shade(col, 0.1)) + `<path d="M -9 -66 Q 0 -58 9 -66" fill="none" stroke="${ink(col)}" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>`
+/** apron strings tied in a bow at the back */
+const apronRear = (col: string) => L(-8, -73, 8, -73, col, 2.4) + L(-19, -50, 19, -50, col, 2.6) + P('M 0 -50 L -7 -55 L -7 -45 Z', col, 'stroke-width="1.6"') + P('M 0 -50 L 7 -55 L 7 -45 Z', col, 'stroke-width="1.6"') + L(-1, -49, -4, -40, col, 2.2) + L(1, -49, 4, -40, col, 2.2)
 
-const tee = (id: string, name: string, color: string, price: number, shop?: string, front?: (c: Ctx) => string): ItemDef => ({
-  id, name, slot: 'body', price, shop, top: { color, sleeves: 'short', front },
+const tee = (id: string, name: string, color: string, price: number, shop?: string, front?: (c: Ctx) => string, wraps?: boolean): ItemDef => ({
+  id, name, slot: 'body', price, shop, top: { color, sleeves: 'short', front, wraps },
 })
 
 const TOPS: ItemDef[] = [
@@ -117,10 +130,10 @@ const TOPS: ItemDef[] = [
   tee('iloveny-tee', 'I ♥ NY Tee', '#ffffff', 15, 'iloveny', (c) =>
     c.back ? '' : T(-4, -56, 9, 'I', O, 'font-weight="900"') + heart(5, -59, 1.05, '#e8323a') + T(0, -45, 10, 'NY', O, 'font-weight="900"')),
   tee('tiedye-tee', 'Tie-Dye Tee', '#ff7ac8', 20, 'thread', (c) =>
-    `<g opacity=".85">${blobDots(c.u, ['#ffd23f', '#3fd0ff', '#8cff6a', '#b06bff'])}</g>`),
+    `<g opacity=".85">${blobDots(c.u, ['#ffd23f', '#3fd0ff', '#8cff6a', '#b06bff'])}</g>`, true),
   {
     id: 'breton', name: 'Breton Stripes', slot: 'body', price: 22, shop: 'thread',
-    top: { color: '#f7f4ec', sleeves: 'long', front: () => [-66, -59, -52, -45, -38].map((y) => Pn(`M -19 ${y} L 19 ${y} L 19 ${y + 3} L -19 ${y + 3} Z`, '#24366b')).join('') },
+    top: { color: '#f7f4ec', sleeves: 'long', wraps: true, front: () => [-66, -59, -52, -45, -38].map((y) => Pn(`M -19 ${y} L 19 ${y} L 19 ${y + 3} L -19 ${y + 3} Z`, '#24366b')).join('') },
   },
   {
     // everyone's first top: a free hoodie in your signature colour, so your colour is the biggest thing about you
@@ -128,6 +141,7 @@ const TOPS: ItemDef[] = [
     top: {
       color: '#3d72d9', sleeves: 'long', signature: true,
       collar: (c) => P('M -17 -70 C -20 -82 -10 -86 0 -86 C 10 -86 20 -82 17 -70 Z', shade(c.sig, 0.12)),
+      rear: (c) => hoodRear(c.sig),
       front: (c) => (c.back ? '' : P('M -11 -46 L 11 -46 L 10 -37 L -10 -37 Z', shade(c.sig, 0.1), 'stroke-width="2.2"') + L(-3.5, -72, -4, -62, '#fff', 2) + L(3.5, -72, 4, -62, '#fff', 2)),
     },
   },
@@ -137,19 +151,19 @@ const TOPS: ItemDef[] = [
   },
   {
     id: 'sig-puffer', name: 'Color Puffer', slot: 'body', price: 42, shop: 'thread',
-    top: { color: '#3d72d9', sleeves: 'long', signature: true, collar: (c) => P('M -12 -70 C -12 -80 12 -80 12 -70 Z', shade(c.sig, 0.12)), front: (c) => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="${ink(c.sig)}" stroke-width="1.8"/>`).join('') + L(0, -73, 0, -36, tint(c.sig, 0.5), 1.6) },
+    top: { color: '#3d72d9', sleeves: 'long', signature: true, collar: (c) => P('M -12 -70 C -12 -80 12 -80 12 -70 Z', shade(c.sig, 0.12)), rear: (c) => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="${ink(c.sig)}" stroke-width="1.8"/>`).join(''), front: (c) => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="${ink(c.sig)}" stroke-width="1.8"/>`).join('') + L(0, -73, 0, -36, tint(c.sig, 0.5), 1.6) },
   },
   {
     id: 'nyc-hoodie', name: 'NYC Hoodie', slot: 'body', price: 28, shop: 'iloveny',
-    top: { color: '#8f96a3', sleeves: 'long', collar: hood('#8f96a3'), front: (c) => (c.back ? '' : T(0, -50, 11, 'NYC', '#fff', `stroke="${O}" stroke-width="1" font-weight="900"`) + P('M -9 -44 L 9 -44 L 8 -37 L -8 -37 Z', shade('#8f96a3', 0.08)) + L(-3, -72, -3, -64) + L(3, -72, 3, -64)) },
+    top: { color: '#8f96a3', sleeves: 'long', collar: hood('#8f96a3'), rear: () => hoodRear('#8f96a3'), front: (c) => (c.back ? '' : T(0, -50, 11, 'NYC', '#fff', `stroke="${O}" stroke-width="1" font-weight="900"`) + P('M -9 -44 L 9 -44 L 8 -37 L -8 -37 Z', shade('#8f96a3', 0.08)) + L(-3, -72, -3, -64) + L(3, -72, 3, -64)) },
   },
   {
     id: 'taxi-hoodie', name: 'Taxi Hoodie', slot: 'body', price: 30, shop: 'iloveny',
-    top: { color: '#ffcf1f', sleeves: 'long', collar: hood('#ffcf1f'), front: (c) => (c.back ? '' : [-14, -6, 2, 10].map((x) => `<rect x="${x}" y="-56" width="4" height="4" fill="${O}"/><rect x="${x + 4}" y="-52" width="4" height="4" fill="${O}"/>`).join('') + L(-3, -72, -3, -64) + L(3, -72, 3, -64)) },
+    top: { color: '#ffcf1f', sleeves: 'long', collar: hood('#ffcf1f'), rear: () => hoodRear('#ffcf1f'), front: (c) => (c.back ? '' : [-14, -6, 2, 10].map((x) => `<rect x="${x}" y="-56" width="4" height="4" fill="${O}"/><rect x="${x + 4}" y="-52" width="4" height="4" fill="${O}"/>`).join('') + L(-3, -72, -3, -64) + L(3, -72, 3, -64)) },
   },
   {
     id: 'puffer', name: 'Puffer Jacket', slot: 'body', price: 45, shop: 'thread',
-    top: { color: '#2f3a5f', sleeves: 'long', collar: () => P('M -12 -70 C -12 -80 12 -80 12 -70 Z', '#2f3a5f'), front: () => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="${O}" stroke-width="1.8"/>`).join('') + L(0, -73, 0, -36, '#c9cfe0', 1.6) },
+    top: { color: '#2f3a5f', sleeves: 'long', collar: () => P('M -12 -70 C -12 -80 12 -80 12 -70 Z', '#2f3a5f'), rear: () => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="${O}" stroke-width="1.8"/>`).join(''), front: () => [-62, -53, -44].map((y) => `<path d="M -18 ${y} Q 0 ${y + 3} 18 ${y}" fill="none" stroke="${O}" stroke-width="1.8"/>`).join('') + L(0, -73, 0, -36, '#c9cfe0', 1.6) },
   },
   {
     id: 'denim-jacket', name: 'Denim Jacket', slot: 'body', price: 40, shop: 'thread',
@@ -165,7 +179,7 @@ const TOPS: ItemDef[] = [
   },
   {
     id: 'pinstripe', name: 'Bronx 27 Jersey', slot: 'body', price: 35, shop: 'iloveny',
-    top: { color: '#f8f8fb', sleeves: 'short', front: (c) => [-14, -9, -4, 1, 6, 11, 16].map((x) => L(x, -72, x * 0.95, -36, '#2b3a75', 1)).join('') + (c.back ? '' : T(0, -48, 13, '27', '#2b3a75', 'font-weight="900"')) },
+    top: { color: '#f8f8fb', sleeves: 'short', wraps: true, front: (c) => [-14, -9, -4, 1, 6, 11, 16].map((x) => L(x, -72, x * 0.95, -36, '#2b3a75', 1)).join('') + (c.back ? '' : T(0, -48, 13, '27', '#2b3a75', 'font-weight="900"')) },
   },
   {
     id: 'turtleneck', name: 'Black Turtleneck', slot: 'body', price: 30, shop: 'thread',
@@ -173,7 +187,7 @@ const TOPS: ItemDef[] = [
   },
   {
     id: 'trench', name: 'Trench Coat', slot: 'body', price: 70, shop: 'thread', alsoAt: ['toys'],
-    top: { color: '#c8a46a', sleeves: 'long', length: 'long', front: () => vneck('#f2f2f2') + lapels('#c8a46a') + R(-21, -42, 42, 5, 2, shade('#c8a46a', 0.22), 1.6) + buttons(-6, [-56, -32, -26], '#6b4e2a') + buttons(6, [-56, -32, -26], '#6b4e2a') },
+    top: { color: '#c8a46a', sleeves: 'long', length: 'long', rear: () => R(-21, -42, 42, 5, 2, shade('#c8a46a', 0.22), 1.6) + L(0, -34, 0, -20, shade('#c8a46a', 0.3), 1.6), front: () => vneck('#f2f2f2') + lapels('#c8a46a') + R(-21, -42, 42, 5, 2, shade('#c8a46a', 0.22), 1.6) + buttons(-6, [-56, -32, -26], '#6b4e2a') + buttons(6, [-56, -32, -26], '#6b4e2a') },
   },
   {
     id: 'camel-coat', name: 'Camel Coat', slot: 'body', price: 260, shop: 'maison', alsoAt: ['toys'],
@@ -185,7 +199,7 @@ const TOPS: ItemDef[] = [
   },
   {
     id: 'floral-dress', name: 'Floral Dress', slot: 'body', price: 45, shop: 'thread',
-    top: { color: '#ff8eb4', sleeves: 'short', length: 'dress', front: () => [[-10, -60], [8, -52], [-4, -40], [12, -30], [-14, -26], [2, -24], [10, -64]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#fff6a8"/><circle cx="${x}" cy="${y}" r="1.1" fill="#ff5a5f"/>`).join('') },
+    top: { color: '#ff8eb4', sleeves: 'short', length: 'dress', wraps: true, front: () => [[-10, -60], [8, -52], [-4, -40], [12, -30], [-14, -26], [2, -24], [10, -64]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#fff6a8"/><circle cx="${x}" cy="${y}" r="1.1" fill="#ff5a5f"/>`).join('') },
   },
   {
     id: 'sequin-jacket', name: 'Sequin Showstopper', slot: 'body', price: 55, shop: 'broadway',
@@ -196,12 +210,12 @@ const TOPS: ItemDef[] = [
     top: { color: '#fbfbfd', sleeves: 'long', front: () => P('M -10 -72 L 10 -72 L 12 -66 L -12 -66 Z', '#eef0f6') + buttons(-5, [-60, -52, -44], '#3a3f5a') + buttons(5, [-60, -52, -44], '#3a3f5a') },
   },
   {
-    id: 'halal-apron', name: 'Adel’s Apron', slot: 'body', price: 0, reward: 'halal-rush',
-    top: { color: '#e64b3c', sleeves: 'short', front: (c) => P('M -12 -64 L 12 -64 L 14 -36 L -14 -36 Z', '#fffdf5') + L(-12, -64, -8, -73, O, 1.6) + L(12, -64, 8, -73, O, 1.6) + (c.back ? '' : T(0, -48, 6.5, 'ADEL’S', '#e64b3c', 'font-weight="900"') + T(0, -41, 6.5, 'HALAL', '#e64b3c', 'font-weight="900"')) },
+    id: 'halal-apron', name: 'Halal Bros Apron', slot: 'body', price: 0, reward: 'halal-rush',
+    top: { color: '#e64b3c', sleeves: 'short', rear: () => apronRear('#fffdf5'), front: (c) => P('M -12 -64 L 12 -64 L 14 -36 L -14 -36 Z', '#fffdf5') + L(-12, -64, -8, -73, O, 1.6) + L(12, -64, 8, -73, O, 1.6) + (c.back ? '' : T(0, -48, 6.5, 'HALAL', '#e64b3c', 'font-weight="900"') + T(0, -41, 6.5, 'BROS', '#e64b3c', 'font-weight="900"')) },
   },
   {
     id: 'barista-apron', name: 'Barista Apron', slot: 'body', price: 0, reward: 'bagel-counters',
-    top: { color: '#f2ede2', sleeves: 'long', front: () => P('M -12 -64 L 12 -64 L 14 -36 L -14 -36 Z', '#2f7d4f') + L(-12, -64, -8, -73, O, 1.6) + L(12, -64, 8, -73, O, 1.6) + C(0, -50, 4, '#f2ede2', 1.4) },
+    top: { color: '#f2ede2', sleeves: 'long', rear: () => apronRear('#2f7d4f'), front: () => P('M -12 -64 L 12 -64 L 14 -36 L -14 -36 Z', '#2f7d4f') + L(-12, -64, -8, -73, O, 1.6) + L(12, -64, 8, -73, O, 1.6) + C(0, -50, 4, '#f2ede2', 1.4) },
   },
 ]
 
@@ -245,24 +259,26 @@ const SHOES: ItemDef[] = [
 /** hats sit up on the forehead, so the eyes (and a little hair) always show */
 const lift = (dy: number, svg: string) => `<g transform="translate(0 ${-dy})">${svg}</g>`
 const capDome = (col: string) => P('M -30 -114 C -30 -138 -16 -147 0 -147 C 16 -147 30 -138 30 -114 C 20 -118 -20 -118 -30 -114 Z', col)
+/** a cap from behind: the opening over the adjuster strap */
+const capRear = (col: string) => P('M -8 -116.6 C -8 -126 8 -126 8 -116.6 Z', shade(col, 0.5), 'stroke-width="2"') + L(-7, -117.4, 7, -117.4, tint(col, 0.35), 2.2)
 const capBrim = (fx: number, col: string) =>
   P(`M ${-27 + fx} -114 Q ${fx} -107 ${27 + fx} -114 Q ${32 + fx} -110 ${23 + fx} -108.5 Q ${fx} -103 ${-23 + fx} -108.5 Q ${-32 + fx} -110 ${-27 + fx} -114 Z`, col)
 const HATS: ItemDef[] = [
   {
-    id: 'nyc-cap', name: 'NYC Cap', slot: 'head', price: 12, shop: 'iloveny',
-    draw: (c) => capDome('#1f2d5c') + (c.back ? '' : capBrim(c.fx, '#18234a') + T(c.fx, -124, 10, 'NYC', '#fff', 'font-weight="900"')) + C(0, -147, 2.6, '#1f2d5c', 1.6),
+    id: 'nyc-cap', name: 'NYC Cap', slot: 'head', price: 12, shop: 'iloveny', covers: -119,
+    draw: (c) => lift(6, capDome('#1f2d5c') + (c.back ? capRear('#1f2d5c') : capBrim(c.fx, '#18234a') + T(c.fx, -124, 10, 'NYC', '#fff', 'font-weight="900"')) + C(0, -147, 2.6, '#1f2d5c', 1.6)),
   },
   {
-    id: 'sig-cap', name: 'Color Cap', slot: 'head', price: 14, shop: 'iloveny',
-    draw: (c) => capDome(c.sig) + (c.back ? '' : capBrim(c.fx, shade(c.sig, 0.18)) + `<circle cx="${c.fx}" cy="-126" r="4.5" fill="#fff" stroke="${ink(c.sig)}" stroke-width="1.6"/>`) + C(0, -147, 2.6, c.sig, 1.6),
+    id: 'sig-cap', name: 'Color Cap', slot: 'head', price: 14, shop: 'iloveny', covers: -119,
+    draw: (c) => lift(6, capDome(c.sig) + (c.back ? capRear(c.sig) : capBrim(c.fx, shade(c.sig, 0.18)) + `<circle cx="${c.fx}" cy="-126" r="4.5" fill="#fff" stroke="${ink(c.sig)}" stroke-width="1.6"/>`) + C(0, -147, 2.6, c.sig, 1.6)),
   },
   {
-    id: 'sig-beanie', name: 'Color Beanie', slot: 'head', price: 12, shop: 'iloveny', flattensHair: true,
-    draw: (c) => lift(5, P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', c.sig) + R(-33, -110, 66, 11, 5, shade(c.sig, 0.16)) + blob([[0, -147, 6]], '#ffffff')),
+    id: 'sig-beanie', name: 'Color Beanie', slot: 'head', price: 12, shop: 'iloveny', flattensHair: true, covers: -111,
+    draw: (c) => lift(8, P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', c.sig) + R(-33, -110, 66, 11, 5, shade(c.sig, 0.16)) + blob([[0, -147, 6]], '#ffffff')),
   },
   {
-    id: 'nyc-beanie', name: 'Big Apple Beanie', slot: 'head', price: 10, shop: 'iloveny', flattensHair: true,
-    draw: () => lift(5, P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', '#e8483f') + R(-33, -110, 66, 11, 5, '#c7362f') + blob([[0, -147, 6]], '#ffffff')),
+    id: 'nyc-beanie', name: 'Big Apple Beanie', slot: 'head', price: 10, shop: 'iloveny', flattensHair: true, covers: -111,
+    draw: () => lift(8, P('M -32 -102 C -33 -134 -16 -144 0 -144 C 16 -144 33 -134 32 -102 Z', '#e8483f') + R(-33, -110, 66, 11, 5, '#c7362f') + blob([[0, -147, 6]], '#ffffff')),
   },
   {
     id: 'foam-crown', name: 'Foam Liberty Crown', slot: 'head', price: 12, shop: 'liberty', alsoAt: ['iloveny'],
@@ -286,8 +302,8 @@ const HATS: ItemDef[] = [
     draw: () => P('M -32 -114 C -34 -134 6 -146 30 -130 C 36 -125 32 -116 22 -115 C 6 -117 -14 -113 -32 -114 Z', '#2b2f3a') + C(6, -141, 2.5, '#2b2f3a', 1.6),
   },
   {
-    id: 'bucket-hat', name: 'Bucket Hat', slot: 'head', price: 18, shop: 'thread', flattensHair: true,
-    draw: () => lift(5, P('M -38 -108 Q -36 -116 -26 -118 L -22 -136 Q 0 -144 22 -136 L 26 -118 Q 36 -116 38 -108 Q 0 -100 -38 -108 Z', '#f0d58c') + Pn('M -23 -122 Q 0 -126 23 -122 L 24 -118 Q 0 -122 -24 -118 Z', '#c9a24a')),
+    id: 'bucket-hat', name: 'Bucket Hat', slot: 'head', price: 18, shop: 'thread', flattensHair: true, covers: -115,
+    draw: () => lift(8, P('M -38 -108 Q -36 -116 -26 -118 L -22 -136 Q 0 -144 22 -136 L 26 -118 Q 36 -116 38 -108 Q 0 -100 -38 -108 Z', '#f0d58c') + Pn('M -23 -122 Q 0 -126 23 -122 L 24 -118 Q 0 -122 -24 -118 Z', '#c9a24a')),
   },
   {
     id: 'propeller', name: 'Propeller Beanie', slot: 'head', price: 15, shop: 'iloveny',
@@ -306,7 +322,7 @@ const HATS: ItemDef[] = [
     draw: () => blob([[-14, -140, 12], [0, -146, 14], [14, -140, 12], [0, -134, 12]], '#ffffff') + R(-22, -128, 44, 16, 4, '#f4f5fa'),
   },
   {
-    id: 'captain-hat', name: 'Ferry Captain Hat', slot: 'head', price: 0, reward: 'ferry-captain', flattensHair: true,
+    id: 'captain-hat', name: 'Ferry Captain Hat', slot: 'head', price: 0, reward: 'ferry-captain', flattensHair: true, covers: -120,
     draw: (c) => lift(4, P('M -33 -124 Q -30 -140 0 -142 Q 30 -140 33 -124 Q 0 -118 -33 -124 Z', '#ffffff') + R(-28, -126, 56, 12, 3, '#1f2d5c') + (c.back ? '' : P(`M ${-26 + c.fx} -114 Q ${c.fx} -106 ${26 + c.fx} -114 Q ${c.fx} -100 ${-26 + c.fx} -114 Z`, '#14193a') + C(c.fx, -121, 4, '#f2c14e', 1.4))),
   },
   {
@@ -348,6 +364,7 @@ const FACE: ItemDef[] = [
 const NECK: ItemDef[] = [
   {
     id: 'scarf', name: 'Knit Scarf', slot: 'neck', price: 15, shop: 'thread',
+    drawRear: () => R(-16, -77, 32, 10, 5, '#e8483f'),
     draw: () => R(-16, -77, 32, 10, 5, '#e8483f') + P('M 6 -70 L 14 -70 L 13 -50 L 5 -50 Z', '#e8483f') + L(6, -55, 13, -55, '#fff', 1.6) + L(6, -60, 13, -60, '#fff', 1.6),
   },
   { id: 'bowtie', name: 'Bow Tie', slot: 'neck', price: 10, shop: 'broadway', draw: () => P('M 0 -72 L -9 -77 L -9 -67 Z', '#d6303a') + P('M 0 -72 L 9 -77 L 9 -67 Z', '#d6303a') + C(0, -72, 2.6, '#a82029', 1.4) },
@@ -362,6 +379,7 @@ const NECK: ItemDef[] = [
     const [team, col, stripe] = t.split(':')
     return {
       id: `team-scarf-${team}`, name: `${team[0].toUpperCase() + team.slice(1)} Team Scarf`, slot: 'neck' as const, price: 0, reward: 'team',
+      drawRear: () => R(-16, -77, 32, 10, 5, col),
       draw: () => R(-16, -77, 32, 10, 5, col) + P('M 6 -70 L 14 -70 L 13 -48 L 5 -48 Z', col) + L(6, -53, 13, -53, stripe, 2) + L(6, -58, 13, -58, stripe, 2) + L(-10, -72, -10, -72, stripe, 0),
     }
   }),
@@ -371,14 +389,14 @@ const NECK: ItemDef[] = [
 // ---------- in hand (drawn around the right hand at 0,0) ----------
 const HAND: ItemDef[] = [
   { id: 'coffee', name: 'Deli Coffee', slot: 'hand', price: 3, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#2d6fd1') + Pn('M -5.6 1 L 5.6 1 L 5.4 4 L -5.4 4 Z', '#fff') + R(-7, -7, 14, 4, 2, '#f4f4f8', 1.6) },
-  // Ralph's Coffee latte: a white cup, a cardboard sleeve, and a name scribbled on it (never quite yours)
+  // Starducks Coffee latte: a white cup, a cardboard sleeve, and a name scribbled on it (never quite yours)
   { id: 'latte', name: 'Oat Latte', slot: 'hand', price: 4, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#ffffff') + Pn('M -5.7 2 L 5.7 2 L 5.4 7 L -5.4 7 Z', '#b9875a') + R(-7, -7, 14, 4, 2, '#3a3f4b', 1.6) + `<path d="M -3.5 -1 q 1.2 -1.6 2.4 0 t 2.4 0 t 2.4 0" fill="none" stroke="${O}" stroke-width="1"/>` },
   { id: 'pizza-slice', name: 'Plain Slice', slot: 'hand', price: 1, shop: 'pizza', draw: () => P('M -3 2 L 18 -10 Q 20 -2 16 6 Z', '#ffd36b') + P('M 16 6 Q 20 -2 18 -10 L 21 -11 Q 24 -1 19 8 Z', '#d99a45') + C(10, -2, 1.8, '#d6303a', 1) + C(14, 2, 1.6, '#d6303a', 1) },
   { id: 'bagel', name: 'Everything Bagel', slot: 'hand', price: 2, shop: 'coffee', draw: () => E(6, 0, 10, 8, '#d69a52') + E(6, 0, 3, 2.2, '#fffaf0', 1.6) + [[1, -4], [10, -4], [12, 2], [2, 3]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="${O}"/>`).join('') },
   { id: 'hotdog', name: 'Hot Dog', slot: 'hand', price: 2, shop: 'street', draw: () => R(-4, -4, 24, 9, 4.5, '#f0c27b') + R(-6, -2, 28, 5, 2.5, '#c8553d', 2) + `<path d="M -3 -0.5 Q 0 -3 3 -0.5 T 9 -0.5 T 15 -0.5 T 20 -0.5" fill="none" stroke="#ffd23f" stroke-width="1.6"/>` },
   { id: 'pretzel', name: 'Soft Pretzel', slot: 'hand', price: 2, shop: 'street', draw: () => `<path d="M 0 6 C -10 -6 2 -14 8 -4 C 14 -14 26 -6 16 6 C 12 10 4 10 0 6 Z M 8 -4 L 4 6 M 8 -4 L 12 6" fill="none" stroke="${O}" stroke-width="7" stroke-linejoin="round"/><path d="M 0 6 C -10 -6 2 -14 8 -4 C 14 -14 26 -6 16 6 C 12 10 4 10 0 6 Z M 8 -4 L 4 6 M 8 -4 L 12 6" fill="none" stroke="#b9732f" stroke-width="3.5" stroke-linejoin="round"/>` },
   { id: 'boba', name: 'Boba Tea', slot: 'hand', price: 4, shop: 'chinatown', draw: () => L(2, -18, 0, -6, O, 4) + L(2, -18, 0, -6, '#ff5a8a', 2) + P('M -6 -6 L 6 -6 L 5 12 L -5 12 Z', '#f5d7b5') + [[-2, 8], [2, 9], [0, 5], [3, 5]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#3a2418"/>`).join('') + R(-7, -8, 14, 3, 1.5, '#ffffff', 1.4) },
-  { id: 'shopping-bag', name: 'Shopping Bag', slot: 'hand', price: 5, shop: 'thread', draw: () => `<path d="M -3 2 Q 3 -10 9 2" fill="none" stroke="${O}" stroke-width="2"/>` + P('M -8 2 L 14 2 L 16 26 L -10 26 Z', '#ffffff') + R(-7, 12, 20, 8, 0, '#e2231a', 0) + T(3, 17.8, 4.3, 'Supreme', '#ffffff', 'font-weight="900" font-style="italic"') },
+  { id: 'shopping-bag', name: 'Shopping Bag', slot: 'hand', price: 5, shop: 'thread', draw: () => `<path d="M -3 2 Q 3 -10 9 2" fill="none" stroke="${O}" stroke-width="2"/>` + P('M -8 2 L 14 2 L 16 26 L -10 26 Z', '#ffffff') + R(-7, 12, 20, 8, 0, '#16171c', 0) + T(3, 17.8, 4.3, 'THREAD', '#ffffff', 'font-weight="900"') },
   { id: 'trunk-bag', name: 'Monogram Bag', slot: 'hand', price: 220, shop: 'maison', draw: () => `<path d="M -2 2 Q 5 -10 12 2" fill="none" stroke="${O}" stroke-width="2.4"/>` + R(-8, 2, 26, 18, 4, '#7a4b2a') + [[-3, 7], [5, 7], [13, 7], [1, 14], [9, 14]].map(([x, y]) => `<path transform="translate(${x} ${y})" d="M0 -2 L.6 -.6 L2 0 L.6 .6 L0 2 L-.6 .6 L-2 0 L-.6 -.6Z" fill="#e2b04a"/>`).join('') + R(2, 8, 6, 4, 1, '#e2b04a', 1) },
   { id: 'foam-finger', name: 'Foam Finger', slot: 'hand', price: 8, shop: 'iloveny', draw: () => P('M -7 -2 L 9 -2 L 9 10 L -7 10 Z', '#3f7fe8') + P('M -2 -2 L -2 -24 Q 1 -28 4 -24 L 4 -2 Z', '#3f7fe8') + T(1, 8, 7, '#1', '#fff', 'font-weight="900"') },
   { id: 'snow-globe', name: 'Skyline Snow Globe', slot: 'hand', price: 6, shop: 'iloveny', draw: () => R(-8, 4, 20, 7, 2.5, '#8a5a35') + C(2, -6, 11, 'rgba(205,236,255,.92)') + R(-5, -6, 4, 9, 0.5, '#8fa0c9', 1) + R(-1, -12, 4, 15, 0.5, '#c9ccd6', 1) + R(3, -8, 4, 11, 0.5, '#7d8db8', 1) + R(7, -4, 3, 7, 0.5, '#a9b6d6', 1) + `<circle cx="-4" cy="-11" r="1" fill="#fff"/><circle cx="8" cy="-10" r="1" fill="#fff"/><circle cx="2" cy="-15" r=".9" fill="#fff"/>` },
@@ -392,7 +410,8 @@ const HAND: ItemDef[] = [
   { id: 'donut', name: 'Sprinkle Donut', slot: 'hand', price: 2, shop: 'street', draw: () => E(6, 0, 10, 8, '#e3a35c') + P('M -3 -2 C -2 -8 14 -8 15 -2 C 14 2 -2 2 -3 -2 Z', '#ff8fc7', 'stroke-width="1.6"') + E(6, -1, 3, 2.2, '#fff7ea', 1.6) + [[0, -4, '#3fd0ff'], [10, -5, '#ffd23f'], [12, -2, '#8cff6a'], [2, -1, '#b06bff']].map(([x, y, c]) => `<rect x="${x}" y="${y}" width="2.4" height="1" fill="${c}" transform="rotate(30 ${x} ${y})"/>`).join('') },
   { id: 'dumplings', name: 'Dumpling Box', slot: 'hand', price: 3, shop: 'chinatown', draw: () => P('M -6 -2 L 16 -2 L 13 14 L -3 14 Z', '#ffffff') + P('M -2 -2 L 2 -10 L 12 -10 L 16 -2', 'none', 'stroke-width="2"') + Pn('M 0 6 L 12 6', 'none', `stroke="#d6303a" stroke-width="2"`) },
   { id: 'cocoa', name: 'Hot Cocoa', slot: 'hand', price: 3, shop: 'street', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#c0392b') + R(-7, -7, 14, 4, 2, '#f4f4f8', 1.6) + `<path d="M -2 -10 q 2 -4 0 -7 M 3 -10 q 2 -4 0 -7" fill="none" stroke="#fff" stroke-width="1.6" opacity=".8"/>` },
-  { id: 'metrocard', name: 'MetroCard', slot: 'hand', price: 3, shop: 'subway', draw: () => R(-2, -6, 18, 11, 2, '#ffcf1f', 2) + R(-2, 1, 18, 3, 0, '#1f2d5c', 0) },
+  // the real card's look: gold, the rising blue word, the black magnetic stripe near the bottom
+  { id: 'metrocard', name: 'MetroCard', slot: 'hand', price: 3, shop: 'subway', draw: () => R(-2, -6, 18, 11, 2, '#efc463', 2) + `<path d="M 0 -0.5 L 13 -4.4" stroke="#2459a8" stroke-width="2.4" stroke-linecap="round"/>` + R(-2, 1.4, 18, 2.4, 0, '#1f1f22', 0) },
 ]
 
 // ---------- souvenirs: every shelf in the I ♥ NY shop has its own thing ----------
@@ -442,13 +461,13 @@ const SOUVENIRS: ItemDef[] = [
   },
   {
     id: 'iloveny-cap', name: 'I ♥ NY Cap', slot: 'head', price: 12, shop: 'iloveny',
-    draw: (c) => capDome('#ffffff') + (c.back ? '' : capBrim(c.fx, '#e8323a') + heart(c.fx, -127, 1.6, '#e8323a', 1.6)) + C(0, -147, 2.6, '#e8323a', 1.6),
+    draw: (c) => capDome('#ffffff') + (c.back ? capRear('#e8323a') : capBrim(c.fx, '#e8323a') + heart(c.fx, -127, 1.6, '#e8323a', 1.6)) + C(0, -147, 2.6, '#e8323a', 1.6),
   },
   {
     id: 'taxi-cap', name: 'Taxi Cap', slot: 'head', price: 12, shop: 'iloveny',
-    draw: (c) => capDome('#ffcf1f') + [-20, -12, -4, 4, 12].map((x, i) => `<rect x="${x}" y="-125" width="8" height="4" fill="${i % 2 ? '#fff' : O}"/><rect x="${x}" y="-121" width="8" height="4" fill="${i % 2 ? O : '#fff'}"/>`).join('') + (c.back ? '' : capBrim(c.fx, '#e0b20f')) + C(0, -147, 2.6, '#ffcf1f', 1.6),
+    draw: (c) => capDome('#ffcf1f') + [-20, -12, -4, 4, 12].map((x, i) => `<rect x="${x}" y="-125" width="8" height="4" fill="${i % 2 ? '#fff' : O}"/><rect x="${x}" y="-121" width="8" height="4" fill="${i % 2 ? O : '#fff'}"/>`).join('') + (c.back ? capRear('#ffcf1f') : capBrim(c.fx, '#e0b20f')) + C(0, -147, 2.6, '#ffcf1f', 1.6),
   },
-  // toys and balloons (sold at I ♥ NY Souvenirs since the Fifth Avenue toy store became Saks Fifth Avenue)
+  // toys and balloons (sold at I ♥ NY Souvenirs since the Fifth Avenue toy store became Snacks Fifth Avenue)
   { id: 'heart-balloon', name: 'Heart Balloon', slot: 'hand', price: 8, shop: 'iloveny', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + `<path transform="translate(6 -72) scale(3.2)" d="M0 4 C -7 -2 -4 -8 0 -4.5 C 4 -8 7 -2 0 4Z" fill="#ff5a8a" stroke="${O}" stroke-width="0.7" stroke-linejoin="round"/>` },
   { id: 'star-balloon', name: 'Star Balloon', slot: 'hand', price: 8, shop: 'iloveny', draw: () => `<path d="M 2 0 Q -4 -30 6 -58" fill="none" stroke="${O}" stroke-width="1.2"/>` + `<path transform="translate(6 -72)" d="M0 -14 L4 -5 L14 -4 L6.5 2.5 L9 12 L0 7 L-9 12 L-6.5 2.5 L-14 -4 L-4 -5Z" fill="#ffd23f" stroke="${O}" stroke-width="2.4" stroke-linejoin="round"/>` },
   { id: 'toy-robot', name: 'Wind-up Robot', slot: 'hand', price: 12, shop: 'iloveny', draw: () => R(-4, -6, 14, 14, 2, '#9aa6c4') + R(-2, -16, 10, 9, 2, '#b7c2dd') + C(1, -12, 1.4, '#ffd23f', 0.8) + C(5, -12, 1.4, '#ffd23f', 0.8) + L(3, -16, 3, -20) + C(3, -21, 1.6, '#ff5a5f', 1) + R(-2, -2, 10, 4, 1, '#3fd0ff', 1.2) },
@@ -471,26 +490,78 @@ const PARTY: ItemDef[] = [
   },
   {
     id: 'skeleton-hoodie', name: 'Skeleton Hoodie', slot: 'body', price: 0, reward: 'halloween',
-    top: { color: '#24242c', sleeves: 'long', collar: hood('#24242c'), front: () => [-62, -55, -48].map((y) => `<path d="M -12 ${y} Q 0 ${y + 3} 12 ${y}" fill="none" stroke="#f4f4f8" stroke-width="2.6" stroke-linecap="round"/>`).join('') + L(0, -68, 0, -40, '#f4f4f8', 2.6) + E(0, -40, 7, 3, '#f4f4f8', 1.2) },
+    top: { color: '#24242c', sleeves: 'long', collar: hood('#24242c'), rear: () => hoodRear('#24242c'), front: () => [-62, -55, -48].map((y) => `<path d="M -12 ${y} Q 0 ${y + 3} 12 ${y}" fill="none" stroke="#f4f4f8" stroke-width="2.6" stroke-linecap="round"/>`).join('') + L(0, -68, 0, -40, '#f4f4f8', 2.6) + E(0, -40, 7, 3, '#f4f4f8', 1.2) },
   },
   {
     id: 'vampire-cape', name: 'Vampire Cape', slot: 'neck', price: 0, reward: 'halloween',
+    drawRear: () => P('M -18 -76 L -30 -10 Q 0 -4 30 -10 L 18 -76 Z', '#1d1d26') + L(-8, -66, -12, -16, '#34343f', 1.8) + L(8, -66, 12, -16, '#34343f', 1.8) + P('M -16 -74 L -24 -92 L -8 -78 Z', '#1d1d26') + P('M 16 -74 L 24 -92 L 8 -78 Z', '#1d1d26'),
     drawBack: () => P('M -18 -76 L -30 -10 Q 0 -4 30 -10 L 18 -76 Z', '#1d1d26') + Pn('M -14 -72 L -24 -14 Q 0 -9 24 -14 L 14 -72 Z', '#a8121f'),
     draw: () => P('M -16 -74 L -24 -92 L -8 -78 Z', '#a8121f') + P('M 16 -74 L 24 -92 L 8 -78 Z', '#a8121f') + C(0, -72, 3, '#f2c14e', 1.4),
   },
   { id: 'candy-bucket', name: 'Trick-or-Treat Bucket', slot: 'hand', price: 0, reward: 'halloween', draw: () => `<path d="M -6 -4 Q 6 -16 18 -4" fill="none" stroke="${O}" stroke-width="2"/>` + P('M -8 -2 L 20 -2 L 18 16 Q 6 20 -6 16 Z', '#ff8a1f') + P('M -1 4 L 2 1 L 4 4 Z M 11 4 L 14 1 L 16 4 Z', '#3a1d00', 'stroke-width="1"') + P('M 0 10 Q 7 14 14 10', 'none', 'stroke-width="1.6"') + C(2, -4, 2.6, '#ff5a8a', 1) + C(8, -6, 2.6, '#ffd23f', 1) + C(14, -4, 2.6, '#3fd0ff', 1) },
 ]
 
-export const ITEMS: ItemDef[] = [...TOPS, ...BOTTOMS, ...SHOES, ...HATS, ...FACE, ...NECK, ...HAND, ...SOUVENIRS, ...PARTY]
+// ---------- SoHo for real: the sneakers on the Sneaker Vault's wall, THREAD's drops, Starducks' counter ----------
+/** a classic high-top: base upper, toe and heel overlays, collar, two slanted side stripes (our own mark), an ankle dot */
+const aj1 = (base: string, overlay: string, swoosh: string, collar = overlay) => (x: number) =>
+  P(`M ${x - 9} -3 L ${x - 9} -18 Q ${x - 9} -21 ${x - 6} -21 L ${x + 2} -21 Q ${x + 4} -21 ${x + 4} -18 L ${x + 4} -12 Q ${x + 11} -11 ${x + 11} -4 L ${x + 11} -3 Z`, base) +
+  Pn(`M ${x + 3} -11.6 Q ${x + 10.6} -10.8 ${x + 10.6} -4.4 L ${x + 10.6} -3.6 L ${x + 3} -3.6 Z`, overlay) +
+  Pn(`M ${x - 8.6} -3.6 L ${x - 8.6} -10 L ${x - 4} -10 L ${x - 4} -3.6 Z`, overlay) +
+  Pn(`M ${x - 8.6} -18 Q ${x - 8.6} -20.6 ${x - 6} -20.6 L ${x + 2} -20.6 Q ${x + 3.6} -20.6 ${x + 3.6} -18 L ${x + 3.6} -15.6 L ${x - 8.6} -15.6 Z`, collar) +
+  `<path d="M ${x - 5} -10.5 L ${x - 2.5} -6 M ${x - 1} -10.5 L ${x + 1.5} -6" fill="none" stroke="${swoosh}" stroke-width="2" stroke-linecap="round"/>` +
+  `<circle cx="${x - 3}" cy="-18" r="1.3" fill="${swoosh}"/>` + sole(x, '#f4f4f8')
+/** a low or mid with overlays on the toe and heel (the lows and the mid-cuts) */
+const lowWith = (upper: string, overlay: string, solecol: string, swoosh: string, mid = 0, extra = (_x: number) => '') => (x: number, side: -1 | 1) =>
+  P(`M ${x - 10} -3 L ${x - 10} ${-10 - mid} Q ${x - 10} ${-13 - mid} ${x - 6} ${-13 - mid} L ${x} ${-13 - mid} Q ${x + 3} ${-13 - mid} ${x + 3} ${-10 - mid} L ${x + 3} -11 Q ${x + 10} -10 ${x + 11} -4 L ${x + 11} -3 Z`, upper) +
+  (overlay !== upper ? Pn(`M ${x + 3} -10.6 Q ${x + 10} -9.8 ${x + 10.6} -4.2 L ${x + 10.6} -3.6 L ${x + 3} -3.6 Z`, overlay) + Pn(`M ${x - 9.6} -3.6 L ${x - 9.6} -9 L ${x - 5} -9 L ${x - 5} -3.6 Z`, overlay) : '') +
+  extra(x) +
+  `<path d="M ${x - 4 + side} -9 L ${x - 2 + side} -5.5 M ${x - 0.5 + side} -9 L ${x + 1.5 + side} -5.5" fill="none" stroke="${swoosh}" stroke-width="1.8" stroke-linecap="round"/>` +
+  sole(x, solecol)
+/** THREAD's wordmark on a black bar (deliberately not a red box), small enough for a chest or a cap */
+const boxLogo = (x: number, y: number, w = 22) =>
+  R(x - w / 2, y - w * 0.18, w, w * 0.36, 0.8, '#16171c', 1.1) + T(x, y + w * 0.11, w * 0.27, 'THREAD', '#ffffff', 'font-weight="900" letter-spacing="-0.2"')
+
+const SOHO: ItemDef[] = [
+  // Sneaker Vault: the wall in SoHo. Parody names only (no real brands or model names); all-white lows are "Uptowns" in New York.
+  { id: 'aj1-chicago', name: 'Sky High 1 “Chicago”', slot: 'feet', price: 180, shop: 'sneakers', shoe: aj1('#ffffff', '#d81f26', '#111318') },
+  { id: 'aj1-bred', name: 'Sky High 1 “Bred”', slot: 'feet', price: 180, shop: 'sneakers', shoe: aj1('#16171c', '#d81f26', '#16171c', '#16171c') },
+  { id: 'aj1-royal', name: 'Sky High 1 “Royal”', slot: 'feet', price: 170, shop: 'sneakers', shoe: aj1('#16171c', '#1f4fc4', '#16171c', '#16171c') },
+  { id: 'aj4-military-black', name: 'Sky High 4 “Military Black”', slot: 'feet', price: 210, shop: 'sneakers', shoe: lowWith('#f4f4f6', '#8d9099', '#ffffff', '#16171c', 4, (x) => `<path d="M ${x - 4} -12 L ${x + 2} -8 M ${x - 1} -13 L ${x + 4} -9" stroke="#16171c" stroke-width="1.2"/>`) },
+  { id: 'aj11-concord', name: 'Sky High 11 “Concord”', slot: 'feet', price: 230, shop: 'sneakers', shoe: (x, s) => lowWith('#ffffff', '#ffffff', '#cfe6f5', '#16171c', 6)(x, s) + P(`M ${x - 10} -3 L ${x - 10} -8 Q ${x} -6.5 ${x + 11} -7 L ${x + 11} -3 Z`, '#0e0f13', 'stroke-width="1.6"') + `<path d="M ${x - 6} -6.6 L ${x + 6} -6" stroke="#ffffff" stroke-width="0.9" opacity=".7"/>` },
+  { id: 'aj3-white-cement', name: 'Sky High 3 “White Cement”', slot: 'feet', price: 200, shop: 'sneakers', shoe: lowWith('#f7f7f8', '#a9acb4', '#ffffff', '#d81f26', 3, (x) => [[x + 6, -7], [x + 8, -5.6], [x + 5, -5], [x - 7, -6], [x - 6.6, -8]].map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r=".7" fill="#33363d"/>`).join('')) },
+  { id: 'dunk-panda', name: 'Slam Low “Panda”', slot: 'feet', price: 115, shop: 'sneakers', shoe: lowWith('#ffffff', '#16171c', '#ffffff', '#16171c') },
+  { id: 'af1-uptowns', name: 'Stoop Ones “Uptowns”', slot: 'feet', price: 110, shop: 'sneakers', shoe: lowWith('#ffffff', '#ffffff', '#ffffff', '#d7dae3') },
+  // THREAD: the drops. Priced like the resale line around the block.
+  {
+    id: 'sup-box-hoodie', name: 'Box Logo Hoodie', slot: 'body', price: 800, shop: 'thread',
+    top: { color: '#a3a6ad', sleeves: 'long', collar: hood('#a3a6ad'), rear: () => hoodRear('#a3a6ad'), front: (c) => (c.back ? '' : boxLogo(c.fx * 0.3, -58, 24) + P('M -11 -46 L 11 -46 L 10 -38 L -10 -38 Z', shade('#a3a6ad', 0.1), 'stroke-width="2"')) },
+  },
+  { id: 'sup-box-tee', name: 'Box Logo Tee', slot: 'body', price: 240, shop: 'thread', top: { color: '#ffffff', sleeves: 'short', front: (c) => (c.back ? '' : boxLogo(c.fx * 0.3, -58, 24)) } },
+  { id: 'sup-camp-cap', name: 'Camp Cap', slot: 'head', price: 120, shop: 'thread', draw: (c) => capDome('#16171c') + (c.back ? capRear('#3a3c46') : capBrim(c.fx, '#0e0f13') + boxLogo(c.fx, -124, 22)) + C(0, -147, 2.6, '#16171c', 1.6) },
+  { id: 'sup-brick', name: 'THREAD Brick', slot: 'hand', price: 300, shop: 'thread', draw: () => R(-5, -4, 24, 11, 1.4, '#c43b2b') + T(7, 3.6, 5, 'THREAD', '#ffffff', 'font-weight="900"') },
+  { id: 'sup-oreos', name: 'THREAD Oreos', slot: 'hand', price: 40, shop: 'thread', draw: () => R(-4, -8, 21, 15, 2.4, '#16171c') + C(2, -8, 4.6, '#2b1d1a', 1.4) + C(10, -8, 4.6, '#2b1d1a', 1.4) + T(6.5, 2.5, 4.6, 'THREAD', '#ffffff', 'font-weight="900"') },
+  { id: 'sup-deck', name: 'THREAD Skate Deck', slot: 'hand', price: 180, shop: 'thread', draw: () => `<g transform="rotate(-70 6 0)">${R(-12, -4, 36, 9, 4.5, '#16171c')}${T(6, 2.4, 5, 'THREAD', '#ffffff', 'font-weight="900"')}</g>` },
+  // Starducks Coffee: the green cup, and something to go with it
+  { id: 'ralphs-coffee', name: 'Starducks Coffee', slot: 'hand', price: 4, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#1d5c3c') + Pn('M -5.6 2 L 5.6 2 L 5.4 5.4 L -5.4 5.4 Z', '#f4efe2') + R(-7, -7, 14, 4, 2, '#f4efe2', 1.6) },
+  { id: 'cold-brew', name: 'Cold Brew', slot: 'hand', price: 5, shop: 'coffee', draw: () => L(3, -16, 1, -6, O, 3.6) + L(3, -16, 1, -6, '#1d5c3c', 1.8) + P('M -6 -6 L 6 -6 L 5 12 L -5 12 Z', 'rgba(220,236,245,.9)', 'stroke-width="2"') + Pn('M -5.6 -1 L 5.6 -1 L 5 11 L -5 11 Z', '#4a2a16') + R(-3, -4, 4, 4, 0.8, '#e8f6ff', 0.8) + R(1, 0, 3.6, 3.6, 0.8, '#e8f6ff', 0.8) },
+  { id: 'cookie', name: 'Chocolate Chip Cookie', slot: 'hand', price: 3, shop: 'coffee', draw: () => C(6, 0, 10, '#d9a35c') + [[1, -4], [9, -5], [5, 3], [11, 3], [2, 4]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.7" fill="#4a2a16"/>`).join('') },
+  { id: 'black-white', name: 'Black and White Cookie', slot: 'hand', price: 3, shop: 'coffee', draw: () => C(6, 0, 10, '#f4efe2') + `<path d="M 6 -10 A 10 10 0 0 1 6 10 Z" fill="#2b1d1a"/>` + `<circle cx="6" cy="0" r="10" fill="none" stroke="${O}" stroke-width="2.4"/>` },
+  { id: 'croissant', name: 'Croissant', slot: 'hand', price: 3, shop: 'coffee', draw: () => P('M -6 4 Q -4 -8 6 -9 Q 16 -8 18 4 Q 13 0 6 0 Q -1 0 -6 4 Z', '#e1a34d') + `<path d="M 1 -6 Q 3 -1 2 1 M 6 -9 L 6 0 M 11 -7 Q 9 -1 10 1" fill="none" stroke="#a8662a" stroke-width="1.2"/>` },
+]
+
+/** the Vault's grails (avatar/grails.ts): wearable once you've copped one on its drop day (the archive pairs aren't for sale) */
+const VAULT: ItemDef[] = GRAILS.map((g) => ({ id: grailItemId(g), name: `${g.line} “${g.nick.replace('&amp;', '&')}”`, slot: 'feet' as Slot, price: g.price, shop: 'vault', shoe: (x: number) => g.draw(x) }))
+
+export const ITEMS: ItemDef[] = [...TOPS, ...BOTTOMS, ...SHOES, ...HATS, ...FACE, ...NECK, ...HAND, ...SOUVENIRS, ...PARTY, ...SOHO, ...VAULT]
 export const ITEM: Record<string, ItemDef> = Object.fromEntries(ITEMS.map((i) => [i.id, i]))
 export const STARTER_ITEMS = ITEMS.filter((i) => i.price === 0 && !i.reward).map((i) => i.id)
 
 export const SHOPS: Record<string, { name: string; tagline: string }> = {
   iloveny: { name: 'I ♥ NY Souvenirs', tagline: 'Every tourist essential, priced to move' },
-  thread: { name: 'Supreme', tagline: 'SoHo · New Drops Every Thursday' },
-  sneakers: { name: 'Nike', tagline: 'This week’s drops. Camping out optional.' },
-  maison: { name: 'Louis Vuitton', tagline: 'Fifth Avenue · Trunk-makers since 1854' },
-  toys: { name: 'Saks Fifth Avenue', tagline: 'The shoe floor has its own zip code: 10022-SHOE' },
+  thread: { name: 'THREAD', tagline: 'SoHo · New Drops Every Thursday' },
+  sneakers: { name: 'Sneaker Vault', tagline: 'This week’s drops. Camping out optional.' },
+  maison: { name: 'Louis Vuittown', tagline: 'Fifth Avenue · Trunk-makers since 1854' },
+  toys: { name: 'Snacks Fifth Avenue', tagline: 'The shoe floor has its own zip code: 10022-SHOE' },
   broadway: { name: 'Broadway Merch', tagline: 'Take the show home' },
   liberty: { name: 'Liberty Island Kiosk', tagline: 'Foam crowns & torches' },
   rink: { name: 'Rink Rentals', tagline: 'Skates for the season. Falling is free.' },

@@ -14,7 +14,9 @@ import { config } from './config.ts'
 const ws = config.publicUrl.replace(/^http/, 'ws')
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  // 'wasm-unsafe-eval': the photo reader in the avatar creator (MediaPipe, served from /vision) is WebAssembly.
+  // It allows compiling wasm only: eval() and inline scripts stay blocked.
+  "script-src 'self' 'wasm-unsafe-eval'",
   // the game sets inline style attributes everywhere; every font is served from our own site
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
@@ -50,7 +52,7 @@ export const siteHeaders: MiddlewareHandler = async (c, next) => {
   h.set('X-Content-Type-Options', 'nosniff')
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   h.set('X-Frame-Options', 'DENY')
-  h.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()')
+  h.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(), payment=(), usb=()')
   // pages we open in new tabs (the Help Center, a posted reel) can't reach back into this one, and other sites' windows can't either
   h.set('Cross-Origin-Opener-Policy', 'same-origin')
   // a year, subdomains included (www and the mail. sending domain are HTTPS-only or not web at all)

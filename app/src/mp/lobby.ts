@@ -7,13 +7,13 @@ import { el } from '../engine/stage'
 import { headPortrait } from '../avatar/render'
 import { sfx } from '../audio'
 import { link } from '../net/link'
-import { ROOMS } from '../data/rooms'
 import type { Look } from '../avatar/look'
 import { MP_GAMES, MP_TEAMS, REACTIONS, PHRASES } from './shared/games'
 import type { LobbyWire, SeatWire } from './shared/protocol'
 import { send, esc } from './store'
 import { friendButton } from './social'
 import { msfx } from './sound'
+import { HOW } from './howto'
 
 export interface LobbyActions {
   invite(): void
@@ -22,7 +22,6 @@ export interface LobbyActions {
 }
 
 const START_LABEL = { sled: 'Start Race', runner: 'Start Run', carbs: 'Deal Cards' } as const
-const roomName = (id: string) => ROOMS[id]?.name ?? 'the city'
 
 let receivedAt = 0
 let timer = 0
@@ -46,7 +45,7 @@ export function renderLobby(box: HTMLElement, l: LobbyWire, act: LobbyActions) {
 
   // ---------- players ----------
   const players = el('div', 'mp-card mp-players')
-  const head = el('h3', 'mp-h', `Players <small>${l.seats.length} of ${l.max} · ${l.priv ? 'Invite Only' : 'Public'} · from ${esc(roomName(l.room))}</small>`)
+  const head = el('h3', 'mp-h', `Players <small>${l.seats.length} of ${l.max}</small>${l.priv ? ' <span class="mp-pill">Invite Only</span>' : ''}`)
   players.append(head)
   const seatEl = (s: SeatWire) => {
     const you = s.i === meId
@@ -56,7 +55,7 @@ export function renderLobby(box: HTMLElement, l: LobbyWire, act: LobbyActions) {
     row.dataset.id = s.i
     row.innerHTML = `<span class="mp-face">${headPortrait(s.l as Look)}</span><span class="mp-who"><b>${esc(s.n)}${you ? ' (you)' : ''}</b><small>${
       s.i === l.host ? '<span class="mp-pill host">Host</span>' : ''
-    }${s.r && !s.a && !s.o ? '<span class="mp-pill ready">Ready</span>' : ''}${team ? `<span class="mp-pill ${team}">${MP_TEAMS[team].name}</span>` : ''}${l.champ?.i === s.i ? `<span class="mp-pill host">Holds the table · ${l.champ.s}</span>` : ''}${status ? `<span>${status}</span>` : ''}</small></span>`
+    }${s.r && !s.a && !s.o ? '<span class="mp-pill ready">Ready</span>' : ''}${team ? `<span class="mp-pill ${team}">${MP_TEAMS[team].name}</span>` : ''}${l.champ?.i === s.i ? `<span class="mp-pill host">Holds the table</span>` : ''}${status ? `<span>${status}</span>` : ''}</small></span>`
     const acts = el('span', 'mp-seat-acts')
     if (you && team && l.st === 'open') {
       const other = team === 'up' ? 'down' : 'up'
@@ -123,7 +122,8 @@ export function renderLobby(box: HTMLElement, l: LobbyWire, act: LobbyActions) {
 
   // ---------- side: how to play, settings, the big button ----------
   const side = el('div', 'mp-side')
-  side.append(el('div', 'mp-card mp-how', `<h4>How to Play</h4><ul>${def.how.map((h) => `<li>${h}</li>`).join('')}</ul>`))
+  // how to play, shown: the same acted-out tiles as the game's card
+  side.append(el('div', 'mp-card mp-how', `<h4>How to Play</h4><div class="gc-how">${HOW[l.g].tiles().join('')}</div>`))
   const set = el('div', 'mp-card mp-set')
   set.append(el('h4', '', 'Settings'))
   const seg = (opts: [string, string][], val: string, on: (v: string) => void, enabled: boolean) => {
@@ -200,25 +200,15 @@ export function renderLobby(box: HTMLElement, l: LobbyWire, act: LobbyActions) {
     const hostName = esc(lv.seats.find((s) => s.i === lv.host)?.n ?? 'The host')
     let main = ''
     let sub = ''
-    if (lv.st === 'playing') {
-      main = 'A round is on'
-      sub = mine || watching ? 'You’re in the next one. Watch this one meanwhile.' : ''
-    } else if (autoLeft > 0) {
-      main = `Starting in ${Math.ceil(autoLeft / 1000)}…`
-      sub = present.length <= 1 ? (lv.g === 'carbs' ? 'A city local will take the other seat.' : 'City locals fill the empty seats.') : 'Press Ready to go now.'
-    } else if (host) {
-      main = present.length <= 1 ? 'Invite friends, or start now' : 'Start when everyone’s in'
-      sub = present.length <= 1 ? 'Share the code or the link in your group chat.' : `${present.filter((s) => s.r).length} of ${present.length} ready`
-    } else if (mine && !mine.r) {
-      main = 'Press Ready when you’re set'
-      sub = `${hostName} starts the round.`
-    } else if (mine) {
-      main = `Waiting for ${hostName}`
-      sub = 'Everyone ready starts it right away.'
-    } else {
-      main = 'Watching'
-      sub = 'You get a seat in the next round.'
-    }
+    // one short line; the buttons and seats already say the rest
+    if (lv.st === 'playing') main = 'A round is on'
+    else if (autoLeft > 0) main = `Starting in ${Math.ceil(autoLeft / 1000)}…`
+    else if (host) {
+      main = present.length <= 1 ? 'Invite friends or start' : 'Start when everyone’s in'
+      if (present.length > 1) sub = `${present.filter((s) => s.r).length} of ${present.length} ready`
+    } else if (mine && !mine.r) main = 'Press Ready when you’re set'
+    else if (mine) main = `Waiting for ${hostName}`
+    else main = 'Watching'
     status.innerHTML = `${main}${sub ? `<small>${sub}</small>` : ''}`
   }
   paint()

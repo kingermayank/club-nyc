@@ -2,10 +2,11 @@
 // missed step, coins landing in the hat, a rider snapping their newspaper shut. Shared context (foley.ts), silent
 // while sound is off.
 import { kit } from '../../foley'
+import { withSamples } from '../../sound/library'
 
 const { ctx, tone, noise, rand } = kit
 
-export const showSfx = {
+export const showSfx = withSamples('showtime', {
   /** a spin: one quick whoosh */
   spin() {
     const a = ctx()
@@ -56,4 +57,4 @@ export const showSfx = {
     noise(a, t, 0.14, 0.045, { f: 2400, to: 1200, q: 0.7, attack: 0.02 })
     noise(a, t + 0.12, 0.05, 0.035, { type: 'lowpass', f: 700 })
   },
-}
+})

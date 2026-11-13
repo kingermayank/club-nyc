@@ -12,7 +12,7 @@ Welcome to New York! Club NYC is a pocket-sized Manhattan you can hang out in wi
 - **A computer.** Club NYC plays in a web browser on a laptop or desktop. Chrome, Edge, Firefox and Safari all work. Phones and small tablets aren't supported yet (the city needs a keyboard and a bigger screen). See [Can I play on my phone?](faq.md#can-i-play-on-my-phone-or-tablet)
 - **Nothing to download.** Go to the Club NYC website and press **Play Now**.
 - **No account.** You start as a guest. You can [link Google, X or Discord](account.md#link-an-account) later to keep your New Yorker on every device.
-- **Age 13 or older.** We ask for your birth month and year once, to check. We don't keep them.
+- **Age 13 or older.** You confirm it with one tick when you make your New Yorker.
 
 ## Your First Five Minutes {#first-five-minutes}
 
@@ -21,7 +21,7 @@ Welcome to New York! Club NYC is a pocket-sized Manhattan you can hang out in wi
 2. **Meet Rosa.** Your building's super gives you a four-step tour: walking, clicking things that glow, chatting and getting around. [Your first day](getting-started/first-day.md)
 3. **Grab your welcome gift.** Sal's hot dog cart in Times Square has a free gift for every new New Yorker.
 4. **Explore.** Walk through the exits, open the **Map** ([[M]]) or ride the **Subway** ([[U]]). Anything that glows when you point at it can be clicked.
-5. **Earn some coins.** Work a shift at one of the [jobs](jobs/README.md), like Slice Factory at Joe's Pizza in Little Italy.
+5. **Earn some coins.** Work a shift at one of the [jobs](jobs/README.md), like Slice Factory at 99¢ Slice in Little Italy.
 :::
 
 > [!TIP] Lost? Press ?

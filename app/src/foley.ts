@@ -8,6 +8,7 @@
  * set length and hands back a stop().
  */
 import { audioCtx } from './audio'
+import { withSamples } from './sound/library'
 
 let out: GainNode | null = null
 let white: AudioBuffer | null = null
@@ -123,7 +124,7 @@ const rand = (a: number, b: number) => a + Math.random() * (b - a)
 const NOTE = (n: number) => 440 * 2 ** ((n - 69) / 12)
 
 // ---------- the newspaper ----------
-export const paper = {
+export const paper = withSamples('paper', {
   /** turning to another edition: a crisp swish and a little crinkle */
   flip() {
     const a = ctx()
@@ -143,7 +144,7 @@ export const paper = {
     for (let i = 0; i < 9; i++) noise(a, t + rand(0, 0.42), 0.012, rand(0.025, 0.055), { type: 'highpass', f: 4500 })
     noise(a, t + 0.42, 0.09, 0.05, { type: 'lowpass', f: 600 })
   },
-}
+})
 
 // ---------- the subway ----------
 /** one rail-joint "clack" (two hits as a truck's wheels pass the joint) */
@@ -154,7 +155,7 @@ function clack(a: AudioContext, at: number, vol: number, dest?: AudioNode) {
   }
 }
 
-export const subway = {
+export const subway = withSamples('subway', {
   /** a train pulling into the station: rumble growing, wheels slowing over the joints, brakes, a sigh of air */
   arrive() {
     const a = ctx()
@@ -236,6 +237,99 @@ export const subway = {
       setTimeout(() => g.disconnect(), 400)
     }
   },
+  /**
+   * The ride as it happens, played live from the ride scene (features/subway.ts): speed(v) every frame with the
+   * train's speed from 0 to 1, joint() as the wheels cross each rail joint, squeal() on a curve, stop() at the end.
+   * The rumble and the tunnel roar swell with speed, and the traction motors whine up through their notes as the
+   * train pulls out and back down as it brakes. Null while sound is off.
+   */
+  run() {
+    const a = ctx()
+    if (!a) return null
+    const t = a.currentTime + 0.01
+    const bus = a.createGain()
+    bus.gain.setValueAtTime(0.0001, t)
+    bus.gain.linearRampToValueAtTime(1, t + 0.3)
+    bus.connect(out!)
+    const level = (g: number) => {
+      const n = a.createGain()
+      n.gain.value = g
+      n.connect(bus)
+      return n
+    }
+    // the car's own rumble, under everything, and the roar of the tunnel going by
+    const rumbleG = level(0.04)
+    const rumble = bed(a, t, 60, rumbleG, { f: 110 })
+    const roarG = level(0.0001)
+    const roar = bed(a, t, 60, roarG, { type: 'bandpass', f: 420, q: 0.5 })
+    // the motors: two detuned saws through a soft filter, an octave apart
+    const motorF = a.createBiquadFilter()
+    motorF.type = 'lowpass'
+    motorF.frequency.value = 1400
+    const motorG = level(0.0001)
+    motorF.connect(motorG)
+    const motors = [0, 1].map((i) => {
+      const o = a.createOscillator()
+      o.type = 'sawtooth'
+      o.frequency.value = 60
+      o.detune.value = i ? 9 : -9
+      const g = a.createGain()
+      g.gain.value = i ? 0.45 : 1
+      o.connect(g).connect(motorF)
+      o.start(t)
+      return o
+    })
+    let prev = 0
+    return {
+      speed(v: number) {
+        const n = a.currentTime
+        const pulling = Math.max(0, Math.min(1, Math.abs(v - prev) * 60))
+        prev = v
+        rumbleG.gain.setTargetAtTime(0.04 + 0.08 * v, n, 0.12)
+        rumble.f.frequency.setTargetAtTime(100 + 150 * v, n, 0.15)
+        roarG.gain.setTargetAtTime(0.0001 + 0.06 * v * v, n, 0.2)
+        roar.f.frequency.setTargetAtTime(320 + 620 * v, n, 0.2)
+        // the whine climbs in steps, like the inverter changing gear, and is loudest while it's pulling or braking
+        const step = Math.floor(v * 6) / 6
+        motors[0].frequency.setTargetAtTime(70 + 380 * step + 60 * v, n, 0.06)
+        motors[1].frequency.setTargetAtTime(2 * (70 + 380 * step + 60 * v), n, 0.06)
+        motorG.gain.setTargetAtTime(v > 0.01 ? 0.002 + 0.01 * pulling + 0.002 * v : 0.0001, n, 0.15)
+      },
+      /** both trucks of the car over one joint: clack-clack ... clack-clack */
+      joint(v: number) {
+        const n = a.currentTime + 0.005
+        const gap = 0.07 + (1 - v) * 0.06
+        clack(a, n, 0.03 + 0.05 * v, bus)
+        clack(a, n + gap * 3, 0.025 + 0.04 * v, bus)
+      },
+      /** steel on steel round a bend */
+      squeal() {
+        const n = a.currentTime + 0.05
+        tone(a, rand(1900, 2300), n, 1.1, 0.012, 'sine', { attack: 0.3, vibrato: [9, 30], dest: bus })
+        tone(a, rand(2900, 3300), n + 0.15, 0.8, 0.005, 'sine', { attack: 0.25, vibrato: [7, 24], dest: bus })
+      },
+      stop() {
+        const n = a.currentTime
+        bus.gain.cancelScheduledValues(n)
+        bus.gain.setValueAtTime(bus.gain.value, n)
+        bus.gain.linearRampToValueAtTime(0.0001, n + 0.4)
+        setTimeout(() => {
+          for (const o of motors) o.stop()
+          rumble.src.stop()
+          roar.src.stop()
+          bus.disconnect()
+        }, 500)
+      },
+    }
+  },
+  /** the turnstile's bar going round one notch: a dry ratchet click */
+  ratchet() {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.005
+    noise(a, t, 0.025, 0.07, { type: 'highpass', f: 2600 })
+    tone(a, rand(820, 900), t, 0.03, 0.025, 'square', { to: 500 })
+  },
   /** slowing into the station: a brake squeal and the air sigh */
   brake() {
     const a = ctx()
@@ -245,10 +339,10 @@ export const subway = {
     tone(a, 2960, t + 0.12, 0.5, 0.009, 'sine', { attack: 0.15, vibrato: [7, 20] })
     noise(a, t + 0.7, 0.45, 0.05, { type: 'highpass', f: 2800, attack: 0.03 })
   },
-}
+})
 
 // ---------- the café ----------
-export const cafe = {
+export const cafe = withSamples('cafe', {
   /** the espresso machine: pump buzz, gurgles, a long hiss of steam, two drips */
   espresso() {
     const a = ctx()
@@ -283,10 +377,10 @@ export const cafe = {
     tone(a, 1450, t + 1.55, 0.05, 0.045, 'sine', { to: 880 })
     tone(a, 1300, t + 1.74, 0.05, 0.035, 'sine', { to: 820 })
   },
-}
+})
 
 // ---------- the theater ----------
-export const theater = {
+export const theater = withSamples('theater', {
   /** an usher tearing your ticket */
   ticket() {
     const a = ctx()
@@ -384,7 +478,112 @@ export const theater = {
       setTimeout(() => g.disconnect(), 600)
     }
   },
-}
+})
+
+/** the arrival: a station photo booth, the MetroCard machine and the turnstile (features/arrival.ts) */
+export const arrival = withSamples('arrival', {
+  /** a booth camera: the shutter's two clicks and a little flash whine */
+  shutter() {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.01
+    noise(a, t, 0.03, 0.12, { type: 'highpass', f: 3200 })
+    tone(a, 180, t, 0.05, 0.06, 'square', { to: 90 })
+    noise(a, t + 0.09, 0.05, 0.09, { f: 1800, q: 1.2 })
+    tone(a, 2600, t + 0.02, 0.35, 0.012, 'sine', { to: 5200, attack: 0.05 })
+  },
+  /** the machine printing your card: a motor and the card stepping out */
+  print(seconds = 1.4) {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.01
+    tone(a, 92, t, seconds, 0.035, 'sawtooth', { to: 110, attack: 0.08 })
+    for (let i = 0; i < seconds / 0.09; i++) noise(a, t + i * 0.09, 0.03, 0.035, { f: 1900 + rand(-200, 200), q: 2 })
+    noise(a, t + seconds, 0.07, 0.06, { type: 'lowpass', f: 900 })
+  },
+  /** the card sliding through the reader */
+  swipe() {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.01
+    noise(a, t, 0.22, 0.07, { f: 900, to: 2600, q: 0.8, attack: 0.02 })
+  },
+  /** "GO": the reader's happy beep */
+  beep() {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.01
+    tone(a, 1568, t, 0.12, 0.08, 'square')
+    tone(a, 2093, t + 0.13, 0.18, 0.07, 'square')
+  },
+  /** "PLEASE SWIPE AGAIN": the reader's grumpy buzz */
+  buzz() {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.01
+    tone(a, 150, t, 0.32, 0.07, 'square', { to: 120 })
+    tone(a, 153, t, 0.32, 0.05, 'sawtooth', { to: 122 })
+  },
+  /** the turnstile arm turning over */
+  clack() {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.01
+    tone(a, 120, t, 0.14, 0.14, 'sine', { to: 60 })
+    noise(a, t, 0.07, 0.08, { type: 'lowpass', f: 500 })
+    noise(a, t + 0.18, 0.05, 0.05, { f: 1400, q: 1.5 })
+  },
+})
+
+/** the Exchange floor (features/exchange.ts): the opening bell and the floor going up */
+export const exchange = withSamples('exchange', {
+  /** the opening bell: an electric bell, ringing for as long as the button is held. Returns stop(). */
+  bell(): () => void {
+    const a = ctx()
+    if (!a) return () => {}
+    const t = a.currentTime + 0.01
+    const g = a.createGain()
+    g.gain.value = 0
+    g.connect(out!)
+    // a hammer striking a gong about 22 times a second: two bright partials, chopped
+    const lfo = a.createOscillator()
+    const depth = a.createGain()
+    lfo.frequency.value = 22
+    depth.gain.value = 0.05
+    lfo.connect(depth).connect(g.gain)
+    const oscs = [1180, 2830, 4350].map((f, i) => {
+      const o = a.createOscillator()
+      const v = a.createGain()
+      o.frequency.value = f
+      v.gain.value = [1, 0.45, 0.2][i]
+      o.connect(v).connect(g)
+      o.start(t)
+      return o
+    })
+    g.gain.setValueAtTime(0.05, t)
+    lfo.start(t)
+    const stop = () => {
+      const n = a.currentTime
+      g.gain.cancelScheduledValues(n)
+      depth.gain.setTargetAtTime(0, n, 0.08)
+      g.gain.setTargetAtTime(0, n, 0.25)
+      for (const o of [...oscs, lfo]) o.stop(n + 1.4)
+    }
+    const auto = setTimeout(stop, 9600)
+    return () => {
+      clearTimeout(auto)
+      stop()
+    }
+  },
+  /** the floor cheering */
+  cheer() {
+    const a = ctx()
+    if (!a) return
+    const t = a.currentTime + 0.01
+    for (let i = 0; i < 40; i++) noise(a, t + rand(0, 3), 0.04, 0.03, { f: rand(900, 2400), q: 2 })
+    noise(a, t, 3.4, 0.05, { type: 'bandpass', f: 1100, q: 0.6, attack: 0.3 })
+  },
+})
 
 /** the building blocks, for the jobs' own sound modules (one shared context and limiter for everything) */
 export const kit = { ctx, tone, noise, swell, bed, rand, NOTE }
@@ -407,6 +606,14 @@ export const FOLEY: Record<string, () => unknown> = {
   'theater.crash': theater.crash,
   'theater.whistle': theater.whistle,
   'theater.applause': () => theater.applause(4, 1),
+  'arrival.shutter': arrival.shutter,
+  'arrival.print': () => arrival.print(1.4),
+  'arrival.swipe': arrival.swipe,
+  'arrival.beep': arrival.beep,
+  'arrival.buzz': arrival.buzz,
+  'arrival.clack': arrival.clack,
+  'exchange.bell': () => setTimeout(exchange.bell(), 2500),
+  'exchange.cheer': exchange.cheer,
 }
 
 // dev builds: play any sound by name from the console or a QA script, or open the sound board
@@ -415,5 +622,7 @@ if (import.meta.env.DEV) {
     open: () => void import('./dev/soundboard').then((m) => m.openSoundboard()),
     list: () => import('./dev/soundboard').then((m) => m.soundNames()),
     play: (name: string) => import('./dev/soundboard').then((m) => m.playSound(name)),
+    /** which recordings are listed and loaded, and the room ambience playing */
+    state: () => import('./sound/library').then((m) => m.libraryState()),
   }
 }

@@ -1,8 +1,8 @@
 import { sfx } from '../audio'
 import { save, persist, resetSave } from '../state'
 import { ITEM, SHOPS } from '../avatar/items'
-import { SLOTS, SLOT_LABEL, SKINS, SKIN_ORDER, SIG_COLORS, HAIR_COLORS, HAIR_STYLES, type Look, type Slot } from '../avatar/look'
-import { avatarPortrait, itemIcon } from '../avatar/render'
+import { SLOTS, SLOT_LABEL, SKINS, SKIN_ORDER, SIG_COLORS, HAIR_COLORS, HAIR_STYLES, FACE_SHAPES, EYE_COLORS, EYE_COLOR_NAMES, BROWS, NOSES, BEARDS, SPECS, type Look, type Slot } from '../avatar/look'
+import { avatarPortrait, itemIcon, partThumb, type Part } from '../avatar/render'
 import { el } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton } from '../engine/ui'
 import { world } from '../engine/world'
@@ -37,7 +37,7 @@ export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
       el(
         'div',
         'pc-level',
-        `<div class="pc-level-head"><b>Level ${l.level} · ${l.title}</b><span>${l.xp.toLocaleString('en-US')} XP</span></div>` +
+        `<div class="pc-level-head"><b>${l.title}</b><span>Level ${l.level}</span></div>` +
           `<div class="pc-level-bar" role="progressbar" aria-valuemin="${l.floor}" aria-valuemax="${l.next}" aria-valuenow="${l.xp}"><i style="width:${Math.round(l.progress * 100)}%"></i></div>` +
           `<small>${(l.next - l.xp).toLocaleString('en-US')} XP to Level ${l.level + 1}: ${l.nextTitle}</small>`,
       ),
@@ -129,56 +129,98 @@ export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
 
 export const openWardrobe = () => openPlayerCard('items')
 
-/** skin / hair / hair colour pickers (shared with the creator) */
-export function lookEditor(get: () => Look, set: (l: Look) => void, o: { colour?: boolean } = {}): HTMLElement {
+/**
+ * The look pickers (shared with the creator), in tabs so no screen is a wall of options:
+ * Basics (skin, hair colour, your colour), Hair, Face (shape, eyes, brows, nose), Extras (glasses, facial hair,
+ * freckles, lashes). Each tile shows only the thing you're choosing (a hairstyle, a pair of glasses), drawn big.
+ * After a photo, a first Quick Fix tab gathers what a camera most often gets wrong, with the reader's guesses.
+ */
+const NONE = '<svg viewBox="0 0 40 40" class="part-thumb none"><circle cx="20" cy="20" r="11" fill="none" stroke="currentColor" stroke-width="3"/><path d="M12.5 27.5 L27.5 12.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>'
+export function lookEditor(get: () => Look, set: (l: Look) => void, o: { colour?: boolean; near?: { skin: number[]; hair: string[]; hairColor: number[] } } = {}): HTMLElement {
+  const TABS = [...(o.near ? ['Quick Fix'] : []), 'Basics', 'Hair', 'Face', 'Extras']
   const box = el('div', 'look-editor')
-  const row = (title: string, opts: string[], cur: () => number, pick: (i: number) => void, swatch: (i: number) => string, order = opts.map((_, i) => i)): HTMLElement => {
+  const tabs = el('div', 'le-tabs')
+  const body = el('div', 'le-body')
+  box.append(tabs, body)
+  let tab = TABS[0]
+  const row = (title: string, n: number, cur: number, pick: (i: number) => void, draw: (i: number) => string, order = Array.from({ length: n }, (_, i) => i), cls = ''): void => {
     const r = el('div', 'le-row', `<h4>${title}</h4>`)
     const list = el('div', 'le-opts')
     order.forEach((i) => {
-      const b = el('button', 'le-opt' + (cur() === i ? ' on' : ''), swatch(i))
+      const b = el('button', `le-opt ${cls}` + (cur === i ? ' on' : ''), draw(i))
       b.dataset.i = String(i)
       b.onclick = () => {
         sfx.pop()
         pick(i)
-        list.querySelectorAll<HTMLElement>('.le-opt').forEach((x) => x.classList.toggle('on', x.dataset.i === String(i)))
+        // tiles are drawn in your colours, so one change redraws them (the scroll stays where it was)
+        paint()
       }
       list.append(b)
     })
     r.append(list)
-    box.append(r)
-    return list
+    body.append(r)
   }
-  // each hairstyle is shown on you: your skin and hair color (redrawn when either changes)
-  const hairThumb = (i: number) => `<span class="hair-thumb">${avatarPortraitHead({ ...get(), hair: HAIR_STYLES[i], items: {} })}</span>`
-  let hairList: HTMLElement | null = null
-  const redrawHair = () => hairList?.querySelectorAll<HTMLElement>('.le-opt').forEach((b) => (b.innerHTML = hairThumb(Number(b.dataset.i))))
-  row('Skin', SKINS, () => get().skin, (i) => {
-    set({ ...get(), skin: i })
-    redrawHair()
-  }, (i) => `<i style="background:${SKINS[i]}"></i>`, SKIN_ORDER)
-  hairList = row('Hair', HAIR_STYLES, () => HAIR_STYLES.indexOf(get().hair), (i) => set({ ...get(), hair: HAIR_STYLES[i] }), hairThumb)
-  row('Hair color', HAIR_COLORS, () => get().hairColor, (i) => {
-    set({ ...get(), hairColor: i })
-    redrawHair()
-  }, (i) => `<i style="background:${HAIR_COLORS[i]}"></i>`)
-  if (o.colour === false) return box
-  // your signature colour: the Signature Hoodie (and anything else marked `signature`) wears it
-  const sigName = () => SIG_COLORS[get().color ?? 5]?.name ?? ''
-  row('Your color', SIG_COLORS.map((c) => c.hex), () => get().color ?? 5, (i) => {
-    set({ ...get(), color: i })
-    const h = box.querySelector('.le-row.sig h4')
-    if (h) h.innerHTML = `Your color <b>${SIG_COLORS[i].name}</b>`
-  }, (i) => `<i class="sig" style="background:${SIG_COLORS[i].hex}" title="${SIG_COLORS[i].name}"></i>`)
-  const last = box.lastElementChild as HTMLElement
-  last.classList.add('sig')
-  last.querySelector('h4')!.innerHTML = `Your color <b>${sigName()}</b>`
+  const swatch = (hex: string, cls = '', title = '') => `<i class="${cls}" style="background:${hex};--c:${hex}"${title ? ` title="${title}"` : ''}></i>`
+  /** a row of tiles that each show one part (the first choice of an on/off or "None" row is a plain "none" mark) */
+  const partRow = (title: string, key: 'shape' | 'brows' | 'nose' | 'beard' | 'specs' | 'freckles' | 'lashes', names: readonly string[], none = false) =>
+    row(
+      title,
+      names.length,
+      // your own glasses and a shop pair don't stack: with a shop pair on, neither tile is lit
+      key === 'specs' && get().items.face ? -1 : (get()[key] ?? 0),
+      // choosing glasses here (even None) takes a shop pair off
+      (i) => set(key === 'specs' ? { ...get(), specs: i, items: { ...get().items, face: undefined } } : { ...get(), [key]: i }),
+      (i) => (none && i === 0 ? NONE : partThumb({ ...get(), [key]: i, items: {} }, key as Part)),
+      undefined,
+      'part',
+    )
+  const skinRow = () => row('Skin', SKINS.length, get().skin, (i) => set({ ...get(), skin: i }), (i) => swatch(SKINS[i], 'big'), SKIN_ORDER)
+  const hairRow = (only?: number[]) => row('Hair', HAIR_STYLES.length, HAIR_STYLES.indexOf(get().hair), (i) => set({ ...get(), hair: HAIR_STYLES[i] }), (i) => partThumb({ ...get(), hair: HAIR_STYLES[i] }, 'hair'), only, 'part')
+  const paint = () => {
+    const l = get()
+    const top = body.scrollTop
+    body.innerHTML = ''
+    // short rows sit side by side
+    body.classList.toggle('flow', tab !== 'Basics' && tab !== 'Hair')
+    tabs.querySelectorAll('.le-tab').forEach((t) => t.classList.toggle('on', t.textContent === tab))
+    if (tab === 'Quick Fix' && o.near) {
+      skinRow()
+      hairRow([...new Set([...o.near.hair, l.hair])].map((h) => HAIR_STYLES.indexOf(h as Look['hair'])))
+      partRow('Glasses', 'specs', SPECS, true)
+      partRow('Facial hair', 'beard', BEARDS, true)
+    } else if (tab === 'Basics') {
+      skinRow()
+      row('Hair color', HAIR_COLORS.length, l.hairColor, (i) => set({ ...get(), hairColor: i }), (i) => swatch(HAIR_COLORS[i], 'big'))
+      // your signature colour: the Signature Hoodie (and anything else marked `signature`) wears it
+      if (o.colour !== false) row('Your color', SIG_COLORS.length, l.color ?? 5, (i) => set({ ...get(), color: i }), (i) => swatch(SIG_COLORS[i].hex, 'big sig', SIG_COLORS[i].name))
+    } else if (tab === 'Hair') {
+      hairRow()
+    } else if (tab === 'Face') {
+      partRow('Face shape', 'shape', FACE_SHAPES)
+      partRow('Nose', 'nose', NOSES)
+      row('Eyes', EYE_COLORS.length, l.eyes ?? 0, (i) => set({ ...get(), eyes: i }), (i) => swatch(EYE_COLORS[i], 'big eye', EYE_COLOR_NAMES[i]))
+      partRow('Brows', 'brows', BROWS)
+    } else {
+      partRow('Facial hair', 'beard', BEARDS, true)
+      partRow('Glasses', 'specs', SPECS, true)
+      partRow('Freckles', 'freckles', ['Off', 'On'], true)
+      partRow('Lashes', 'lashes', ['Off', 'On'], true)
+    }
+    body.scrollTop = top
+  }
+  TABS.forEach((name) => {
+    const t = el('button', 'le-tab', name)
+    t.onclick = () => {
+      if (tab === name) return
+      sfx.click()
+      tab = name
+      paint()
+      body.scrollTop = 0
+    }
+    tabs.append(t)
+  })
+  paint()
   return box
-}
-
-function avatarPortraitHead(look: Look) {
-  // reuse the portrait, cropped to the head
-  return avatarPortrait(look, 'smile').replace(/viewBox="[^"]+"/, 'viewBox="-42 -150 84 84"')
 }
 
 /** Click anyone: real players get the multiplayer card, city locals the classic one. */
@@ -197,8 +239,8 @@ export function npcCard(a: Actor) {
   const friend = r ? isFriend(r.id) : false
   card.innerHTML = `<div class="pc-left"><div class="pc-portrait">${avatarPortrait(a.look)}</div><div class="pc-name">${a.name}${friend ? ' ★' : ''}</div>
       ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
-      ${r ? `<div class="pc-bio">${r.title ? `<b>${r.title}</b> · ` : ''}${r.bio}</div>` : ''}
-      ${link.account ? '<span class="pc-local">City local · computer-run</span>' : ''}</div>
+      ${r ? `<div class="pc-bio">${r.title ? `<b>${r.title}</b><br>` : ''}${r.bio}</div>` : ''}
+      ${link.account ? '<span class="pc-local">Computer-run local</span>' : ''}</div>
     <div class="pc-right"><h3>Their Style</h3><div class="pc-grid small">${items
       .map((id) => {
         const d = ITEM[id]
@@ -300,7 +342,7 @@ export function remoteCard(a: Actor) {
       chip.title = `Level ${l.level}`
       chip.hidden = false
       const since = new Date(info.user.memberSince + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-      card.querySelector('.pc-meta')!.innerHTML = `<span class="pc-live">● Here now</span>${info.user.founder ? '<span class="pc-founder" title="Here before the city opened">Founder</span>' : ''}<span>New Yorker since ${since}</span><span>❤️ ${info.likes} · 🏠 ${info.furniture.length} things</span>`
+      card.querySelector('.pc-meta')!.innerHTML = `<span class="pc-live">● Here now</span>${info.user.founder ? '<span class="pc-founder" title="Here before the city opened">Founder</span>' : ''}<span>New Yorker since ${since}</span><span>❤️ ${info.likes}</span><span>🏠 ${info.furniture.length}</span>`
     }
     actions.innerHTML = ''
     safety.innerHTML = ''
@@ -365,7 +407,7 @@ function accountRow(): HTMLElement {
     const week = Math.max(me.week ?? 0, save.week?.start === weekStart(nycDay()) ? save.week.days : 0)
     if (me.memberNo)
       box.append(
-        el('div', 'pc-member', `New Yorker <b>No. ${String(me.memberNo).padStart(4, '0')}</b>${me.founder ? ' <span class="pc-founder" title="Here before the city opened">Founder</span>' : ''}${week >= 2 ? ` · <em>📅 ${week} of 7 days this week</em>` : ''}`),
+        el('div', 'pc-member', `New Yorker <b>No. ${String(me.memberNo).padStart(4, '0')}</b>${me.founder ? ' <span class="pc-founder" title="Here before the city opened">Founder</span>' : ''}${week >= 2 ? ` <em>📅 ${week}/7</em>` : ''}`),
       )
     const row = el('div', 'pc-acct-row')
     box.append(row)
@@ -385,7 +427,7 @@ function accountRow(): HTMLElement {
       }
       // no sign-in switched on (or unreachable): say what a guest account means instead of offering nothing
       if (!import.meta.env.DEV && !providers.google && !providers.x && !providers.discord && !providers.email)
-        note.textContent = 'Guest account: your New Yorker is saved to this browser. Sign-in options are coming soon.'
+        note.textContent = 'Guest account: your New Yorker is saved to this browser.'
       for (const p of ['google', 'x', 'discord'] as const) {
         if (!providers[p] && !import.meta.env.DEV) continue
         const b = el('button', 'btn tiny link-' + p, `Link ${label(p)}`)

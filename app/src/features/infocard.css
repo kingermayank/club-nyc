@@ -60,3 +60,10 @@
 /* at least 10px between a tile's name and its button */
 .ic-tile .btn { margin-top: 4px; }
 .ic-tile .btn img { width: 16px; height: 16px; }
+
+/* the construction barricade on a place that's still being built (comingSoonSign) */
+.ic-barricade { margin: 4px 0 12px; }
+.ic-barricade svg { display: block; width: 100%; max-width: 360px; height: auto; }
+.ic-barricade circle { animation: ic-blink 1.2s steps(2, jump-none) infinite; }
+@keyframes ic-blink { 50% { fill: #fff3c4; } }
+@media (prefers-reduced-motion: reduce) { .ic-barricade circle { animation: none; } }

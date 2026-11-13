@@ -1,4 +1,4 @@
-import { HAIR_COLORS, OUTLINE as O, SKINS, shade, sigColor, type HairStyle, type Look, type Slot } from './look'
+import { EYE_COLORS, HAIR_COLORS, OUTLINE as O, SKINS, shade, sigColor, tint, type HairStyle, type Look, type Slot } from './look'
 import { ITEM, P, Pn, C, E, L, cap, blob, ink, type Ctx, type ItemDef } from './items'
 
 let uidCounter = 0
@@ -41,6 +41,8 @@ function curlyBack(flat: boolean): [number, number, number][] {
 function hair(style: HairStyle, col: string, flat: boolean): { back: string; front: string; rear: string } {
   const s = shade(col, 0.18)
   switch (style) {
+    case 'bald':
+      return { back: '', front: '', rear: '' }
     case 'short':
       return {
         back: '',
@@ -115,8 +117,8 @@ function hair(style: HairStyle, col: string, flat: boolean): { back: string; fro
     }
     case 'twists': {
       const ring: [number, number, number][] = []
-      for (let a = 165; a >= 15; a -= 18) ring.push([Math.cos((a * Math.PI) / 180) * 30, -103 - Math.sin((a * Math.PI) / 180) * 30, 7])
-      const cap0: [number, number, number][] = flat ? [[-27, -100, 7], [27, -100, 7], [-28, -90, 6], [28, -90, 6]] : [...ring, [0, -114, 22]]
+      for (let a = 168; a >= 12; a -= 17) ring.push([Math.cos((a * Math.PI) / 180) * 30, -106 - Math.sin((a * Math.PI) / 180) * 28, 7])
+      const cap0: [number, number, number][] = flat ? [[-27, -100, 7], [27, -100, 7], [-28, -90, 6], [28, -90, 6]] : [...ring, [0, -122, 17]]
       return { back: '', front: blob(cap0, col), rear: blob([...cap0, [-26, -88, 8], [26, -88, 8], [0, -96, 26]], col) }
     }
     case 'fade': {
@@ -131,6 +133,41 @@ function hair(style: HairStyle, col: string, flat: boolean): { back: string; fro
         rear: P(top, col) + P('M -29 -104 C -30 -92 -25 -82 -16 -80 L 16 -80 C 25 -82 30 -92 29 -104 Z', col),
       }
     }
+    case 'sidepart': {
+      // parted on one side, swept across the forehead
+      const part = `<path d="M -20 -122 C -16 -130 -10 -134 -3 -136" fill="none" stroke="${shade(col, 0.3)}" stroke-width="1.6" stroke-linecap="round"/>`
+      return {
+        back: '',
+        front: P('M -31 -96 C -34 -122 -20 -138 2 -138 C 24 -138 36 -122 31 -96 C 29 -106 25 -112 19 -116 C 6 -110 -10 -112 -20 -122 C -25 -114 -29 -106 -31 -96 Z', col) + (flat ? '' : part),
+        rear: P(NAPE, col),
+      }
+    }
+    case 'quiff': {
+      // short sides, the front brushed up and back
+      const sweep = `<path d="M -13 -127 C -5 -137 8 -138 18 -131 M -4 -122 C 4 -128 13 -128 21 -123" fill="none" stroke="${shade(col, 0.3)}" stroke-width="1.6" stroke-linecap="round"/>`
+      return {
+        back: '',
+        front: flat ? P(SLICK, col) : P('M -31 -97 C -33 -118 -27 -128 -19 -131 C -17 -143 -2 -148 12 -144 C 27 -140 35 -126 31 -97 C 29 -105 26 -110 21 -113 C 12 -117 2 -118 -8 -115 C -18 -113 -27 -107 -31 -97 Z', col) + sweep,
+        rear: P(NAPE, col),
+      }
+    }
+    case 'crop':
+      // a short textured crop with a choppy fringe
+      return {
+        back: '',
+        front: P('M -31 -98 C -33 -124 -17 -136 1 -136 C 20 -136 34 -123 31 -98 L 27 -108 L 22 -113 L 17 -108.5 L 11 -114 L 5 -109 L -1 -114 L -7 -109 L -13 -114 L -19 -108.5 L -24 -113 L -28 -107 Z', col),
+        rear: P(NAPE, col),
+      }
+    case 'wavy': {
+      // shoulder-length waves, swept to one side
+      const back = P('M -35 -102 C -38 -130 -19 -141 0 -141 C 19 -141 38 -130 35 -102 C 40 -92 34 -84 38 -74 C 41 -64 34 -58 27 -61 L 0 -62 L -27 -61 C -34 -58 -41 -64 -38 -74 C -34 -84 -40 -92 -35 -102 Z', s)
+      return {
+        back,
+        front: P('M -32 -96 C -35 -126 -17 -139 1 -139 C 22 -139 36 -124 32 -96 C 29 -108 24 -114 16 -117 C 4 -112 -12 -113 -21 -121 C -27 -113 -31 -105 -32 -96 Z', col) +
+          P('M -32 -104 C -37 -94 -33 -86 -36 -76 C -32 -73 -27 -78 -27 -90 Z', col) + P('M 32 -104 C 37 -94 33 -86 36 -76 C 32 -73 27 -78 27 -90 Z', col),
+        rear: back.replace(s, col),
+      }
+    }
     case 'braids': {
       const braid = (x: number) => [-90, -82, -74, -66].map((y) => E(x, y, 6, 5, s, 2.4)).join('') + `<rect x="${x - 4}" y="-62" width="8" height="4" rx="2" fill="#ffd23f" stroke="${O}" stroke-width="1.4"/>`
       return {
@@ -138,6 +175,99 @@ function hair(style: HairStyle, col: string, flat: boolean): { back: string; fro
         front: P('M -31 -97 C -33 -126 -15 -137 -1 -137 L -1 -118 C -14 -117 -25 -110 -31 -97 Z', col) + P('M 31 -97 C 33 -126 15 -137 1 -137 L 1 -118 C 14 -117 25 -110 31 -97 Z', col),
         rear: braid(-32) + braid(32) + P(NAPE, col),
       }
+    }
+  }
+}
+
+// ---------- hair, seen from behind ----------
+/**
+ * The back of the head. Every style covers the skull from crown to nape (so nobody reads as bald walking away from
+ * the camera, hat or no hat), then adds its own silhouette: long hair hangs, curls are big, buns and tails show.
+ * `flat` is the same style pressed down under a hat; it still covers the whole back of the head.
+ */
+function hairRear(style: HairStyle, col: string, flat: boolean): string {
+  if (style === 'bald') return ''
+  const n = parseInt(col.slice(1), 16)
+  const dark = ((n >> 16) & 255) * 0.3 + ((n >> 8) & 255) * 0.59 + (n & 255) * 0.11 < 80
+  // strands and partings: a darker line on light hair, a lighter one on dark hair
+  const line = dark ? tint(col, 0.22) : shade(col, 0.22)
+  const st = (d: string, w = 1.7) => `<path d="${d}" fill="none" stroke="${line}" stroke-width="${w}" stroke-linecap="round" opacity=".85"/>`
+  const mirror = (svg: string) => `<g transform="scale(-1 1)">${svg}</g>`
+  const crown = st('M -1 -129 C -9 -123 -13 -112 -13 -99') + st('M 4 -129 C 12 -123 15 -112 14 -100') + st('M -22 -113 C -25 -105 -25 -96 -22 -89') + st('M 23 -112 C 25 -104 25 -96 22 -89')
+  const curls = (pts: number[][]) => pts.map(([x, y]) => st(`M ${x - 4} ${y + 1.5} q 4 -5 8 0`, 1.6)).join('')
+  switch (style) {
+    case 'short':
+    case 'sidepart':
+      return P(NAPE, col) + crown
+    case 'crop':
+      return P('M -31 -97 C -34 -123 -18 -136 2 -135 C 22 -134 35 -121 31 -97 C 31 -90 29 -84 25 -80 L 20 -76 L 15 -80 L 10 -75.5 L 5 -80 L 0 -75.5 L -5 -80 L -10 -75.5 L -15 -80 L -20 -76 L -25 -80 C -29 -84 -31 -90 -31 -97 Z', col) + crown
+    case 'quiff':
+      if (flat) return P(NAPE, col) + crown
+      return mirror(P('M -31 -97 C -33 -118 -27 -128 -19 -131 C -17 -143 -2 -148 12 -144 C 27 -140 35 -126 31 -97 C 31 -86 25 -78 18 -77 L -18 -77 C -25 -78 -31 -86 -31 -97 Z', col)) + crown
+    case 'buzz':
+      return P('M -30 -100 C -31 -124 -16 -133 0 -133 C 16 -133 31 -124 30 -100 C 30 -88 24 -80 16 -80 L -16 -80 C -24 -80 -30 -88 -30 -100 Z', col) + st('M -14 -84 Q 0 -81 14 -84', 1.4)
+    case 'fade': {
+      if (flat) return hairRear('buzz', col, true)
+      // the high-top over sides clipped so short the skin shows through
+      const sides = `<path d="M -29 -106 C -30 -92 -25 -82 -16 -80 L 16 -80 C 25 -82 30 -92 29 -106 Z" fill="${col}" fill-opacity=".5" stroke="${ink(col)}" stroke-opacity=".55" stroke-width="2.2" stroke-linejoin="round"/>`
+      const top = 'M -29 -103 C -30 -113 -27 -119 -23 -123 C -23 -133 -18 -139 -9 -140 L 9 -140 C 18 -139 23 -133 23 -123 C 27 -119 30 -113 29 -103 C 20 -97 -20 -97 -29 -103 Z'
+      return sides + P(top, col) + curls([[-14, -131], [-4, -133], [6, -133], [15, -130], [-18, -121], [-8, -123], [2, -124], [12, -122], [-12, -111], [0, -112], [12, -111]])
+    }
+    case 'bob':
+      return P('M -35 -102 C -37 -129 -20 -139 0 -139 C 20 -139 37 -129 35 -102 L 36 -78 C 36 -73 32 -71 28 -73 L 0 -74 L -28 -73 C -32 -71 -36 -73 -36 -78 Z', col) +
+        st('M 0 -136 L 0 -112') + st('M -19 -112 C -21 -100 -21 -90 -20 -79') + st('M -7 -104 L -7 -80') + st('M 7 -104 L 7 -80') + st('M 19 -112 C 21 -100 21 -90 20 -79')
+    case 'long':
+      return P('M -34 -102 C -36 -131 -18 -140 0 -140 C 18 -140 36 -131 34 -102 L 37 -62 C 37 -56 32 -54 27 -56 L 0 -57 L -27 -56 C -32 -54 -37 -56 -37 -62 Z', col) +
+        st('M 0 -137 L 0 -110') + st('M -21 -112 C -23 -96 -24 -78 -24 -63') + st('M -8 -102 L -9 -63') + st('M 8 -102 L 9 -63') + st('M 21 -112 C 23 -96 24 -78 24 -63')
+    case 'wavy':
+      return P('M -35 -102 C -38 -130 -19 -141 0 -141 C 19 -141 38 -130 35 -102 C 40 -92 34 -84 38 -74 C 41 -64 34 -58 27 -61 L 0 -62 L -27 -61 C -34 -58 -41 -64 -38 -74 C -34 -84 -40 -92 -35 -102 Z', col) +
+        st('M -2 -138 C -6 -128 2 -120 -2 -110') + [-22, -8, 8, 22].map((x) => st(`M ${x} -108 q -5 9 0 18 q 5 9 0 20`)).join('')
+    case 'curly': {
+      const body: [number, number, number][] = flat
+        ? [[0, -100, 29], [-30, -96, 10], [30, -96, 10], [-28, -84, 10], [28, -84, 10], [-14, -80, 10], [0, -79, 10], [14, -80, 10]]
+        : [...curlyBack(false), [-22, -80, 11], [0, -78, 11], [22, -80, 11], [0, -96, 26]]
+      return blob(body, col) + curls(flat ? [[-18, -96], [0, -98], [18, -96], [-9, -86], [9, -86]] : [[-18, -124], [0, -130], [18, -124], [-26, -108], [-9, -112], [9, -112], [26, -108], [-18, -96], [0, -98], [18, -96], [-9, -84], [9, -84]])
+    }
+    case 'afro': {
+      const ring: [number, number, number][] = []
+      for (let a = 0; a < 360; a += 30) ring.push([Math.cos((a * Math.PI) / 180) * 38, -110 + Math.sin((a * Math.PI) / 180) * 36, 10])
+      const body: [number, number, number][] = flat ? [[0, -100, 30], [-31, -94, 11], [31, -94, 11], [-29, -82, 10], [29, -82, 10], [-13, -79, 10], [0, -78, 10], [13, -79, 10]] : [...ring, [0, -110, 38]]
+      return blob(body, col) + curls(flat ? [[-18, -96], [0, -98], [18, -96], [-9, -86], [9, -86]] : [[-20, -130], [0, -136], [20, -130], [-30, -114], [-10, -118], [10, -118], [30, -114], [-20, -102], [0, -104], [20, -102], [-28, -90], [-9, -90], [9, -90], [28, -90], [0, -80]])
+    }
+    case 'twists': {
+      const ring: [number, number, number][] = []
+      for (let a = 200; a >= -20; a -= 20) ring.push([Math.cos((a * Math.PI) / 180) * 30, -104 - Math.sin((a * Math.PI) / 180) * 29, 7])
+      const hem: [number, number, number][] = [[-24, -84, 7], [-12, -80, 7], [0, -79, 7], [12, -80, 7], [24, -84, 7]]
+      const body: [number, number, number][] = flat ? [[0, -100, 28], [-28, -98, 7], [28, -98, 7], ...hem] : [...ring, [0, -104, 27], ...hem]
+      const dots = [[-16, -122], [0, -126], [16, -122], [-22, -108], [-8, -112], [8, -112], [22, -108], [-15, -96], [0, -98], [15, -96], [-8, -86], [8, -86]]
+      return blob(body, col) + dots.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.2" fill="none" stroke="${line}" stroke-width="1.5" opacity=".8"/>`).join('')
+    }
+    case 'bun': {
+      const bun = flat ? '' : C(0, -139, 12, col) + st('M -8 -139 Q 0 -146 8 -139') + st('M -6 -133 Q 0 -138 6 -133')
+      return bun + P(NAPE, col) + st('M -22 -108 C -14 -122 -6 -128 0 -129') + st('M 22 -108 C 14 -122 6 -128 0 -129') + st('M -24 -94 C -14 -108 -5 -116 0 -118') + st('M 24 -94 C 14 -108 5 -116 0 -118')
+    }
+    case 'ponytail': {
+      // tied at the back of the head: from behind the tail hangs straight down the middle
+      const y0 = flat ? -106 : -116
+      const tail = P(`M -9 ${y0} C -14 ${y0 + 18} -11 -76 0 -60 C 11 -76 14 ${y0 + 18} 9 ${y0} Z`, shade(col, 0.08)) + st(`M 0 ${y0 + 8} L 0 -68`)
+      const tie = `<rect x="-8" y="${y0 - 4}" width="16" height="7" rx="3" fill="#ff5a8a" stroke="${O}" stroke-width="1.6"/>`
+      return P(NAPE, col) + st(`M -24 -100 C -16 -110 -9 ${y0} -6 ${y0}`) + st(`M 24 -100 C 16 -110 9 ${y0} 6 ${y0}`) + st(`M -14 -128 C -9 -124 -5 -120 -3 ${y0}`) + st(`M 14 -128 C 9 -124 5 -120 3 ${y0}`) + tail + tie
+    }
+    case 'spiky':
+      return P('M -31 -96 L -36 -116 L -25 -115 L -24 -135 L -11 -126 L -1 -143 L 8 -128 L 22 -137 L 23 -120 L 35 -119 L 31 -96 C 31 -86 25 -78 18 -77 L -18 -77 C -25 -78 -31 -86 -31 -96 Z', col) +
+        st('M -12 -112 L -15 -122') + st('M 0 -114 L -1 -127') + st('M 12 -112 L 15 -123') + st('M -20 -96 L -24 -104') + st('M 20 -96 L 24 -104')
+    case 'puffs': {
+      const puff = (x: number): [number, number, number][] => [[x, -130, 13], [x + Math.sign(x) * 8, -124, 9], [x - Math.sign(x) * 4, -140, 9]]
+      return (flat ? '' : blob([...puff(-30), ...puff(30)], col) + curls([[-31, -129], [31, -129]])) + P(NAPE, col) + st('M 0 -134 L 0 -80') + st('M -6 -118 C -14 -122 -20 -122 -24 -118') + st('M 6 -118 C 14 -122 20 -122 24 -118')
+    }
+    case 'locs': {
+      const strand = (x: number, len: number) => cap(x, -108, x + Math.sign(x) * 2, -108 + len, 6.5, col) + `<circle cx="${x + Math.sign(x) * 2}" cy="${-108 + len}" r="2.6" fill="#e9c46a" stroke="${O}" stroke-width="1.2"/>`
+      return [-30, -20, -10, 0, 10, 20, 30].map((x, i) => strand(x || 0.01, i % 2 ? 44 : 49)).join('') + P('M -31 -97 C -34 -123 -18 -136 2 -135 C 22 -134 35 -121 31 -97 C 31 -92 30 -89 28 -87 L -28 -87 C -30 -89 -31 -92 -31 -97 Z', col) +
+        [-20, -10, 0, 10, 20].map((x) => st(`M ${x * 0.7} -130 Q ${x * 1.1} -112 ${x} -90`)).join('')
+    }
+    case 'braids': {
+      const braid = (x: number) => [-90, -82, -74, -66].map((y) => E(x, y, 6, 5, col, 2.4)).join('') + `<rect x="${x - 4}" y="-62" width="8" height="4" rx="2" fill="#ffd23f" stroke="${O}" stroke-width="1.4"/>`
+      return braid(-32) + braid(32) + P(NAPE, col) + st('M 0 -134 L 0 -79') + st('M -4 -120 C -14 -116 -24 -108 -29 -96') + st('M 4 -120 C 14 -116 24 -108 29 -96') + st('M -4 -104 C -12 -100 -20 -94 -25 -86') + st('M 4 -104 C 12 -100 20 -94 25 -86')
     }
   }
 }
@@ -150,28 +280,136 @@ function hair(style: HairStyle, col: string, flat: boolean): { back: string; fro
 export const EYE_Y = -94
 /** how far the face moved down from where glasses were drawn for */
 const FACE_DROP = 5
-function face(c: Ctx, mood: 'smile' | 'grin' | 'o'): string {
-  const { fx, d } = c
+/** Head outlines by face shape. The top half is the same circle for all of them, so every hairstyle and hat fits. */
+const HEADS = [
+  'M -30 -100 A 30 30 0 0 1 30 -100 A 30 30 0 0 1 -30 -100 Z',
+  'M -30 -100 A 30 30 0 0 1 30 -100 C 30 -83 20 -66 0 -66 C -20 -66 -30 -83 -30 -100 Z',
+  'M -30 -100 A 30 30 0 0 1 30 -100 C 30.5 -82 27 -70 14 -69.5 L -14 -69.5 C -27 -70 -30.5 -82 -30 -100 Z',
+  'M -30 -100 A 30 30 0 0 1 30 -100 C 31 -86 13 -70 0 -65.5 C -13 -70 -31 -86 -30 -100 Z',
+]
+const headPath = (look: Look) => HEADS[look.shape ?? 0] ?? HEADS[0]
+
+function face(c: Ctx, mood: 'smile' | 'grin' | 'o', look: Look, focus?: Part): string {
+  const { fx, d, skin } = c
+  const iris = EYE_COLORS[look.eyes ?? 0] ?? EYE_COLORS[0]
   const eye = (x: number) => {
     const px = x + 0.6 * d
     return (
       E(x, EYE_Y, 5.8, 7, '#ffffff', 2.2) +
-      E(px, EYE_Y + 0.8, 4.4, 5.5, O, 0) +
+      E(px, EYE_Y + 0.8, 4.4, 5.5, iris, 1.1) +
+      E(px, EYE_Y + 1, 2.9, 3.8, shade(iris, 0.72), 0) +
       `<circle cx="${px - 1.6}" cy="${EYE_Y - 1.3}" r="1.9" fill="#fff"/><circle cx="${px + 1.7}" cy="${EYE_Y + 2.6}" r="0.9" fill="#fff"/>`
     )
   }
-  const brows = `<path d="M ${-15 + fx} -104 Q ${-11 + fx} -106.5 ${-7 + fx} -105 M ${7 + fx} -105 Q ${11 + fx} -106.5 ${15 + fx} -104" fill="none" stroke="${O}" stroke-width="2" stroke-linecap="round"/>`
+  const lash = (x: number, side: -1 | 1) => `<path d="M ${x + side * 4.6} ${EYE_Y - 4.6} l ${side * 3.4} -2.6 M ${x + side * 5.6} ${EYE_Y - 2} l ${side * 3.6} -1.2" fill="none" stroke="${O}" stroke-width="1.7" stroke-linecap="round"/>`
+  const lashes = look.lashes ? lash(-11 + fx, -1) + lash(11 + fx, 1) : ''
+  // brows take the hair's colour (a shade darker), so a blonde and a redhead read differently at a glance
+  const browCol = shade(c.hair, 0.3)
+  const brow = (side: -1 | 1) => {
+    const x = (n: number) => side * n + fx
+    switch (look.brows ?? 0) {
+      case 1: return `<path d="M ${x(16)} -104 Q ${x(11)} -107.5 ${x(6)} -105.5" fill="none" stroke="${browCol}" stroke-width="3.6" stroke-linecap="round"/>`
+      case 2: return `<path d="M ${x(16.5)} -103 Q ${x(12)} -109.5 ${x(6)} -105.5" fill="none" stroke="${browCol}" stroke-width="2.4" stroke-linecap="round"/>`
+      case 3: return `<path d="M ${x(16)} -105.5 L ${x(6.5)} -105.5" fill="none" stroke="${browCol}" stroke-width="2.8" stroke-linecap="round"/>`
+      default: return `<path d="M ${x(15)} -104 Q ${x(11)} -106.5 ${x(7)} -105" fill="none" stroke="${browCol}" stroke-width="2.2" stroke-linecap="round"/>`
+    }
+  }
+  const noseInk = ink(skin)
+  const nose =
+    look.nose === 2
+      ? `<ellipse cx="${fx + 0.6 * d}" cy="-87.6" rx="3.1" ry="2.3" fill="${shade(skin, 0.09)}" stroke="${noseInk}" stroke-width="1.5"/>`
+      : look.nose === 1
+        ? `<path d="M ${fx - 2.6} -88.8 q 2.6 3.4 5.2 0" fill="none" stroke="${noseInk}" stroke-width="1.9" stroke-linecap="round"/>`
+        : `<path d="M ${fx - 1.5} -87.9 q 1.5 1.5 3 0" fill="none" stroke="${noseInk}" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>`
+  const beard = look.beard ?? 0
+  // a moustache needs room: the mouth sits a little lower under one
+  const my = beard === 2 || beard === 5 ? 1.6 : 0
   const mouth =
     mood === 'grin'
-      ? P(`M ${-6 + fx} -83.5 Q ${fx} -83.5 ${6 + fx} -83.5 Q ${5 + fx} -75.5 ${fx} -75.5 Q ${-5 + fx} -75.5 ${-6 + fx} -83.5 Z`, '#8a2b3a', 'stroke-width="2.1"') + Pn(`M ${-2.6 + fx} -77.8 Q ${fx} -80 ${2.6 + fx} -77.8 Q ${fx} -76.2 ${-2.6 + fx} -77.8 Z`, '#ff7b8f')
+      ? P(`M ${-6 + fx} ${-83.5 + my} Q ${fx} ${-83.5 + my} ${6 + fx} ${-83.5 + my} Q ${5 + fx} ${-75.5 + my} ${fx} ${-75.5 + my} Q ${-5 + fx} ${-75.5 + my} ${-6 + fx} ${-83.5 + my} Z`, '#8a2b3a', 'stroke-width="2.1"') + Pn(`M ${-2.6 + fx} ${-77.8 + my} Q ${fx} ${-80 + my} ${2.6 + fx} ${-77.8 + my} Q ${fx} ${-76.2 + my} ${-2.6 + fx} ${-77.8 + my} Z`, '#ff7b8f')
       : mood === 'o'
-        ? E(fx, -80, 3, 3.6, '#8a2b3a', 2.1)
-        : `<path d="M ${-5 + fx} -83.5 Q ${fx} -78.5 ${5 + fx} -83.5" fill="none" stroke="${O}" stroke-width="2.4" stroke-linecap="round"/>`
+        ? E(fx, -80 + my, 3, 3.6, '#8a2b3a', 2.1)
+        : `<path d="M ${-5 + fx} ${-83.5 + my} Q ${fx} ${-78.5 + my} ${5 + fx} ${-83.5 + my}" fill="none" stroke="${O}" stroke-width="2.4" stroke-linecap="round"/>`
   const blush = `<ellipse cx="${-17.5 + fx * 0.6}" cy="-85.5" rx="5" ry="3" fill="#ff7b9c" opacity=".5"/><ellipse cx="${17.5 + fx * 0.6}" cy="-85.5" rx="5" ry="3" fill="#ff7b9c" opacity=".5"/>`
-  return `<g class="av-eyes">${eye(-11 + fx)}${eye(11 + fx)}</g>${brows}${blush}${mouth}`
+  const dot = (x: number, y: number) => `<circle cx="${x + fx * 0.7}" cy="${y}" r="0.95" fill="${shade(skin, 0.34)}"/>`
+  const freckles = look.freckles ? [[-19.5, -88.5], [-16, -86.5], [-13.5, -89], [19.5, -88.5], [16, -86.5], [13.5, -89], [-4.5, -89.6], [4.5, -89.6]].map(([x, y]) => dot(x, y)).join('') : ''
+  // facial hair is drawn inside the head's outline (clipped), then the mouth sits on a patch of skin
+  const hairInk = ink(c.hair)
+  const full = `M -36 -98 C -28 -87 -19 -85.5 ${-10 + fx} -87.2 C ${-6 + fx} -90.6 ${6 + fx} -90.6 ${10 + fx} -87.2 C 19 -85.5 28 -87 36 -98 L 36 -58 L -36 -58 Z`
+  const patch = `<ellipse cx="${fx}" cy="-80.6" rx="8.2" ry="5.4" fill="${skin}"/>`
+  const clip = `clip-path="url(#${c.u}h)"`
+  const tache = `<path d="M ${-9.5 + fx} -83.6 C ${-7 + fx} -88.2 ${-2 + fx} -87.8 ${fx} -86 C ${2 + fx} -87.8 ${7 + fx} -88.2 ${9.5 + fx} -83.6 C ${5 + fx} -84.4 ${2 + fx} -84.6 ${fx} -84.2 C ${-2 + fx} -84.6 ${-5 + fx} -84.4 ${-9.5 + fx} -83.6 Z" fill="${c.hair}" stroke="${hairInk}" stroke-width="1.8" stroke-linejoin="round"/>`
+  const tuft = `<g ${clip}><path d="M ${-5.5 + fx} -74.5 Q ${fx} -77 ${5.5 + fx} -74.5 L ${4 + fx} -58 L ${-4 + fx} -58 Z" fill="${c.hair}" stroke="${hairInk}" stroke-width="1.8" stroke-linejoin="round"/></g>`
+  const hairOnFace =
+    beard === 5
+      ? tuft
+      : beard === 4
+      ? `<g ${clip}><path d="${full}" fill="${c.hair}" stroke="${hairInk}" stroke-width="2.2"/></g>${patch}`
+      : beard === 3
+        ? `<g ${clip}><path d="M ${-10 + fx} -86 C ${-9 + fx} -90.4 ${9 + fx} -90.4 ${10 + fx} -86 L ${11 + fx} -58 L ${-11 + fx} -58 Z" fill="${c.hair}" stroke="${hairInk}" stroke-width="2.2"/></g>${patch}`
+        : beard === 2
+          ? ''
+          : beard === 1
+            ? `<g ${clip}><path d="${full}" fill="${c.hair}" opacity=".2"/></g>`
+            : ''
+  // your own glasses (a shop's face item replaces them)
+  const sp = look.items.face ? 0 : (look.specs ?? 0)
+  const lens = 'rgba(255,255,255,.1)'
+  const specs =
+    sp === 1
+      ? `<circle cx="${-11.4 + fx}" cy="${EYE_Y}" r="9.6" fill="${lens}" stroke="${O}" stroke-width="1.9"/><circle cx="${11.4 + fx}" cy="${EYE_Y}" r="9.6" fill="${lens}" stroke="${O}" stroke-width="1.9"/>` + L(-1.9 + fx, EYE_Y - 1.5, 1.9 + fx, EYE_Y - 1.5, O, 1.9)
+      : sp === 2
+        ? `<rect x="${-21.6 + fx}" y="${EYE_Y - 9}" width="19.6" height="17.4" rx="5" fill="${lens}" stroke="${O}" stroke-width="2"/><rect x="${2 + fx}" y="${EYE_Y - 9}" width="19.6" height="17.4" rx="5" fill="${lens}" stroke="${O}" stroke-width="2"/>` + L(-2 + fx, EYE_Y - 2, 2 + fx, EYE_Y - 2, O, 2)
+        : ''
+  if (focus) {
+    const eyesG = `<g class="av-eyes">${eye(-11 + fx)}${eye(11 + fx)}</g>`
+    switch (focus) {
+      case 'specs': return specs
+      case 'beard': return (beard === 2 ? '' : hairOnFace) + mouth + (beard === 2 || beard === 5 ? tache : '')
+      case 'brows': return brow(-1) + brow(1)
+      case 'nose': return nose
+      case 'freckles': return blush + freckles
+      case 'lashes': return eyesG + lashes
+      case 'eyes': return eyesG
+      default: return ''
+    }
+  }
+  return `${blush}${freckles}${beard === 2 ? '' : hairOnFace}<g class="av-eyes">${eye(-11 + fx)}${eye(11 + fx)}</g>${lashes}${brow(-1)}${brow(1)}${nose}${mouth}${beard === 2 || beard === 5 ? tache : ''}${specs}`
 }
 
 // ---------- assembly ----------
+/** one part of a look, for picker tiles that show just that part */
+export type Part = 'hair' | 'shape' | 'specs' | 'beard' | 'brows' | 'nose' | 'freckles' | 'lashes' | 'eyes'
+const PART_BOX: Record<Part, string> = {
+  hair: '-54 -160 108 108',
+  shape: '-41 -143 82 82',
+  specs: '-29 -129 64 64',
+  beard: '-33 -121 70 70',
+  brows: '-21 -135 50 50',
+  nose: '-8.4 -101.5 24 24',
+  freckles: '-29 -123 64 64',
+  lashes: '-22.5 -122 52 52',
+  eyes: '-22.5 -122 52 52',
+}
+/**
+ * A picker tile: just one part of `look`, big, on a plain head where it needs one to make sense (a hairstyle, a beard,
+ * a face shape). Glasses, brows and a nose are drawn on their own.
+ */
+export function partThumb(look: Look, part: Part): string {
+  const u = 'pt' + ++uidCounter
+  const skin = SKINS[look.skin] ?? SKINS[0]
+  const hairCol = HAIR_COLORS[look.hairColor] ?? HAIR_COLORS[0]
+  const c: Ctx = { d: 1, fx: 3, back: false, u, skin, hair: hairCol, sig: sigColor(look) }
+  const hp = headPath(look)
+  // hair and face shapes sit on a plain, pale head: the picture is about the outline, not who's wearing it
+  const plain = part === 'hair' ? '#f1f3f9' : skin
+  const needsHead = part === 'hair' || part === 'shape' || part === 'beard' || part === 'freckles'
+  const head = needsHead ? `<clipPath id="${u}h"><path d="${hp}"/></clipPath>` + (part === 'hair' ? `<path d="${hp}" fill="${plain}" stroke="#b9c0d4" stroke-width="2.4"/>` : C(-29.5, -98, 6, skin, 2.6) + C(29.5, -98, 6, skin, 2.6) + P(hp, skin)) : ''
+  const h = part === 'hair' ? hair(look.hair, hairCol, false) : { back: '', front: '' }
+  const inner = h.back + head + (part === 'hair' || part === 'shape' ? '' : face(c, 'smile', look, part)) + h.front
+  return `<svg viewBox="${PART_BOX[part]}" class="part-thumb"><g transform="${HEAD_SCALE}">${inner}</g></svg>`
+}
+
 export interface RenderOpts {
   d?: 1 | -1
   back?: boolean
@@ -202,7 +440,16 @@ export function avatarMarkup(look: Look, o: RenderOpts = {}): string {
   const shoe = item(look, 'feet')?.shoe
   const hat = item(look, 'head')
   const len = top.length ?? 'normal'
-  const hairParts = only ? { back: '', front: '', rear: '' } : hair(look.hair, hairCol, !!hat?.flattensHair)
+  const hairRaw = only ? { back: '', front: '', rear: '' } : hair(look.hair, hairCol, !!hat?.flattensHair)
+  // a hat that covers the head tucks the hair under it: only what hangs below its band shows, whatever the hairstyle
+  const tuck = (svg: string) => (svg && hat?.covers != null ? `<clipPath id="${u}t"><rect x="-90" y="${hat.covers}" width="180" height="140"/></clipPath><g clip-path="url(#${u}t)">${svg}</g>` : svg)
+  // from behind, the hair comes out from under the hat's band with rounded corners instead of a flat ruler-cut edge
+  const tuckRear = (svg: string) => {
+    if (!svg || hat?.covers == null) return svg
+    const y = hat.covers
+    return `<clipPath id="${u}r"><rect x="-90" y="${y + 12}" width="180" height="140"/><path d="M -66 ${y + 13} L -66 ${y + 12} C -60 ${y + 3} -42 ${y} -28 ${y} L 28 ${y} C 42 ${y} 60 ${y + 3} 66 ${y + 12} L 66 ${y + 13} Z"/></clipPath><g clip-path="url(#${u}r)">${svg}</g>`
+  }
+  const hairParts = { back: tuck(hairRaw.back), front: tuck(hairRaw.front), rear: back && !only ? tuckRear(hairRear(look.hair, hairCol, !!hat?.flattensHair)) : '' }
 
   // legs
   const leg = (side: -1 | 1) => {
@@ -234,7 +481,7 @@ export function avatarMarkup(look: Look, o: RenderOpts = {}): string {
         else if (top.sleeves === 'short') s += cap(sx, sy, sx + side * 3.4, sy + 12, 12, sleeveCol)
       }
     }
-    if (side === 1 && !back && (show('hand'))) {
+    if (side === 1 && show('hand')) {
       const h = item(look, 'hand')
       if (h?.draw) s += `<g transform="translate(${hx} ${hy})">${h.draw(c)}</g>`
     }
@@ -244,10 +491,10 @@ export function avatarMarkup(look: Look, o: RenderOpts = {}): string {
 
   const parts: string[] = []
   // the head (and everything on it) is drawn 14% bigger, pivoting at the neck: chunkier, cuter, readable when small
-  const backHead = (!only ? hairParts.back : '') + (hat?.drawBack && show('head') ? hat.drawBack(c) : '')
+  const backHead = (!only && !back ? hairParts.back : '') + (hat?.drawBack && show('head') ? hat.drawBack(c) : '')
   if (backHead) parts.push(`<g transform="${HEAD_SCALE}">${backHead}</g>`)
   const neckDef = item(look, 'neck')
-  if (neckDef?.drawBack && show('neck')) parts.push(neckDef.drawBack(c))
+  if (neckDef?.drawBack && show('neck') && !back) parts.push(neckDef.drawBack(c))
   if (show('body') && top.collar) parts.push(top.collar(c))
   parts.push(leg(-1), leg(1))
   parts.push(skirt)
@@ -255,25 +502,32 @@ export function avatarMarkup(look: Look, o: RenderOpts = {}): string {
   if (!only) parts.push(R0(-6, -79, 12, 9, skin))
   if (show('body')) {
     parts.push(P(TORSO[len], top.color), Pn(TORSO_SHADE[len], SHADOW))
-    if (top.front) parts.push(`<g>${top.front(c)}</g>`)
+    // from behind: the top's own back (a hood, apron ties), or its all-over pattern; never the chest print
+    const detail = back ? (top.rear ? top.rear(c) : top.wraps && top.front ? top.front(c) : '') : top.front ? top.front(c) : ''
+    if (detail) parts.push(`<g>${detail}</g>`)
   }
-  parts.push(arm(-1))
   const neck = item(look, 'neck')
-  if (neck?.draw && show('neck')) parts.push(neck.draw(c))
+  // from behind a necklace or a bow tie is out of sight; scarves and capes have a back of their own, under the arms
+  if (back && neck?.drawRear && show('neck')) parts.push(neck.drawRear(c))
+  parts.push(arm(-1))
+  // from behind both arms sit under the head, so long hair hangs over the shoulders rather than behind one sleeve
+  if (back) parts.push(arm(1))
+  if (!back && neck?.draw && show('neck')) parts.push(neck.draw(c))
   // head
   const headParts: string[] = []
   if (!only) {
     headParts.push(C(-29.5, -98, 6, skin, 2.6), C(29.5, -98, 6, skin, 2.6))
-    headParts.push(C(0, -100, 30, skin), Pn(HEAD_SHADE, SKIN_SHADOW))
+    const hp = headPath(look)
+    headParts.push(`<clipPath id="${u}h"><path d="${hp}"/></clipPath>`, P(hp, skin), `<g clip-path="url(#${u}h)">${Pn(HEAD_SHADE, SKIN_SHADOW)}</g>`)
     if (back) headParts.push(hairParts.rear)
-    else headParts.push(face(c, o.mood ?? 'smile'))
+    else headParts.push(face(c, o.mood ?? 'smile', look))
   }
   const faceItem = item(look, 'face')
   if (faceItem?.draw && show('face') && !back) headParts.push(`<g transform="translate(0 ${FACE_DROP})">${faceItem.draw(c)}</g>`)
   if (!only && !back) headParts.push(hairParts.front)
   if (hat?.draw && show('head')) headParts.push(hat.draw(c))
   parts.push(`<g class="av-head"><g transform="${HEAD_SCALE}">${headParts.join('')}</g></g>`)
-  parts.push(arm(1))
+  if (!back) parts.push(arm(1))
 
   // order matters: left arm behind the torso edge looks odd, so lift both arms above the torso
   return `<g class="av-root"><g class="av-upper">${parts.join('')}</g></g>`

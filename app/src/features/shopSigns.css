@@ -1,0 +1,8 @@
+/* our own neon over a painted shop sign (features/shopSigns.ts) */
+.shop-sign { position: absolute; z-index: 6; pointer-events: none; }
+.shop-sign svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.shop-sign .ss-tube { filter: drop-shadow(0 0 4px #3fd0ff) drop-shadow(0 0 10px #2a7bff); }
+.shop-sign .ss-bird { filter: drop-shadow(0 0 3px #ff7bd5) drop-shadow(0 0 9px #ff4fc4); animation: ss-hum 4.5s steps(1) infinite; }
+.shop-sign .ss-word { font: 400 50px var(--display); fill: #eafcff; stroke: #7fe9ff; stroke-width: 3.5px; stroke-linejoin: round; paint-order: stroke fill; filter: drop-shadow(0 0 4px #3fd0ff) drop-shadow(0 0 12px #2a7bff); }
+@keyframes ss-hum { 0%, 91%, 95%, 100% { opacity: 1; } 93% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .shop-sign .ss-bird { animation: none; } }

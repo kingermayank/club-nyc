@@ -16,12 +16,33 @@ export interface Look {
   hairColor: number
   /** signature colour (index into SIG_COLORS): your "penguin colour", worn by the signature hoodie */
   color?: number
+  /** the face (all optional: a look saved before faces had options draws the classic one). Indexes into the lists below. */
+  shape?: number
+  eyes?: number
+  brows?: number
+  nose?: number
+  beard?: number
+  /** your own everyday glasses (a face item from a shop is worn over them) */
+  specs?: number
+  freckles?: number
+  lashes?: number
   items: Partial<Record<Slot, string>>
 }
 
-export type HairStyle = 'short' | 'bob' | 'long' | 'curly' | 'bun' | 'ponytail' | 'spiky' | 'buzz' | 'braids' | 'afro' | 'puffs' | 'locs' | 'twists' | 'fade'
+export const FACE_SHAPES = ['Round', 'Oval', 'Square', 'Heart'] as const
+export const EYE_COLORS = ['#3a2416', '#6e4424', '#8f6f2c', '#3f8f5c', '#3b82d6', '#77879b']
+export const EYE_COLOR_NAMES = ['Dark brown', 'Brown', 'Hazel', 'Green', 'Blue', 'Grey']
+export const BROWS = ['Soft', 'Bold', 'Arched', 'Straight'] as const
+export const NOSES = ['Tiny', 'Button', 'Round'] as const
+export const BEARDS = ['None', 'Stubble', 'Moustache', 'Goatee', 'Beard', 'Moustache and goatee'] as const
+export const SPECS = ['None', 'Round', 'Square'] as const
+/** every optional face field with how many choices it has (the server checks saved looks against this) */
+export const FACE_FIELDS = { shape: FACE_SHAPES.length, eyes: EYE_COLORS.length, brows: BROWS.length, nose: NOSES.length, beard: BEARDS.length, specs: SPECS.length, freckles: 2, lashes: 2 } as const
+export type FaceField = keyof typeof FACE_FIELDS
+
+export type HairStyle = 'short' | 'bob' | 'long' | 'curly' | 'bun' | 'ponytail' | 'spiky' | 'buzz' | 'braids' | 'afro' | 'puffs' | 'locs' | 'twists' | 'fade' | 'bald' | 'quiff' | 'sidepart' | 'crop' | 'wavy'
 /** picker order: silhouettes alternate so neighbours look different; a third are textured styles */
-export const HAIR_STYLES: HairStyle[] = ['short', 'fade', 'curly', 'afro', 'bob', 'puffs', 'long', 'locs', 'twists', 'braids', 'bun', 'ponytail', 'spiky', 'buzz']
+export const HAIR_STYLES: HairStyle[] = ['short', 'sidepart', 'quiff', 'crop', 'fade', 'curly', 'afro', 'twists', 'bob', 'wavy', 'long', 'locs', 'braids', 'puffs', 'bun', 'ponytail', 'spiky', 'buzz', 'bald']
 
 // saved looks store an index, so new tones are appended; SKIN_ORDER is how pickers lay them out, light to deep
 export const SKINS = ['#ffe3cc', '#f7cba4', '#e6ad80', '#c98c5c', '#9c6440', '#6e4228', '#b47a4e', '#4f2e1c']

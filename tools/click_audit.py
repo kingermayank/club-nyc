@@ -688,7 +688,7 @@ class Player:
             await step('“Let’s make you →” without ticking 13+', lambda: pg.click(nxt), repro='creator welcome step: click Next without the 13+ box')
             await step('13+ checkbox', lambda: pg.click('.cr-age input'), noop_ok=True)
         else:
-            await pg.select_option('.cr-month', '6'); await pg.select_option('.cr-year', '2000'); await pg.click('.cr-age input')
+            await pg.click('.cr-age input')
         await step('“Let’s make you →”', lambda: pg.click(nxt))
         await asyncio.sleep(0.25)
         if rec:
@@ -2220,7 +2220,7 @@ async def signup_from_here(P):
     await pg.click('.si-play')
     await pg.wait_for_selector('.creator-card', timeout=15000)
     nxt = '.creator-actions .btn.go'
-    await pg.select_option('.cr-month', '6'); await pg.select_option('.cr-year', '2000'); await pg.click('.cr-age input')
+    await pg.click('.cr-age input')
     await pg.click(nxt)
     await asyncio.sleep(0.25)
     await pg.click(nxt)

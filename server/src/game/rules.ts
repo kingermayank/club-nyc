@@ -1,5 +1,5 @@
 import { ITEM } from '../../../app/src/avatar/items.ts'
-import { HAIR_STYLES, SKINS, HAIR_COLORS, SIG_COLORS } from '../../../app/src/avatar/look.ts'
+import { HAIR_STYLES, SKINS, HAIR_COLORS, SIG_COLORS, FACE_FIELDS, type FaceField } from '../../../app/src/avatar/look.ts'
 import type { LookWire } from '../../../app/src/net/protocol.ts'
 
 /**
@@ -35,7 +35,13 @@ export function validLook(l: unknown): LookWire | null {
   }
   const color = Number(o.color)
   const sig = Number.isInteger(color) && color >= 0 && color < SIG_COLORS.length ? { color } : {}
-  return { skin, hair, hairColor, ...sig, items }
+  // the face: each field is an index into its list; anything else is dropped (the classic face is drawn)
+  const face: Partial<Record<FaceField, number>> = {}
+  for (const [k, n] of Object.entries(FACE_FIELDS) as [FaceField, number][]) {
+    const v = Number(o[k])
+    if (o[k] != null && Number.isInteger(v) && v >= 0 && v < n) face[k] = v
+  }
+  return { skin, hair, hairColor, ...sig, ...face, items }
 }
 
 /** Names: 2–14 chars, letters, numbers and _ . Shown to everyone, so they go through the filter too. */

@@ -78,7 +78,7 @@ export function seagull(g: Game) {
 export async function ferry(g: Game) {
   const v = await g.choose('⛴️ Liberty Island Ferry', 'The ferry to the Statue of Liberty is boarding.', [
     { label: 'Ride as a Passenger (2)', value: 'ride', note: 'sit back, wave at Lady Liberty' },
-    { label: 'Captain the Ferry', value: 'captain', note: 'mini-game · earn coins' },
+    { label: 'Captain the Ferry', value: 'captain', note: 'earn coins' },
   ])
   if (v === 'captain') return g.playGame('ferry-captain')
   if (v !== 'ride' || !g.spend(2, 'ferry-ticket')) return

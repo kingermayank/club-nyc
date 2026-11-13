@@ -1,0 +1,18 @@
+/* the ambient layer (features/ambient.ts): light on the water, ducks, pigeons, the passing train */
+.amb-patch { position: absolute; z-index: 3; border-radius: 45%; pointer-events: none; }
+/* glints of light drifting over the water, drawn only where the room's picture has water (--mask) */
+.amb-water { position: absolute; inset: 0; z-index: 4; pointer-events: none; -webkit-mask: var(--mask) 0 0 / 100% 100% no-repeat; mask: var(--mask) 0 0 / 100% 100% no-repeat; }
+.amb-water i { position: absolute; inset: 0; }
+.amb-water i:first-child { background: radial-gradient(ellipse 14px 2px at 22% 30%, rgba(255, 255, 255, 0.8), transparent), radial-gradient(ellipse 10px 1.8px at 68% 62%, rgba(255, 255, 255, 0.7), transparent), radial-gradient(ellipse 7px 1.6px at 45% 88%, rgba(255, 255, 255, 0.6), transparent); background-size: 118px 44px; animation: amb-drift 14s linear infinite, amb-twinkle 3.2s ease-in-out infinite alternate; }
+.amb-water i:last-child { background: radial-gradient(ellipse 12px 1.9px at 60% 24%, rgba(255, 255, 255, 0.65), transparent), radial-gradient(ellipse 8px 1.6px at 14% 70%, rgba(255, 255, 255, 0.6), transparent); background-size: 164px 58px; animation: amb-drift 22s linear infinite reverse, amb-twinkle 4.4s ease-in-out -2s infinite alternate; }
+@keyframes amb-drift { to { background-position: 118px 0, 118px 0, 118px 0; } }
+@keyframes amb-twinkle { from { opacity: 0.35; } to { opacity: 1; } }
+/* a duck's little wake */
+.amb-ripple { position: absolute; z-index: 4; height: 5px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.55); border-top-color: transparent; pointer-events: none; animation: amb-wake 1.6s ease-out infinite; }
+@keyframes amb-wake { from { transform: scaleX(0.7); opacity: 0.8; } to { transform: scaleX(1.25); opacity: 0; } }
+/* pigeons peck now and then, and beat their wings when they fly */
+.amb-bird { transform-origin: 50% 100%; animation: amb-peck 6s ease-in-out infinite; }
+@keyframes amb-peck { 0%, 82%, 100% { transform: rotate(0); } 86% { transform: rotate(9deg) translateY(1px); } 90% { transform: rotate(0); } 94% { transform: rotate(9deg) translateY(1px); } }
+.amb-bird.fly { animation: amb-flap 0.13s ease-in-out infinite alternate; }
+@keyframes amb-flap { from { transform: scaleY(1); } to { transform: scaleY(0.62) translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .amb-water i, .amb-ripple, .amb-bird { animation: none; } }

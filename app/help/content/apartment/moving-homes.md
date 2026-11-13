@@ -20,7 +20,6 @@ Go home ([[H]]) and click **Listings**.
 | **5th-Floor Walk-Up** | East Village | Free (yours) | Bodega downstairs, a fire-escape "balcony", steps as a free gym |
 | **Cast-Iron Loft** | SoHo, Greene St | 1,500 | 14-foot ceilings, cobblestone views, room for a LOT of furniture |
 | **Billionaires' Row Penthouse** | 57th Street, 90-something floors up | 4,000 | A party terrace, whole-park views, your own DJ booth |
-| **Park Slope Brownstone** | Brooklyn | Coming Soon | A stoop, a garden, a stroller in every hallway |
 
 ## Buying and Moving {#buying-and-moving}
 

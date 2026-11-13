@@ -1,5 +1,7 @@
 // Slice Factory's own WebAudio: kitchen foley + a little tarantella loop that speeds up with the belt.
 // (The shared ctx.sfx covers dings, coins and the register; these are the sounds it doesn't have.)
+// Each foley method tries its recording first (sound/library.ts, keys `slice.*`) and falls back to the synth.
+import { play } from '../../sound/library'
 
 const NOTE = (m: number) => 440 * 2 ** ((m - 69) / 12)
 
@@ -123,6 +125,7 @@ export class SliceSound {
   // ---------- kitchen foley ----------
   /** a wet little "splurt" from a squeeze bottle */
   squirt() {
+    if (this.enabled && play('slice.squirt')) return
     this.noise(0.08, 0.07, 'bandpass', 700 + Math.random() * 500, 0, 1.4)
     this.tone(240 + Math.random() * 60, 0.07, 'sine', 0.05, 0, 110)
   }
@@ -146,9 +149,11 @@ export class SliceSound {
   }
   /** a pie whooshing into the oven */
   whoosh() {
+    if (this.enabled && play('slice.whoosh')) return
     this.noise(0.35, 0.07, 'bandpass', 300, 0, 0.9, 1500)
   }
   sizzle() {
+    if (this.enabled && play('slice.sizzle')) return
     this.noise(0.55, 0.05, 'highpass', 2600)
     this.noise(0.3, 0.03, 'bandpass', 5000, 0.12, 2)
   }
@@ -205,6 +210,7 @@ export class SliceSound {
   }
   /** the pie's done: the oven's bell (two strikes of a little brass bell, with its metallic overtone) */
   ovenDing() {
+    if (this.enabled && play('slice.ovenDing')) return
     for (const [at, f] of [[0, 1568], [0.16, 2093]] as const) {
       this.tone(f, 0.7, 'sine', 0.075, at)
       this.tone(f * 2.76, 0.25, 'sine', 0.012, at)
@@ -219,6 +225,7 @@ export class SliceSound {
   }
   /** the pie lands in its box: a cardboard thunk */
   box() {
+    if (this.enabled && play('slice.box')) return
     this.tone(190, 0.1, 'triangle', 0.08, 0, 140)
     this.noise(0.06, 0.05, 'bandpass', 850, 0, 1.2)
   }

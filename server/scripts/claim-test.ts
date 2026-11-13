@@ -52,7 +52,7 @@ check('launch greets by name', launch.title === 'Hi Sleepy_Bagel, the city is op
 check('launch button claims the name', launch.button?.label === 'Claim Sleepy_Bagel' && launch.button.url.includes('/api/auth/claim?u='), launch.button?.url)
 const html = renderEmail(launch).html
 check('no copy-this-link fallback in the email', !html.includes('Button not working'))
-check('no real store names or browser line', !/Joe’s Pizza|web browser/.test(html))
+check('no real store names or browser line', !/99¢ Slice|web browser/.test(html))
 
 console.log('claim')
 const link = `/api/auth/claim?u=${row.id}.${signLink(`waitlist-claim:${row.id}`)}`

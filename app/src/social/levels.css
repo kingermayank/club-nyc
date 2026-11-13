@@ -9,7 +9,6 @@
 /* the hover label hangs below (the chip sits at the top of the screen) */
 .level-plate .lp-tip { position: absolute; top: calc(100% + 10px); left: 50%; z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 10px; border-radius: 9px; background: var(--ink); color: #fff; font: var(--fs-xs)/1.25 var(--display); white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(-50%, -4px); transition: opacity 0.12s, transform 0.12s; }
 .level-plate .lp-tip::before { content: ''; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: var(--ink); }
-.level-plate .lp-tip small { font: var(--fs-2xs)/1.25 var(--display); opacity: 0.75; }
 .level-plate:hover .lp-tip, .level-plate:focus-visible .lp-tip { opacity: 1; transform: translate(-50%, 0); transition-delay: 0.2s; }
 .level-plate .lp-gain { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); padding: 2px 8px 0; border-radius: 999px; background: #1f7a3e; border: 2px solid var(--ink); color: #fff; font: var(--fs-xs)/1.3 var(--display); white-space: nowrap; pointer-events: none; animation: lp-gain 1.6s ease-out forwards; }
 @keyframes lp-gain { 0% { opacity: 0; transform: translate(-50%, -6px); } 15% { opacity: 1; transform: translate(-50%, 0); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, 10px); } }
@@ -18,9 +17,9 @@
 .toast.level-up { gap: 12px; padding: 10px 18px 10px 10px; background: linear-gradient(#fff6c9, #ffe27a); }
 .toast.level-up .lu-badge { display: grid; place-items: center; width: 44px; height: 44px; border: 3px solid var(--ink); border-radius: 50%; background: var(--green); color: #fff; box-shadow: 0 3px 0 var(--ink); }
 .toast.level-up .lu-badge b { font: var(--fs-2xl)/1 var(--display); font-weight: 400; }
-.toast.level-up > span:last-child { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.toast.level-up > span:last-child { display: flex; flex-direction: column; gap: 4px; padding: 2px 0; text-align: left; }
 .toast.level-up > span:last-child > b { font: var(--fs-xl) var(--display); font-weight: 400; }
-.toast.level-up small { font-size: var(--fs-sm); }
+.toast.level-up small { font-size: var(--fs-sm); color: var(--ink); opacity: 1; }
 .toast.level-up em { font-style: normal; font-family: var(--display); }
 .toast.level-up .lu-coins { margin-left: 6px; padding: 0 8px; border-radius: 999px; background: var(--paper); border: 2px solid var(--ink); font: var(--fs-sm) var(--display); font-style: normal; vertical-align: 2px; }
 
@@ -32,6 +31,28 @@
 .pc-level-bar { height: 12px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden; }
 .pc-level-bar i { display: block; height: 100%; background: var(--green); border-radius: 999px; }
 .pc-level small { font-size: var(--fs-xs); opacity: 0.75; text-align: center; }
-/* someone else's card: a single "Level 7 · Subway Pro" chip */
+/* someone else's card: a single chip, the level number then the title */
 .pc-level-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 2px 10px 2px 3px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; font: var(--fs-sm) var(--display); }
 .pc-level-chip b { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 4px; border-radius: 999px; background: var(--green); color: #fff; font-weight: 400; }
+
+/* the level view: opens under the chip. A big ring, your title, then the next rungs of the ladder */
+.level-card { position: absolute; top: 0; left: 0; width: 216px; padding: 16px 12px 12px; display: grid; justify-items: center; background: var(--paper); border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); animation: pop-in 0.25s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.level-card::before { content: ''; position: absolute; left: var(--tail, 50%); top: -11px; width: 16px; height: 16px; margin-left: -8px; background: var(--paper); border: solid var(--ink); border-width: 4px 0 0 4px; border-radius: 4px 0 0 0; transform: rotate(45deg); }
+.lc-ring { position: relative; width: 88px; height: 88px; display: grid; place-items: center; }
+.lc-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.lc-ring .lp-bg { fill: #fff; stroke: #e8e2cf; stroke-width: 9; }
+.lc-ring .lp-fg { fill: none; stroke: var(--green); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 0.7s cubic-bezier(0.3, 0.8, 0.3, 1) 0.1s; }
+.lc-ring > b { position: relative; font: var(--fs-7xl)/1 var(--display); font-weight: 400; color: var(--ink); }
+.lc-title { margin-top: var(--sp-2); font: var(--fs-3xl)/1.15 var(--display); font-weight: 400; color: var(--blue-dark); text-align: center; }
+.lc-xp { margin-top: 2px; font: var(--fs-sm)/1.3 var(--display); color: #6b6f86; }
+.lc-xp b { font-weight: 400; color: #1f7a3e; }
+/* the ladder: a dotted line runs down through the numbered rungs; the next one is lit */
+.lc-ladder { position: relative; list-style: none; width: 100%; margin: var(--sp-3) 0 0; padding: var(--sp-3) 0 0; border-top: 2px dashed #d9d3bf; display: grid; gap: 6px; }
+.lc-ladder::before { content: ''; position: absolute; left: 17px; top: 20px; bottom: 12px; border-left: 3px dotted #c9c3ae; }
+.lc-ladder li { position: relative; display: flex; align-items: center; gap: 8px; padding: 3px 8px 3px 4px; border-radius: 999px; font: var(--fs-md)/1.3 var(--display); color: #6b6f86; }
+.lc-ladder li.next { background: #fff3c4; color: var(--ink); }
+.lc-ladder i { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border: 2.5px solid var(--ink); border-radius: 50%; background: #fff; font: var(--fs-sm)/1 var(--display); font-style: normal; color: var(--ink); }
+.lc-ladder li.next i { background: var(--sun); }
+.lc-ladder span { flex: 1; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lc-ladder em { flex: none; display: flex; align-items: center; gap: 3px; font-style: normal; font-size: var(--fs-sm); color: #a87610; }
+.lc-ladder em img { width: 16px; height: 16px; object-fit: contain; }

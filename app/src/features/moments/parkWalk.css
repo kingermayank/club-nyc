@@ -1,0 +1,52 @@
+/* A walk through Central Park (features/moments/parkWalk.ts): first person, the Mall, Bethesda Terrace, the Lake.
+   Everything in stage units over the 1000 × 565 stage. The pictures are moved by a camera (transform-origin 0 0). */
+.pw { position: absolute; inset: 0; z-index: 9700; overflow: hidden; background: #8fc3ea; animation: pw-in 0.6s ease; user-select: none; }
+.pw.out { opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
+@keyframes pw-in { from { opacity: 0; } }
+.pw [hidden] { display: none !important; }
+.pw-view { position: absolute; inset: 0; }
+.pw-pic { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; background-size: 1000px 565px; background-repeat: no-repeat; transform-origin: 0 0; will-change: transform, opacity; }
+.pw-pic canvas { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; pointer-events: none; }
+.pw-beth, .pw-lake { opacity: 0; }
+
+/* the jogger who passes you on the Mall, seen from behind */
+.pw-jog { position: absolute; }
+.pw-jog svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25)); }
+.pw-jog .av-legL { animation: pw-legs 0.3s ease-in-out infinite alternate; }
+.pw-jog .av-legR { animation: pw-legs 0.3s ease-in-out infinite alternate-reverse; }
+@keyframes pw-legs { from { transform: translateY(1px); } to { transform: translateY(-8px); } }
+
+/* through the arcade under the terrace */
+.pw-arch { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; opacity: 0; pointer-events: none; transform-origin: 500px 330px; }
+.pw-dim { position: absolute; inset: 0; pointer-events: none; }
+.pw-fx { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; pointer-events: none; }
+.pw-hit { position: absolute; inset: 0; }
+
+/* quiet type, like the memorial's and the bridge walk's */
+.pw-caption { position: absolute; left: 16px; top: 16px; display: flex; flex-direction: column; gap: 2px; padding: 7px 12px 8px; border-radius: 10px; background: rgba(29, 33, 64, 0.62); color: #fbfaf6; z-index: 4; pointer-events: none; }
+.pw-caption b { font: 400 var(--fs-lg) var(--display); }
+.pw-caption span { font: var(--fs-sm) var(--body); opacity: 0.88; }
+.pw-line { position: absolute; left: 50%; bottom: 26px; width: 620px; margin: 0 0 0 -310px; padding: 8px 16px; border-radius: 12px; text-align: center; background: rgba(29, 33, 64, 0.62); color: #fbfaf6; font: var(--fs-lg)/1.35 var(--body); opacity: 0; transition: opacity 0.6s ease; pointer-events: none; z-index: 4; }
+.pw-line.on { opacity: 1; }
+.pw-actions { position: absolute; right: 16px; top: 16px; display: flex; gap: 8px; z-index: 5; }
+.pw-walk { position: absolute; right: 16px; bottom: 20px; z-index: 5; opacity: 0; transform: translateY(6px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.pw-walk.on { opacity: 1; transform: none; }
+.pw-walk.on:hover { transform: translateY(-2px); }
+
+/* the bag of duck food in your hand */
+.pw-bag { position: absolute; right: 20px; bottom: 12px; width: 74px; height: 88px; padding: 0; border: 0; background: none; cursor: pointer; z-index: 5; opacity: 0; transform: translateY(14px) rotate(4deg); transform-origin: 50% 100%; transition: opacity 0.5s ease, transform 0.5s ease; filter: drop-shadow(0 3px 0 rgba(29, 33, 64, 0.35)); }
+.pw-bag.on { opacity: 1; transform: rotate(-6deg); }
+.pw-bag.on:hover { transform: rotate(-12deg) translateY(-2px); }
+.pw-bag.shake { animation: pw-shake 0.32s ease-out; }
+.pw-bag svg { display: block; width: 100%; height: 100%; }
+@keyframes pw-shake { 30% { transform: rotate(-26deg) translate(-6px, -8px); } 100% { transform: rotate(-6deg); } }
+.pw-hint { position: absolute; right: 20px; bottom: 112px; margin: 0; padding: 6px 13px; border-radius: 14px; background: #fbfaf6; border: 3px solid #1d2140; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: var(--fs-lg) var(--display); white-space: nowrap; pointer-events: none; z-index: 5; opacity: 0; transition: opacity 0.4s ease; }
+.pw-hint.on { opacity: 1; animation: pw-bob 1.2s ease-in-out infinite alternate; }
+.pw-hint::after { content: ''; position: absolute; right: 30px; bottom: -9px; width: 12px; height: 12px; background: #fbfaf6; border: solid #1d2140; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+@keyframes pw-bob { from { margin-bottom: 0; } to { margin-bottom: 5px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pw, .pw-line, .pw-walk, .pw-bag, .pw-hint { animation: none; transition: none; }
+  .pw-jog .av-legL, .pw-jog .av-legR { animation: none; }
+  .pw-hint.on { animation: none; }
+}

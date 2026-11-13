@@ -107,8 +107,8 @@ function tick(dt: number) {
       crew.clear()
     }
   }
-  if (j.on && led) led.querySelector('.jl-text')!.textContent = 'DANCE JAM · ON NOW'
-  if (!j.on && led) led.querySelector('.jl-text')!.textContent = `DANCE JAM · NEXT SHOW ${mmss(j.next - now)}`
+  if (j.on && led) led.querySelector('.jl-text')!.textContent = 'DANCE JAM ON NOW'
+  if (!j.on && led) led.querySelector('.jl-text')!.textContent = `DANCE JAM IN ${mmss(j.next - now)}`
   const p = world.player
   const [x1, y1, x2, y2] = floor
   const dancingHere = p.held === 'dance' && !p.moving && p.pos[0] > x1 && p.pos[0] < x2 && p.pos[1] > y1 - 30 && p.pos[1] < y2 + 30
@@ -169,6 +169,8 @@ function recruit(a: Actor) {
 function joinJam(): void {
   if (!jamState().on) return void openDanceJam()
   sfx.pop()
+  // say so: the walk to the floor is quiet, and round 2's playtesters thought the button did nothing
+  toast('You’re in the Dance Jam. Keep dancing in the plaza for tips.', '🪩')
   walkTo(floorSpot(), () => world.player.emote('dance', 0))
 }
 

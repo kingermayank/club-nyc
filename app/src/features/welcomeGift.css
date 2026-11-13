@@ -1,0 +1,10 @@
+/* Sal's welcome gift (welcomeGift.ts): five cards, each your New Yorker wearing that gift */
+.welcome-gift { width: min(720px, 94%); }
+.wg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: var(--sp-3); margin-top: var(--sp-2); }
+.wg-card { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-2) var(--sp-4); border: 3px solid var(--ink); border-radius: 18px; background: linear-gradient(#eaf4ff, #cfe5ff); box-shadow: 0 4px 0 var(--ink); color: var(--ink); cursor: pointer; transition: transform 0.12s; }
+.wg-card:hover { transform: translateY(-3px); background: linear-gradient(#fff8dd, #ffe7a3); }
+.wg-card:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
+.wg-card:focus-visible { outline: 3px solid var(--blue-dark); outline-offset: 3px; }
+.wg-pic { display: block; width: 100%; aspect-ratio: 4 / 5; }
+.wg-pic svg { display: block; width: 100%; height: 100%; }
+.wg-name { font: var(--fs-xl) / 1.25 var(--display); text-wrap: balance; }

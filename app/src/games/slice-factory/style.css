@@ -767,6 +767,9 @@
   text-align: center;
   font-size: 40px;
   line-height: 44px;
+  /* letters sit a half-stroke apart, or each one's fill paints over its neighbour's outline */
+  letter-spacing: 0.1em;
+  text-indent: 0.1em;
   -webkit-text-stroke: 8px #1d2140;
   paint-order: stroke fill;
   text-shadow: 0 4px 0 #1d2140;

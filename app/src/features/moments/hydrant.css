@@ -1,0 +1,45 @@
+/* ---------- The Fire Hydrant, Fifth Avenue: crank it open, then aim the jet ---------- */
+.mo-hydrant.jet { cursor: crosshair; }
+.hy-pad { position: absolute; z-index: 11; width: 190px; height: 190px; margin: -95px; border-radius: 50%; cursor: grab; touch-action: none; }
+.hy-pad.held { cursor: grabbing; }
+.hy-wrench { position: absolute; z-index: 10; width: 96px; height: 30px; margin: -15px 0 0 -15px; transform-origin: 15px 15px; pointer-events: none; filter: drop-shadow(0 3px 0 rgba(29, 33, 64, 0.35)); }
+.hy-wrench svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hy-wrench.fly { transition: translate 0.65s cubic-bezier(0.3, -0.4, 0.7, 1), opacity 0.65s, rotate 0.65s linear; translate: 70px -150px; rotate: 540deg; opacity: 0; }
+.hy-arrow { position: absolute; z-index: 9; width: 132px; height: 132px; margin: -66px; pointer-events: none; opacity: 0.95; transition: opacity 0.3s; animation: hy-arrow 1.6s ease-in-out infinite; }
+.hy-arrow.gone { opacity: 0; }
+.hy-arrow svg { display: block; width: 100%; height: 100%; }
+@keyframes hy-arrow { from { transform: rotate(40deg); } to { transform: rotate(-70deg); } }
+
+/* a round pressure gauge bolted to the hydrant */
+.hy-gauge { position: absolute; z-index: 12; width: 58px; height: 58px; margin: -29px; background: radial-gradient(circle at 50% 40%, #fff, #e9edf5); border: 4px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink), inset 0 0 0 3px #c9ced9; pointer-events: none; }
+.hy-gauge::before { content: ''; position: absolute; left: 50%; bottom: -14px; box-sizing: border-box; width: 12px; height: 14px; margin-left: -6px; background: #c9ced9; border: 3px solid var(--ink); border-top: 0; }
+.hy-red { position: absolute; inset: 5px; border-radius: 50%; background: conic-gradient(from -118deg, var(--green) 0 110deg, var(--sun) 110deg 180deg, var(--red) 180deg 236deg, transparent 236deg); -webkit-mask: radial-gradient(circle, transparent 0 13px, #000 14px); mask: radial-gradient(circle, transparent 0 13px, #000 14px); }
+.hy-needle { position: absolute; left: 50%; bottom: 50%; width: 5px; height: 22px; margin-left: -2.5px; background: var(--ink); border-radius: 3px 3px 0 0; transform-origin: 50% 100%; transition: transform 0.1s linear; }
+.hy-hub { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px; background: var(--red); border: 3px solid var(--ink); border-radius: 50%; box-sizing: border-box; }
+
+/* the jet: one fat cartoon stream from the cap to wherever you point */
+.hy-water { position: absolute; inset: 0; z-index: 8; width: 100%; height: 100%; pointer-events: none; overflow: visible; opacity: 0; transition: opacity 0.2s; }
+.jet .hy-water { opacity: 1; }
+.hy-water.dry { opacity: 0; transition: opacity 0.5s; }
+.hy-water path { fill: none; stroke-linecap: round; }
+.hy-w1 { stroke: var(--ink); stroke-width: 22; }
+.hy-w2 { stroke: #7fd0ff; stroke-width: 15; }
+.hy-w3 { stroke: #fff; stroke-width: 4; stroke-dasharray: 18 26; opacity: 0.9; animation: hy-flow 0.35s linear infinite; }
+@keyframes hy-flow { to { stroke-dashoffset: -44; } }
+.hy-drop { position: absolute; z-index: 9; width: 9px; height: 13px; margin: -6px -4px; background: #cfeeff; border: 2px solid var(--blue); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; pointer-events: none; animation: hy-drop 0.55s ease-out forwards; }
+@keyframes hy-drop { 55% { transform: translate(var(--dx), var(--dy)); opacity: 1; } 100% { transform: translate(calc(var(--dx) * 1.35), 8px); opacity: 0; } }
+.mo-shout.hy-num { color: #bfe9ff; font-size: var(--fs-7xl); }
+
+/* the rainbow you earn by throwing it high */
+.hy-bow { position: absolute; z-index: 7; left: 400px; top: 96px; width: 380px; height: 190px; overflow: hidden; pointer-events: none; opacity: 0; transform: scale(0.7); transform-origin: 50% 100%; transition: opacity 0.6s, transform 0.6s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.hy-bow.on { opacity: 0.9; transform: none; }
+.hy-bow i { position: absolute; left: 0; top: 0; width: 380px; height: 380px; box-sizing: border-box; border: 11px solid; border-radius: 50%; }
+.hy-bow i:nth-child(1) { border-color: var(--red); outline: 3px solid var(--ink); outline-offset: 0; }
+.hy-bow i:nth-child(2) { inset: 11px auto auto 11px; width: 358px; height: 358px; border-color: #ff9f43; }
+.hy-bow i:nth-child(3) { inset: 22px auto auto 22px; width: 336px; height: 336px; border-color: var(--sun); }
+.hy-bow i:nth-child(4) { inset: 33px auto auto 33px; width: 314px; height: 314px; border-color: var(--green); }
+.hy-bow i:nth-child(5) { inset: 44px auto auto 44px; width: 292px; height: 292px; border-color: var(--blue); box-shadow: inset 0 0 0 3px var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hy-arrow, .hy-w3 { animation: none; }
+}

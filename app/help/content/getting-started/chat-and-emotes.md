@@ -1,6 +1,6 @@
 ---
 title: Chat & Emotes
-description: How to talk to the room, use quick phrases, read the chat log, and say it with an emote or a dance move.
+description: How to talk to the room, and say it with an emoji or a dance move.
 icon: chat
 updated: 2026-10-20
 ---
@@ -13,24 +13,14 @@ Everyone in the same place can see what you say, in a speech bubble over your he
 2. Type your message. It can be up to 120 characters.
 3. Press [[Enter]] to send it. Press [[Esc]] to clear the box instead.
 
-Your words pop up in a bubble over your New Yorker, and in the **chat log** for everyone in the place.
-
-![The chat box on the toolbar, with quick phrases like Hi!, Let's get pizza! and I'm walkin' here! popping up above it.](/help/img/chat-phrases.webp "Click into an empty chat box for quick phrases.")
-
-### Quick Phrases {#quick-phrases}
-
-Click into an empty chat box and a set of quick phrases pops up, like "Hi!", "How YOU doin'?", "I'm walkin' here!", "Fuggedaboutit!" and "Let's get pizza!". Click one to say it.
-
-### The Chat Log {#chat-log}
-
-The arrow button on the chat bar opens the chat log: the last 80 lines said in the place you're in. A small badge counts lines you haven't seen yet. Click a name in the log to open that player's card. The log closes when you click elsewhere, press [[Esc]] or change places.
+Your words pop up in a bubble over your New Yorker for everyone in the place.
 
 > [!NOTE] Who Can See My Chat?
 > Only people in the same place (and the same copy of it) see what you say. When you leave, your words stay behind. Chat is kept for 72 hours so moderators can review reports, then it's deleted.
 
 ## Emotes {#emotes}
 
-Click **Emotes** on the toolbar and pick one of 16 emoji: smiles, a laugh, heart eyes, cool shades, a slice of pizza, the Statue of Liberty, a taxi, coffee, a party popper and more. It pops up in a big bubble over your head.
+Click the smiley at the left of the chat box and pick an emoji: smiles, a laugh, heart eyes, cool shades, a slice of pizza, the Statue of Liberty, a taxi, coffee, a party popper and more. It pops up in a big bubble over your head.
 
 Sending a single emoji in chat does the same thing.
 

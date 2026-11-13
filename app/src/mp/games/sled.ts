@@ -12,7 +12,7 @@ import { el } from '../../engine/stage'
 import { headPortrait } from '../../avatar/render'
 import { randomLook } from '../../avatar/random'
 import type { Look } from '../../avatar/look'
-import { SLED, sledCourse, sledHits, cartV, inDeepSnow, inWater, streetW, SEGMENT_NAMES, STREET0, STREET1, type SledCourse, type SledObj, type SledDecor } from '../shared/sled'
+import { SLED, sledCourse, sledHits, cartV, inDeepSnow, inWater, streetW, STREET0, STREET1, type SledCourse, type SledObj, type SledDecor } from '../shared/sled'
 import { GF, type GhostWire, type MpS2C, type ResultsWire, type RaceEvent } from '../shared/protocol'
 import { MP_TEAMS, ordinal, fmtTime } from '../shared/games'
 import { seeded } from '../shared/rng'
@@ -69,19 +69,6 @@ const BIKE_H = 60
 const BIKE_GROUND: [number, number] = [0.52, 0.9]
 const BIKE_SADDLE: [number, number] = [0.3, 0.17]
 const RIDER_SCALE = 0.36
-
-const SEG_TIPS: Record<string, string> = {
-  scatter: 'Hop the pigeons, steer round the tourists',
-  logs: 'Aim for the gap in the planters',
-  slalom: 'Weave between the loungers',
-  moguls: 'Hop the old rails or weave between them',
-  ice: 'Fresh pavement is free speed',
-  cart: 'The gelato cart got loose. Time it.',
-  ramp: 'Ramp ahead: enjoy the air',
-  pines: 'Go around the birch trees',
-  snowmen: 'Find the gap in the selfie line',
-  narrows: 'Café tables on both sides: stay in the middle',
-}
 
 interface Snap {
   tm: number
@@ -192,14 +179,14 @@ export function start(ctx: GameCtx): RunningGame {
     prog.append(d)
     return d
   })
-  const hint = el('div', 'mp-hint', `<span><kbd>↑</kbd><kbd>↓</kbd> steer</span><span><kbd>Space</kbd> hop</span><span class="sl-hint-sub"><img class="ji" src="${IMG.coffee}" alt=""> Iced coffee = speed</span>`)
+  const hint = el('div', 'mp-hint', `<span><kbd>←</kbd><kbd>→</kbd></span><span><kbd>Space</kbd> hop</span>`)
   const big = el('div', 'mp-big')
   const watchBar = el('div', 'mp-watch')
   watchBar.hidden = true
   hud.append(place, prog, hint, big, watchBar)
   root.append(canvas, hud)
   if (meIdx < 0) hint.hidden = true
-  setTimeout(() => hint.classList.add('dim'), 9000)
+  setTimeout(() => hint.classList.add('gone'), 8000)
 
   const bigText = (text: string, small = false) => {
     big.className = 'mp-big' + (small ? ' small' : '')
@@ -451,7 +438,6 @@ export function start(ctx: GameCtx): RunningGame {
     const seg = course.segs.find((s) => S.w >= s.w0 - 220 && S.w < s.w1 - 220)
     if (seg && seg.k !== S.seg) {
       S.seg = seg.k
-      if (SEG_TIPS[seg.k]) line(`<b>${SEGMENT_NAMES[seg.k]}</b> · ${SEG_TIPS[seg.k]}`)
     }
     // grit off the tires when you carve
     if (S.air < 1 && S.speed > 120 && Math.random() < Math.abs(S.vLat) / 300) puff(S.w, S.v - Math.sign(S.vLat) * 18, 1, 40)
@@ -566,10 +552,33 @@ export function start(ctx: GameCtx): RunningGame {
     return ((h ^ (h >>> 16)) >>> 0) / 4294967296
   }
 
-  function drawImg(key: ImgKey, x: number, y: number, h: number, o: { flip?: boolean; alpha?: number; rot?: number } = {}) {
-    const img = imgs[key]
-    if (!img?.naturalWidth) return
-    const w = (img.naturalWidth / img.naturalHeight) * h
+  // the trees aren't clones: it's fall on the High Line, so each gets its own color (tinted once, then reused)
+  const TONES = ['', 'hue-rotate(-38deg) saturate(1.3)', 'hue-rotate(-64deg) saturate(1.5)', 'hue-rotate(16deg) brightness(0.88)', 'saturate(0.75) brightness(1.1)']
+  const tinted = new Map<string, HTMLCanvasElement>()
+  const toned = (key: ImgKey, img: HTMLImageElement, tone: number): CanvasImageSource => {
+    if (!tone) return img
+    let c = tinted.get(key + tone)
+    if (!c) {
+      c = document.createElement('canvas')
+      c.width = img.naturalWidth
+      c.height = img.naturalHeight
+      const x = c.getContext('2d')!
+      x.filter = TONES[tone % TONES.length]
+      x.drawImage(img, 0, 0)
+      tinted.set(key + tone, c)
+    }
+    return c
+  }
+  /** a tree with its own size, mirror and fall color, picked from where it stands (so it's the same every frame) */
+  function tree(at: { w: number; v: number }, x: number, y: number, h: number, rot = 0) {
+    const n = Math.abs(Math.floor(at.w * 0.37 + at.v * 1.9))
+    drawImg(n % 2 ? 'birch2' : 'birch', x, y, h * (0.82 + (n % 5) * 0.08), { flip: (n >> 2) % 2 === 1, rot: rot + (((n >> 3) % 5) - 2) * 0.025, tone: (n >> 1) % TONES.length })
+  }
+  function drawImg(key: ImgKey, x: number, y: number, h: number, o: { flip?: boolean; alpha?: number; rot?: number; tone?: number } = {}) {
+    const raw = imgs[key]
+    if (!raw?.naturalWidth) return
+    const img = toned(key, raw, o.tone ?? 0)
+    const w = (raw.naturalWidth / raw.naturalHeight) * h
     g.save()
     if (o.alpha !== undefined) g.globalAlpha = o.alpha
     g.translate(x, y)
@@ -1153,7 +1162,7 @@ export function start(ctx: GameCtx): RunningGame {
       draw: () => {
         switch (d.k) {
           case 'birch':
-            drawImg(d.var % 2 ? 'birch2' : 'birch', x, y + 3, 118 * s, { flip: d.var > 1 })
+            tree(d, x, y + 3, 118 * s)
             break
           case 'flowers':
             drawImg('flowers', x, y + 4, 40 * s, { flip: d.var % 2 === 1 })
@@ -1274,15 +1283,15 @@ export function start(ctx: GameCtx): RunningGame {
           g.lineWidth = 5
           g.strokeStyle = INK
         }
-        poly([[ax, ay - H], [bx, by - H], [bx, by - H + 34], [ax, ay - H + 34]], '#1f6fd1', INK, 4)
-        g.save()
-        g.translate((ax + bx) / 2, (ay + by) / 2 - H + 23)
-        g.rotate(Math.atan2(by - ay, bx - ax))
-        g.fillStyle = '#ffffff'
-        g.font = `22px ${FONT}`
-        g.textAlign = 'center'
-        g.fillText('FINISH · 34TH ST', 0, 0)
-        g.restore()
+        // a checkered banner says finish without a word: two rows of squares across the arch, in its perspective
+        const cols = 12
+        const at = (u: number, r: number): [number, number] => [ax + (bx - ax) * u, ay + (by - ay) * u - H + r * 17]
+        for (let r = 0; r < 2; r++)
+          for (let c = 0; c < cols; c++)
+            poly([at(c / cols, r), at((c + 1) / cols, r), at((c + 1) / cols, r + 1), at(c / cols, r + 1)], (c + r) % 2 ? INK : '#ffffff')
+        poly([at(0, 0), at(1, 0), at(1, 2), at(0, 2)], 'rgba(0,0,0,0)', INK, 4)
+        // and a pennant on each post
+        for (const [x, y] of [[ax, ay], [bx, by]]) poly([[x, y - H - 26], [x + 22, y - H - 19], [x, y - H - 12]], '#e8483b', INK, 2.5)
       },
     })
   }
@@ -1389,7 +1398,7 @@ export function start(ctx: GameCtx): RunningGame {
               drawImg('lounger', x, y + 8, 58, { flip: true })
               break
             case 'birch':
-              drawImg(o.var % 2 ? 'birch2' : 'birch', x, y + 4, 124, { flip: o.var > 1, rot: since < 0.6 ? Math.sin(since * 26) * 0.04 : 0 })
+              tree(o, x, y + 4, 124, since < 0.6 ? Math.sin(since * 26) * 0.04 : 0)
               break
             case 'rails':
               drawImg('rails', x, y + 10, 34)

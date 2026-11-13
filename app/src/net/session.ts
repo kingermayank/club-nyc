@@ -110,13 +110,14 @@ export async function claimProfile(
   name: string,
   look: SaveState['look'],
   team: string,
-  extra: { birth?: { m: number; y: number }; consent?: string; local?: boolean } = {},
+  /** ageOk: they ticked "I'm 13 or older" (no birthday is asked) */
+  extra: { ageOk?: boolean; consent?: string; local?: boolean } = {},
 ): Promise<string | null> {
   try {
     const invitedBy = pendingInvite() ?? undefined
     // progress made offline before this account existed comes along (the server caps the coins)
     const local = extra.local ? { coins: save.coins, owned: save.owned, homes: save.homes } : undefined
-    const r = await rest<{ user: Me; wallet?: WalletWire; invite?: typeof account.invite }>('/profile', { json: { name, look, team, birth: extra.birth, consent: extra.consent, invitedBy, local } })
+    const r = await rest<{ user: Me; wallet?: WalletWire; invite?: typeof account.invite }>('/profile', { json: { name, look, team, ageOk: extra.ageOk, consent: extra.consent, invitedBy, local } })
     account.me = r.user
     account.invite = r.invite ?? null
     if (invitedBy) clearInvite()

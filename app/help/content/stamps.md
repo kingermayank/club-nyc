@@ -5,7 +5,7 @@ icon: medal-gold
 updated: 2026-10-24
 ---
 
-Stamps are Club NYC's achievements: little proof-you-did-it badges for very New York things, from folding a slice at Joe's Pizza to captaining the ferry. They live in your **Stamp Book**.
+Stamps are Club NYC's achievements: little proof-you-did-it badges for very New York things, from folding a slice at 99¢ Slice to captaining the ferry. They live in your **Stamp Book**.
 
 ## Your Stamp Book {#stamp-book}
 
@@ -28,10 +28,10 @@ Click **Stamp Book** on the toolbar.
 | Stamp | How to earn it | Where |
 | --- | --- | --- |
 | New in Town | Create your New Yorker. | Your first minute |
-| The Usual | Buy a deli coffee. | [Ralph's Coffee](places/soho.md#ralphs-coffee), SoHo |
-| Who's Mayonnaise? | Get your name spelled wrong on a latte. Order the **Oat Latte**. | [Ralph's Coffee](places/soho.md#ralphs-coffee), SoHo |
+| The Usual | Buy a deli coffee. | [Starducks Coffee](places/soho.md#ralphs-coffee), SoHo |
+| Who's Mayonnaise? | Get your name spelled wrong on a latte. Order the **Oat Latte**. | [Starducks Coffee](places/soho.md#ralphs-coffee), SoHo |
 | Meet Me on the Steps | Sit on the steps of the Met. | [The Met](places/the-met.md) |
-| Slice of Life | Buy a plain slice. | [Joe's Pizza](places/chinatown-and-little-italy.md#joes-pizza) |
+| Slice of Life | Buy a plain slice. | [99¢ Slice](places/chinatown-and-little-italy.md#joes-pizza) |
 | Flock Together | Coo at three Times Square pigeons. | [Times Square](places/times-square.md) |
 | Straphanger | Ride the subway. | [The subway](getting-started/map-and-subway.md#subway) |
 | Top of the World | Reach the Empire State observation deck. | [Empire State Building](places/empire-state-building.md) |
@@ -48,6 +48,8 @@ Click **Stamp Book** on the toolbar.
 | Say Cheese | Take a photo-booth strip. | [Photo Booths](events/photo-booths.md) |
 | Never Forget | Visit the 9/11 Memorial. | [One World Trade](places/one-world-trade.md#memorial) |
 | Bull Market | Rub The Bull on Wall Street for luck. | [Wall Street](places/wall-street.md#the-bull) |
+| Called It | Call the Big Board right five times in a row. | [Wall Street](places/wall-street.md#big-board) |
+| Walked the Bridge | Walk the Brooklyn Bridge to the Brooklyn end. | [Brooklyn Bridge](places/brooklyn-bridge.md#walk) |
 | Cloud Nine | Ride the elevator to Sky Deck 102 at One World Trade. | [Sky Deck 102](places/one-world-trade.md#sky-deck-102) |
 | Art Collector | Buy a painting from the Brooklyn Bridge artist. | [Brooklyn Bridge](places/brooklyn-bridge.md#gallery) |
 | Game On | Play a multiplayer game. | [Multiplayer Games](multiplayer-games/README.md) |
@@ -69,7 +71,7 @@ Click **Stamp Book** on the toolbar.
 | Fashionista | Own 20 clothing items. | [The shops](shops-and-wardrobe.md) |
 | Belly Full | Eat at 10 different food spots around the city. Each cart or counter counts once for each treat it sells. | Carts, cafés and markets all over town |
 | Team Player | Earn 100 points for your neighborhood team (every coin from a job is a point). | [Neighborhood Wars](community/neighborhood-wars.md) |
-| Big Spender | Buy something at Louis Vuitton. | [Fifth Avenue](places/fifth-avenue.md#louis-vuitton) |
+| Big Spender | Buy something at Louis Vuittown. | [Fifth Avenue](places/fifth-avenue.md#louis-vuitton) |
 | What Time Is It? | Finish a Showtime performance. | [Showtime!](jobs/showtime.md) |
 | Host with the Most | Throw a party with 3+ guests. | [House Parties](apartment/house-parties.md) |
 | New Digs | Move into a new home. | [Moving Homes](apartment/moving-homes.md) |

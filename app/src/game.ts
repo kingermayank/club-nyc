@@ -2,7 +2,7 @@ import { sfx, setMuted } from './audio'
 import { save, persist } from './state'
 import { ITEM } from './avatar/items'
 import { mountStage, stage, el } from './engine/stage'
-import { toast, showToast, choose, info, confetti, hold, openOverlay, closeOverlay, notify } from './engine/ui'
+import { toast, choose, info, confetti, hold, openOverlay, closeOverlay, notify } from './engine/ui'
 import { Actor } from './engine/actor'
 import { world, startWorld, goto, walkTo } from './engine/world'
 import { STAMPS } from './data/stamps'
@@ -17,16 +17,23 @@ import './features/piano'
 import './features/apartment'
 import './features/extras'
 import './features/downtown'
+import './features/exchange'
+import './features/selfiePins'
+import './features/subwayLife'
+import './features/ambient'
+import './features/subwayTrain'
+import './sound/ambience'
 import './features/souvenirs'
+import './features/shopSigns'
 // multiplayer mini-games: the signs in the rooms, lobbies, invites (app/src/mp)
 import './mp'
 import './social/flashmob'
 import { startCommunity } from './social/community'
 import { initParty } from './features/party'
 import { startQuests } from './social/quests'
-import { signIn, account, claimProfile, nameAvailable, hasLocalProgress, startCloudSync, agreeToPolicy, forgetThisVisit } from './net/session'
+import { signIn, account, claimProfile, nameAvailable, hasLocalProgress, startCloudSync, agreeToPolicy } from './net/session'
 import { POLICY_VERSION } from './data/policy'
-import { consentPanel, tooYoungScreen } from './features/consent'
+import { consentPanel } from './features/consent'
 import { walletOnline, syncWallet, claimCoins, spendCoins, buyOnline, grantOnline, onWalletChange } from './net/wallet'
 import { rest } from './net/server'
 import { ROOMS } from './data/rooms'
@@ -111,16 +118,18 @@ export const api: Game = {
     api.give(item)
     return true
   },
-  stamp(id) {
+  stamp(id, opts) {
     if (save.stamps.includes(id) || !STAMPS[id]) return
     save.stamps.push(id)
     persist()
+    // some places are for quiet (the 9/11 Memorial): the stamp is kept, with no chime, toast, XP or bonus
+    if (opts?.quiet) return
     // every stamp is worth XP (the server pays it once per stamp)
     void import('./social/levels').then((m) => m.xpEvent('stamp', id))
     const s = STAMPS[id]
     setTimeout(() => {
-      sfx.stamp()
-      showToast(el('div', 'stamp-toast', `<div class="stamp-badge t${s.tier}">${s.icon}</div><div><small>Stamp earned</small><b>${s.name}</b></div>`), 3200)
+      // an enamel pin that flips in, then flies into the Stamp Book (features/stampToast.ts); it plays its own sound
+      void import('./features/stampToast').then((m) => m.stampToast(s))
       const n = save.stamps.length
       if (n % 5 === 0) {
         setTimeout(() => api.earn(25, `${n} stamps bonus!`, 'stamp-bonus', n), 900)
@@ -198,13 +207,17 @@ export async function startGame(host: HTMLElement) {
     const release = hold()
     void import('./features/creator').then((m) =>
       m.openCreator(
-        () => {
-          release()
+        async () => {
           player.setLook(save.look)
           player.setName(save.name)
           import('./engine/world').then((m) => m.refreshTag(player))
           goLive()
-          // Arrive like Club Penguin's welcome room: first just you, the street and the people on it.
+          // The arrival: your MetroCard is printed and stamped at the station, you swipe in, ride the train and walk
+          // up the subway stairs into Times Square (features/arrival.ts). The city waits (hold) until you're up.
+          const { playArrival } = await import('./features/arrival')
+          await playArrival({ memberNo: account.me?.memberNo ?? 0 })
+          release()
+          // Then like Club Penguin's welcome room: first just you, the street and the people on it.
           // A hop and a hello, a beat to look around, then Rosa. Rewards and toasts wait until the tour is done,
           // so nothing piles up on top of the city in the first seconds.
           void import('./net/events').then((m) => m.track('spawned'))
@@ -221,34 +234,32 @@ export async function startGame(host: HTMLElement) {
             await startTour()
             api.stamp('welcome')
             if (online) accountStamps()
-            // the MetroCard is earned in the city now: it flips in at the corner once the tour is done
-            setTimeout(() => void import('./features/creator').then((m) => m.flipMetroCard(account.me?.memberNo ?? 0)), 900)
-            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. Supreme in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take Me to SoHo', room: 'soho' } })), 6000)
+            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. THREAD in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take Me to SoHo', room: 'soho' } })), 6000)
             setTimeout(dailyBonus, 3200)
           }, 500)
         },
         online
           ? {
               checkName: nameAvailable,
-              claim: (name, look, team, birth) => claimProfile(name, look, team, { birth, consent: POLICY_VERSION }),
-              tooYoung: () => void forgetThisVisit(),
+              claim: (name, look, team) => claimProfile(name, look, team, { ageOk: true, consent: POLICY_VERSION }),
               memberNo: () => account.me?.memberNo ?? 0,
               // claimed from the waitlist: the name they saved is already theirs
               presetName: account.me && !account.me.profileDone ? account.me.name || undefined : undefined,
+              // a guest can keep this New Yorker on Google / X instead (only the ones set up on this server)
+              sso: account.me?.providers.every((p) => p === 'guest')
+                ? () => rest<Record<string, boolean>>('/auth/providers').then((p) => (['google', 'x'] as const).filter((k) => p[k])).catch(() => [])
+                : undefined,
+              signedInWith: ({ google: 'Google', x: 'X', discord: 'Discord', email: 'your email' } as Record<string, string>)[account.me?.providers.find((p) => p !== 'guest') ?? ''],
             }
           : {},
       ),
     )
   } else if (online && !account.me?.profileDone && hasLocalProgress()) {
     // you played offline before: bring that New Yorker online under the same name if it's free
-    // (first, like any new New Yorker online: a birthday and "I agree")
+    // (first, like any new New Yorker online: "13 or older + I agree")
     const release = hold()
-    const agreed = await consentPanel('new')
-    if (agreed === 'too-young') {
-      void forgetThisVisit()
-      return tooYoungScreen()
-    }
-    const claimWith = { birth: agreed.birth ?? undefined, consent: POLICY_VERSION, local: true }
+    await consentPanel('new')
+    const claimWith = { ageOk: true, consent: POLICY_VERSION, local: true }
     let problem = await claimProfile(save.name, save.look, save.team, claimWith)
     while (problem) problem = await pickOnlineName(problem, claimWith)
     release()
@@ -306,6 +317,8 @@ export async function startGame(host: HTMLElement) {
     party: () => void import('./features/houseparty').then((m) => m.openPartyPanel()),
     listings: () => void import('./features/streetcheesy').then((m) => m.openListings()),
     jam: () => void import('./features/dancejam').then((m) => m.openDanceJam()),
+    /** replay the arrival (MetroCard booth, turnstile, train, up the stairs) without making a new New Yorker */
+    arrival: () => void import('./features/arrival').then((m) => m.playArrival({ memberNo: account.me?.memberNo ?? 42 })),
     /** dev builds: finish the running mini-game now (to look at the payout card) */
     endGame: (r?: GameResult) => void import('./games/host').then((m) => m.endRunningGame(r ?? { coins: 14, score: 9, lines: ['9 pizzas served', 'Best streak: 4'] })),
   }
@@ -376,8 +389,7 @@ function celebrateDaily(n: number, week: number, days: number) {
   sfx.coin()
   save.stats.earned = (save.stats.earned ?? 0) + n
   // plain feedback, never "come back or lose it"
-  const note = week >= 7 ? ' · all seven days this week!' : week > 1 ? ` · day ${week} this week` : ''
-  toast(`Daily MetroCard refill <b>+${n}</b>${note}`, coinIcon)
+  toast(`Daily MetroCard refill <b>+${n}</b>`, coinIcon)
   if (week >= 7) {
     api.stamp('week-7')
     confetti(50)

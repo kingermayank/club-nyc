@@ -96,7 +96,7 @@ async def onboard(pg, name, team_index):
     await pg.click('.si-play')
     await pg.wait_for_selector('.creator-card', timeout=10000)
     nxt = '.creator-actions .btn.go'
-    await pg.select_option('.cr-month', '6'); await pg.select_option('.cr-year', '2000'); await pg.click('.cr-age input')  # I'm 13 or older
+    await pg.click('.cr-age input')  # I'm 13 or older
     await pg.click(nxt)
     await pg.wait_for_timeout(250)
     for _ in range(team_index + 1):

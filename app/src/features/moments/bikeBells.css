@@ -1,0 +1,45 @@
+/* ---------- The Bike Rack, SoHo: ring the tune back (features/moments/bikeBells.ts) ---------- */
+.mbk-bar { position: absolute; z-index: 10; width: 272px; height: 16px; margin-left: -136px; background: linear-gradient(#f4f6fb, #aeb6c8 55%, #7d8597); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); animation: mbk-in 0.35s cubic-bezier(0.2, 1.5, 0.4, 1) both; filter: drop-shadow(0 7px 8px rgba(29, 33, 64, 0.4)); }
+/* rubber grips at both ends */
+.mbk-bar::before, .mbk-bar::after { content: ''; position: absolute; top: -6px; width: 30px; height: 22px; box-sizing: border-box; background: repeating-linear-gradient(90deg, #2c3157 0 4px, var(--ink) 4px 7px); border: 3px solid var(--ink); border-radius: 8px; }
+.mbk-bar::before { left: -8px; }
+.mbk-bar::after { right: -8px; }
+@keyframes mbk-in { from { transform: translateY(40px) scale(0.5); opacity: 0; } }
+.mbk-bar.clunk { animation: mbk-clunk 0.4s; }
+@keyframes mbk-clunk { 20% { transform: translateX(-7px) rotate(-1.5deg); } 50% { transform: translateX(6px) rotate(1.2deg); } 80% { transform: translateX(-3px); } }
+
+.mbk-bell { position: absolute; top: -40px; width: 54px; height: 54px; margin: 0 0 0 -27px; padding: 0; background: none; border: 0; cursor: pointer; z-index: 2; transform-origin: 50% 90%; -webkit-tap-highlight-color: transparent; }
+.mbk-b0 { left: 40px; --c: var(--red); --d: #a82a20; }
+.mbk-b1 { left: 104px; --c: var(--sun); --d: #c98a12; }
+.mbk-b2 { left: 168px; --c: var(--green); --d: #1f7d48; }
+.mbk-b3 { left: 232px; --c: var(--blue-light); --d: var(--blue-dark); }
+.mbk-dome { position: absolute; inset: 0; background: radial-gradient(circle at 34% 28%, #fff 0 9%, var(--c) 34%, var(--d) 100%); border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 4px 0 var(--ink), inset 0 -5px 0 rgba(29, 33, 64, 0.18); }
+/* the cap in the middle */
+.mbk-dome::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px; box-sizing: border-box; background: radial-gradient(circle at 35% 30%, #fff, #c5ccda); border: 3px solid var(--ink); border-radius: 50%; }
+.mbk-lever { position: absolute; right: -9px; bottom: 4px; width: 20px; height: 11px; box-sizing: border-box; background: #dfe4ee; border: 3px solid var(--ink); border-radius: 3px 8px 8px 3px; transform: rotate(-24deg); transform-origin: 0 50%; z-index: -1; }
+.mbk-bell:hover .mbk-dome { filter: brightness(1.12); }
+.mbk-bar.listen .mbk-bell { cursor: default; }
+.mbk-bar.listen .mbk-bell:hover .mbk-dome { filter: none; }
+.mbk-bell.ring { animation: mbk-ring 0.42s ease-out; }
+.mbk-bell.ring .mbk-dome { animation: mbk-flash 0.42s ease-out; }
+.mbk-bell.ring .mbk-lever { animation: mbk-flick 0.2s ease-out; }
+@keyframes mbk-ring { 0% { transform: scale(1.22) rotate(-9deg); } 30% { transform: scale(1.08) rotate(7deg); } 55% { transform: scale(1.03) rotate(-4deg); } 80% { transform: rotate(2deg); } 100% { transform: none; } }
+@keyframes mbk-flash { 0% { filter: brightness(1.7) drop-shadow(0 0 12px var(--c)); } 100% { filter: none; } }
+@keyframes mbk-flick { 0% { transform: rotate(14deg); } 100% { transform: rotate(-24deg); } }
+/* two little ring marks either side of a struck bell */
+.mbk-bell::before, .mbk-bell::after { content: ''; position: absolute; top: -4px; width: 16px; height: 30px; box-sizing: border-box; border: 4px solid #fff; border-color: #fff transparent transparent transparent; border-radius: 50%; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)); }
+.mbk-bell::before { left: -12px; transform: rotate(-38deg); }
+.mbk-bell::after { right: -12px; transform: rotate(38deg); }
+.mbk-bell.ring::before, .mbk-bell.ring::after { animation: mbk-marks 0.42s ease-out; }
+@keyframes mbk-marks { 0% { opacity: 1; top: 0; } 100% { opacity: 0; top: -12px; } }
+
+/* the tune as beads under the bar: one a note */
+.mbk-pips { position: absolute; left: 50%; top: 26px; transform: translateX(-50%); display: flex; gap: 7px; pointer-events: none; }
+.mbk-pips i { width: 15px; height: 15px; box-sizing: border-box; background: var(--paper); border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 2px 0 var(--ink); transition: background 0.1s, transform 0.15s; }
+.mbk-pips i.on { background: var(--green); transform: scale(1.15); }
+.mbk-pips.demo i.on { background: var(--sun); }
+.mbk-pips.bad i { background: var(--red); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mbk-bar, .mbk-bar.clunk, .mbk-bell.ring { animation: none; }
+}

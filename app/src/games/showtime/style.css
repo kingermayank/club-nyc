@@ -350,10 +350,10 @@
 .showtime-tips { font-size: 27px; font-weight: 400; }
 .showtime-pause {
   position: absolute;
-  right: 14px;
-  top: 14px;
-  width: 48px;
-  height: 48px;
+  right: 54px;
+  top: 7px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -534,8 +534,11 @@
   font-family: var(--display);
   transform: rotate(-3deg);
 }
-.showtime-logo-q { position: relative; z-index: 1; margin: 0 0 7px -150px; font-size: 21px; color: #fff; -webkit-text-stroke: 6px #1d2140; paint-order: stroke fill; transform: rotate(-4deg); }
+.showtime-logo-q { position: relative; z-index: 1; margin: 0 0 7px -150px; font-size: 21px; letter-spacing: 0.1em; word-spacing: -0.12em; color: #fff; -webkit-text-stroke: 4px #1d2140; paint-order: stroke fill; transform: rotate(-4deg); }
 .showtime-logo-main {
+  /* letters sit a half-stroke apart, or each one's fill paints over its neighbour's outline */
+  letter-spacing: 0.08em;
+  margin-right: -0.08em;
   font-size: 70px;
   color: #ffd23f;
   -webkit-text-stroke: 10px #1d2140;

@@ -117,6 +117,20 @@ export function picCard(o: PicCardOpts): HTMLElement {
   return card
 }
 
+/** A city construction barricade (orange and white stripes on two A-frame legs) saying a place is still being built. */
+export function comingSoonSign(place: string): HTMLElement {
+  const sign = el('div', 'ic-barricade')
+  sign.innerHTML = `<svg viewBox="0 0 360 150" aria-hidden="true">
+    <defs><pattern id="ic-stripes" width="36" height="36" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="18" height="36" fill="#ff8a1e"/><rect x="18" width="18" height="36" fill="#fff"/></pattern></defs>
+    <path d="M58 70 L36 146 M86 70 L108 146 M274 70 L252 146 M302 70 L324 146" stroke="#1d2140" stroke-width="7" stroke-linecap="round"/>
+    <rect x="10" y="14" width="340" height="62" rx="9" fill="url(#ic-stripes)" stroke="#1d2140" stroke-width="5"/>
+    <rect x="26" y="24" width="308" height="42" rx="7" fill="#fff8e6" stroke="#1d2140" stroke-width="4"/>
+    <text x="180" y="54" text-anchor="middle" font-family="'Burbank Display', 'Lilita One', sans-serif" font-size="24" fill="#1d2140" textLength="270" lengthAdjust="spacingAndGlyphs">${place.toUpperCase()}: COMING SOON</text>
+    <circle cx="40" cy="12" r="9" fill="#ffb21e" stroke="#1d2140" stroke-width="4"/><circle cx="320" cy="12" r="9" fill="#ffb21e" stroke="#1d2140" stroke-width="4"/>
+  </svg>`
+  return sign
+}
+
 /** A quick camera flash over the whole stage (for "Take a Photo" actions). */
 export function flash() {
   const f = el('div', 'ic-flash')

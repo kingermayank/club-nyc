@@ -3,8 +3,11 @@ import { installErrorReporting } from './net/errors'
 import { captureInvite } from './net/invite'
 import { isPhone, desktopOnly } from './features/desktopOnly'
 import { startIconizer } from './engine/iconize'
+import { startShell } from './shell'
 
 installErrorReporting()
+// the page around the game: framed by default, Full Screen, the language picker
+startShell()
 // every emoji on the page is drawn as one of our illustrated icons
 startIconizer()
 // /join/<name> — remember who invited you before anything else happens

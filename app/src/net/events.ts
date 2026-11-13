@@ -6,7 +6,7 @@ import { analyticsAllowed } from '../consent'
  * Anonymous per page load, batched, sent with keepalive when the page hides; silent when there's no server.
  * Only sent when this browser allowed analytics (the landing page's cookie banner, ../consent.ts); otherwise dropped.
  */
-export type EventName = 'creator_open' | 'look_preset' | 'look_shuffle' | 'look_tweak' | 'look_colour' | 'name_screen' | 'name_wheel' | 'name_typed' | 'creator_done' | 'spawned'
+export type EventName = 'creator_open' | 'look_preset' | 'look_door' | 'look_photo' | 'look_shuffle' | 'look_tweak' | 'look_colour' | 'name_screen' | 'name_wheel' | 'name_typed' | 'name_sso' | 'creator_done' | 'arrival_snap' | 'arrival_stamp' | 'arrival_swipe' | 'arrival_skip' | 'arrival_done' | 'spawned'
 // (the landing page sends landing_view / landing_play / landing_discord / landing_send itself: src/landing/main.ts)
 
 const params = new URLSearchParams(location.search)

@@ -1,0 +1,24 @@
+/* The box office menu (features/tickets.ts): one row per ticket, what you get on the left, the price on the right. */
+.panel.tix { width: min(430px, 92%); padding-top: 18px; }
+.tix-kicker { display: block; margin-bottom: 2px; font: 400 var(--fs-xs)/1 var(--display); letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); opacity: 0.6; }
+.panel.tix h2 { margin-bottom: var(--sp-3); }
+.tix-list { display: grid; gap: 10px; }
+/* a ticket: cream stub, a perforated line before the price */
+.tix-row { display: flex; align-items: stretch; width: 100%; min-height: 60px; padding: 0; border: 3px solid var(--ink); border-radius: 16px; background: #fff6cf; color: var(--ink); font-family: var(--display); text-align: left; cursor: pointer; overflow: hidden; box-shadow: 0 4px 0 var(--ink); transition: transform 0.1s, filter 0.1s; }
+.tix-row:hover { transform: translateY(-2px); filter: brightness(1.04); }
+.tix-row:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.tix-what { flex: 1; display: grid; align-content: center; gap: 2px; padding: 8px 14px; }
+.tix-what b { font-weight: 400; font-size: var(--fs-xl); line-height: 1.1; }
+.tix-what small { font-family: var(--body, inherit); font-size: var(--fs-sm); opacity: 0.7; }
+.tix-price { display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 84px; padding: 0 14px; border-left: 3px dashed var(--ink); background: #ffd166; font-size: var(--fs-3xl); }
+.tix-price img { width: 22px; height: 22px; flex: none; }
+/* more than you have: still a ticket, just out of reach */
+.tix-row.short .tix-price { background: #e6e2d6; color: #8b8676; }
+.tix-row.short .tix-price img { filter: grayscale(1); opacity: 0.7; }
+.tix-row.nope { animation: tix-nope 0.35s; }
+@keyframes tix-nope { 25% { translate: -5px 0; } 50% { translate: 5px 0; } 75% { translate: -3px 0; } }
+.panel p.tix-wallet { display: flex; align-items: center; justify-content: center; gap: 8px; margin: var(--sp-4) 0 0; font: 400 var(--fs-sm)/1 var(--display); letter-spacing: 1px; text-transform: uppercase; }
+.tix-wallet span { opacity: 0.6; }
+.tix-wallet b { display: inline-flex; align-items: center; gap: 4px; font-weight: 400; font-size: var(--fs-xl); letter-spacing: 0; }
+.tix-wallet img { width: 20px; height: 20px; }
+@media (prefers-reduced-motion: reduce) { .tix-row.nope { animation: none; } }

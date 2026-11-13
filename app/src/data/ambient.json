@@ -1,0 +1,27 @@
+{
+ "water": [
+  "central-park",
+  "battery-park",
+  "liberty-island",
+  "brooklyn-bridge"
+ ],
+ "ground": {
+  "central-park": {
+   "duck-1": "#2fa8e5",
+   "duck-2": "#37aeeb",
+   "duck-3": "#38aeec"
+  },
+  "times-square": {
+   "pigeon-1": "#808192",
+   "pigeon-2": "#7b7d8f",
+   "pigeon-3": "#787b8f"
+  },
+  "wall-street": {
+   "pigeon-1": "#beabaa",
+   "pigeon-2": "#9795aa"
+  },
+  "battery-park": {
+   "gull": "#539d44"
+  }
+ }
+}

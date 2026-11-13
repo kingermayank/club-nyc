@@ -177,7 +177,7 @@ function showCard(step: Step, index: number, count: number): Promise<'next' | 'b
     const target = step.target?.()
     const dots = count > 2 ? `<div class="tour-dots">${Array.from({ length: count }, (_, i) => `<i class="${i === index ? 'on' : ''}"></i>`).join('')}</div>` : ''
     card.innerHTML = `<div class="tour-face">${avatarPortrait(GUIDE.look, 'grin')}</div>
-      <div class="tour-body"><small>${GUIDE.name} · ${GUIDE.role}</small><b>${step.title}</b><p>${step.text}</p>${dots}
+      <div class="tour-body"><small>${GUIDE.name}</small><b>${step.title}</b><p>${step.text}</p>${dots}
       <div class="tour-btns">${index > 0 && index < count - 1 ? '<button class="btn tiny ghost tour-back">Back</button>' : ''}<button class="btn tiny ghost tour-skip">${step.skip ?? (index === count - 1 ? '' : 'Skip Tour')}</button>${step.action ? `<button class="btn tiny go tour-act">${step.action.label}</button>` : ''}<button class="btn tiny ${step.action ? 'ghost' : 'go'} tour-next">${step.next ?? 'Next'}</button></div></div>`
     if (!card.querySelector('.tour-skip')!.textContent) card.querySelector('.tour-skip')!.remove()
     layer.append(...dims, hole, card)

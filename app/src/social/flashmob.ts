@@ -1,4 +1,4 @@
-import { onFrame, onRoomChange, world, depthScale, spawnResident, chatterOk } from '../engine/world'
+import { onFrame, onRoomChange, world, depthScale, spawnResident, chatterOk, COIN_HTML } from '../engine/world'
 import { stage, el } from '../engine/stage'
 import { toast, confetti, floatText, ui } from '../engine/ui'
 import { sfx, startBeat } from '../audio'
@@ -118,7 +118,7 @@ function milestone() {
 
 function dropCoin() {
   const p = ringSpot(Math.floor(Math.random() * 12) + 1)
-  const c = el('button', 'coin rain', `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#ffd166" stroke="#1d2140" stroke-width="3.5"/><circle cx="20" cy="20" r="10" fill="none" stroke="#e8a317" stroke-width="3"/></svg>`)
+  const c = el('button', 'coin rain', COIN_HTML)
   c.style.cssText = `left:${p[0]}px;top:${p[1]}px;--s:${depthScale(p[1])};z-index:${Math.round(p[1] * 10) - 1}`
   c.dataset.x = String(p[0])
   c.dataset.y = String(p[1])

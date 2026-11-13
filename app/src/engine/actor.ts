@@ -135,6 +135,14 @@ export class Actor {
     }
   }
 
+  /** stand somewhere at once, no walking (the arrival puts you at the top of the subway stairs) */
+  placeAt(p: Pt) {
+    this.seat = null
+    this.path = []
+    this.pos = [...p] as Pt
+    this.lastPos = this.pos
+  }
+
   sitOn(seat: Seat) {
     this.seat = seat
     this.path = []

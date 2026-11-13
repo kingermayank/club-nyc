@@ -1,70 +1,112 @@
 import { sfx } from '../audio'
 import { save, persist } from '../state'
-import { AvatarView, avatarMarkup, headPortrait } from '../avatar/render'
+import { AvatarView, avatarMarkup } from '../avatar/render'
 import { el, stage } from '../engine/stage'
 import { lookEditor } from './playerCard'
-import { HAIR_STYLES, SIG_COLORS, SKIN_ORDER, type Look } from '../avatar/look'
+import { HAIR_STYLES, SIG_COLORS, SKIN_ORDER, EYE_COLORS, type Look } from '../avatar/look'
+import { pickLook, type Match } from '../avatar/match/pick'
+import { iconHtml } from '../engine/iconize'
 import { TEAMS, type TeamId } from '../social/teams'
 import { track } from '../net/events'
-import { confirmBirthday, consentFields, isOldEnough, tooYoungScreen, type Birth } from './consent'
+import { consentFields } from './consent'
+import { GOOGLE_G, X_LOGO } from './signin'
 
 /**
- * First-run onboarding, two screens and about 40 seconds (docs/avatar-redesign.md):
- *  1. "Who's walking into Manhattan?": ready-made looks, Surprise me, skin / hair / hair colour / signature colour.
- *  2. "What do New Yorkers call you?": a two-wheel NYC name picker or your own, the 13+ check, then the city.
- * The neighborhood team, the MetroCard and the wardrobe now come later, in the world.
+ * First-run onboarding, about 40 seconds (docs/avatar-redesign.md):
+ *  1. "Who's walking into Manhattan?": three doors. Use a Photo (a selfie or an upload is read on this computer and
+ *     turned into a New Yorker: avatar/match), Surprise Me (a random one), Build My Own.
+ *  2. "Is this you?" / "Make it yours": the look pickers (Basics, Face, Extras) and your signature colour.
+ *  3. "What do New Yorkers call you?": type a name (or, as a guest, sign in with Google / X), tick "13 or older + I agree", then the city.
+ * The neighborhood team, the MetroCard and the wardrobe come later, in the world.
  */
-const STEPS = ['look', 'name'] as const
-type Step = (typeof STEPS)[number]
+const STEPS = ['start', 'look', 'name'] as const
+type Step = (typeof STEPS)[number] | 'photo'
 
-const ADJ = ['Big', 'Lucky', 'Sunny', 'Midnight', 'Express', 'Rooftop', 'Golden', 'Dollar', 'Brooklyn', 'Uptown', 'Downtown', 'Neon', 'Cozy', 'Rapid', 'Captain', 'Lil', 'Chef', 'DJ', 'Doc', 'Super']
-const NOUN = ['Bagel', 'Pigeon', 'Slice', 'Taxi', 'Pretzel', 'Ferry', 'Knish', 'Cannoli', 'Subway', 'Hydrant', 'Skyline', 'Dumpling', 'Latte', 'Stoop', 'Bodega', 'Hotdog', 'Pickle', 'Gelato', 'Rooftop', 'Metro']
+/** what the photo reader says when it can't use a picture */
+const PHOTO_PROBLEM: Record<string, string> = {
+  'no-face': 'We couldn’t find a face in that one. Try a brighter photo, facing the camera.',
+  'too-small': 'The face is too small to read. Move closer, or pick a closer photo.',
+  turned: 'Look straight at the camera, then try again.',
+  load: 'The photo reader didn’t load. Check your connection and try again, or build your own.',
+}
+
 /** names are what everyone sees online: letters, numbers and underscores */
 const cleanName = (v: string) => v.replace(/[^A-Za-z0-9_]/g, '').slice(0, 14)
 
-/** eight complete, coordinated starting looks across skin tones and hair textures (every item is a free starter) */
+/**
+ * Signing in with Google / X from the name screen leaves the page. The look and the name typed so far wait here
+ * (this tab only, for half an hour) and the creator opens on the name screen with them when you come back.
+ */
+const DRAFT = 'club-nyc:creator-draft'
+type Draft = { look: Look; name: string; at: number }
+function takeDraft(): Draft | null {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(DRAFT) ?? 'null') as Draft | null
+    sessionStorage.removeItem(DRAFT)
+    return d?.look && Date.now() - d.at < 30 * 60_000 ? d : null
+  } catch {
+    return null
+  }
+}
+const SSO_LABEL = { google: 'Google', x: 'X' } as const
+export type SsoProvider = keyof typeof SSO_LABEL
+
+/** eight complete, coordinated starting looks across skin tones and hair textures (every item is a free starter).
+ * No hats or shades: the creator has no way to take them off, and they'd hide the face you're making. */
 const PRESETS: Look[] = [
   { skin: 3, hair: 'afro', hairColor: 0, color: 0, items: { body: 'sig-hoodie', legs: 'jeans', feet: 'sneakers' } },
   { skin: 0, hair: 'bob', hairColor: 4, color: 6, items: { body: 'sig-hoodie', legs: 'plaid-skirt', feet: 'boots' } },
-  { skin: 5, hair: 'locs', hairColor: 0, color: 1, items: { body: 'sig-hoodie', legs: 'sweats', feet: 'runners', head: 'nyc-beanie' } },
+  { skin: 5, hair: 'locs', hairColor: 0, color: 1, items: { body: 'sig-hoodie', legs: 'sweats', feet: 'runners' } },
   { skin: 1, hair: 'ponytail', hairColor: 3, color: 4, items: { body: 'sig-hoodie', legs: 'jeans', feet: 'sneakers' } },
-  { skin: 6, hair: 'fade', hairColor: 0, color: 7, items: { body: 'sig-hoodie', legs: 'shorts', feet: 'runners', face: 'shades' } },
+  { skin: 6, hair: 'fade', hairColor: 0, color: 7, items: { body: 'sig-hoodie', legs: 'shorts', feet: 'runners' } },
   { skin: 2, hair: 'curly', hairColor: 1, color: 3, items: { body: 'sig-hoodie', legs: 'jeans', feet: 'boots' } },
   { skin: 7, hair: 'puffs', hairColor: 0, color: 2, items: { body: 'sig-hoodie', legs: 'plaid-skirt', feet: 'sneakers' } },
-  { skin: 4, hair: 'short', hairColor: 0, color: 12, items: { body: 'sig-hoodie', legs: 'sweats', feet: 'sneakers', head: 'nyc-cap' } },
+  { skin: 4, hair: 'short', hairColor: 0, color: 12, items: { body: 'sig-hoodie', legs: 'sweats', feet: 'sneakers' } },
 ]
 
 export interface CreatorOpts {
   /** online: check names as you type */
   checkName?: (name: string) => Promise<{ ok: boolean; reason: string | null }>
-  /** online: claim the profile on the server (with the birthday the server checks); resolves an error message or null */
-  claim?: (name: string, look: Look, team: string, birth: Birth) => Promise<string | null>
-  /** under 13: forget this visit (online, the guest account made for it is deleted) */
-  tooYoung?: () => void
+  /** online: claim the profile on the server (with the "13 or older + I agree" tick); resolves an error message or null */
+  claim?: (name: string, look: Look, team: string) => Promise<string | null>
   /** online: your member number, once the profile is claimed */
   memberNo?: () => number
   /** a name already on this account (saved on the waitlist and claimed from the launch email): the name screen opens with it */
   presetName?: string
+  /** online as a guest with no sign-in yet: which of Google / X are set up (the name screen offers them) */
+  sso?: () => Promise<SsoProvider[]>
+  /** already signed in with one (e.g. just back from Google): its name, said on the name screen */
+  signedInWith?: string
 }
 
 export function openCreator(done: () => void, opts: CreatorOpts = {}) {
   const openedAt = performance.now()
   track('creator_open')
-  let look: Look = structuredClone(PRESETS[Math.floor(Math.random() * PRESETS.length)])
-  let name = opts.presetName ?? ''
+  // back from signing in with Google / X: the look and name from before the trip
+  const draft = opts.claim ? takeDraft() : null
+  // Build My Own starts from a plain New Yorker (a random one read as "this is you" before you'd chosen anything)
+  let look: Look = draft ? draft.look : { skin: 2, hair: 'short', hairColor: 1, color: Math.floor(Math.random() * SIG_COLORS.length), nose: 1, items: { body: 'sig-hoodie', legs: 'jeans', feet: 'sneakers' } }
+  let name = draft?.name || opts.presetName || ''
   let nameErr = ''
-  // the birthday and "I agree" (kept if the name screen redraws, e.g. after a taken name)
-  let birth: Birth | null = null
-  // an under-13 birthday gets one "Is that your birthday?" per visit (a second one goes straight to the goodbye)
-  let birthdayChecked = false
+  // the "13 or older + I agree" tick (kept if the name screen redraws, e.g. after a taken name)
   let agreed = false
   let avail: { name: string; ok: boolean; reason: string | null } | null = null
-  let wheelA = 0
-  let wheelB = 0
-  do {
-    wheelA = Math.floor(Math.random() * ADJ.length)
-    wheelB = Math.floor(Math.random() * NOUN.length)
-  } while ((ADJ[wheelA] + NOUN[wheelB]).length > 14)
+  // which door you came through, and (after a photo) the reader's closest guesses
+  let door: 'photo' | 'surprise' | 'build' = 'build'
+  let near: Match['near'] | undefined
+  let dark = false
+  let cam: MediaStream | null = null
+  const stopCam = () => {
+    cam?.getTracks().forEach((t) => t.stop())
+    cam = null
+  }
+  /** a curated random New Yorker: a preset's outfit with fresh skin, hair, face and colours, never a clash */
+  const surprise = (): Look => {
+    const r = (n: number) => Math.floor(Math.random() * n)
+    const base = PRESETS[r(PRESETS.length)]
+    const beard = Math.random() < 0.22 ? 1 + r(4) : 0
+    return { ...structuredClone(base), skin: SKIN_ORDER[r(SKIN_ORDER.length)], hair: HAIR_STYLES[r(HAIR_STYLES.length)], hairColor: Math.random() < 0.85 ? r(6) : r(10), color: r(SIG_COLORS.length), shape: r(4), eyes: Math.random() < 0.6 ? r(2) : r(EYE_COLORS.length), brows: r(4), nose: r(3), beard, specs: Math.random() < 0.25 ? 1 + r(2) : 0, freckles: Math.random() < 0.15 ? 1 : 0, lashes: beard ? 0 : r(2) }
+  }
 
   const screen = el('div', 'creator')
   screen.innerHTML = `<div class="creator-bg"></div>
@@ -133,14 +175,30 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
     })
     ringName.textContent = SIG_COLORS[look.color ?? 5].name
   }
+  // a new look from a preset or the dice: the ring just moves its highlight (redrawing it would replay the pop-in)
+  const markRing = () => {
+    ring.querySelectorAll('.cr-dot').forEach((x, i) => x.classList.toggle('on', i === (look.color ?? 5)))
+    ringName.textContent = SIG_COLORS[look.color ?? 5].name
+  }
 
+  let at: Step | null = null
   const go = (s: Step) => {
+    stopCam()
     screen.classList.toggle('naming', s === 'name')
-    dots.innerHTML = STEPS.map((x) => `<i class="${x === s ? 'on' : STEPS.indexOf(x) < STEPS.indexOf(s) ? 'done' : ''}"></i>`).join('')
+    // nobody's been made yet on the first screens: a silhouette waits on the plinth
+    screen.classList.toggle('blank', s === 'start' || s === 'photo')
+    // the colour ring belongs to the look screen
+    if (s !== 'look') ring.innerHTML = ringName.textContent = ''
+    const dot = s === 'photo' ? 'start' : s
+    dots.innerHTML = STEPS.map((x) => `<i class="${x === dot ? 'on' : STEPS.indexOf(x) < STEPS.indexOf(dot) ? 'done' : ''}"></i>`).join('')
     right.innerHTML = ''
-    right.classList.remove('swap')
-    void right.offsetWidth
-    right.classList.add('swap')
+    // the slide-in is for moving between the two screens, not for redrawing the one you're on
+    if (s !== at) {
+      right.classList.remove('swap')
+      void right.offsetWidth
+      right.classList.add('swap')
+    }
+    at = s
     // content scrolls if needed; the action buttons always stay visible at the bottom
     const scroll = el('div', 'creator-scroll')
     right.append(scroll)
@@ -151,99 +209,166 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
       return bar
     }
 
-    if (s === 'look') {
-      put(el('h2', '', 'Who’s Walking into Manhattan?'), el('p', 'cr-sub', 'Start from a look, or make it yours. You can change all of this later from your player card.'))
-      const presets = el('div', 'cr-presets')
-      PRESETS.forEach((p) => {
-        const b = el('button', 'cr-preset', headPortrait(p, 'smile'))
-        b.setAttribute('aria-label', 'Use this look')
+    if (s === 'start') {
+      put(el('h2', '', 'Who’s Walking into Manhattan?'), el('p', 'cr-sub', 'Pick how to start. You can change everything after.'))
+      const doors = el('div', 'cr-doors')
+      const add = (id: typeof door, pic: string, title: string, sub: string, open: () => void) => {
+        const b = el('button', `cr-door ${id}`, `<span class="cr-door-pic">${pic}</span><b>${title}</b><small>${sub}</small>`)
         b.onclick = () => {
           sfx.pop()
-          track('look_preset', { once: true })
-          setLook(structuredClone(p), 'cheer')
-          go('look')
+          door = id
+          near = undefined
+          track('look_door', { detail: id })
+          open()
         }
-        presets.append(b)
+        doors.append(b)
+      }
+      add('photo', iconHtml('📸'), 'Use a Photo', 'A selfie becomes your New Yorker', () => go('photo'))
+      add('surprise', iconHtml('🎲'), 'Surprise Me', 'A random New Yorker, ready to go', () => {
+        setLook(surprise(), 'jump')
+        go('look')
       })
-      const dice = el('button', 'cr-preset dice', '🎲')
-      dice.title = 'Surprise me'
-      dice.setAttribute('aria-label', 'Surprise me: a random look')
-      dice.onclick = () => {
-        sfx.pop()
-        track('look_shuffle', { once: true })
-        // a curated reroll: a preset's outfit with fresh skin, hair and colours, never a clash
-        const base = PRESETS[Math.floor(Math.random() * PRESETS.length)]
-        setLook({ ...structuredClone(base), skin: SKIN_ORDER[Math.floor(Math.random() * SKIN_ORDER.length)], hair: HAIR_STYLES[Math.floor(Math.random() * HAIR_STYLES.length)], hairColor: Math.random() < 0.85 ? Math.floor(Math.random() * 6) : Math.floor(Math.random() * 10), color: Math.floor(Math.random() * SIG_COLORS.length) }, 'jump')
+      add('build', iconHtml('🎨'), 'Build My Own', 'Pick every detail yourself', () => go('look'))
+      put(doors)
+    }
+
+    if (s === 'photo') {
+      put(el('h2', '', 'Show Us a Face'), el('p', 'cr-sub', 'Take a photo or upload one. Yours, or a friend’s if you’re making theirs.'))
+      const frame = el('div', 'cr-cam', `<video playsinline muted></video><div class="cr-oval"></div><div class="cr-cam-idle">${iconHtml('📸')}</div><div class="cr-cam-busy"><span>Reading the photo…</span></div>`)
+      const video = frame.querySelector('video')!
+      const msg = el('div', 'cr-err')
+      const note = el('p', 'cr-private', `${iconHtml('🔒')} The photo stays on this computer. It is read here and thrown away, never uploaded.`)
+      const file = document.createElement('input')
+      file.type = 'file'
+      file.accept = 'image/*'
+      file.hidden = true
+      put(frame, msg, note, file)
+      // the reader is two small models: start fetching them the moment this screen opens
+      const reader = import('../avatar/match/measure')
+      void reader.then((m) => m.loadTools()).catch(() => {})
+      const back = el('button', 'btn ghost', '← Back')
+      const up = el('button', 'btn ghost', 'Upload a Photo')
+      const shoot = el('button', 'btn go', 'Use Camera')
+      let busy = false
+      const read = async (draw: (m: typeof import('../avatar/match/measure')) => HTMLCanvasElement) => {
+        if (busy) return
+        busy = true
+        msg.textContent = ''
+        frame.classList.add('busy')
+        let result: Awaited<ReturnType<typeof import('../avatar/match/measure').measure>> = 'load'
+        try {
+          const m = await reader
+          const canvas = draw(m)
+          result = await m.measure(canvas)
+          // done with the picture: let go of its pixels
+          canvas.width = canvas.height = 0
+        } catch {
+          /* 'load' */
+        }
+        busy = false
+        if (!frame.isConnected) return
+        frame.classList.remove('busy')
+        if (typeof result === 'string') {
+          track('look_photo', { detail: result })
+          sfx.squawk()
+          msg.textContent = PHOTO_PROBLEM[result]
+          return
+        }
+        const match = pickLook(result)
+        near = match.near
+        dark = match.dark
+        track('look_photo', { detail: 'ok' })
+        // a plain outfit under the new face (hats and shades would hide what the photo found)
+        setLook({ ...look, ...match.look, items: { body: 'sig-hoodie', legs: 'jeans', feet: 'sneakers' } }, 'cheer')
         go('look')
       }
-      presets.append(dice)
-      put(presets, lookEditor(() => look, (l) => {
-        // which row changed: skin, hair or hairColor
-        const what = l.skin !== look.skin ? 'skin' : l.hair !== look.hair ? 'hair' : 'hairColor'
-        track('look_tweak', { once: true, detail: what })
-        setLook(l)
-      }, { colour: false }))
+      shoot.onclick = async () => {
+        sfx.click()
+        if (cam) return void read((m) => m.toCanvas(video, video.videoWidth, video.videoHeight))
+        try {
+          cam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 720 } }, audio: false })
+          if (!frame.isConnected) return stopCam()
+          video.srcObject = cam
+          await video.play()
+          frame.classList.add('live')
+          shoot.textContent = 'Take Photo'
+        } catch {
+          stopCam()
+          msg.textContent = 'The camera isn’t available here. Upload a photo instead.'
+        }
+      }
+      up.onclick = () => {
+        sfx.click()
+        file.click()
+      }
+      file.onchange = async () => {
+        const f = file.files?.[0]
+        file.value = ''
+        if (!f) return
+        try {
+          const bmp = await createImageBitmap(f)
+          await read((m) => {
+            const c = m.toCanvas(bmp, bmp.width, bmp.height)
+            bmp.close()
+            return c
+          })
+        } catch {
+          msg.textContent = 'That file isn’t a picture we can open. Try a JPG or PNG.'
+        }
+      }
+      back.onclick = () => {
+        sfx.click()
+        go('start')
+      }
+      put(actions(back, up, shoot))
+    }
+
+    if (s === 'look') {
+      put(
+        el('h2', '', near ? 'Is This You?' : 'Make It Yours'),
+        el('p', 'cr-sub', near ? (dark ? 'The photo was a little dark, so check the skin tone first. Then fix anything else that’s off.' : 'Our best read of the photo. Cameras often miss skin tone, so check that first.') : 'Change anything you like. All of it can change later from your player card.'),
+      )
+      const editor = () =>
+        lookEditor(() => look, (l) => {
+          // which picker changed
+          const what = (Object.keys(l) as (keyof Look)[]).find((k) => k !== 'items' && l[k] !== look[k]) ?? 'look'
+          track('look_tweak', { once: true, detail: what })
+          setLook(l)
+        }, { colour: false, near })
+      let ed = editor()
+      put(ed)
       drawRing()
+      const back = el('button', 'btn ghost', '← Back')
+      back.onclick = () => {
+        sfx.click()
+        go('start')
+      }
       const nx = el('button', 'btn go', 'That’s Me →')
       nx.onclick = () => {
         sfx.pop()
         track('name_screen', { once: true })
         go('name')
       }
-      put(actions(nx))
+      if (door === 'surprise') {
+        // came in by the dice: roll again without going back
+        const again = el('button', 'btn ghost', `<span>${iconHtml('🎲')} Roll Again</span>`)
+        again.onclick = () => {
+          sfx.pop()
+          track('look_shuffle', { once: true })
+          setLook(surprise(), 'jump')
+          const next = editor()
+          ed.replaceWith(next)
+          ed = next
+          markRing()
+        }
+        put(actions(back, again, nx))
+      } else put(actions(back, nx))
     }
 
     if (s === 'name') {
-      put(el('h2', '', 'What Do New Yorkers Call You?'), el('p', 'cr-sub', 'Spin a name or type your own. It goes on your name tag.'))
-      // two-wheel NYC name picker: every combination is pre-approved and fits the 14-character limit
-      const wheels = el('div', 'cr-wheels')
-      const wheel = (list: string[], get: () => number, setIdx: (i: number) => void) => {
-        const w = el('div', 'cr-wheel', `<button class="up" aria-label="Previous">▲</button><b></b><button class="dn" aria-label="Next">▼</button>`)
-        const show = () => (w.querySelector('b')!.textContent = list[get()])
-        const step = (k: number) => {
-          sfx.tick()
-          // skip pairs that would run past the 14-character name limit
-          for (let n = 0; n < list.length; n++) {
-            setIdx((get() + k + list.length) % list.length)
-            if ((ADJ[wheelA] + NOUN[wheelB]).length <= 14) break
-          }
-          show()
-          w.classList.remove('spin')
-          void w.offsetWidth
-          w.classList.add('spin')
-          track('name_wheel', { once: true })
-          fromWheels()
-        }
-        w.querySelector<HTMLButtonElement>('.up')!.onclick = () => step(-1)
-        w.querySelector<HTMLButtonElement>('.dn')!.onclick = () => step(1)
-        w.onwheel = (e) => {
-          e.preventDefault()
-          step(e.deltaY > 0 ? 1 : -1)
-        }
-        show()
-        return { w, show }
-      }
-      const a = wheel(ADJ, () => wheelA, (i) => (wheelA = i))
-      const b = wheel(NOUN, () => wheelB, (i) => (wheelB = i))
-      const spin = el('button', 'cr-spin', '🎲')
-      spin.setAttribute('aria-label', 'Spin both')
-      spin.onclick = () => {
-        sfx.pop()
-        do {
-          wheelA = Math.floor(Math.random() * ADJ.length)
-          wheelB = Math.floor(Math.random() * NOUN.length)
-        } while ((ADJ[wheelA] + NOUN[wheelB]).length > 14)
-        a.show()
-        b.show()
-        wheels.classList.remove('spin')
-        void wheels.offsetWidth
-        wheels.classList.add('spin')
-        track('name_wheel', { once: true })
-        fromWheels()
-      }
-      wheels.append(a.w, b.w, spin)
-
-      const wrap = el('label', 'creator-name', '<span>Or type your own</span>')
+      put(el('h2', '', 'What Do New Yorkers Call You?'))
+      if (opts.signedInWith) put(el('div', 'cr-linked', `✓ Signed in with ${opts.signedInWith}. Your New Yorker is saved to it.`))
+      const wrap = el('label', 'creator-name', '<span>Your name</span>')
       const input = document.createElement('input')
       input.maxLength = 14
       input.placeholder = 'e.g. BagelKing'
@@ -273,11 +398,6 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
         status.className = 'cr-avail ' + (x.ok ? 'ok' : 'bad')
         status.textContent = x.ok ? `✓ ${x.name} is all yours` : `✗ ${x.reason ?? 'That name is taken.'}`
       }
-      const fromWheels = () => {
-        input.value = cleanName(ADJ[wheelA] + NOUN[wheelB])
-        err.textContent = ''
-        check()
-      }
       input.oninput = () => {
         const c = cleanName(input.value)
         if (c !== input.value) input.value = c
@@ -287,11 +407,40 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
       }
       const err = el('div', 'cr-err', nameErr)
       nameErr = ''
-      const consent = consentFields({ birth, agreed })
-      put(wheels, wrap, status, err, consent.box)
+      const consent = consentFields({ agreed })
+      put(wrap, status, err)
+      // or skip naming here and keep this New Yorker on a Google / X account (guests only; coming back lands here again)
+      if (opts.sso) {
+        const or = el('div', 'si-or cr-or', '<span>or sign in to keep your New Yorker on every device</span>')
+        const row = el('div', 'si-providers cr-sso')
+        or.hidden = row.hidden = true
+        put(or, row)
+        void opts.sso().then((ps) => {
+          if (!ps.length || !row.isConnected) return
+          for (const p of ps) {
+            const b = el('button', `si-btn ${p}`, `${p === 'google' ? GOOGLE_G : X_LOGO}<span>${SSO_LABEL[p]}</span>`)
+            b.setAttribute('aria-label', `Continue with ${SSO_LABEL[p]}`)
+            b.onclick = () => {
+              sfx.click()
+              track('name_sso', { detail: p })
+              b.classList.add('busy')
+              try {
+                sessionStorage.setItem(DRAFT, JSON.stringify({ look, name: cleanName(input.value), at: Date.now() } satisfies Draft))
+              } catch {
+                /* the look is lost on the way back; the sign-in still works */
+              }
+              // full-page redirect to the provider; the server links it to this guest and sends us back
+              location.href = `/api/auth/${p}`
+            }
+            row.append(b)
+          }
+          or.hidden = row.hidden = false
+        })
+      }
+      put(consent.box)
       if (name) input.value = name
-      else fromWheels()
       if (input.value) check()
+      setTimeout(() => input.focus({ preventScroll: true }), 60)
 
       const ok = (): boolean => {
         const v = cleanName(input.value)
@@ -304,23 +453,10 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
           return false
         }
         if (v.length < 2) return nope(input, 'Names need at least 2 characters.')
-        if (avail && avail.name === v && !avail.ok) return nope(input, avail.reason ?? 'That name is taken. Spin again or add a number.')
+        if (avail && avail.name === v && !avail.ok) return nope(input, avail.reason ?? 'That name is taken. Try another or add a number.')
         const missing = consent.problem()
         if (missing) return nope(missing.target, missing.msg)
-        birth = consent.birth()
         agreed = true
-        if (birth && !isOldEnough(birth)) {
-          const goodbye = () => {
-            opts.tooYoung?.()
-            tooYoungScreen()
-          }
-          if (birthdayChecked) goodbye()
-          else {
-            birthdayChecked = true
-            void confirmBirthday(birth).then((sure) => (sure ? goodbye() : consent.fixBirthday()))
-          }
-          return false
-        }
         name = v
         return true
       }
@@ -338,7 +474,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
         void (async () => {
           nx.disabled = true
           nx.textContent = 'Printing your MetroCard…'
-          const problem = await opts.claim!(name, look, '', birth!)
+          const problem = await opts.claim!(name, look, '')
           if (problem) {
             nameErr = problem
             avail = null
@@ -358,6 +494,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
   }
 
   const finish = () => {
+    stopCam()
     track('creator_done', { ms: performance.now() - openedAt })
     cancelAnimationFrame(raf)
     sfx.stamp()
@@ -372,7 +509,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
     setTimeout(() => screen.remove(), 600)
     done()
   }
-  go('look')
+  go(draft ? 'name' : 'start')
 }
 
 /**
@@ -383,13 +520,13 @@ export function flipMetroCard(memberNo = 0) {
   const t = save.team ? TEAMS[save.team as TeamId] : null
   const no = memberNo ? String(memberNo).padStart(4, '0') : 'OFFLINE'
   const since = new Date(save.memberSince || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-  const card = el('button', 'mc-corner', `<div class="metrocard-id"><div class="mc-strip"><span>CLUB NYC</span><span>MetroCard</span></div>
+  const card = el('button', 'mc-corner', `<div class="metrocard-id"><div class="mc-strip"><span>NYC</span><span>MetroCard</span></div>
     <div class="mc-body"><div class="mc-photo">${miniPortrait(save.look)}</div><div class="mc-info"><b>${save.name}</b><span>${t ? `<i style="background:${t.color}"></i>${t.emoji} ${t.name}` : '🗽 New Yorker'}</span><small>Member since ${since}</small><small>No. ${no}</small></div></div>
     <div class="mc-mag"></div></div><small class="mc-hint">📸 Click to save your card</small>`)
   card.setAttribute('aria-label', 'Your MetroCard: click to save it')
   card.onclick = () => {
     sfx.click()
-    downloadCard(save.look, save.name, t?.name ?? 'New Yorker', t?.color ?? '#3d72d9', since, no)
+    void downloadCard(save.look, save.name, t?.name ?? 'New Yorker', t?.color ?? '#3d72d9', since, no)
   }
   stage.root.append(card)
   sfx.stamp()
@@ -401,23 +538,78 @@ function miniPortrait(look: Look) {
   return `<svg viewBox="-52 -174 104 122">${avatarMarkup(look, { mood: 'grin' })}</svg>`
 }
 
-/** Shareable keepsake: your MetroCard as a PNG. */
-function downloadCard(look: Look, name: string, team: string, color: string, since: string, no: string) {
-  const join = `${location.host}/join/${name}`
+/** the game's own Burbank, inlined: an SVG drawn into a canvas can't load the page's web fonts */
+let fontCss: Promise<string> | null = null
+function burbankFaces(): Promise<string> {
+  const inline = (url: string) =>
+    fetch(url)
+      .then((r) => r.blob())
+      .then((b) => new Promise<string>((ok) => {
+        const fr = new FileReader()
+        fr.onload = () => ok(String(fr.result).replace(/^data:[^;]*;/, 'data:font/otf;'))
+        fr.readAsDataURL(b)
+      }))
+  fontCss ??= Promise.all([inline('/fonts/BurbankSmall-Bold.otf'), inline('/fonts/BurbankSmall-Medium.otf')])
+    .then(([bold, med]) => `@font-face{font-family:'CardBold';src:url(${bold}) format('opentype')}@font-face{font-family:'CardMed';src:url(${med}) format('opentype')}`)
+    .catch(() => '')
+  return fontCss
+}
+
+const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
+
+/**
+ * Shareable keepsake: your MetroCard as a PNG. The real card's face (the gold card, the gold seal in the corner, the
+ * big rising blue "MetroCard" with its pale reflection, the magnetic stripe) with your photo and name on it.
+ */
+export async function downloadCard(look: Look, name: string, team: string, color: string, since: string, no: string) {
+  const faces = await burbankFaces()
+  const BOLD = `font-family="CardBold, 'Arial Rounded MT Bold', Arial"`
+  const MED = `font-family="CardMed, Arial"`
+  // the word sits on a rising slant; its reflection is the same word, flipped and squashed, in pale cream
+  const WORD = `rotate(-6) skewX(-9)`
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
-    <rect x="8" y="8" width="624" height="384" rx="32" fill="#ffcf1f" stroke="#1d2140" stroke-width="10"/>
-    <rect x="8" y="8" width="624" height="70" rx="32" fill="#1f3c88"/><rect x="8" y="48" width="624" height="30" fill="#1f3c88"/>
-    <text x="40" y="58" font-family="Arial Black, Arial" font-weight="900" font-size="34" fill="#fff">CLUB NYC</text>
-    <text x="600" y="58" text-anchor="end" font-family="Arial Black, Arial" font-weight="900" font-size="28" fill="#ffcf1f">MetroCard</text>
-    <rect x="40" y="104" width="200" height="236" rx="20" fill="#cfe8ff" stroke="#1d2140" stroke-width="6"/>
-    <g transform="translate(140 352) scale(1.65)">${avatarMarkup(look, { mood: 'grin' })}</g>
-    <text x="270" y="160" font-family="Arial Black, Arial" font-weight="900" font-size="44" fill="#1d2140">${name}</text>
-    <circle cx="282" cy="196" r="11" fill="${color}" stroke="#1d2140" stroke-width="4"/>
-    <text x="302" y="206" font-family="Arial" font-weight="700" font-size="26" fill="#1d2140">${team}</text>
-    <text x="270" y="262" font-family="Arial" font-size="22" fill="#1d2140">Member since ${since}</text>
-    <text x="270" y="296" font-family="Arial" font-size="22" fill="#1d2140">No. ${no}</text>
-    <rect x="8" y="340" width="624" height="44" fill="#1d2140"/>
-    <text x="320" y="369" text-anchor="middle" font-family="Arial" font-weight="700" font-size="19" fill="#ffcf1f">Come hang out → ${join}</text>
+    <defs>
+      <style>${faces}</style>
+      <linearGradient id="mcg" x1="0" y1="0" x2="0.32" y2="1"><stop offset="0" stop-color="#fcf0d6"/><stop offset="0.3" stop-color="#f4d99f"/><stop offset="0.68" stop-color="#e9b552"/><stop offset="1" stop-color="#d99a2f"/></linearGradient>
+      <radialGradient id="mcglow" cx="0.3" cy="0.12" r="0.75"><stop offset="0" stop-color="#fffaf0" stop-opacity="0.75"/><stop offset="1" stop-color="#fffaf0" stop-opacity="0"/></radialGradient>
+      <linearGradient id="mcshine" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.36" stop-color="#fff" stop-opacity="0"/><stop offset="0.47" stop-color="#fff" stop-opacity="0.42"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.12"/><stop offset="0.56" stop-color="#fff" stop-opacity="0.3"/><stop offset="0.66" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <linearGradient id="mcecho" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0" stop-opacity="0.75"/><stop offset="1" stop-color="#fffaf0" stop-opacity="0.08"/></linearGradient>
+      <linearGradient id="mcseal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eab24a"/><stop offset="1" stop-color="#d4952a"/></linearGradient>
+      <linearGradient id="mcmag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2b30"/><stop offset="0.45" stop-color="#1b1b1f"/><stop offset="0.55" stop-color="#26262b"/><stop offset="1" stop-color="#141417"/></linearGradient>
+      <linearGradient id="mcsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e4f2ff"/><stop offset="1" stop-color="#b9dcf7"/></linearGradient>
+      <filter id="mcdrop" x="-10%" y="-10%" width="120%" height="130%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="mcsoft" x="-5%" y="-5%" width="110%" height="120%"><feGaussianBlur stdDeviation="1.2"/></filter>
+      <clipPath id="mcc"><rect x="18" y="12" width="604" height="362" rx="26"/></clipPath>
+      <clipPath id="mcp"><rect x="46" y="128" width="164" height="168" rx="16"/></clipPath>
+    </defs>
+    <rect x="30" y="34" width="588" height="352" rx="28" fill="#1d2140" opacity="0.35" filter="url(#mcdrop)"/>
+    <rect x="18" y="12" width="604" height="362" rx="26" fill="url(#mcg)"/>
+    <g clip-path="url(#mcc)">
+      <rect x="18" y="12" width="604" height="362" fill="url(#mcglow)"/>
+      <circle cx="44" cy="40" r="80" fill="url(#mcseal)"/>
+      <circle cx="44" cy="40" r="80" fill="none" stroke="#fff3d6" stroke-opacity="0.35" stroke-width="2"/>
+      <text x="62" y="80" text-anchor="middle" ${BOLD} font-style="italic" font-size="30" fill="#fbecc6" letter-spacing="-0.5">NYC</text>
+      <g transform="translate(150 116) ${WORD} scale(1 -0.42)" opacity="0.85"><text x="0" y="0" ${BOLD} font-size="74" letter-spacing="-2.5" fill="url(#mcecho)">MetroCard</text></g>
+      <g transform="translate(150 110) ${WORD}">
+        <text x="2.5" y="3" ${BOLD} font-size="74" letter-spacing="-2.5" fill="#173f80" opacity="0.55" filter="url(#mcsoft)">MetroCard</text>
+        <text x="0" y="0" ${BOLD} font-size="74" letter-spacing="-2.5" fill="#2459a8">MetroCard</text>
+        <text x="0" y="0" ${BOLD} font-size="74" letter-spacing="-2.5" fill="none" stroke="#5f8fd6" stroke-width="0.8" stroke-opacity="0.6">MetroCard</text>
+      </g>
+      <rect x="18" y="12" width="604" height="362" fill="url(#mcshine)"/>
+      <rect x="18" y="314" width="604" height="40" fill="url(#mcmag)"/>
+      <rect x="18" y="314" width="604" height="1.5" fill="#fff" opacity="0.18"/>
+    </g>
+    <rect x="18" y="12" width="604" height="362" rx="26" fill="none" stroke="#1d2140" stroke-width="7"/>
+    <rect x="23" y="17" width="594" height="352" rx="22" fill="none" stroke="#fffaf0" stroke-opacity="0.5" stroke-width="1.5"/>
+    <rect x="46" y="128" width="164" height="168" rx="16" fill="url(#mcsky)"/>
+    <g clip-path="url(#mcp)"><g transform="translate(128 330) scale(1.38)">${avatarMarkup(look, { mood: 'grin' })}</g>
+      <rect x="46" y="128" width="164" height="168" fill="none" stroke="#1d2140" stroke-opacity="0.18" stroke-width="10"/></g>
+    <rect x="46" y="128" width="164" height="168" rx="16" fill="none" stroke="#1d2140" stroke-width="5"/>
+    <text x="236" y="178" ${BOLD} font-size="40" fill="#1d2140">${esc(name)}</text>
+    <circle cx="247" cy="208" r="9" fill="${color}" stroke="#1d2140" stroke-width="3.5"/>
+    <text x="264" y="216" ${BOLD} font-size="23" fill="#1d2140">${esc(team)}</text>
+    <text x="236" y="254" ${MED} font-size="20" fill="#1d2140" opacity="0.85">Member since ${esc(since)}</text>
+    <text x="236" y="282" ${MED} font-size="20" fill="#1d2140" opacity="0.85">No. ${esc(no)}</text>
   </svg>`
   const img = new Image()
   img.onload = () => {

@@ -17,7 +17,7 @@ The [jobs](jobs/README.md) are solo. These three games are for playing **with ea
 | --- | :---: | --- | --- | --- |
 | High Line Citi Bike Dash | 2 to 4 | 45 to 60 seconds | A signpost on [The High Line](places/high-line-and-chelsea-market.md) | Fastest time |
 | Rush Hour Run | 2 to 9 | Until the last runner is out | A chalkboard in the [Times Sq–42 St Station](places/subway-station.md) | Farthest run |
-| Carb-Jitsu | 1 on 1, up to 6 at a table | 1 to 2 minutes | A chalkboard by the window table at [Joe's Pizza](places/chinatown-and-little-italy.md#joes-pizza) | Longest win streak |
+| Carb-Jitsu | 1 on 1, up to 6 at a table | 1 to 2 minutes | A chalkboard by the window table at [99¢ Slice](places/chinatown-and-little-italy.md#joes-pizza) | Longest win streak |
 
 ## Finding a Game {#finding-a-game}
 

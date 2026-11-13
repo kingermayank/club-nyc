@@ -60,7 +60,7 @@ export function openGallery(g: Game) {
   render()
   const card = picCard({
     title: 'Skyline Painter',
-    kicker: 'Brooklyn Bridge · Street Artist',
+    kicker: 'Street Artist',
     text: 'Painters have set their easels up on the bridge promenade for generations. Pick a painting: it’s delivered to your apartment, ready to hang when you decorate.',
     joke: PAINTER_LINE,
     extra: grid,
@@ -103,12 +103,13 @@ export function openMagnetStand(g: Game) {
   render()
   const card = picCard({
     title: 'Fridge Magnets',
-    kicker: 'Brooklyn Bridge · Souvenir Stand',
+    kicker: 'Souvenir Stand',
     text: 'The souvenir that survives any suitcase. Every magnet you buy goes straight onto your apartment fridge.',
     joke: MAGNET_LINE,
     extra: grid,
     cls: 'gallery',
     actions: [
+      { label: 'Love Locks', note: 'a lock and its key', primary: true, act: () => void import('./moments/lovelocks').then((m) => m.loveLocks(g, 'stand')) },
       { label: 'See My Fridge', act: () => openFridge(g) },
       { label: 'Shirts & Hats', note: 'souvenir catalog', act: () => g.catalog('iloveny') },
     ],

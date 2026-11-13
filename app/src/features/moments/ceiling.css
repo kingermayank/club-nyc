@@ -1,0 +1,46 @@
+/* ---------- The Ceiling, Grand Central: look up, join the stars (its own stage: the painted vault) ---------- */
+.mo-ceiling { overflow: hidden; background: #0f5560; touch-action: none; }
+.ce-sky { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 38%, #2a9a94, #17777a 45%, #0c4b58 100%); animation: ce-tilt 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+@keyframes ce-tilt { from { transform: translateY(120px) scale(1.15); opacity: 0; } to { transform: none; opacity: 1; } }
+.ce-dust { position: absolute; width: var(--s); height: var(--s); background: #ffe08a; border-radius: 50%; opacity: 0.55; animation: ce-twinkle 3.2s ease-in-out infinite alternate; }
+@keyframes ce-twinkle { from { opacity: 0.2; } to { opacity: 0.7; } }
+/* the stone the vault springs from: a gilded cornice and the tops of the three great windows */
+.ce-arch { position: absolute; left: -20px; right: -20px; bottom: -6px; height: 96px; background:
+    radial-gradient(90px 80px at 26% 100%, #bfe3ff 0 62px, var(--ink) 63px 67px, transparent 68px),
+    radial-gradient(110px 96px at 50% 100%, #bfe3ff 0 76px, var(--ink) 77px 81px, transparent 82px),
+    radial-gradient(90px 80px at 74% 100%, #bfe3ff 0 62px, var(--ink) 63px 67px, transparent 68px),
+    linear-gradient(#f0d9a8, #cfae72); border-top: 4px solid var(--ink); box-shadow: 0 -10px 0 #e0a52c, 0 -14px 0 var(--ink); border-radius: 50% 50% 0 0 / 34px 34px 0 0; }
+
+.ce-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.ce-lines path, .ce-lines line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.ce-ghost { stroke: rgba(255, 224, 138, 0.3); stroke-width: 3; stroke-dasharray: 2 11; }
+.ce-gold { stroke: #ffd166; stroke-width: 6; filter: drop-shadow(0 0 5px rgba(255, 224, 138, 0.9)); }
+.ce-gold.lit { stroke: #fff2a8; stroke-width: 8; animation: ce-lit 0.5s ease-in-out 3 alternate; }
+@keyframes ce-lit { to { filter: drop-shadow(0 0 16px #fff2a8); } }
+.ce-live { stroke: #fff; stroke-width: 4; stroke-dasharray: 8 8; opacity: 0.9; }
+
+.ce-star { position: absolute; z-index: 5; width: 18px; height: 18px; margin: -9px; box-sizing: border-box; background: #ffe08a; border: 3px solid var(--ink); border-radius: 50%; pointer-events: none; animation: ce-pop 0.35s cubic-bezier(0.2, 1.8, 0.4, 1) both; }
+@keyframes ce-pop { from { transform: scale(0); } to { transform: scale(1); } }
+.ce-star.done { background: #fff2a8; box-shadow: 0 0 12px #ffe08a; }
+.ce-star.now { width: 26px; height: 26px; margin: -13px; background: #fff; box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.35), 0 0 18px #fff; }
+.ce-star.next::after { content: ''; position: absolute; inset: -12px; border: 3px dashed #fff; border-radius: 50%; animation: ce-ring 1.4s linear infinite; }
+@keyframes ce-ring { to { transform: rotate(360deg); } }
+.ce-star.lit { background: #fff; box-shadow: 0 0 18px #fff2a8; }
+
+/* the comet that times you */
+.ce-comet { position: absolute; left: 0; top: 0; z-index: 6; width: 0; height: 0; pointer-events: none; transition: opacity 0.4s; }
+.ce-comet i { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; box-sizing: border-box; background: #fff; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 0 14px #fff; }
+.ce-comet::before { content: ''; position: absolute; right: 6px; top: -7px; width: 74px; height: 14px; background: linear-gradient(90deg, transparent, #ffe08a); border-radius: 7px; }
+.ce-comet.fizz { opacity: 0.25; filter: grayscale(1); }
+.ce-comet.caught i { background: var(--sun); animation: ce-caught 0.5s ease-in-out infinite alternate; }
+@keyframes ce-caught { to { transform: scale(1.5); } }
+
+/* the collection: seven small stars along the cornice */
+.ce-pips { position: absolute; left: 50%; bottom: 100px; z-index: 6; transform: translateX(-50%); display: flex; gap: 10px; pointer-events: none; }
+.ce-pips i { width: 16px; height: 16px; box-sizing: border-box; background: #0c4b58; border: 3px solid var(--ink); transform: rotate(45deg); border-radius: 3px; }
+.ce-pips i.on { background: var(--sun); box-shadow: 0 0 8px var(--sun); }
+.ce-x { position: absolute; top: 14px; right: 14px; z-index: 30; width: 38px; height: 38px; padding: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-sky, .ce-dust, .ce-star, .ce-star.next::after, .ce-gold.lit, .ce-comet.caught i { animation: none; }
+}

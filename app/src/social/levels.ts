@@ -7,9 +7,9 @@
  */
 import { save, persist } from '../state'
 import { sfx } from '../audio'
-import { el } from '../engine/stage'
-import { showToast, confetti } from '../engine/ui'
-import { levelOf, XP_RULES, XP_DAILY_CAP, type LevelInfo, type XpReason } from '../data/levels'
+import { el, toStage, W } from '../engine/stage'
+import { showToast, confetti, openOverlay } from '../engine/ui'
+import { levelOf, levelReward, LEVELS, XP_RULES, XP_DAILY_CAP, type LevelInfo, type XpReason } from '../data/levels'
 import { nycDay } from '../data/economy'
 import { link } from '../net/link'
 import './levels.css'
@@ -41,7 +41,7 @@ function celebrate(l: LevelInfo, bonus = 0) {
   const node = el(
     'div',
     'toast level-up',
-    `<span class="lu-badge"><b>${l.level}</b></span><span><b>Level ${l.level}!${bonus ? ` <i class="lu-coins">+${bonus} coins</i>` : ''}</b><small>You’re now a <em>${l.title}</em>. Next up: ${l.nextTitle}.</small></span>`,
+    `<span class="lu-badge"><b>${l.level}</b></span><span><b>Level ${l.level}!${bonus ? ` <i class="lu-coins">+${bonus} coins</i>` : ''}</b><small>You’re now a <em>${l.title}</em>.</small></span>`,
   )
   showToast(node, 5200)
 }
@@ -75,14 +75,14 @@ export function xpEvent(reason: XpReason, ref?: string | number, amount?: number
 
 // ---------- the HUD chip: your level in a ring that fills with XP (top right, next to your coins) ----------
 const RING = 2 * Math.PI * 17
-export function levelPlate(open: () => void): HTMLElement {
+export function levelPlate(): HTMLElement {
   const b = el('button', 'level-plate') as HTMLButtonElement
   b.innerHTML = `<svg viewBox="0 0 44 44" aria-hidden="true"><circle class="lp-bg" cx="22" cy="22" r="17"/><circle class="lp-fg" cx="22" cy="22" r="17" stroke-dasharray="${RING}" stroke-dashoffset="${RING}"/></svg><b></b><span class="lp-tip"></span>`
   const draw = (l: LevelInfo) => {
     b.querySelector('b')!.textContent = String(l.level)
     ;(b.querySelector('.lp-fg') as SVGCircleElement).style.strokeDashoffset = String(RING * (1 - l.progress))
-    b.querySelector('.lp-tip')!.innerHTML = `Level ${l.level} · ${l.title}<small>${l.xp.toLocaleString('en-US')} / ${l.next.toLocaleString('en-US')} XP</small>`
-    b.setAttribute('aria-label', `Level ${l.level}, ${l.title}: ${l.xp} of ${l.next} XP. Open your player card`)
+    b.querySelector('.lp-tip')!.textContent = l.title
+    b.setAttribute('aria-label', `Level ${l.level}, ${l.title}: ${l.xp} of ${l.next} XP. Show your level`)
   }
   draw(myLevel())
   onXp((l, gained) => {
@@ -99,7 +99,35 @@ export function levelPlate(open: () => void): HTMLElement {
   b.onclick = (e) => {
     e.stopPropagation()
     sfx.click()
-    open()
+    openLevelView(b)
   }
   return b
+}
+
+// ---------- the level view: opens under the chip. A big ring, your title, and the next rungs of the ladder ----------
+const BIG = 2 * Math.PI * 34
+const COIN = '<img src="/art/icons/coin.png" alt="" draggable="false">'
+function openLevelView(from: HTMLElement) {
+  const l = myLevel()
+  // the next three levels, each with the coins it pays (past the top of the ladder the title stays the same)
+  const rungs = [1, 2, 3].map((n) => ({ level: l.level + n, title: LEVELS[Math.min(l.level + n, LEVELS.length) - 1].title }))
+  const card = el('div', 'level-card')
+  card.setAttribute('role', 'dialog')
+  card.setAttribute('aria-label', `Level ${l.level}, ${l.title}`)
+  card.innerHTML = `<div class="lc-ring"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="lp-bg" cx="40" cy="40" r="34"/><circle class="lp-fg" cx="40" cy="40" r="34" stroke-dasharray="${BIG}" stroke-dashoffset="${BIG}"/></svg><b>${l.level}</b></div>
+    <b class="lc-title">${l.title}</b>
+    <span class="lc-xp"><b>${l.xp.toLocaleString('en-US')}</b> / ${l.next.toLocaleString('en-US')} XP</span>
+    <ol class="lc-ladder">${rungs.map((r, i) => `<li${i ? '' : ' class="next"'}><i>${r.level}</i><span>${r.title}</span><em>${COIN}${levelReward(r.level)}</em></li>`).join('')}</ol>`
+  openOverlay(card, { cls: 'clear' })
+  // hangs right under the chip, kept on the stage
+  const EDGE = 10
+  const r = from.getBoundingClientRect()
+  const [x, y] = toStage({ clientX: r.left + r.width / 2, clientY: r.bottom })
+  const left = Math.round(Math.min(Math.max(x - card.offsetWidth / 2, EDGE), W - EDGE - card.offsetWidth))
+  card.style.left = `${left}px`
+  card.style.top = `${Math.round(y + 12)}px`
+  card.style.transformOrigin = `${Math.round(x - left)}px 0`
+  card.style.setProperty('--tail', `${Math.round(x - left)}px`)
+  // the ring fills up from empty as the card opens
+  requestAnimationFrame(() => ((card.querySelector('.lp-fg') as SVGCircleElement).style.strokeDashoffset = String(BIG * (1 - l.progress))))
 }

@@ -1,0 +1,48 @@
+/* The Empire State elevator ride (features/elevator.ts). Everything is in stage units over the 1000 x 565 stage. */
+.elv { position: absolute; inset: 0; z-index: 9800; overflow: hidden; cursor: pointer; transform-origin: 50% 56.2%; animation: elv-in 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+/* stepping in: the cab comes up around you */
+@keyframes elv-in { from { opacity: 0; transform: scale(1.16); } }
+.elv-cab, .elv-door { background: url(/art/rooms/empire-elevator.jpg) 0 0 / 1000px 565px no-repeat; }
+/* the cab, with the doorway cut out of it */
+.elv-cab { position: absolute; inset: 0; clip-path: polygon(evenodd, 0 0, 1000px 0, 1000px 565px, 0 565px, 0 0, var(--dx) var(--dy), var(--dx) calc(var(--dy) + var(--dh)), calc(var(--dx) + var(--dw)) calc(var(--dy) + var(--dh)), calc(var(--dx) + var(--dw)) var(--dy), var(--dx) var(--dy)); }
+.elv-way { position: absolute; left: var(--dx); top: var(--dy); width: var(--dw); height: var(--dh); overflow: hidden; }
+.elv-door { position: absolute; top: 0; width: 50%; height: 100%; transition: transform 0.95s cubic-bezier(0.55, 0, 0.25, 1); }
+/* each leaf carries a shadow on its leading edge, so the gap reads as depth */
+.elv-door::after { content: ""; position: absolute; top: 0; width: 26px; height: 100%; opacity: 0; transition: opacity 0.4s; }
+.elv-door.l::after { right: 0; background: linear-gradient(90deg, transparent, rgba(29, 20, 6, 0.42)); }
+.elv-door.r::after { left: 0; background: linear-gradient(270deg, transparent, rgba(29, 20, 6, 0.42)); }
+.elv:not(.shut) .elv-door::after { opacity: 1; }
+/* the thickness of the door frame, over whatever is outside */
+.elv-depth { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 3px #1d2140, inset 0 14px 22px -8px rgba(12, 8, 2, 0.6), inset 16px 0 22px -10px rgba(12, 8, 2, 0.5), inset -16px 0 22px -10px rgba(12, 8, 2, 0.5); }
+/* arriving: the doors take their time, the left leaf a breath ahead of the right */
+.elv.arrived .elv-door { transition: transform 1.25s cubic-bezier(0.3, 0, 0.15, 1); }
+.elv.arrived .elv-door.r { transition-delay: 0.07s; }
+/* the cab settling on its floor */
+.elv.landed .elv-cab, .elv.landed .elv-way { animation: elv-land 0.5s cubic-bezier(0.3, 1.6, 0.5, 1); }
+@keyframes elv-land { 0% { translate: 0 -5px; } 55% { translate: 0 1.5px; } 100% { translate: 0 0; } }
+.elv-door.l { left: 0; background-position: calc(-1 * var(--dx)) calc(-1 * var(--dy)); }
+.elv-door.r { left: 50%; background-position: calc(-1 * var(--dx) - var(--dw) / 2) calc(-1 * var(--dy)); }
+.elv.open .elv-door.l { transform: translateX(-101%); }
+.elv.open .elv-door.r { transform: translateX(101%); }
+/* light from the shaft slipping past the gap between the doors: the feeling of floors going by */
+.elv-seam { position: absolute; left: calc(50% - 2px); top: 0; width: 4px; height: 100%; overflow: hidden; opacity: 0; transition: opacity 0.3s; }
+.elv-seam::before { content: ""; position: absolute; left: 0; width: 100%; height: 200%; top: -100%; background: repeating-linear-gradient(transparent 0 46px, #fff6c9 46px 64px, transparent 64px 110px); }
+.elv.moving .elv-seam { opacity: 0.85; }
+.elv.moving.up .elv-seam::before { animation: elv-pass 0.28s linear infinite; }
+.elv.moving.down .elv-seam::before { animation: elv-pass 0.28s linear infinite reverse; }
+@keyframes elv-pass { to { transform: translateY(110px); } }
+.elv.moving .elv-cab, .elv.moving .elv-way { animation: elv-shake 0.16s linear infinite; }
+@keyframes elv-shake { 0%, 100% { translate: 0 0; } 50% { translate: 0 0.8px; } }
+/* stepping out: you walk at the doorway until it is the whole view */
+.elv.leaving { animation: elv-out 0.9s cubic-bezier(0.55, 0, 0.75, 0.4) forwards; pointer-events: none; }
+@keyframes elv-out { 0% { transform: none; opacity: 1; } 70% { opacity: 1; } 100% { transform: scale(3.5); opacity: 0; } }
+/* the dial over the doors */
+.elv-dial { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; pointer-events: none; }
+.elv-dial text { fill: #5a3a12; font: 400 13px var(--display); text-anchor: middle; dominant-baseline: central; }
+.elv-track { fill: none; stroke: #8a6420; stroke-width: 1.6; stroke-linecap: round; }
+.elv-dial circle { fill: #b8862b; stroke: #1d2140; stroke-width: 2.5; }
+.elv-needle { transform-origin: 500px 95px; }
+.elv-needle path { fill: #c8372d; stroke: #1d2140; stroke-width: 2; stroke-linejoin: round; }
+/* the floor, on the button panel */
+.elv-floor { position: absolute; left: 767px; top: 124px; width: 62px; height: 34px; display: grid; place-items: center; border: 2.5px solid #1d2140; border-radius: 8px; background: #20140c; color: #ffd166; font: 400 22px/1 var(--display); letter-spacing: 0.04em; }
+@media (prefers-reduced-motion: reduce) { .elv.moving .elv-cab, .elv.moving .elv-way, .elv, .elv.moving .elv-seam::before, .elv.landed .elv-cab, .elv.landed .elv-way, .elv.leaving { animation: none; } }

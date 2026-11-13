@@ -73,7 +73,7 @@ export function openMail(start = 0) {
       p.read = true
       // the flip plays when the inbox opens; paging just swaps the card (a flip every page made the frame bounce)
       const card = el('div', 'postcard-mail' + (paged ? ' paged' : ''), `<div class="pm-front"><div class="pm-art">${p.art}</div><div class="pm-stamp">NYC</div></div>
-        <div class="pm-back"><small>From ${p.from} · ${new Date(p.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</small><b>${p.title}</b><p>${p.text}</p></div>`)
+        <div class="pm-back"><small>From ${p.from}</small><b>${p.title}</b><p>${p.text}</p></div>`)
       if (p.go) {
         const go = el('button', 'btn go pm-go', `${p.go.label} →`)
         go.onclick = () => {

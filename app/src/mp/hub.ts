@@ -4,14 +4,16 @@
  * to play, a little true story about the place, and the same buttons).
  */
 import { el } from '../engine/stage'
-import { openOverlay, closeOverlay, closeButton, toast } from '../engine/ui'
+import { openOverlay, closeOverlay, toast } from '../engine/ui'
 import { sfx } from '../audio'
 import { link } from '../net/link'
 import { rest } from '../net/server'
-import { MP_GAMES, MP_GAME_IDS, fmtBest, validCode, CODE_LEN, type MpGameId } from './shared/games'
+import { MP_GAMES, MP_GAME_IDS, validCode, CODE_LEN, type MpGameId } from './shared/games'
 import { esc, connected } from './store'
 import { quickMatch, createLobby, joinCode } from './controller'
 import { openBoard } from './board'
+import { gameCard, icon } from '../features/gamecard'
+import { HOW } from './howto'
 
 export interface Hub {
   games: Record<MpGameId, { waiting: number; playing: number; open: number; friends: { name: string; code: string; st: string }[] }>
@@ -30,16 +32,6 @@ export async function fetchHub(maxAge = 4000): Promise<Hub | null> {
   }
 }
 
-const liveLine = (h: Hub['games'][MpGameId] | undefined) => {
-  if (!h) return ''
-  const bits: string[] = []
-  if (h.waiting) bits.push(`<span class="on">● ${h.waiting} waiting</span>`)
-  if (h.playing) bits.push(`<span>${h.playing} playing now</span>`)
-  return bits.length ? bits.join('') : '<span>Nobody’s playing right now. Start one and invite friends.</span>'
-}
-const recordLine = (g: MpGameId, s: Hub['stats'][MpGameId] | undefined) =>
-  s && s.played ? `<span>You: ${s.wins} ${s.wins === 1 ? 'win' : 'wins'} · best ${s.best ? fmtBest(g, s.best) : '–'}${s.weekRank ? ` · #${s.weekRank} this week` : ''}</span>` : ''
-
 /** can we play online right now? (say why not instead of failing quietly) */
 function canPlay(): boolean {
   if (!link.account) {
@@ -53,47 +45,29 @@ function canPlay(): boolean {
   return true
 }
 
-function actions(g: MpGameId, after?: () => void): HTMLElement {
-  const acts = el('div', 'acts')
-  const quick = el('button', 'btn small go', 'Quick Match')
-  quick.onclick = () => {
-    if (!canPlay()) return
-    sfx.pop()
-    after?.()
-    quickMatch(g)
-  }
-  const create = el('button', 'btn small', 'Create Lobby')
-  create.onclick = () => {
-    if (!canPlay()) return
-    sfx.click()
-    after?.()
-    createLobby(g)
-  }
-  const board = el('button', 'btn small ghost', 'Leaderboard')
-  board.onclick = () => {
-    sfx.click()
-    openBoard(g)
-  }
-  acts.append(quick, create, board)
-  return acts
-}
 
 /** the Community panel's Games tab */
 export async function renderGamesTab(body: HTMLElement, live: () => boolean) {
   const box = el('div', 'mp-hub')
-  const top = el('div', 'mp-hub-top')
-  top.append(el('p', 'mp-hub-intro', 'Play with friends, with whoever’s around, or with the city locals. Every win is saved on the game’s leaderboard.'))
-  box.append(top)
+  // the games as big picture tiles: pick one and its card shows how to play and the ways in
+  const grid = el('div', 'mp-tiles')
   const cards = new Map<MpGameId, HTMLElement>()
   for (const g of MP_GAME_IDS) {
     const def = MP_GAMES[g]
-    const c = el('div', 'mp-gcard')
-    c.innerHTML = `<span class="thumb" style="background-image:url(${def.art})"></span><div><h3>${def.icon} ${esc(def.title)}</h3><p>${esc(def.blurb)}</p><div class="live">Checking who’s playing…</div></div>`
-    c.append(actions(g, () => closeOverlay()))
+    const c = el('button', 'mp-tile') as HTMLButtonElement
+    c.style.backgroundImage = `url(${def.art})`
+    c.innerHTML = `<span class="mp-tile-chips"><span class="gc-chip">${icon('friends')}${players(def.players)}</span><span class="gc-chip gc-live live" hidden></span></span>
+      <span class="mp-tile-name"><b>${esc(def.short)}</b><small>${HOW[g].tagline}</small></span><span class="mp-tile-go">Play</span>`
+    c.onclick = () => {
+      sfx.click()
+      void openGameCard(g)
+    }
     cards.set(g, c)
-    box.append(c)
+    grid.append(c)
   }
-  // join a friend's game by its code (they read it out on voice chat), up top next to the intro
+  const top = el('div', 'mp-hub-top')
+  box.append(grid, top)
+  // join a friend's game by its code (they read it out on voice chat), under the tiles at the bottom right
   const join = el('div', 'mp-join-code', '<span>Got a code?</span>')
   const input = document.createElement('input')
   input.maxLength = CODE_LEN
@@ -121,14 +95,16 @@ export async function renderGamesTab(body: HTMLElement, live: () => boolean) {
   const hub = await fetchHub(0)
   if (!live()) return
   for (const g of MP_GAME_IDS) {
-    const lv = cards.get(g)!.querySelector('.live')!
-    lv.innerHTML = hub ? liveLine(hub.games[g]) + recordLine(g, hub.stats[g]) : '<span>Can’t see who’s playing right now.</span>'
+    const lv = cards.get(g)!.querySelector<HTMLElement>('.live')!
+    const h = hub?.games[g]
+    lv.innerHTML = liveChip(h)
+    lv.hidden = !lv.innerHTML
   }
   const fl = hub ? MP_GAME_IDS.flatMap((g) => hub.games[g].friends.map((f) => ({ ...f, g }))) : []
   if (fl.length) {
     friendsBox.append(el('h4', 'cm-sub', 'Your Friends Are Playing'))
     for (const f of fl) {
-      const row = el('div', 'mp-friend-lobby', `<span><b>${esc(f.name)}</b> · ${esc(MP_GAMES[f.g].short)}${f.st === 'playing' ? ' (a round is on)' : ''}</span>`)
+      const row = el('div', 'mp-friend-lobby', `<span><b>${esc(f.name)}</b> ${f.st === 'playing' ? 'is playing' : 'is at'} ${esc(MP_GAMES[f.g].short)}</span>`)
       const b = el('button', 'btn tiny go', 'Join')
       b.onclick = () => {
         if (!canPlay()) return
@@ -141,22 +117,48 @@ export async function renderGamesTab(body: HTMLElement, live: () => boolean) {
   }
 }
 
-/** a game's card (the signs in the city open this) */
+/** "2 to 9 players" as a chip reads it: 2–9 */
+const players = (p: string) => p.replace(/(\d+) to (\d+) players/, '$1–$2').replace(', up to 6 at a table', '')
+/** who's in a game right now, as a chip (nothing when it's quiet) */
+const liveChip = (h: Hub['games'][MpGameId] | undefined) => (h?.waiting ? `<i></i>${h.waiting} waiting` : h?.playing ? `<i></i>${h.playing} playing` : '')
+
+/** a game's card (the signs in the city, and the Pizza Rat, open this) */
 export async function openGameCard(g: MpGameId) {
   const def = MP_GAMES[g]
-  const p = el('div', 'panel mp-gamecard')
-  p.innerHTML = `<div class="hero" style="background-image:url(${def.art})"><span class="place">📍 ${esc(def.place)}</span></div>
-    <div class="in"><h2>${esc(def.title)}</h2><p class="blurb">${esc(def.blurb)}</p>
-    <ul class="how">${def.how.map((h) => `<li>${h}</li>`).join('')}<li>${def.players} · city locals fill in</li></ul>
-    <p class="story"><b>${esc(def.story.title)}.</b> ${esc(def.story.text)}</p>
-    <div class="live">Checking who’s playing…</div></div>`
-  const btns = el('div', 'btns')
-  const a = actions(g, () => closeOverlay())
-  btns.append(...a.childNodes)
-  p.querySelector('.in')!.append(btns)
-  p.append(closeButton())
-  openOverlay(p)
+  const card = gameCard({
+    art: def.art,
+    place: esc(def.place),
+    title: esc(def.title),
+    tagline: HOW[g].tagline,
+    players: players(def.players),
+    tiles: HOW[g].tiles(),
+    primary: {
+      label: 'Quick Match',
+      sub: 'Play now with whoever’s around',
+      icon: 'joystick',
+      act: () => {
+        if (!canPlay()) return
+        sfx.pop()
+        closeOverlay()
+        quickMatch(g)
+      },
+    },
+    secondary: {
+      label: 'Create Lobby',
+      sub: 'Get a code for your friends',
+      icon: 'friends',
+      act: () => {
+        if (!canPlay()) return
+        sfx.click()
+        closeOverlay()
+        createLobby(g)
+      },
+    },
+    board: () => openBoard(g),
+  })
+  openOverlay(card.el)
   const hub = await fetchHub()
-  const lv = p.querySelector('.live')
-  if (lv && p.isConnected) lv.innerHTML = hub ? liveLine(hub.games[g]) + ' ' + recordLine(g, hub.stats[g]) : ''
+  const h = hub?.games[g]
+  if (!card.el.isConnected || !h) return
+  card.live(liveChip(h))
 }

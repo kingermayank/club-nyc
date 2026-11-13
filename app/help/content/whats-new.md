@@ -2,10 +2,27 @@
 title: What's New
 description: The latest changes to Club NYC, newest first, and what's coming next.
 icon: sparkles
-updated: 2026-10-24
+updated: 2026-11-12
 ---
 
 Club NYC is in early access, so the city changes often. Here's what's new, newest first. For first looks at what's coming, join the [Discord](/discord).
+
+## November 12, 2026 {#2026-11-12}
+
+- **The city in a frame.** The game now sits on a page with Home, Help, What's New and Rules along the top. **Full Screen** fills your screen; Esc, or the small button in the corner, brings the page back.
+- **Pick your language.** English, Español, Français, हिन्दी or 中文, from the top of the page. The city, the newspaper, the stamps and the jobs all switch with it. Chat stays in whatever people type, and this Help Center is in English for now.
+- **The Empire State Building, from the ground up.** It now starts on 34th Street, under the stone eagles. Walk in, cross the lobby and ride the elevator to the 86th floor. Up top, the view is through the deck's binoculars.
+- **Tickets for the observatories.** The Empire State Building and One World Trade now charge at the elevator, like the real ones: 6 coins for the deck, or 8 with the viewers. A ticket lasts all day. Without the viewers, a look costs 1 coin.
+
+## November 11, 2026 {#2026-11-11}
+
+- **Swipe in, for real.** The subway turnstile is now first person: your MetroCard in your hand, the station's name and lines over your head, the bar you push through, and a tap reader for when you're in a hurry. Your very first swipe, on arrival, still gets "please swipe again". See [Map & Subway](getting-started/map-and-subway.md).
+- **The Big Board, up close.** Ten stocks ticking on a live LED wall, and **Call It**: pick one, call it up or down, and build a streak. See [Wall Street](places/wall-street.md#big-board).
+- **A quieter memorial.** The 9/11 Memorial is now a place to stand: the water, the names cut in bronze, and a white rose you can leave. See [One World Trade](places/one-world-trade.md#memorial).
+- **Walk the Brooklyn Bridge.** The arrow at the far end of the promenade now walks you across, tower by tower, to the Brooklyn end. Brooklyn itself opens later. See [Brooklyn Bridge](places/brooklyn-bridge.md#walk).
+- **Skate without the card.** Click the ice at Rockefeller Center and you walk out and glide. See [Rockefeller Center](places/rockefeller-center.md).
+- **Grand Central's subway.** The stairs now take you through the Grand Central–42 St turnstile and straight to picking a train.
+- **Small fixes:** joining the Dance Jam now says so, and clicking anything in the city counts as your first walk.
 
 ## October 24, 2026 {#2026-10-24}
 
@@ -13,8 +30,8 @@ Club NYC is in early access, so the city changes often. Here's what's new, newes
 
 ## October 23, 2026 {#2026-10-23}
 
-- **Real New York names.** The shops and food spots now go by their real names: [Louis Vuitton](places/fifth-avenue.md#louis-vuitton), [Saks Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) and the Adel's Famous Halal Food cart on Fifth Avenue, [Supreme](places/soho.md#supreme), [Nike](places/soho.md#nike) and [Ralph's Coffee](places/soho.md#ralphs-coffee) in SoHo, and Joe's Shanghai, Ten Ren Tea and [Joe's Pizza](places/chinatown-and-little-italy.md#joes-pizza) downtown. Everything you own stays yours.
-- **The toy store is now Saks Fifth Avenue.** Saks sells shoes (from the 10022-SHOE floor), coats, jewelry and shades. The toys, balloons and dress-up moved to [I ♥ NY Souvenirs](places/times-square.md#i-love-ny-souvenirs) in Times Square. The floor piano went with the toys, so the Heart and Soul stamp is retired.
+- **Real New York names.** The shops and food spots now go by their real names: [Louis Vuittown](places/fifth-avenue.md#louis-vuitton), [Snacks Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) and the Halal Bros cart on Fifth Avenue, [THREAD](places/soho.md#supreme), [Sneaker Vault](places/soho.md#sneaker-vault) and [Starducks Coffee](places/soho.md#ralphs-coffee) in SoHo, and Golden Dumpling, Boba Bay and [99¢ Slice](places/chinatown-and-little-italy.md#joes-pizza) downtown. Everything you own stays yours.
+- **The toy store is now Snacks Fifth Avenue.** Snacks sells shoes (from the 10022-SHOE floor), coats, jewelry and shades. The toys, balloons and dress-up moved to [I ♥ NY Souvenirs](places/times-square.md#i-love-ny-souvenirs) in Times Square. The floor piano went with the toys, so the Heart and Soul stamp is retired.
 
 ## October 21, 2026 {#2026-10-21}
 
@@ -22,7 +39,7 @@ Club NYC is in early access, so the city changes often. Here's what's new, newes
 
 ## October 20, 2026 {#2026-10-20}
 
-- **Lower Manhattan opens.** Three new places: [One World Trade](places/one-world-trade.md) with the 9/11 Memorial and the Survivor Tree, [Sky Deck 102](places/one-world-trade.md#sky-deck-102) at the top of the tower, and [Wall Street](places/wall-street.md), home of The Bull and the Pizza Index. Walk there from Battery Park, or take the subway to WTC Cortlandt or Wall St.
+- **Lower Manhattan opens.** Three new places: [One World Trade](places/one-world-trade.md) with the 9/11 Memorial and the Survivor Tree, [Sky Deck 102](places/one-world-trade.md#sky-deck-102) at the top of the tower, and [Wall Street](places/wall-street.md), home of The Bull and the Big Board. Walk there from Battery Park, or take the subway to WTC Cortlandt or Wall St.
 - **Picture cards everywhere.** Click a landmark for a picture, a short real history, one New York joke and something to do: strike a pose, make a wish, row a boat, climb to Lady Liberty's crown.
 - **Art and magnets.** The Brooklyn Bridge painter now has a [gallery of originals](places/brooklyn-bridge.md#gallery) for your walls, and the souvenir stand sells nine [fridge magnets](places/brooklyn-bridge.md#magnets) for your fridge at home.
 - **Photo booths in places.** Squeeze in under the I ♥ NY neon or up on Sky Deck 102. [Photo Booths](events/photo-booths.md)
@@ -35,11 +52,6 @@ Club NYC is in early access, so the city changes often. Here's what's new, newes
 - **The Help Center.** You're reading it. Press [[/]] to search. It's also in the Phone menu in the game.
 - **The Phone, tidied up.** It now has Invite Friends, Text a Friend, How to Play and the Help Center. Snowballs are off until it's cold enough.
 - **The map, simplified.** No more tabs: every place is right on the map, and jobs live inside their places.
-
-## Coming Soon {#coming-soon}
-
-- **Brooklyn (Coming Soon).** Manhattan only for now.
-- **The Exchange** on Wall Street, the Met's galleries, Harlem and more. [Coming Soon](places/coming-soon.md)
 
 ## Early Access {#early-access}
 

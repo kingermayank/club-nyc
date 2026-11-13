@@ -1,10 +1,11 @@
 // Ferry Captain: the harbor's own sounds (the horn, a bump, splashes, grabbing a life ring, tying up at the dock).
 // Synthesized on the shared context (foley.ts), silent while sound is off.
 import { kit } from '../../foley'
+import { withSamples } from '../../sound/library'
 
 const { ctx, tone, noise, swell, rand, NOTE } = kit
 
-export const ferrySfx = {
+export const ferrySfx = withSamples('ferry', {
   /** the ferry's horn: a deep, warm two-note blast */
   horn() {
     const a = ctx()
@@ -64,4 +65,4 @@ export const ferrySfx = {
     tone(a, 95, t + 0.32, 0.22, 0.12, 'sine', { to: 55 })
     noise(a, t + 0.32, 0.12, 0.05, { type: 'lowpass', f: 400 })
   },
-}
+})

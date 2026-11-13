@@ -68,6 +68,21 @@ const GROUPS: { title: string; load: () => Promise<Board> }[] = [
     },
   },
   {
+    title: 'Mini-Game Shared',
+    load: async () => {
+      const { msfx } = await import('../mp/sound')
+      return Object.fromEntries(Object.entries(msfx).map(([k, f]) => [`mp.${k}`, () => (f as () => void)()]))
+    },
+  },
+  {
+    title: 'Room Ambience (plays until Off)',
+    load: async () => {
+      const { setAmbience } = await import('../sound/library')
+      const names = ['times-square', 'times-square-2', 'times-square-3', 'times-square-4', 'street', 'park', 'harbor', 'rooftop', 'window', 'subway', 'concourse', 'museum', 'cafe', 'shop']
+      return Object.fromEntries([...names.map((n) => [`amb.${n}`, () => setAmbience(n)]), ['amb.off', () => setAmbience(null)]])
+    },
+  },
+  {
     title: 'Broadway Songs',
     load: async () => {
       const { previewSong, SHOW_IDS } = await import('../features/theater')

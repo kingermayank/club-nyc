@@ -530,7 +530,9 @@
   font-size: 56px;
   font-weight: 400;
   line-height: 1;
-  letter-spacing: 0.5px;
+  /* letters sit a half-stroke apart, or each one's fill paints over its neighbour's outline */
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
   color: #ffcf1f;
   -webkit-text-stroke: 8px #1d2140;
   paint-order: stroke fill;

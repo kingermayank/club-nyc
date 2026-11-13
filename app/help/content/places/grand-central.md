@@ -14,7 +14,7 @@ The most beautiful room in New York. Commuters rush through it without looking u
 - **Map:** click Grand Central.
 - **Walk:** take **42nd St → Grand Central** from [Times Square](places/times-square.md).
 - **Subway:** Grand Central–42 St.
-- **Down to the Subway:** the staircase leads to the [Times Sq–42 St Station](places/subway-station.md).
+- **Down to the Subway:** the staircase takes you to the Grand Central–42 St turnstile. Swipe (or tap) in, push through, and pick a train on the map.
 
 ## Things to Do {#things-to-do}
 
@@ -30,10 +30,6 @@ The most beautiful room in New York. Commuters rush through it without looking u
 
 - **Look up.** Something about the stars on the ceiling isn't quite right. Click it to find out what.
 - **The Whispering Gallery.** In the real Grand Central, a whisper into one corner of the arches can be heard clearly in the opposite corner. Try it here.
-
-## Coming Soon {#coming-soon}
-
-- **Metro-North (Coming Soon).** The trains to the suburbs are still in the yard: Manhattan first.
 
 ## Stamps Here {#stamps}
 

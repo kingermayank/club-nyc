@@ -274,7 +274,7 @@ AUDIT_JS = r"""
   // under it, and headings that don't sit on their descriptions. (Measured in stage px: the stage scales to fit.)
   const MIN_TEXT_BTN = 28, MIN_ICON_BTN = 24, MIN_CTA_GAP = 10, MIN_HEAD_GAP = 3
   const clickable = (e) => e.tagName === 'BUTTON' || e.matches('a.btn, [role="button"]')
-  const roomy = (e) => !e.closest('.game-shell, .subway-map, .billboard, .overhead-layer, .tb-tip, .toolbar, .creator-left, .cr-presets, .le-opts, .pop-menu.emotes, .mc-corner, .chat-log-list')
+  const roomy = (e) => !e.closest('.game-shell, .subway-map, .billboard, .overhead-layer, .tb-tip, .toolbar, .creator-left, .cr-presets, .cr-doors, .le-opts, .pop-menu.emotes, .mc-corner, .chat-log-list')
   const textTop = (e) => { let t = Infinity; const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); for (let n = w.nextNode(); n; n = w.nextNode()) { if (!n.data.trim() || n.parentElement.closest('svg')) continue; for (const rr of runRects(n)) t = Math.min(t, rr.top) } return t }
   const textBottom = (e) => { let b = -Infinity; const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); for (let n = w.nextNode(); n; n = w.nextNode()) { if (!n.data.trim() || n.parentElement.closest('svg, button, .btn')) continue; for (const rr of runRects(n)) b = Math.max(b, rr.bottom) } return b }
   for (const e of all) {
@@ -439,14 +439,22 @@ async def run(base):
         await audit('front door')
         await pg.click('.si-play')
         await pg.wait_for_selector('.creator-card', timeout=10000)
-        await audit('creator: look', 900)
-        await pg.locator('.cr-preset').nth(2).click()
+        await audit('creator: doors', 900)
+        await pg.click('.cr-door.photo')
+        await audit('creator: photo', 500)
+        await pg.click('.creator-actions .btn.ghost')
+        await pg.click('.cr-door.surprise')
+        await audit('creator: look', 700)
+        await pg.click('.le-tab:nth-child(2)')
+        await audit('creator: face', 300)
+        await pg.click('.le-tab:nth-child(3)')
+        await audit('creator: extras', 300)
         await pg.click('.creator-actions .btn.go')
         await pg.wait_for_selector('.creator-name input')
         await pg.fill('.creator-name input', name)
         await pg.wait_for_selector('.cr-avail.ok', timeout=5000)
         await audit('creator: name')
-        await pg.select_option('.cr-month', '6'); await pg.select_option('.cr-year', '2000'); await pg.click('.cr-age input')
+        await pg.click('.cr-age input')
         await pg.click('.creator-actions .btn.go')
         await pg.wait_for_selector('.online-pill.on', timeout=15000)
         try:

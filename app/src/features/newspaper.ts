@@ -154,7 +154,7 @@ const article = (s: Story, cls = '') =>
   `<article class="np-story ${cls}"><div class="np-kicker">${s.kicker}</div><h3>${s.headline}</h3>${s.deck ? `<p class="np-deck">${s.deck}</p>` : ''}${fig(s)}${s.body.map((p) => `<p>${p}</p>`).join('')}</article>`
 
 function momentStory(m: Moment, onThisDay: boolean) {
-  const kicker = onThisDay ? `On This Day · ${m.when.slice(-4)}` : `${m.kicker} · ${m.when}`
+  const kicker = onThisDay ? `On This Day, ${m.when.slice(-4)}` : `${m.kicker}, ${m.when}`
   return `<article class="np-story${onThisDay ? ' otd' : ''}"><div class="np-kicker">${kicker}</div><h3>${m.headline}</h3>${m.deck ? `<p class="np-deck">${m.deck}</p>` : ''}${fig(m)}${m.body.map((p) => `<p>${p}</p>`).join('')}</article>`
 }
 
@@ -175,7 +175,7 @@ function frontPage(ed: Edition, isToday: boolean) {
         <div class="np-ear right"><b>${ed.ear}</b><small>${ed.weather.short}</small></div>
       </div>
       <div class="np-mast">The Club NYC Times</div>
-      <div class="np-dateline"><span>${ed.volume} · No. ${ed.no}</span><span class="np-date">${ed.date}</span><span>${PRICE}</span></div>
+      <div class="np-dateline"><span>${ed.volume}, No. ${ed.no}</span><span class="np-date">${ed.date}</span><span>${PRICE}</span></div>
     </header>
     <div class="np-front">
       <article class="np-lead">
@@ -200,7 +200,7 @@ function frontPage(ed: Edition, isToday: boolean) {
 function moments(ed: Edition) {
   return `
     <section class="np-sec" data-sec="moments">
-      <div class="np-section">NYC Moments · The stories New Yorkers still bring up at brunch</div>
+      <div class="np-section">NYC Moments</div>
       <div class="np-grid3 moments">${ed.moments.map((m, i) => momentStory(m, i === 0 && ed.onThisDay)).join('')}</div>
     </section>`
 }
@@ -211,7 +211,7 @@ function metro(ed: Edition, opened: { id: string; day: string }[]) {
   const fresh = opened.filter((o) => daysBetween(o.day, ed.day) >= 0 && daysBetween(o.day, ed.day) < 14 && ROOMS[o.id])
   const nowOpen = fresh.length
     ? `<div class="np-box np-open"><b>Now Open</b>${fresh
-        .map((o) => `<p><span><b>${esc(ROOMS[o.id].name)}</b> · ${esc(ROOMS[o.id].area)}</span><button class="btn tiny go" data-go="${o.id}">Take Me There</button></p>`)
+        .map((o) => `<p><span><b>${esc(ROOMS[o.id].name)}</b></span><button class="btn tiny go" data-go="${o.id}">Take Me There</button></p>`)
         .join('')}</div>`
     : ''
   return `
@@ -230,7 +230,7 @@ function sports(ed: Edition, isToday: boolean, archived: Press | undefined) {
   if (!isToday && !archived)
     return `
     <section class="np-sec" data-sec="sports">
-      <div class="np-section">Sports · Neighborhood Wars</div>
+      <div class="np-section">Neighborhood Wars</div>
       <div class="np-grid2 wide-left">
         ${article(story)}
         <div class="np-box np-archive"><b>Standings</b><p>The Neighborhood Wars standings and this week’s box scores print in today’s paper.</p><button class="btn tiny go" data-today>Read Today’s Paper</button></div>
@@ -238,7 +238,7 @@ function sports(ed: Edition, isToday: boolean, archived: Press | undefined) {
     </section>`
   return `
     <section class="np-sec" data-sec="sports">
-      <div class="np-section">Sports · Neighborhood Wars</div>
+      <div class="np-section">Neighborhood Wars</div>
       <div class="np-grid2 wide-left">
         <div class="np-live" data-live="standings"></div>
         <div class="np-live" data-live="scores"></div>
@@ -250,7 +250,7 @@ function sports(ed: Edition, isToday: boolean, archived: Press | undefined) {
 function opinion(ed: Edition) {
   return `
     <section class="np-sec" data-sec="opinion">
-      <div class="np-section">Opinion · Classifieds</div>
+      <div class="np-section">Opinion and Classifieds</div>
       <div class="np-grid2 wide-left">
         <div class="np-advice">
           <h3>Ask the Bodega Cat</h3>
@@ -263,7 +263,7 @@ function opinion(ed: Edition) {
         </div>
       </div>
     </section>
-    <div class="np-folio">${ed.volume} · No. ${ed.no} · The Club NYC Times · ${ed.ear === 'LATE CITY EDITION' ? 'Late City Edition' : ed.ear === 'FIRST EDITION' ? 'First Edition' : 'Commemorative Edition'}</div>`
+    <div class="np-folio">The Club NYC Times, ${ed.volume}, No. ${ed.no}, ${ed.ear === 'LATE CITY EDITION' ? 'Late City Edition' : ed.ear === 'FIRST EDITION' ? 'First Edition' : 'Commemorative Edition'}</div>`
 }
 
 function standingsHtml(p: Press, isToday: boolean) {
@@ -333,18 +333,13 @@ export function openNewspaper() {
     fade()
   }
 
-  const render = (dir = 0) => {
+  const render = () => {
     const my = ++gen
     const ed = editionFor(day)
     const isToday = day === today
     const archived = isToday ? undefined : pressRun()[day]
     scroll.innerHTML = frontPage(ed, isToday) + moments(ed) + metro(ed, opened) + sports(ed, isToday, archived) + opinion(ed)
     scroll.scrollTop = 0
-    sheet.classList.remove('turn-l', 'turn-r')
-    if (dir) {
-      void sheet.offsetWidth
-      sheet.classList.add(dir > 0 ? 'turn-r' : 'turn-l')
-    }
     // the controls: never past today, never before No. 1
     prev.disabled = day <= FIRST_DAY
     next.disabled = day >= today
@@ -376,7 +371,28 @@ export function openNewspaper() {
     if (target === day) return
     day = target
     paper.flip()
-    render(dir)
+    turnPage(dir)
+    render()
+  }
+
+  /** the page you were reading lifts off as a leaf and turns over, onto the new edition already lying underneath */
+  const turnPage = (dir: number) => {
+    for (const old of sheet.querySelectorAll('.np-leaf, .np-under-shade')) old.remove()
+    const side = dir > 0 ? 'fwd' : 'back'
+    const leaf = el('div', `np-leaf ${side}`)
+    const face = el('div', 'np-leaf-face')
+    // the leaf is a picture of the page exactly where you'd scrolled to
+    const page = el('div', 'np-leaf-page')
+    page.innerHTML = scroll.innerHTML
+    page.style.marginTop = `${-scroll.scrollTop}px`
+    face.append(page)
+    leaf.append(face, el('div', 'np-leaf-back'))
+    const shade = el('div', `np-under-shade ${side}`)
+    sheet.append(shade, leaf)
+    leaf.addEventListener('animationend', () => leaf.remove(), { once: true })
+    shade.addEventListener('animationend', () => shade.remove(), { once: true })
+    // (reduced motion hides them, so no animation ends: clear them anyway)
+    setTimeout(() => (leaf.remove(), shade.remove()), 1200)
   }
   prev.onclick = () => go(shiftDay(day, -1), -1)
   next.onclick = () => go(shiftDay(day, 1), 1)

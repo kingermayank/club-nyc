@@ -4,6 +4,8 @@ import { save, persist, bump } from '../state'
 import { el, stage } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton, hold, toast } from '../engine/ui'
 import { world, goto } from '../engine/world'
+import { ROOMS } from '../data/rooms'
+import { swipeIn, swipedRecently } from './turnstile'
 import { AvatarView } from '../avatar/render'
 import { randomLook } from '../avatar/random'
 import { api } from '../game'
@@ -41,7 +43,7 @@ const STATIONS: Station[] = [
   { room: 'rockefeller', name: '47–50 Sts–Rockefeller Ctr', place: 'Rockefeller Center', at: project(40.7586, -73.9813), lines: ['B', 'D', 'F', 'M'], label: { side: 'l', dx: -24, dy: -4 } },
   { room: 'subway', name: 'Times Sq–42 St', place: 'Times Square', at: project(40.7553, -73.9869), lines: ['1', '2', '3', '7', 'N', 'Q', 'R', 'W', 'S'], label: { side: 'l', dx: -10, dy: 6 } },
   { room: 'grand-central', name: 'Grand Central–42 St', place: 'Grand Central', at: project(40.7527, -73.9772), lines: ['4', '5', '6', '7', 'S'], label: { side: 'r' } },
-  { room: 'empire-deck', name: '34 St–Herald Sq', place: 'Empire State Building', at: project(40.7497, -73.9879), lines: ['B', 'D', 'F', 'M', 'N', 'Q', 'R', 'W'], label: { side: 'l', dx: -24, dy: 16 } },
+  { room: 'empire-street', name: '34 St–Herald Sq', place: 'Empire State Building', at: project(40.7497, -73.9879), lines: ['B', 'D', 'F', 'M', 'N', 'Q', 'R', 'W'], label: { side: 'l', dx: -24, dy: 16 } },
   { room: 'high-line', name: '14 St', place: 'The High Line', at: project(40.74, -74.0021), lines: ['1', '2', '3', 'A', 'C', 'E', 'L'], label: { side: 'l' } },
   { room: 'soho', name: 'Prince St', place: 'SoHo', at: project(40.7243, -73.9977), lines: ['N', 'R', 'W', '6'], label: { side: 'r', dy: -5 } },
   { room: 'chinatown', name: 'Canal St', place: 'Chinatown', at: project(40.719, -74.0002), lines: ['J', 'Z', 'N', 'Q', 'R', 'W', '6'], label: { side: 'r', dy: 3 } },
@@ -65,11 +67,11 @@ const pos = (id: string) => BENDS[id] ?? byRoom(id).at
 const ROUTES: { line: string; via: string[]; shift?: number }[] = [
   { line: '1', via: ['central-park', 'subway', 'high-line', 'one-world-trade', 'Rector St', 'battery-park'] },
   { line: '2', via: ['subway', 'high-line', 'one-world-trade', 'wall-street'] },
-  { line: 'N', via: ['fifth-ave', '57 St–7 Av', 'subway', 'empire-deck', 'soho', 'chinatown', 'one-world-trade', 'Rector St', 'battery-park'] },
+  { line: 'N', via: ['fifth-ave', '57 St–7 Av', 'subway', 'empire-street', 'soho', 'chinatown', 'one-world-trade', 'Rector St', 'battery-park'] },
   { line: '4', via: ['the-met', 'grand-central', 'brooklyn-bridge', 'wall-street'] },
   { line: '6', via: ['the-met', 'grand-central', 'soho', 'chinatown', 'brooklyn-bridge'] },
   // 6 Av line runs one avenue east of Times Sq: nudge it a hair east so it clears that dot.
-  { line: 'B', via: ['central-park', 'rockefeller', 'empire-deck'], shift: 3 },
+  { line: 'B', via: ['central-park', 'rockefeller', 'empire-street'], shift: 3 },
   { line: 'S', via: ['subway', 'grand-central'] },
 ]
 
@@ -86,7 +88,7 @@ function hereRoom(): string {
   const bySpot: Record<string, string> = {
     'times-square': 'subway', 'fifth-ave': 'fifth-ave', soho: 'soho', chinatown: 'chinatown', 'high-line': 'high-line',
     'central-park': 'central-park', 'the-met': 'the-met', rockefeller: 'rockefeller', 'grand-central': 'grand-central',
-    'empire-state': 'empire-deck', 'brooklyn-bridge': 'brooklyn-bridge', 'battery-park': 'battery-park', liberty: 'battery-park',
+    'empire-state': 'empire-street', 'brooklyn-bridge': 'brooklyn-bridge', 'battery-park': 'battery-park', liberty: 'battery-park',
     wtc: 'one-world-trade', 'wall-street': 'wall-street',
   }
   return bySpot[r.mapSpot ?? ''] ?? 'subway'
@@ -161,7 +163,18 @@ function bridge(): string {
   </g>`
 }
 
+/** The station you'd walk into from here, as the sign over its turnstiles shows it: its name and line bullets. */
+export function stationSign(room = hereRoom()): { name: string; bullets: string } | undefined {
+  const s = STATIONS.find((x) => x.room === room)
+  return s && { name: s.name, bullets: s.lines.map((l) => bullet(l, 22)).join('') }
+}
+
+/** Down from the street: through the turnstile of this place's station (true once you're through). */
+export const enterStation = () => swipeIn({ station: stationSign() })
+
 export function openSubway() {
+  // from the street, you swipe in at the turnstile before you pick a train (on the platform you're already in)
+  if (world.room.id !== 'subway' && !swipedRecently()) return void enterStation().then((ok) => ok === true && openSubway())
   const here = hereRoom()
   const p = el('div', 'subway-board')
   const svgNS = 'http://www.w3.org/2000/svg'
@@ -194,7 +207,7 @@ export function openSubway() {
       <text class="sw-river"><textPath href="#sw-east" startOffset="50%" text-anchor="middle">EAST RIVER</textPath></text>
       <text class="sw-boro" x="24" y="380" text-anchor="middle" transform="rotate(-90 24 380)">NEW JERSEY</text>
       <text class="sw-boro" x="420" y="150" text-anchor="middle">QUEENS</text>
-      <text class="sw-boro" x="402" y="500" text-anchor="middle">BROOKLYN</text><image href="/art/icons/e/construction.png" x="440" y="486" width="18" height="18"><title>Brooklyn (Coming Soon)</title></image>
+      <text class="sw-boro" x="402" y="500" text-anchor="middle">BROOKLYN</text>
       <text class="sw-small" x="${f1(gov[0] + 20)}" y="${f1(gov[1] + 36)}" text-anchor="middle">Governors Is.</text>
       ${bridge()}
       <image href="/art/icons/e/liberty.png" x="${lx - 12}" y="${ly - 20}" width="24" height="24"/>
@@ -249,10 +262,10 @@ export function openSubway() {
   }
   leaderPath.setAttribute('d', leaders)
   const side = el('div', 'sw-side')
-  side.innerHTML = `<div class="sw-title"><span class="mta">M</span><div><b>Club NYC Subway</b><small>Uptown · Downtown · All Night</small></div></div>`
+  side.innerHTML = `<div class="sw-title"><span class="mta">M</span><div><b>Club NYC Subway</b><small>All Night</small></div></div>`
   const info = el('div', 'sw-info', `<b>Where to?</b><span>Hover a station, click to ride.</span>`)
   const legend = el('div', 'sw-legend', ['1', '2', 'N', '4', '6', 'B', 'S'].map((l) => `<div>${bullet(l, 20)}<span>${{ 1: 'Broadway–7 Av Local', 2: '7 Av Express', N: 'Broadway Express', 4: 'Lexington Av Express', 6: 'Lexington Av Local', B: '6 Av Express', S: '42 St Shuttle' }[l]}</span></div>`).join(''))
-  side.append(info, legend, el('div', 'sw-tip', '🎵 Tip: board the train at Times Sq for <b>Showtime</b> and dance for tips!'))
+  side.append(info, legend, el('div', 'sw-tip', '🎵 They say if you dance on the Times Sq platform, the riders dance back.'))
   p.append(svg, side, closeButton())
   openOverlay(p)
   // on the platform, a train pulls in while you pick your stop
@@ -266,21 +279,57 @@ const WINDOWS: [number, number, number, number][] = [
   [517, 184, 587, 294],
   [666, 172, 955, 298],
 ]
+/** the door leaves as painted (their top-left corners, stage px): each is 99 wide and 268 tall */
+const DOOR_L: [number, number] = [401, 167]
+const DOOR_R: [number, number] = [500, 167]
 const SEATS: [number, number][] = [[72, 392], [158, 392], [238, 392], [318, 392], [690, 392], [776, 392], [866, 392], [948, 392]]
 
-export function ride(s: Station) {
+/** The arrival's train into Times Square (features/arrival.ts): no stamp, no ride counted, you're already there.
+ * `arrive` runs as the doors open, while the car fades out over the street. */
+export function introRide(arrive: () => void) {
+  ride(byRoom('subway'), { intro: true, arrive })
+}
+
+export function ride(s: Station, o: { intro?: boolean; arrive?: () => void } = {}) {
   const release = hold()
   const from = byRoom(hereRoom())
   const line = s.lines.find((l) => from.lines.includes(l)) ?? s.lines[0]
-  const firstRide = !save.stats['rides']
-  bump('rides')
+  const firstRide = !o.intro && !save.stats['rides']
+  if (!o.intro) bump('rides')
+  // the next place starts loading now, so the doors open onto it instead of a blank screen
+  const nextBg = ROOMS[s.room]?.bg
+  const ready = new Promise<void>((done) => {
+    if (!nextBg || o.intro) return done()
+    const img = new Image()
+    img.onload = img.onerror = () => done()
+    img.src = `/art/rooms/${nextBg}.jpg`
+  })
+  const transfer = s.lines.filter((l) => l !== line)
   const car = el('div', 'ride-car')
   car.innerHTML = `<img src="/art/rooms/subway-car.jpg" class="ride-bg" alt="">
-    ${WINDOWS.map(([x1, y1, x2, y2]) => `<div class="ride-window" style="left:${x1}px;top:${y1}px;width:${x2 - x1}px;height:${y2 - y1}px"><i class="streaks"></i><i class="station-wall"><span>${s.name}</span></i></div>`).join('')}
-    <div class="ride-led"><span class="led-text">${bullet(line, 18)} ${line} train · Next stop: ${s.name}</span></div>
+    ${WINDOWS.map(([x1, y1, x2, y2]) => `<div class="ride-window" style="left:${x1}px;top:${y1}px;width:${x2 - x1}px;height:${y2 - y1}px"><i class="rw-tunnel"></i><i class="rw-blue"></i><i class="rw-lamps"></i><i class="rw-station">${STATION_SIGNS.map((x) => `<b style="left:${x}px">${s.name}</b>`).join('')}<i class="rw-columns"></i></i><i class="rw-glass"></i></div>`).join('')}
+    <div class="ride-led"><span class="led-bullet">${bullet(line, 18)}</span><span class="led-scroll"><span class="led-text">The next stop is ${s.name}</span></span></div>
+    <div class="ride-doorway"><div class="rd-station"><b>${s.name}</b><i class="rd-floor"></i></div><div class="rd-leaf l"></div><div class="rd-leaf r"></div></div>
     <div class="ride-people"></div>
     <div class="ride-caption"></div>`
   stage.root.append(car)
+  const windows = [...car.querySelectorAll<HTMLElement>('.ride-window')].map((w, i) => ({
+    left: WINDOWS[i][0],
+    tunnel: w.querySelector<HTMLElement>('.rw-tunnel')!,
+    blue: w.querySelector<HTMLElement>('.rw-blue')!,
+    lamps: w.querySelector<HTMLElement>('.rw-lamps')!,
+    station: w.querySelector<HTMLElement>('.rw-station')!,
+  }))
+  // the two door windows ride on the door leaves, so they slide away with them when the doors open onto the platform
+  const leaves = car.querySelectorAll<HTMLElement>('.rd-leaf')
+  const panes = [...car.querySelectorAll<HTMLElement>('.ride-window')]
+  ;[1, 2].forEach((i) => {
+    const w = panes[i]
+    const [lx, ly] = i === 1 ? DOOR_L : DOOR_R
+    w.style.left = `${WINDOWS[i][0] - lx}px`
+    w.style.top = `${WINDOWS[i][1] - ly}px`
+    leaves[i - 1].append(w)
+  })
   const people = car.querySelector<HTMLElement>('.ride-people')!
   const views: AvatarView[] = []
   const seats = [...SEATS].sort(() => Math.random() - 0.5)
@@ -296,15 +345,6 @@ export function ride(s: Station) {
   }
   addRider(save.look, 0, true)
   for (let i = 1; i < 4 + Math.floor(Math.random() * 3); i++) addRider(randomLook(0.7), i)
-  let raf = 0
-  let last = performance.now()
-  const loop = (t: number) => {
-    const dt = Math.min(0.05, (t - last) / 1000)
-    last = t
-    views.forEach((v) => v.update(dt))
-    raf = requestAnimationFrame(loop)
-  }
-  raf = requestAnimationFrame(loop)
   const caption = car.querySelector<HTMLElement>('.ride-caption')!
   const say = (t: string) => {
     caption.innerHTML = t
@@ -313,39 +353,119 @@ export function ride(s: Station) {
     caption.classList.add('show')
   }
 
-  // the sounds of a real ride (foley.ts): the two-tone chime, the doors, the wheels over the joints, the brakes
-  let stopClatter = () => {}
+  // the run: the train pulls out, runs through the tunnel and brakes into the station, and everything you see and
+  // hear (the tunnel lights going by, the rail joints, the motor, the platform sliding in) follows this one curve
+  const t0 = performance.now()
+  const sound = foley.run()
+  let nextJoint = JOINT * 0.6
+  let squealed = false
+  let flickers = [RUN.go + 1.1 + Math.random() * 1.2]
+  let raf = 0
+  let last = t0
+  const loop = (now: number) => {
+    const dt = Math.min(0.05, (now - last) / 1000)
+    last = now
+    views.forEach((v) => v.update(dt))
+    const { x, v } = runAt((now - t0) / 1000)
+    // the scenery is one long strip seen through all four windows, so a light crosses them one after another
+    const lamp = 8 + v * 80
+    for (const w of windows) {
+      const off = -x - w.left
+      w.tunnel.style.backgroundPositionX = `${off * 0.92}px`
+      w.blue.style.backgroundPositionX = `${off}px`
+      w.lamps.style.backgroundPositionX = `${off}px`
+      w.lamps.style.setProperty('--lw', `${lamp}px`)
+      w.station.style.transform = `translateX(${RUN.dist - STATION_IN + off}px)`
+    }
+    car.style.setProperty('--speed', v.toFixed(3))
+    sound?.speed(v)
+    // a pair of wheel clacks at each rail joint, the second truck right behind the first
+    if (x >= nextJoint && v > 0.04) {
+      sound?.joint(v)
+      nextJoint += JOINT
+    }
+    if (!squealed && v > 0.95 && x > RUN.dist * 0.42) {
+      squealed = true
+      sound?.squeal()
+    }
+    // the lights dip for a moment now and then, like they always do
+    if (flickers.length && (now - t0) / 1000 > flickers[0]) {
+      flickers = flickers.slice(1)
+      car.classList.add('flicker')
+      setTimeout(() => car.classList.remove('flicker'), 160)
+    }
+    raf = requestAnimationFrame(loop)
+  }
+  raf = requestAnimationFrame(loop)
+
+  const at = (sec: number) => sec * 1000
   const steps: [number, () => void][] = [
     [0, () => {
       foley.chime()
       say(firstRide ? '“Please swipe again… at this turnstile.” <small>Classic. You made it on.</small>' : '“Stand clear of the closing doors, please.”')
     }],
-    [520, () => foley.doorsClose()],
-    [900, () => {
-      car.classList.add('moving')
-      stopClatter = foley.ride(2.9)
-    }],
-    [2000, () => say(`🚇 ${bullet(line, 16)} to <b>${s.place}</b>`)],
-    [3300, () => foley.brake()],
-    [3600, () => {
+    [at(RUN.go - 0.7), () => foley.doorsClose()],
+    [at(RUN.go), () => car.classList.add('moving', 'jolt')],
+    [at(RUN.go + 0.5), () => car.classList.remove('jolt')],
+    [at(RUN.go + 1.4), () => say(`${bullet(line, 22)} to <b>${s.place}</b>`)],
+    [at(RUN.stop - 1.3), () => foley.brake()],
+    [at(RUN.stop), () => {
       car.classList.remove('moving')
-      car.classList.add('arriving')
-      say(`“This is <b>${s.name}</b>.”`)
+      car.classList.add('jolt')
+      say(`“This is <b>${s.name}</b>.”${transfer.length ? `<small>Transfer is available to the ${transfer.slice(0, 5).map((l) => bullet(l, 16)).join(' ')} trains</small>` : ''}`)
     }],
-    [4000, () => foley.doorsOpen()],
-    [4700, () => {
-      car.classList.add('out')
+    [at(RUN.stop + 0.4), () => car.classList.remove('jolt')],
+    [at(RUN.stop + 0.6), () => (foley.doorsOpen(), car.classList.add('doors-open'))],
+    [at(RUN.stop + 1.9), async () => {
+      const finish = () => {
+        cancelAnimationFrame(raf)
+        sound?.stop()
+        car.remove()
+        release()
+      }
+      if (o.intro) {
+        car.classList.add('out')
+        o.arrive?.()
+        return void setTimeout(finish, 600)
+      }
+      // step off: the city changes behind the car (which stays on top of the usual fade), then the car fades away
+      car.classList.add('cover')
+      await ready
       api.stamp('straphanger')
-      bump('rides')
-      goto(s.room)
+      await goto(s.room)
       persist()
-    }],
-    [5300, () => {
-      cancelAnimationFrame(raf)
-      stopClatter()
-      car.remove()
-      release()
+      setTimeout(() => {
+        car.classList.add('out')
+        setTimeout(finish, 550)
+      }, 350)
     }],
   ]
   for (const [t, f] of steps) setTimeout(f, t)
 }
+
+/** the run, in seconds: doors close, pull out at `go`, up to speed, coast, brake to a stop at `stop`. `dist` is in
+ * world px (the car is 1000 wide); x(t) is the distance covered and v(t) the speed from 0 to 1. */
+const RUN = (() => {
+  const go = 1.1
+  const up = 1.6
+  const coast = 1.1
+  const down = 2.1
+  const vmax = 2300
+  const dist = (vmax * up) / 2 + vmax * coast + (vmax * down) / 2
+  return { go, up, coast, down, vmax, dist, stop: go + up + coast + down }
+})()
+function runAt(t: number): { x: number; v: number } {
+  const { go, up, coast, down, vmax, dist } = RUN
+  const s = t - go
+  if (s <= 0) return { x: 0, v: 0 }
+  if (s < up) return { x: (vmax * s * s) / (2 * up), v: s / up }
+  if (s < up + coast) return { x: (vmax * up) / 2 + vmax * (s - up), v: 1 }
+  const u = Math.min(1, (s - up - coast) / down)
+  return { x: dist - ((vmax * down) / 2) * (1 - u) * (1 - u), v: 1 - u }
+}
+/** world px between rail joints */
+const JOINT = 1050
+/** the platform starts this far before the stopping point; its name signs (centred on these spots) come to rest in
+ * the middle of the two big windows, with one more going by as the train slows */
+const STATION_IN = 1500
+const STATION_SIGNS = [STATION_IN + 190 - 620, STATION_IN + 190, STATION_IN + 810]

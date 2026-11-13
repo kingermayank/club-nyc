@@ -1,0 +1,6 @@
+/* the camera by each landmark (features/selfiePins.ts) */
+.selfie-pin { position: absolute; z-index: 40; width: 34px; height: 34px; margin: -17px; padding: 0; display: grid; place-items: center; border: 3px solid var(--ink); border-radius: 50%; background: #fff; box-shadow: 0 3px 0 var(--ink); cursor: pointer; animation: selfie-pin 2.4s ease-in-out infinite; }
+.selfie-pin img { width: 22px; height: 22px; }
+.selfie-pin:hover { transform: scale(1.12); animation: none; }
+@keyframes selfie-pin { 0%, 80%, 100% { transform: none; } 88% { transform: rotate(-10deg) scale(1.08); } 94% { transform: rotate(8deg) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .selfie-pin { animation: none; } }

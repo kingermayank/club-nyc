@@ -30,11 +30,6 @@ The Metropolitan Museum of Art, on Museum Mile. The galleries are still being hu
 
 Click a fountain, then **Toss a Coin (1)**. Your New Yorker makes a very New York wish (a rent-stabilized apartment, a seat on the L train at rush hour, the perfect bagel), and you earn the **Make a Wish** stamp. Chelsea Market's waterfall takes wishes too.
 
-## Coming Soon {#coming-soon}
-
-- **The Galleries** inside the museum.
-- **Harlem**, through the exit to the right.
-
 ## Stamps Here {#stamps}
 
 | Stamp | How |

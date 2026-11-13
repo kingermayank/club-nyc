@@ -31,11 +31,11 @@ interface Theme {
   sticker: string[]
 }
 const THEMES: Record<string, Theme> = {
-  'Ralph’s Coffee': { bg: '#1f4a35', frame: '#f4efe3', ink: '#12301f', title: 'RALPH’S COFFEE · SOHO', sticker: ['☕', '🥐', '💚', '🥯'] },
-  'I ♥ NY': { bg: '#e1262b', frame: '#ffffff', ink: '#1d2140', title: 'I ♥ NY · TIMES SQUARE', sticker: ['❤️', '🗽', '🚕', '🍕'] },
+  'Starducks Coffee': { bg: '#1f4a35', frame: '#f4efe3', ink: '#12301f', title: 'STARDUCKS COFFEE', sticker: ['☕', '🥐', '💚', '🥯'] },
+  'I ♥ NY': { bg: '#e1262b', frame: '#ffffff', ink: '#1d2140', title: 'I ♥ NY', sticker: ['❤️', '🗽', '🚕', '🍕'] },
   // the booth up on Sky Deck 102 at One World Trade, and the Halloween Parade's spooky one
-  'Sky Deck': { bg: '#1d3b6e', frame: '#fff4d6', ink: '#1d2140', title: 'SKY DECK 102 · ONE WORLD TRADE', sticker: ['🏙️', '✨', '🗽', '🌉'] },
-  Halloween: { bg: '#2b1a3d', frame: '#ffb347', ink: '#1d2140', title: 'HALLOWEEN PARADE · 6TH AVE', sticker: ['🎃', '👻', '🦇', '🍬'] },
+  'Sky Deck': { bg: '#1d3b6e', frame: '#fff4d6', ink: '#1d2140', title: 'SKY DECK 102', sticker: ['🏙️', '✨', '🗽', '🌉'] },
+  Halloween: { bg: '#2b1a3d', frame: '#ffb347', ink: '#1d2140', title: 'HALLOWEEN PARADE', sticker: ['🎃', '👻', '🦇', '🍬'] },
   default: { bg: '#2a3b8f', frame: '#fffdf6', ink: '#1d2140', title: 'CLUB NYC', sticker: ['🗽', '🍕', '🚕', '✨'] },
 }
 const POSES = [
@@ -89,13 +89,14 @@ function stripSvg(people: { name: string; look: Look }[], where: string) {
   const t = THEMES[where] ?? THEMES.default
   const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
   const frames = POSES.map((p, i) => `<g transform="translate(30 ${30 + i * 360})"><rect x="-6" y="-6" width="492" height="342" rx="10" fill="${t.frame}"/>${frameSvg(people, p, t, i)}</g>`).join('')
-  const names = people.map((p) => p.name).join(' · ')
+  const names = people.map((p) => p.name).join(', ')
   return `<svg xmlns="http://www.w3.org/2000/svg" width="540" height="1600" viewBox="0 0 540 1600">
     <rect width="540" height="1600" rx="18" fill="${t.bg}"/>
     ${frames}
     <text x="270" y="1490" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="34" fill="${t.frame}">${esc(t.title)}</text>
     <text x="270" y="1530" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="${t.frame}" opacity="0.9">${esc(names.length > 46 ? names.slice(0, 44) + '…' : names)}</text>
-    <text x="270" y="1566" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="${t.frame}" opacity="0.75">${date} · ${esc(footer())}</text>
+    <text x="36" y="1566" font-family="Arial, sans-serif" font-size="17" fill="${t.frame}" opacity="0.75">${date}</text>
+    <text x="504" y="1566" text-anchor="end" font-family="Arial, sans-serif" font-size="17" fill="${t.frame}" opacity="0.75">${esc(footer())}</text>
   </svg>`
 }
 
