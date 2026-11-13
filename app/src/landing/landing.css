@@ -287,8 +287,6 @@ a.tile:hover { translate: 0 -3px; }
 .rules img { width: 58px; height: 44px; margin-bottom: 4px; object-position: left center; }
 .rules b { font: 19px/1.2 var(--display); font-weight: 400; }
 .rules span { color: var(--muted); font-size: 15px; line-height: 1.45; }
-.rules-note { display: flex; align-items: center; justify-content: center; gap: 12px; max-width: 760px; margin: 28px auto 0; color: #2f3556; font-size: 17px; text-align: left; }
-.rules-note img { width: 34px; height: 28px; flex: none; }
 .safety-panel { margin-top: 36px; padding: 30px 34px; border: 3px solid var(--ink); border-radius: var(--r); background: var(--sky); box-shadow: 0 5px 0 var(--ink); }
 .safety-panel h3 { font-size: 26px; }
 .safety-panel .ticks { grid-template-columns: 1fr 1fr; column-gap: 36px; margin-top: var(--sp-4); }

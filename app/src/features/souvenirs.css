@@ -18,3 +18,31 @@
 
 /* magnets stuck on the walk-up's fridge */
 .fridge-magnet { position: absolute; z-index: 6; width: 21px; height: auto; transform: translate(-50%, -50%) rotate(var(--r, 0deg)); filter: drop-shadow(0 1.5px 0 rgba(29, 33, 64, 0.35)); pointer-events: none; }
+
+/* ---- each of these wears its place (2026-11-13): the painter's canvas, the stand's awning, the fridge door ---- */
+.panel.ic-card .ic-text:empty { display: none; }
+
+/* Skyline Painter: a stretched canvas in a wooden frame, paint on the corner */
+.panel.ic-card.easel { border: 12px solid #8a5a2b; border-radius: 10px; background: #fbf5e6 repeating-linear-gradient(0deg, rgba(120, 90, 40, 0.06) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(120, 90, 40, 0.06) 0 1px, transparent 1px 4px); box-shadow: inset 0 0 0 3px #5d3a17, 0 0 0 4px var(--ink), 0 10px 0 4px rgba(0, 0, 0, 0.28), 0 26px 50px rgba(0, 0, 0, 0.35); }
+.panel.ic-card.easel h2 { color: #1f4f8f; }
+.panel.ic-card.easel h2::after { content: ''; display: inline-block; width: 74px; height: 14px; margin-left: 12px; vertical-align: middle; border-radius: 8px 3px 9px 4px; background: linear-gradient(90deg, #e5484d 0 25%, #f5b82e 25% 50%, #37b24d 50% 75%, #2a6fd6 75%); transform: rotate(-3deg); opacity: 0.9; }
+.panel.ic-card.easel .ic-kicker { color: #8a5a2b; }
+.panel.ic-card.easel .ic-tile { background: #fff; border-color: #5d3a17; box-shadow: 0 3px 0 #5d3a17; }
+
+/* Fridge Magnets: the souvenir stand, blue-and-white awning over a pegboard */
+.panel.ic-card.stand { padding-top: 58px; border-radius: 14px; background: #f1e3c4 radial-gradient(circle, rgba(90, 60, 20, 0.28) 1.6px, transparent 2px) 0 0 / 22px 22px; }
+.panel.ic-card.stand::before { content: ''; position: absolute; box-sizing: border-box; left: 0; right: 0; top: 0; height: 44px; border-bottom: 4px solid var(--ink); background: repeating-linear-gradient(90deg, #2a6fd6 0 34px, #fff 34px 68px); border-radius: 9px 9px 0 0; }
+.panel.ic-card.stand::after { content: ''; position: absolute; box-sizing: border-box; left: 0; right: 0; top: 44px; height: 12px; background: radial-gradient(circle at 17px 0, #2a6fd6 11px, transparent 12px) 0 0 / 68px 12px, radial-gradient(circle at 51px 0, #fff 11px, transparent 12px) 0 0 / 68px 12px; filter: drop-shadow(0 2px 0 var(--ink)); pointer-events: none; }
+.panel.ic-card.stand h2 { color: #1d2140; }
+.panel.ic-card.stand .ic-tile { background: #fffdf6; }
+
+/* Your Fridge: the door itself, enamel white with a chrome handle and the freezer seam */
+.panel.ic-card.fridge { padding: 26px 64px 24px 28px; border-radius: 30px; background: linear-gradient(100deg, #fdfefe 0%, #eef2f5 55%, #dfe6ec 100%); box-shadow: inset -10px 0 0 rgba(120, 140, 160, 0.16), 0 6px 0 var(--ink), 0 22px 50px rgba(0, 0, 0, 0.35); }
+.panel.ic-card.fridge::before { content: ''; position: absolute; box-sizing: border-box; right: 20px; top: 104px; width: 16px; height: 150px; border: 3px solid var(--ink); border-radius: 9px; background: linear-gradient(90deg, #f7f9fb, #aeb9c4 60%, #8794a1); box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.18); }
+.panel.ic-card.fridge::after { content: ''; position: absolute; box-sizing: border-box; left: 0; right: 0; top: 88px; height: 4px; background: var(--ink); opacity: 0.85; pointer-events: none; }
+.panel.ic-card.fridge h2 { color: #1d2140; }
+.panel.ic-card.fridge .ic-kicker { color: #5d6b7a; }
+.panel.ic-card.fridge .ic-gallery { margin-top: 30px; }
+.panel.ic-card.fridge .ic-text { margin: 30px 0 -14px; }
+.panel.ic-card.fridge .ic-tile { background: none; border-color: transparent; box-shadow: none; }
+.panel.ic-card.fridge .ic-tile-pic img { filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.25)); }

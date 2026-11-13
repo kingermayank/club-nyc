@@ -120,7 +120,10 @@ const CAM_BETH = toward(HOME, FOUNTAIN, S_BETH)
 
 const LEAF_COLORS = ['#f59e2b', '#e8562a', '#ffc93c', '#d9772b', '#f2b134']
 
-export function walkThePark(g: Game) {
+/** The Lake on its own (click a duck, or the bridge): the same water, ducks and bag of food, without the walk. */
+export const feedTheDucks = (g: Game) => walkThePark(g, true)
+
+export function walkThePark(g: Game, straightToLake = false) {
   if (document.querySelector('.pw')) return
   const release = hold()
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -1139,7 +1142,7 @@ export function walkThePark(g: Game) {
     where.textContent = 'The Lake'
     hit.hidden = false
     show(bag)
-    g.stamp('park-walk')
+    if (!straightToLake) g.stamp('park-walk')
     later(() => say('remo'), 900)
     later(() => {
       if (tossed) return
@@ -1147,6 +1150,12 @@ export function walkThePark(g: Game) {
       requestAnimationFrame(() => hintEl.classList.add('on'))
     }, 3200)
     later(() => phase === 'lake' && say('rent'), 14000)
+  }
+  if (straightToLake) {
+    pics.mall.style.opacity = '0'
+    jog.hidden = true
+    setMood('lake', 0.8)
+    arriveLake()
   }
   walkBtn.onclick = () => {
     g.sfx.click()

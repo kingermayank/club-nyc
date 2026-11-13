@@ -1,0 +1,29 @@
+/* the buttons of a close-up: bottom right, side by side */
+.cu-go { position: absolute; z-index: 6; right: 36px; bottom: 36px; display: flex; gap: 12px; }
+.cu-go .cu-plate { position: static; }
+.cu-place.quiet .cu-plate:not(.go) { background: linear-gradient(#f4f1ea, #d9d4c6); border-color: #4a4a55; box-shadow: 0 3px 0 #4a4a55; color: #2c2c38; }
+.cu-place.quiet .cu-plate.go { background: linear-gradient(#fff, #e6e9f2); color: var(--ink); text-shadow: none; }
+
+/* chalk on the market's board (the painted slate: set per picture below) */
+.pl-chalk { position: absolute; display: flex; flex-direction: column; gap: 6px; color: #f4f1e6; font: 22px/1.1 var(--display); }
+.pl-chalk h3 { margin: 0 0 8px; font: 34px/1 var(--display); font-weight: 400; text-align: center; letter-spacing: 0.04em; color: #ffe08a; }
+.pl-chalk button { display: grid; grid-template-columns: 1fr auto 44px; align-items: baseline; gap: 14px; padding: 7px 12px; border: 0; border-bottom: 2px dashed rgba(244, 241, 230, 0.35); border-radius: 8px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.pl-chalk button:hover { background: rgba(255, 255, 255, 0.12); }
+.pl-chalk b { font-weight: 400; }
+.pl-chalk span { font-size: 15px; color: #cfd8c8; }
+.pl-chalk i { font-style: normal; text-align: right; color: #ffe08a; }
+
+/* you, in the big gold frame */
+.pl-frame { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; overflow: hidden; }
+.pl-me { width: 60%; margin-bottom: 20%; aspect-ratio: 120 / 192; }
+.pl-me svg { display: block; width: 100%; height: 100%; }
+.pl-frame em { position: absolute; left: 0; right: 0; bottom: 6%; font: italic 16px/1 var(--display); color: #1d2140; text-align: center; transform: rotate(-6deg); }
+/* where the blank parts of each painting are (stage px) */
+.cu-chelsea-board .pl-chalk { left: 170px; top: 152px; width: 660px; }
+.cu-chelsea-board .cu-plate { left: auto !important; right: 36px; top: 478px !important; }
+.cu-wall-of-fame .pl-frame { left: 424px; top: 135px; width: 156px; height: 230px; }
+.cu-plate.cu-info { top: auto !important; bottom: 36px; }
+/* a gallery wall label, for the places that deserve a proper one */
+.cu-place .cu-plate.museum { width: 300px; padding: 14px 16px 14px; border: 0; border-top: 5px solid #1d2140; border-radius: 3px; background: #fbfaf6; box-shadow: 0 6px 18px rgba(13, 18, 38, 0.35); color: #2c2c38; font: 14px/1.4 var(--body, system-ui, sans-serif); letter-spacing: 0; text-shadow: none; white-space: normal; }
+.cu-place .cu-plate.museum b { font: 21px/1.15 var(--display); font-weight: 400; color: #1d2140; }
+.cu-place .cu-plate.museum i { display: block; margin: 2px 0 8px; font-style: normal; font-size: 12.5px; color: #6b6f85; }

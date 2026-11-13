@@ -236,7 +236,8 @@ function buildRoom(from?: string) {
   // invisible zones
   for (const [id, z] of Object.entries(geo?.zones ?? {})) {
     const def = room.zones?.[id] ?? room.objects[id]
-    if (!def) continue
+    // scenery is never a hover or click target
+    if (!def || def.decor) continue
     const { rect, poly } = zoneRect(z)
     world.hits.push({ kind: 'zone', id, def, rect, poly, z: 4 })
   }
@@ -621,8 +622,9 @@ function activate(h: Hit, p: Pt) {
     // down into the subway from the street: through this station's turnstile first (features/turnstile.ts). The
     // platform room is Times Sq–42 St, so from any other station (Grand Central) you go straight to picking a train.
     if (def.go === 'subway' && room.id !== 'subway')
-      return void import('../features/subway').then((m) =>
-        m.enterStation().then((ok) => {
+      return void Promise.all([import('../features/subway'), import('../features/turnstile')]).then(([m, t]) =>
+        // already swiped in (or just off a train): straight through, no second swipe
+        (t.swipedRecently() ? Promise.resolve(true as const) : m.enterStation()).then((ok) => {
           if (ok !== true || world.room !== room) return
           if (room.id === 'times-square') void goto('subway', room.id)
           else m.openSubway()

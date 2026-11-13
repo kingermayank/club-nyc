@@ -43,7 +43,7 @@ export interface PicCardOpts {
   caption?: string
   /** the real history, a sentence or three (may contain <b>) */
   text: string
-  /** one funny line, shown as a speech bubble */
+  /** no longer shown: the pigeon's line was removed from every card (2026-11-13) */
   joke?: string
   /** tiny fact chips ("1,776 feet", "Opened 2014") */
   facts?: string[]
@@ -87,7 +87,6 @@ export function picCard(o: PicCardOpts): HTMLElement {
       <h2>${o.title}</h2>
       <p class="ic-text">${o.text}</p>
       ${o.facts?.length ? `<div class="ic-facts">${o.facts.map((f) => `<span>${f}</span>`).join('')}</div>` : ''}
-      ${o.joke && !o.quiet ? `<div class="ic-joke"><img class="ic-joke-who" src="/art/icons/e/pigeon.png" alt="" draggable="false"><span>${o.joke}</span></div>` : ''}
       <div class="ic-actions"></div>
     </div>`
   const body = card.querySelector<HTMLElement>('.ic-body')!

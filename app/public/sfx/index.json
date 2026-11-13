@@ -458,6 +458,53 @@
    ],
    "bus": "fx",
    "vol": 0.55
+  },
+  "cu.flap": {
+   "files": [
+    "cu.flap.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.4,
+   "gap": 400
+  },
+  "cu.tick": {
+   "files": [
+    "cu.tick.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.3,
+   "jitter": 0.02,
+   "gap": 500
+  },
+  "cu.chalk": {
+   "files": [
+    "cu.chalk.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5
+  },
+  "cu.bell": {
+   "files": [
+    "cu.bell.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.45
+  },
+  "cu.toll": {
+   "files": [
+    "cu.toll.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.4,
+   "gap": 4000
+  },
+  "cu.wind": {
+   "files": [
+    "cu.wind.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.4,
+   "gap": 3000
   }
  },
  "ambience": {

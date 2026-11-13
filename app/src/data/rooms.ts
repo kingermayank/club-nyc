@@ -1,5 +1,4 @@
 import type { Game, ObjDef, RoomDef } from '../types'
-import type { CardAction, Pic, PicCardOpts } from '../features/infocard'
 import { bump, save } from '../state'
 import { WELCOME_GIFTS } from './economy'
 
@@ -124,33 +123,14 @@ const bullMoment: Act = (g) => void import('../features/moments/bull').then((m) 
 const tossMoment: Act = (g) => void import('../features/moments/coinToss').then((m) => m.coinToss(g))
 const flagsMoment: Act = (g) => void import('../features/moments/flags').then((m) => m.flagRollCall(g))
 
-/** a traced object's own picture: /art/cutouts/<room>/<obj>.png */
-const pic = (room: string, obj: string, backdrop?: string): Pic => ({ cut: room, obj, backdrop })
-/** a crop of a room's art ([x, y, w, h] in the room's 1000 × 565 space; `bg` is the room's background file) */
-const view = (bg: string, rect: [number, number, number, number]): Pic => ({ room: bg, rect })
 
-type CardDef = Omit<PicCardOpts, 'actions'> & { actions?: (g: Game) => CardAction[]; stamp?: string }
-const card = (o: CardDef): Act => (g) =>
-  void import('../features/infocard').then((m) => {
-    const { actions, stamp, ...rest } = o
-    m.picCard({ ...rest, actions: actions?.(g) })
-    if (stamp) g.stamp(stamp)
-  })
+/** a close-up painting of the thing (features/moments/places.ts); `acts` are what its buttons do, by label */
+const place = (id: string, acts?: (g: Game) => Record<string, () => void>): Act => (g) => void import('../features/moments/places').then((m) => m.openPlace(g, id, acts?.(g)))
 const snap = (line: string) => (g: Game) => fun((m) => m.snap(g, line))
 const sitDown = (line?: string, near?: [number, number]) => (g: Game) => fun((m) => m.sitNearest(g, line, near))
 const photoBooth = (where: string) => () => void import('../features/photobooth').then((m) => m.openPhotoBooth(where))
 
 // shared cards
-const boxSeats = card({
-  title: 'Box Seats', kicker: 'Broadway Theater', pic: pic('broadway', 'box-left'),
-  text: 'Theater boxes were built for being seen, not for seeing: from up there you get half the stage and all of the audience. Broadway has 41 big theaters, most of them built between 1903 and 1928.',
-  joke: 'Sold out. To a very rich pigeon.',
-  actions: (g) => [{ label: 'Wave at the Box', act: () => (g.emote('wave', 2), g.say('The very rich pigeon waves back. Sort of.')) }],
-})
-const ownSkates = (g: Game): CardAction =>
-  g.owns('skates')
-    ? { label: 'Wear Your Skates', act: () => (g.wear('skates'), g.say('Laced up. Mostly.')) }
-    : { label: 'Rent Skates', note: '15 coins', act: () => g.catalog('rink') }
 const halal = async (g: Game) => {
   const v = await g.choose('🥙 Halal Bros', '“Chicken over rice, my friend? Or… you want to work the lunch rush?”', [
     { label: 'Chicken Over Rice (6)', value: 'buy', note: 'extra white sauce' },
@@ -164,16 +144,6 @@ const halal = async (g: Game) => {
   }
   if (v === 'work') g.playGame('halal-rush')
 }
-const libertyTorch = card({
-  title: 'The Torch', kicker: 'Closed Since 1916', pic: view('liberty-island-v2', [660, 0, 96, 72]),
-  text: 'Visitors could once climb up into the torch. It closed in 1916 after an explosion on a nearby pier damaged the arm. The original torch was replaced in 1986 and now stands in the island’s museum; the new flame is covered in 24-karat gold.',
-  joke: 'The torch is closed. She does not take visitors on her arm.',
-})
-const libertyPedestal = card({
-  title: 'The Pedestal', kicker: 'Paid For by 120,000 People', pic: view('liberty-island-v2', [664, 130, 130, 105]),
-  text: 'France gave the statue; Americans had to pay for the pedestal. In 1885 a New York newspaper printed the name of every donor, and more than 120,000 people chipped in, most of them less than a dollar. A plaque with Emma Lazarus’s poem “The New Colossus” was added in 1903.',
-  joke: 'The original crowdfunding campaign. No tote bag for donors, though.',
-})
 
 // ---------- rooms ----------
 export const ROOMS: Record<string, RoomDef> = {
@@ -199,8 +169,8 @@ export const ROOMS: Record<string, RoomDef> = {
       curtain: { label: 'Watch Tonight’s Show', act: (g) => g.watchShow() },
       'seats-left': { label: 'Take a Seat', sit: true },
       'seats-right': { label: 'Take a Seat', sit: true },
-      'box-left': look('Box Seats', boxSeats),
-      'box-right': look('Box Seats', boxSeats),
+      'box-left': { label: 'Box Seats', decor: true },
+      'box-right': { label: 'Box Seats', decor: true },
       chandelier: look('The Chandelier', mo('chandelier', 'catchTheCrystals')),
       exit: exit('Exit to Times Square', 'times-square'),
     },
@@ -218,12 +188,7 @@ export const ROOMS: Record<string, RoomDef> = {
       counter: { label: 'Checkout', act: shop('iloveny') },
       mirror: { label: 'Try Things On', act: () => import('../features/playerCard').then((m) => m.openWardrobe()) },
       booth: { label: 'Changing Room', act: () => import('../features/playerCard').then((m) => m.openWardrobe()) },
-      neon: look('Photo Booth', card({
-        title: 'I ♥ NY', kicker: 'Since 1977', pic: pic('iloveny', 'neon', 'linear-gradient(170deg, #2b1030, #6a1d3a)'),
-        text: 'Milton Glaser sketched the logo in 1977, in red crayon on the back of an envelope, during a taxi ride. It was for a state tourism campaign, he did it for free, and it became one of the most copied designs on Earth.',
-        joke: 'Half the shirts in this store say it. The other half say it louder.',
-        actions: () => [{ label: 'Pose Under the Neon', note: 'friends nearby squeeze in', primary: true, act: photoBooth('I ♥ NY') }],
-      })),
+      neon: { label: 'Photo Booth', act: photoBooth('I ♥ NY') },
       door: exit('Exit to Times Square', 'times-square'),
     },
   },
@@ -235,16 +200,7 @@ export const ROOMS: Record<string, RoomDef> = {
       // the ice is part of the plaza: click it and you walk out and glide (no card, nothing stops you)
       rink: { label: 'The Rink', decor: true },
       statue: look('Prometheus', tossMoment),
-      'skate-rental': { label: 'Skate Rentals', act: card({
-        title: 'Skate Rentals', kicker: 'The Rink', pic: pic('rockefeller', 'skate-rental'),
-        text: 'Skating here is a New York tradition: the rink usually opens in October and stays open into spring. Rent skates, then walk onto the ice to glide.',
-        joke: 'Falling is free. Getting back up is extra.',
-        actions: (g) => [
-          { ...ownSkates(g), primary: true },
-          { label: 'Skate a Lap', act: () => fun((m) => m.skateLap(g)) },
-          { label: 'Do a Spin', act: () => fun((m) => m.skateSpin(g)) },
-        ],
-      }) },
+      'skate-rental': { label: 'Skate Rentals', act: (g) => (g.owns('skates') ? (g.wear('skates'), g.say('Laced up. Mostly.')) : g.catalog('rink')) },
       'tv-studio': { label: 'Wave on Air!', act: (g) => import('../features/extras').then((m) => m.onAir(g)) },
       flags: look('The Flags', flagsMoment),
       'flags-2': look('The Flags', flagsMoment),
@@ -268,19 +224,9 @@ export const ROOMS: Record<string, RoomDef> = {
       'toy-palace': exit('Snacks Fifth Avenue', 'toy-palace'),
       'halal-cart': { label: 'Halal Bros', act: halal },
       cathedral: look('St. Patrick’s Cathedral', mo('bells', 'ringTheBells')),
-      'street-sign': look('5 Av & W 57 St', card({
-        title: 'Fifth Avenue', kicker: '5 Av & W 57 St', pic: pic('fifth-ave', 'street-sign'),
-        text: 'Fifth Avenue splits Manhattan in two: street addresses are “East” on one side and “West” on the other. It’s regularly ranked the most expensive shopping street in the world.',
-        joke: 'The most expensive shopping street on Earth. I bought a pretzel.',
-        actions: (g) => [{ label: 'Hail a Taxi', primary: true, act: () => taxi(g) }],
-      })),
+      'street-sign': { label: 'Hail a Taxi', act: taxi, instant: true },
       hydrant: { label: 'Fire Hydrant', act: mo('hydrant', 'openTheHydrant') },
-      manhole: look('Steaming Manhole', card({
-        title: 'Steaming Manhole', kicker: 'Under Fifth Avenue', pic: pic('fifth-ave', 'manhole'),
-        text: 'The steam is real: New York runs the biggest commercial steam system in the country, about 100 miles of pipes under Manhattan carrying steam to heat and cool buildings. Now and then a little escapes.',
-        joke: 'Now you know where the steam comes from. Don’t tell anyone.',
-        actions: (g) => [{ label: 'Stand in the Steam', act: () => (g.emote('cheer', 2), g.say('Instant facial. Very New York.')) }],
-      })),
+      manhole: look('Steaming Manhole', (g) => (g.emote('cheer', 2), g.say('Instant facial. Very New York.'))),
       'exit-left': exit('To Rockefeller Center', 'rockefeller'),
       'exit-right': exit('To Central Park', 'central-park'),
     },
@@ -291,25 +237,12 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'toy-palace', name: 'Snacks Fifth Avenue', area: 'Fifth Avenue', bg: 'saks', indoor: true, npcs: 2, mapSpot: 'fifth-ave',
     chatter: ['Just looking. For four hours.', 'Is the shoe floor really its own zip code?', 'I came for the windows and stayed for the escalators.'],
     objects: {
-      shoes: look('10022-SHOE', card({
-        title: 'The Shoe Floor', kicker: 'Zip Code 10022-SHOE', pic: pic('toy-palace', 'shoes'),
-        text: 'Snacks’ shoe floor is so big that when it opened in 2007 it got its own zip code from the Postal Service: 10022-SHOE.',
-        joke: 'Mail a letter here and it comes back in a better pair of shoes.',
-        actions: (g) => [{ label: 'Browse Shoes', primary: true, act: () => shop('toys', 'shoes')(g) }],
-      })),
+      shoes: { label: 'The Shoe Floor', act: shop('toys', 'shoes') },
       bench: { label: 'Velvet Bench', sit: true },
       'escalator-left': look('Escalator', say(['The upper floors are for advanced shoppers. I’m still on level one.', 'Going up! The view from floor 2 is mostly other escalators.'])),
       'escalator-right': look('Escalator', say(['Riding an escalator just to look around. Very New York.', 'Stand right, walk left. Even in Snacks.'])),
       chandelier: look('Chandelier', say('That chandelier costs more than my apartment. Probably the whole building.')),
-      counter: look('Perfume Counter', card({
-        title: 'Perfume Counter', kicker: 'Snacks Fifth Avenue', pic: pic('toy-palace', 'counter'),
-        text: 'Snacks opened on Fifth Avenue in 1924. Every holiday season its whole facade lights up in a light show, and the crowd on the sidewalk outside is part of the tradition.',
-        joke: 'One spritz and you smell like a department store. Congratulations.',
-        actions: (g) => [
-          { label: 'Shop', primary: true, act: () => shop('toys')(g) },
-          { label: 'Try a Sample', act: () => g.say('*spritz* Notes of bergamot, cedar and a 45-minute wait.') },
-        ],
-      })),
+      counter: { label: 'Perfume Counter', act: shop('toys') },
       bags: { label: 'Jewelry & Shades', act: shop('toys', 'jewelry') },
       'display-left': { label: 'Shoe Display', decor: true },
       'display-right': { label: 'Handbag Display', decor: true },
@@ -326,23 +259,9 @@ export const ROOMS: Record<string, RoomDef> = {
       sunglasses: { label: 'Jewelry & Shades', act: shop('maison', 'jewelry') },
       'cash-desk': { label: 'Boutique Desk', act: shop('maison') },
       sofa: { label: 'Velvet Sofa', sit: true },
-      staircase: look('VIP Staircase', card({
-        title: 'VIP Staircase', kicker: 'Louis Vuittown', pic: pic('maison-malle', 'staircase'),
-        text: 'Fifth Avenue flagships are built to impress: marble, brass and a staircase you’re not allowed to climb. The salon upstairs is by appointment only.',
-        joke: 'The next free appointment is in 2029. Bring a snack.',
-        actions: (g) => [{ label: 'Ask for an Appointment', act: () => g.say('“We’ll call you.” They will not call me.') }],
-      })),
-      'velvet-rope': look('Velvet Rope', card({
-        title: 'Velvet Rope', kicker: 'Very Exclusive', pic: pic('maison-malle', 'velvet-rope'),
-        text: 'Brass posts and velvet ropes started out keeping lines tidy in grand old theaters and hotels. In a boutique they mostly keep the mystery tidy.',
-        joke: 'Ooh. A rope. That means it’s exclusive.',
-        actions: (g) => [{ label: 'Step Over It', act: () => g.say('A security guard clears his throat. I step right back over.') }],
-      })),
-      chandelier: look('Chandelier', card({
-        title: 'Chandelier', kicker: 'Louis Vuittown', pic: pic('maison-malle', 'chandelier'),
-        text: 'Store rents on Fifth Avenue in the 50s are some of the highest in the world, so every square foot has to sparkle. This one sparkles on purpose.',
-        joke: 'This chandelier costs more than my rent. Probably. Possibly. Definitely.',
-      })),
+      staircase: { label: 'VIP Staircase', decor: true },
+      'velvet-rope': { label: 'Velvet Rope', decor: true },
+      chandelier: { label: 'Chandelier', decor: true },
       'mannequin-1': look('Mannequin', snap('Serving looks. Literally.')), 'mannequin-2': look('Mannequin', snap('Camel coat season. I’m the camel.')), 'mannequin-3': look('Mannequin', snap('Very chic. The mannequin won.')),
     },
     zones: { exit: exit('Exit to Fifth Avenue', 'fifth-ave') },
@@ -353,43 +272,22 @@ export const ROOMS: Record<string, RoomDef> = {
     chatter: ['843 acres and I still can’t find the zoo.', 'Squirrels here are fearless.', 'Picnic on the Great Lawn later?'],
     objects: {
       carriage: { label: 'Horse Carriage Ride', act: (g) => import('../features/extras').then((m) => m.carriageRide(g)) },
-      boathouse: { label: 'Boathouse Café', act: card({
-        title: 'Boathouse Café', kicker: 'Central Park', pic: pic('central-park', 'boathouse'),
-        text: 'The park’s boathouse has stood on The Lake since 1954. From spring to fall you can rent a rowboat here and row right under Bow Bridge. In October the cocoa season starts.',
-        joke: 'Hot cocoa by the lake: the most cinematic way to spend 3 coins.',
-        actions: (g) => [
-          { label: 'Hot Cocoa (3)', primary: true, act: () => vend('cocoa', 3, 'Hot cocoa by the lake. Very cozy. ☕')(g) },
-          { label: 'Soft Pretzel (2)', act: () => vend('pretzel', 2, 'Warm pretzel, cold air. Perfect. 🥨')(g) },
-          { label: 'Take It to a Bench', act: () => sitDown('A bench, a snack and a view. Peak autumn. 🍂')(g) },
-          { label: 'Rent a Rowboat (3)', act: () => mo('rowboat', 'rowTheLake')(g) },
-        ],
-      }) },
-      pretzels: { label: 'Pretzel Cart', act: card({
-        title: 'Pretzel Cart', kicker: 'Central Park', pic: pic('central-park', 'pretzels'),
-        text: 'Soft pretzels came over with German immigrants in the 1800s, and New York’s street carts have sold them ever since. Best warm, with mustard, on a park bench.',
-        joke: 'Salty, warm and the size of my face.',
-        actions: (g) => [
-          { label: 'Buy a Pretzel (2)', primary: true, act: () => vend('pretzel', 2, 'Salty, warm, the size of my face. 🥨')(g) },
-          { label: 'Sit with It', act: () => sitDown('Pretzel on a park bench. Living the dream.')(g) },
-          { label: 'Share with a Squirrel', act: () => mo('squirrel', 'feedTheSquirrel')(g) },
-        ],
-      }) },
+      boathouse: { label: 'Boathouse Café', act: async (g) => {
+        // the café's chalkboard (features/ralphs.ts); ringing it up stays here
+        const v = await import('../features/ralphs').then((m) => m.boathouseMenu())
+        if (v === 'row') return mo('rowboat', 'rowTheLake')(g)
+        if (v === 'cocoa') vend('cocoa', 3, 'Hot cocoa by the lake. Very cozy. ☕')(g)
+        if (v === 'coffee') vend('coffee', 3, 'Deli coffee, lake view. ☕')(g)
+        if (v === 'pretzel') vend('pretzel', 2, 'Warm pretzel, cold air. Perfect. 🥨')(g)
+      } },
+      pretzels: { label: 'Pretzel Cart', act: vend('pretzel', 2, 'Salty, warm, the size of my face. 🥨') },
       rowboat: { label: 'Rowboat', act: mo('rowboat', 'rowTheLake') },
       // the water: a walk down the Mall, past Bethesda, to sit at the Lake with the ducks (features/moments/parkWalk.ts)
       'park-walk': { label: 'Walk to the Lake', act: mo('parkWalk', 'walkThePark') },
       // the ducks: down to the water's edge to watch them (and feed them) up close
-      'duck-1': look('Ducks', mo('parkWalk', 'walkThePark')), 'duck-2': look('Ducks', mo('parkWalk', 'walkThePark')), 'duck-3': look('Ducks', mo('parkWalk', 'walkThePark')),
+      'duck-1': look('Feed the Ducks', mo('parkWalk', 'feedTheDucks')), 'duck-2': look('Feed the Ducks', mo('parkWalk', 'feedTheDucks')), 'duck-3': look('Feed the Ducks', mo('parkWalk', 'feedTheDucks')),
       'squirrel-1': look('Squirrel', mo('squirrel', 'feedTheSquirrel')), 'squirrel-2': look('Squirrel', mo('squirrel', 'feedTheSquirrel')),
-      bridge: look('Bow Bridge', card({
-        title: 'Bow Bridge', kicker: 'Central Park', pic: view('central-park', [345, 80, 330, 175]),
-        text: 'A cast-iron bridge over The Lake, finished in 1862 and designed by Calvert Vaux and Jacob Wrey Mould. It’s named for its shape: a curve like an archer’s bow.',
-        joke: 'Probably the most-proposed-on spot in the city. Stand here too long and someone kneels.',
-        facts: ['Built 1862', 'Cast iron', 'Seen in a hundred movies'],
-        actions: (g) => [
-          { label: 'Pop the Question', primary: true, act: () => fun((m) => m.kneel(g, 'Will you be my favorite bridge? …It said yes. 💖', true)) },
-          { label: 'Take a Photo', act: () => snap('Me and Bow Bridge. Classic.')(g) },
-        ],
-      })),
+      bridge: look('Bow Bridge', place('bow-bridge', (g) => ({ 'Pop the Question': () => fun((m) => m.kneel(g, 'Will you be my favorite bridge? …It said yes. 💖', true)), 'Take a Photo': () => snap('Me and Bow Bridge. Classic.')(g), 'Feed the Ducks': () => mo('parkWalk', 'feedTheDucks')(g) }))),
       'bench-1': { label: 'Park Bench', sit: true }, 'bench-2': { label: 'Park Bench', sit: true },
       'exit-left': exit('To Fifth Avenue', 'fifth-ave'),
       'exit-right': exit('To The Met', 'the-met'),
@@ -403,12 +301,7 @@ export const ROOMS: Record<string, RoomDef> = {
       // up the steps and in through the center doors: the Great Hall, the galleries (features/moments/met.ts)
       doors: { label: 'Go Inside the Met', act: mo('met', 'enterTheMet') },
       steps: { label: 'The Met Steps', sit: true },
-      banners: look('The Banners', card({
-        title: 'The Banners', kicker: 'The Met', pic: pic('the-met', 'banners'),
-        text: 'The giant banners announce the special exhibitions. The museum was founded in 1870, and this grand Fifth Avenue front opened in 1902.',
-        joke: 'This season: “Hot Dogs Through the Ages.” Kidding. Probably.',
-        actions: (g) => [{ label: 'Take a Photo', act: () => snap('Me and the banners. Very cultured.')(g) }],
-      })),
+      banners: { label: 'The Banners', decor: true },
       'fountain-left': { label: 'Fountain', act: wish }, 'fountain-right': { label: 'Fountain', act: wish },
       hotdog: { label: 'Hot Dog Cart', act: mo('hotdog', 'hotDogCart') },
       pretzel: { label: 'Pretzel Cart', act: vend('pretzel', 2, 'A pretzel on the Met steps. Iconic. 🥨') },
@@ -439,18 +332,8 @@ export const ROOMS: Record<string, RoomDef> = {
     objects: {
       elevator: elevator('Elevator to the 86th Floor', 'empire-deck', true),
       exit: exit('To 34th Street', 'empire-street'),
-      mural: look('The Lobby Mural', card({
-        title: 'The Lobby Mural', kicker: 'Empire State Building', pic: pic('empire-lobby', 'mural'),
-        text: 'The building in metal relief, with beams of light fanning out behind it, has faced the Fifth Avenue doors since opening day in 1931. The whole tower went up in 410 days.',
-        joke: 'A building with a portrait of itself in its own lobby. Confidence.',
-        facts: ['Opened 1931', 'Built in 410 days'],
-      })),
-      model: look('Scale Model', card({
-        title: 'Scale Model', kicker: 'Fifth Avenue Lobby', pic: pic('empire-lobby', 'model'),
-        text: '102 floors, 1,454 feet to the tip, and 73 elevators. It was the tallest building in the world for almost 40 years.',
-        joke: 'This one has no elevator line.',
-        facts: ['102 floors', '73 elevators'],
-      })),
+      mural: look('The Lobby Mural', place('lobby-mural')),
+      model: look('Scale Model', place('scale-model')),
       desk: look('Ticket Desk', () => void import('../features/tickets').then((m) => m.desk('empire'))),
     },
   },
@@ -465,17 +348,8 @@ export const ROOMS: Record<string, RoomDef> = {
       'viewer-right': { label: 'Look Out Over the City', act: ticketed('empire', 'look', mo('cityView', 'viewFromEmpire')) },
       elevator: elevator('Elevator Down to the Lobby', 'empire-lobby', false),
       blimp: look('The Blimp', mo('blimp', 'airMail')),
-      spire: look('The Spire', card({
-        title: 'The Spire', kicker: 'Empire State Building', pic: pic('empire-deck', 'spire'),
-        text: 'The mast on top was built so airships could dock and let passengers off on the 102nd floor. In 1931 a small blimp held on for about three minutes in the wind, and the idea was quietly dropped.',
-        joke: 'Imagine stepping off a blimp, 1,250 feet up, holding your hat.',
-        facts: ['1,454 ft to the tip', 'Opened 1931'],
-      })),
-      chrysler: look('Chrysler Building', card({
-        title: 'Chrysler Building', kicker: 'Midtown', pic: pic('empire-deck', 'chrysler'),
-        text: 'The art-deco Chrysler Building was the tallest in the world for 11 months. Its builders secretly assembled the spire inside the top and raised it in about 90 minutes to beat a rival tower downtown.',
-        joke: 'The gargoyles look like car hood ornaments. Very on-brand for a car company.',
-      })),
+      spire: { label: 'The Spire', decor: true },
+      chrysler: look('Chrysler Building', place('chrysler')),
     },
   },
 
@@ -483,30 +357,13 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'grand-central', name: 'Grand Central Terminal', area: 'Main Concourse', bg: 'grand-central', indoor: true, npcs: 5, mapSpot: 'grand-central',
     chatter: ['Meet me at the clock.', 'Track 29! Where’s track 29?', 'I always look up in here.'],
     objects: {
-      clock: look('The Opal Clock', card({
-        title: 'The Opal Clock', kicker: 'Main Concourse', pic: pic('grand-central', 'clock'),
-        text: 'All four faces of the clock above the information booth are made of opal, and appraisers have valued it at 10 to 20 million dollars. “Meet me at the clock” has been New York’s favorite plan since 1913.',
-        joke: 'The most romantic sentence in New York. Also the most confusing: there are four faces.',
-        actions: (g) => [{ label: 'Meet Me at the Clock', primary: true, act: () => (g.emote('wave', 2), g.say('Meet me at the clock! (Which side? All of them.)')) }],
-      })),
+      clock: look('The Opal Clock', mo('opalClock', 'opalClock')),
       ceiling: look('The Ceiling', mo('ceiling', 'connectTheStars')),
-      departures: look('Departures', card({
-        title: 'Departures', kicker: 'Grand Central Terminal', pic: pic('grand-central', 'departures'),
-        text: 'Grand Central has 44 platforms, more than any other train station in the world, and around 750,000 people pass through on a busy day.',
-        joke: '44 platforms, and you will still run for the wrong one.',
-      })),
+      departures: look('Departures', mo('departures', 'departuresBoard')),
       whisper: { label: 'Whispering Gallery', act: (g) => import('../features/extras').then((m) => m.whisper(g)) },
       staircase: exit('Down to the Subway', 'subway'),
-      flag: look('The Flag', card({
-        title: 'The Flag', kicker: 'Main Concourse', pic: pic('grand-central', 'flag'), quiet: true,
-        text: 'This huge American flag was hung in the Main Concourse after September 11, 2001, and it has stayed ever since.',
-      })),
-      windows: look('The Windows', card({
-        title: 'The Windows', kicker: 'Main Concourse', pic: pic('grand-central', 'windows'),
-        text: 'The great arched windows have walkways between their two layers of glass, so now and then you can spot someone walking inside a window. In the morning, light pours through in famous beams.',
-        joke: 'Every photographer’s dream. Every window washer’s cardio.',
-        actions: (g) => [{ label: 'Take a Photo', act: () => snap('Beams of light. Nailed it.')(g) }],
-      })),
+      flag: { label: 'The Flag', decor: true },
+      windows: { label: 'The Windows', decor: true },
     },
     zones: { exit: exit('42nd St → Times Square', 'times-square') },
   },
@@ -519,23 +376,11 @@ export const ROOMS: Record<string, RoomDef> = {
       train: { label: 'Board the Train', act: (g) => void import('../features/subwayTrain').then((m) => m.board(g)) },
       turnstiles: exit('Exit to Times Square', 'times-square'),
       'map-poster': { label: 'Subway Map', act: (g) => g.openSubway(), instant: true },
-      'guitar-case': { label: 'Busker’s Guitar Case', act: mo('riff', 'playTheRiff') },
+      'guitar-case': { label: 'Busker’s Guitar Case', act: (g) => void import('../features/subwayLife').then((m) => m.busker(g)) },
       rat: look('???', (g) => void import('../features/subwayLife').then((m) => m.pizzaRat(g))),
-      trash: look('Trash Can', card({
-        title: 'Trash Can', kicker: 'Times Sq–42 St', pic: { src: '/art/fx/subway-trash.jpg', fit: 'cover' },
-        text: 'In 2011 the subway tried taking trash cans out of some stations to cut down on trash and rats. People kept dropping trash anyway, and the cans came back.',
-        joke: 'It’s full. It’s always full. Take the shot anyway.',
-        // a shot from wherever you're standing (features/moments/trashToss.ts)
-        actions: (g) => [{ label: 'Take the Shot', primary: true, act: () => void import('../features/moments/trashToss').then((m) => m.trashToss(g)) }],
-      })),
+      trash: look('Trash Can', (g) => void import('../features/moments/trashToss').then((m) => m.trashToss(g))),
       bench: { label: 'Bench', sit: true },
-      sign: look('Subway Sign', card({
-        title: 'The Subway', kicker: 'Since 1904', pic: pic('subway', 'sign'),
-        text: 'The first subway line opened on October 27, 1904. Today there are 472 stations and the trains run 24 hours a day. Each colored circle, or “bullet”, is a line.',
-        joke: 'The colored circles are free. So are the delays.',
-        facts: ['Opened 1904', '472 stations', 'Open 24/7'],
-        actions: (g) => [{ label: 'Open the Subway Map', primary: true, act: () => g.openSubway() }],
-      })),
+      sign: { label: 'Subway Map', act: (g) => g.openSubway(), instant: true },
     },
   },
 
@@ -560,11 +405,7 @@ export const ROOMS: Record<string, RoomDef> = {
         },
       },
       bikes: { label: 'Bike Rack', act: mo('bikeBells', 'ringTheBells') },
-      hydrant: look('Hydrant', card({
-        title: 'Hydrant', kicker: 'SoHo', pic: pic('soho', 'hydrant'),
-        text: 'An open hydrant without a spray cap blasts over 1,000 gallons a minute, enough to drop the water pressure firefighters need for the whole block.',
-        joke: 'A SoHo hydrant. Somehow more stylish.',
-      })),
+      hydrant: { label: 'Hydrant', decor: true },
       bistro: { label: 'Café Table', sit: true },
       // sits under the toolbar: scenery (it still steams)
       manhole: { label: 'Manhole', decor: true },
@@ -656,11 +497,7 @@ export const ROOMS: Record<string, RoomDef> = {
       dumpling: { label: 'Dim Sum Upstairs', act: mo('dimSum', 'dimSum') },
       boba: { label: 'Boba Bay', act: vend('boba', 4, 'Brown sugar boba. Extra pearls. 🧋') },
       pizza: exit('99¢ Slice', 'pizza'),
-      arch: look('Little Italy', card({
-        title: 'Little Italy', kicker: 'Mulberry Street', pic: pic('chinatown', 'arch'),
-        text: 'Mulberry Street was once the heart of a huge Italian neighborhood. Today it’s a few blocks of red-sauce restaurants, and every September the Feast of San Gennaro fills them with music, lights and zeppole.',
-        joke: 'Every restaurant has a guy outside who swears his cannoli are the best. They’re all right.',
-      })),
+      arch: look('Little Italy', place('little-italy')),
       fruit: look('Fruit Stand', (g) => { if (!g.spend(1, 'fruit')) return; g.sfx.register(); g.say('A dragon fruit for one coin! Amazing. 🐉') }),
       lanterns: look('Lanterns', mo('lanterns', 'lightTheLanterns')),
       'exit-left': exit('To SoHo', 'soho'),
@@ -675,17 +512,8 @@ export const ROOMS: Record<string, RoomDef> = {
       // first person at the counter: pick a pie, it reheats, shake, fold, eat (features/moments/pizzaSlice.ts)
       counter: { label: 'Order a Slice', act: mo('pizzaSlice', 'orderASlice') },
       oven: { label: 'Work a Shift', act: (g) => g.playGame('slice-factory') },
-      menu: look('Menu', card({
-        title: 'The Menu', kicker: 'By the Slice', pic: pic('pizza', 'menu'),
-        text: 'Cheese, pepperoni, white. New Yorkers fold a slice down the middle so the tip doesn’t flop, and for decades a plain slice has cost about the same as a subway ride.',
-        joke: 'That’s the whole menu. Perfection doesn’t need a second page.',
-      })),
-      'photos-left': look('Wall of Fame', card({
-        title: 'Wall of Fame', kicker: '99¢ Slice', pic: pic('pizza', 'photos-left'),
-        text: 'Every slice shop in New York has this wall: signed photos of famous customers, all smiling, none of them identifiable.',
-        joke: 'I don’t recognize any of them. Someday my headshot goes up there.',
-        actions: (g) => [{ label: 'Pose for the Wall', act: () => snap('Signed, framed, hung. In my dreams.')(g) }],
-      })),
+      menu: { label: 'Order a Slice', act: mo('pizzaSlice', 'orderASlice') },
+      'photos-left': look('Wall of Fame', place('wall-of-fame', (g) => ({ 'Pose for the Wall': () => snap('Signed, framed, hung. In my dreams.')(g) }))),
       'photos-right': look('Wall of Fame', say('Someday my headshot will be up there.')),
       soda: { label: 'Soda Fridge', act: (g) => { if (!g.spend(1, 'soda')) return; g.sfx.register(); g.say('Ice cold. *crack* Fizzzz. 🥤') } },
       window: look('Window', (g) => { g.sfx.honk(); g.say('The taxis never stop honking.') }),
@@ -706,20 +534,7 @@ export const ROOMS: Record<string, RoomDef> = {
       tugboat: look('Tugboat', (g) => { g.sfx.toot(); g.say('TOOOOT') }),
       'gull-1': look('Seagull', (g) => { g.sfx.squawk(); g.say('That seagull is judging me.') }),
       'gull-2': look('Seagull', (g) => { g.sfx.squawk(); g.say('It wants my pretzel. It cannot have my pretzel.') }),
-      tower: look('Brooklyn Bridge', (g) =>
-        void import('../features/infocard').then((m) =>
-          m.picCard({
-            title: 'Brooklyn Bridge',
-            kicker: 'Opened 1883',
-            text: 'Brooklyn is still under construction. Keep exploring Manhattan for now.',
-            extra: m.comingSoonSign('Brooklyn'),
-            joke: 'Still the best free walk in New York.',
-            actions: [
-              { label: 'Walk the Bridge', primary: true, act: () => void import('../features/bridgeWalk').then((w) => w.walkToBrooklyn()) },
-              { label: 'Hang a Lock', act: () => mo('lovelocks', 'loveLocks')(g) },
-            ],
-          }),
-        )),
+      tower: look('Brooklyn Bridge', place('bridge-tower', (g) => ({ 'Walk the Bridge': () => void import('../features/bridgeWalk').then((w) => w.walkToBrooklyn()), 'Hang a Lock': () => mo('lovelocks', 'loveLocks')(g) }))),
       locks: { label: 'Love Locks', act: mo('lovelocks', 'loveLocks') },
       'exit-left': exit('To Chinatown', 'chinatown'),
       // the far end of the promenade: walk the bridge (features/bridgeWalk.ts). Brooklyn itself isn't built yet.
@@ -736,20 +551,11 @@ export const ROOMS: Record<string, RoomDef> = {
       tickets: { label: 'Ferry Tickets', act: (g) => g.ferry() },
       ferry: { label: 'Board the Ferry', act: (g) => g.ferry() },
       gangway: { label: 'Board the Ferry', act: (g) => g.ferry() },
-      statue: look('Statue of Liberty', card({
-        title: 'Statue of Liberty', kicker: 'From Battery Park', pic: pic('battery-park', 'statue'),
-        text: 'A gift from the people of France, dedicated in 1886. She’s 151 feet from heel to torch and stands on Liberty Island, a short ferry ride from this dock.',
-        joke: 'She wears a size 879 sandal. Nobody asks where she shops.',
-        actions: (g) => [{ label: 'Take the Ferry', primary: true, act: () => g.ferry() }],
-      })),
+      statue: { label: 'Statue of Liberty', decor: true },
       lifebuoy: { label: 'Life Ring', act: mo('lifeRing', 'tossTheRing') },
       'bench-1': { label: 'Bench', sit: true }, 'bench-2': { label: 'Bench', sit: true },
       gull: look('Seagull', (g) => import('../features/extras').then((m) => m.seagull(g))),
-      lamp: look('Lamp Post', card({
-        title: 'Battery Park', kicker: 'The Tip of Manhattan', pic: pic('battery-park', 'lamp'),
-        text: 'The park is named for the cannon batteries that guarded the harbor in the 1600s and 1700s. Castle Clinton, the round stone fort nearby, was built for the War of 1812 and later became America’s first immigration station.',
-        joke: 'The lamp is decorative. The seagulls use it as a lookout tower.',
-      })),
+      lamp: { label: 'Lamp Post', decor: true },
       'exit-left': exit('To One World Trade', 'one-world-trade'),
     },
   },
@@ -759,35 +565,9 @@ export const ROOMS: Record<string, RoomDef> = {
     chatter: ['She’s even bigger up close!', 'Crown tickets sell out months ahead.', 'I came here on the ferry!'],
     onEnter: (g) => g.stamp('liberty'),
     objects: {
-      statue: look('Statue of Liberty', card({
-        title: 'Statue of Liberty', kicker: 'Liberty Enlightening the World', pic: pic('liberty-island', 'statue'),
-        text: 'Her official name is “Liberty Enlightening the World”. Her copper skin is only 2.4 mm thick: she arrived a shiny brown and turned green over about 30 years.',
-        joke: 'She’s been holding that torch up since 1886. Her arm is fine. She checked.',
-        facts: ['151 ft tall', '25 crown windows', 'Size 879 sandals'],
-        actions: (g) => [
-          { label: 'Take a Selfie', primary: true, act: () => mo('selfie', 'libertySelfie')(g) },
-          { label: 'Climb to the Crown', note: '354 steps', act: () => mo('crownClimb', 'climbTheCrown')(g) },
-          { label: 'See the Torch', act: () => libertyTorch(g) },
-          { label: 'Read the Pedestal', act: () => libertyPedestal(g) },
-        ],
-      })),
-      fort: look('Fort Wood', card({
-        title: 'Fort Wood', kicker: 'Under the Statue', pic: pic('liberty-island', 'fort'),
-        text: 'Lady Liberty stands on an 11-pointed star-shaped fort built for the War of 1812. The army kept a post on the island until 1937.',
-        joke: 'A fort, under a statue, on an island. New York doesn’t do anything halfway.',
-      })),
-      kiosk: { label: 'Souvenir Kiosk', act: card({
-        title: 'Souvenir Kiosk', kicker: 'Liberty Island', pic: pic('liberty-island', 'kiosk'),
-        text: 'Foam crowns are the island’s classic souvenir. The real crown has 25 windows and seven rays, said to stand for the seven seas and seven continents.',
-        joke: 'Foam crown: 12 coins. Feeling like a national monument: priceless.',
-        actions: (g) => [
-          { label: 'Foam Crowns & Torches', primary: true, act: () => g.catalog('liberty') },
-          { label: 'Strike the Liberty Pose', act: () => {
-            if (g.owns('torch')) g.wear('torch')
-            snap(g.owns('torch') ? 'Arm up, chin up, torch up. Very dignified.' : 'Liberty pose, no torch. Holding up an imaginary pretzel.')(g)
-          } },
-        ],
-      }) },
+      statue: look('Statue of Liberty', mo('liberty', 'ladyLiberty')),
+      fort: { label: 'Fort Wood', decor: true },
+      kiosk: { label: 'Souvenir Kiosk', act: shop('liberty') },
       'viewer-1': { label: 'Tower Viewer', act: binoc(295, 118, [[300, 66, 'One World Trade'], [262, 150, 'Lower Manhattan'], [330, 182, 'Battery Park']]) },
       'viewer-2': { label: 'Tower Viewer', act: binoc(714, 72, [[690, 24, 'The torch'], [735, 44, 'The crown'], [734, 96, 'July IV, MDCCLXXVI'], [715, 152, 'The pedestal']]) },
       ferry: {
@@ -798,12 +578,7 @@ export const ROOMS: Record<string, RoomDef> = {
         },
       },
       bench: { label: 'Bench', sit: true },
-      skyline: look('Manhattan Skyline', card({
-        title: 'Manhattan Skyline', kicker: 'From Liberty Island', pic: view('liberty-island-v2', [126, 22, 386, 170]),
-        text: 'From here you can see the whole tip of Manhattan, where the city began, and One World Trade, the tallest building in the Western Hemisphere at 1,776 feet.',
-        joke: 'It looks like a postcard from here. A postcard with rent.',
-        actions: (g) => [{ label: 'Wave at Manhattan', act: () => (g.emote('wave', 2), g.say('Hi, Manhattan! 👋 Manhattan did not wave back.')) }],
-      })),
+      skyline: { label: 'Manhattan Skyline', decor: true },
       gulls: look('Seagulls', (g) => { g.sfx.squawk(); g.say('Even the seagulls came to see Lady Liberty.') }),
     },
   },
@@ -816,17 +591,9 @@ export const ROOMS: Record<string, RoomDef> = {
       bench: { label: 'Bench', sit: true },
       gelato: { label: 'Gelato Cart', act: vend('gelato', 3, 'Pistachio and strawberry. Yes, both. 🍨') },
       stairs: exit('Down to Chelsea Market', 'chelsea-market'),
-      sailboat: look('Sailboat', card({
-        title: 'The Hudson', kicker: 'From the High Line', pic: pic('high-line', 'sailboat'),
-        text: 'The Hudson here is a tidal estuary: ocean tides push salt water up the river for about 150 miles, so the water next to Manhattan flows both ways.',
-        joke: 'Sailing on the Hudson. Living the dream. The dream is a little damp.',
-      })),
+      sailboat: { label: 'Sailboat', decor: true },
       'river-view': { label: 'Hudson River View', act: binoc(840, 120, [[860, 100, 'Hudson River'], [900, 140, 'New Jersey'], [810, 180, 'Chelsea Piers']]) },
-      'water-tower': look('Water Tower', card({
-        title: 'Water Towers', kicker: 'Rooftops Everywhere', pic: pic('high-line', 'water-tower'),
-        text: 'City water pressure only pushes water up about six floors, so taller buildings keep a tank on the roof. Many are still made of wood, by the same few family companies, the way they were 100 years ago.',
-        joke: 'A wooden barrel of water on your roof. Somehow the most reliable thing in the building.',
-      })),
+      'water-tower': { label: 'Water Tower', decor: true },
       'exit-left': exit('To SoHo', 'soho'),
     },
   },
@@ -842,11 +609,7 @@ export const ROOMS: Record<string, RoomDef> = {
       bagels: { label: 'Bagel Bros', act: vend('bagel', 2, 'Scallion cream cheese. Elite. 🥯') },
       bench: { label: 'Bench', sit: true },
       stairs: exit('Up to the High Line', 'high-line'),
-      'menu-board': look('Menu', card({
-        title: 'Chelsea Market', kicker: 'Old Biscuit Factory', pic: pic('chelsea-market', 'menu-board'),
-        text: 'This block was a giant biscuit factory, where a famous chocolate sandwich cookie was invented in 1912. The bakery moved out in 1958, and the food hall opened in 1997.',
-        joke: 'So many choices. So little stomach.',
-      })),
+      'menu-board': look('The Board', place('chelsea-board', (g) => Object.fromEntries((['tacos', 'bagels', 'donuts', 'lobster'] as const).map((k) => [({ tacos: 'Taco Loco', bagels: 'Bagel Bros', donuts: 'Donut Drop', lobster: 'Lobster Pot' })[k], () => void ROOMS['chelsea-market'].objects?.[k]?.act?.(g)])))),
     },
   },
 
@@ -861,11 +624,7 @@ export const ROOMS: Record<string, RoomDef> = {
       'photo-booth': { label: 'Spooky Photo Booth', act: photoBooth('Halloween') },
       cauldron: look('Bubbling Cauldron', say(['Bubble bubble… it smells like cider.', 'Is that… green apple soda?'])),
       tombstones: look('Tombstones', say(['“Here lies my diet. 1999–2026.”', '“RIP my MetroCard balance.”'])),
-      signs: look('6 Av & W 10 St', card({
-        title: 'The Village Halloween Parade', kicker: '6 Av & W 10 St', pic: pic('parade', 'signs'),
-        text: 'Since 1974 New Yorkers have marched up Sixth Avenue in homemade costumes and giant puppets. It’s the biggest Halloween parade in the country.',
-        joke: 'Best costume wins nothing. Still the most competitive night of the year.',
-      })),
+      signs: { label: '6 Av & W 10 St', decor: true },
       manhole: look('Manhole', say('Even the steam is spooky tonight.')),
       'exit-left': exit('To SoHo', 'soho'),
       'exit-right': exit('To Times Square', 'times-square'),
@@ -885,17 +644,8 @@ export const ROOMS: Record<string, RoomDef> = {
       // one way in: the doors. The facade around them is scenery (it used to be a second "The Exchange" hotspot)
       exchange: { label: 'The Exchange', decor: true },
       door: exit('The Exchange', 'exchange-floor'),
-      'federal-hall': look('Federal Hall', card({
-        title: 'Federal Hall', kicker: 'Wall Street', pic: pic('wall-street', 'federal-hall'),
-        text: 'The first U.S. Congress met here in 1789 and wrote the Bill of Rights. The original building was torn down in 1812; this temple-style one opened in 1842 as the Custom House and is now a national memorial.',
-        joke: 'America’s first capitol. The rent was probably more reasonable.',
-        actions: (g) => [{ label: 'Sit on the Steps', act: () => sitDown('Sitting where the Founders sat. Roughly. Ish.', [250, 330])(g) }],
-      })),
-      church: look('Trinity Church', card({
-        title: 'Trinity Church', kicker: 'Broadway at Wall Street', pic: pic('wall-street', 'church'),
-        text: 'Trinity Church’s 281-foot spire was the tallest point in New York until 1890. Alexander Hamilton is buried in its churchyard, a few steps from Wall Street.',
-        joke: 'Hamilton is buried here. Yes, that Hamilton. No, you can’t get tickets.',
-      })),
+      'federal-hall': look('Federal Hall', sitDown('Sitting where the Founders sat. Roughly. Ish.', [250, 330])),
+      church: look('Trinity Church', place('trinity')),
       cart: { label: 'Hot Dog Cart', act: mo('hotdog', 'hotDogCart') },
       subway: { label: 'Subway', act: (g) => g.openSubway() },
       'pigeon-1': look('Pigeon', coo), 'pigeon-2': look('Pigeon', coo),
@@ -922,40 +672,19 @@ export const ROOMS: Record<string, RoomDef> = {
     objects: {
       'exit-left': exit('To Battery Park', 'battery-park'),
       oculus: exit('To Wall Street', 'wall-street'),
-      tower: look('One World Trade Center', card({
-        title: 'One World Trade Center', kicker: 'Lower Manhattan', pic: pic('one-world-trade', 'tower'),
-        text: 'At 1,776 feet, a nod to the year of the Declaration of Independence, it’s the tallest building in the Western Hemisphere. Its base is a 200-foot square, about the footprint of each of the original Twin Towers, and its sides taper into eight tall triangles.',
-        joke: 'The elevator takes under a minute. The line for it takes longer.',
-        facts: ['1,776 feet', '104 floors', 'Opened 2014'],
-        actions: (g) => [{ label: 'Ride to the Top', note: 'Sky Deck 102', primary: true, act: () => ticketed('oneworld', 'admit', (g2) => down((m) => m.elevatorUp(g2)))(g) }],
-      })),
+      tower: look('One World Trade Center', place('owt-tower', (g) => ({ 'Ride to the Top': () => ticketed('oneworld', 'admit', (g2) => down((m) => m.elevatorUp(g2)))(g) }))),
       doors: { label: 'Sky Deck Elevators', act: ticketed('oneworld', 'admit', (g) => down((m) => m.elevatorUp(g))) },
       // up close at the parapet: the water, the names, a white rose (features/memorial.ts); quiet, never a game
       pool: { label: '9/11 Memorial', act: () => void import('../features/memorial').then((m) => m.visitMemorial()) },
-      tree: { label: 'The Survivor Tree', act: card({
-        title: 'The Survivor Tree', kicker: 'Callery Pear', pic: pic('one-world-trade', 'tree'), quiet: true,
-        text: 'This pear tree was found in the rubble in October 2001, burned, with one living branch. It was nursed back to health in the Bronx and replanted here. It blooms white every spring, and its seedlings go to communities around the world that have lived through hard times.',
-        actions: (g) => [{ label: 'Sit a While', act: () => sitDown()(g) }],
-      }) },
-      subway: { label: 'Subway', act: card({
-        title: 'WTC Cortlandt', kicker: 'The Oculus', pic: pic('one-world-trade', 'subway'),
-        text: 'Behind the stairs is the Oculus, the transit hall designed by Santiago Calatrava and opened in 2016. Its white ribs are meant to look like a bird being set free. Underneath, it links 11 subway lines and the PATH train to New Jersey.',
-        joke: 'Ten minutes in the Oculus and you’ll find every train except yours.',
-        actions: (g) => [
-          { label: 'Ride the Subway', primary: true, act: () => g.openSubway() },
-          { label: 'Walk Through to Wall Street', act: () => g.goto('wall-street', 'one-world-trade') },
-        ],
-      }) },
-      cart: { label: 'Coffee & Pretzel Cart', act: card({
-        title: 'Coffee & Pretzel Cart', kicker: 'One World Trade Plaza', pic: pic('one-world-trade', 'cart'),
-        text: 'Carts like this have fed downtown office workers for generations. The best time to buy: before the 9 a.m. rush, or after the tourists find the elevator.',
-        joke: 'The vendor has pointed ten thousand people to the elevator without looking up.',
-        actions: (g) => [
-          { label: 'Deli Coffee (3)', primary: true, act: () => vend('coffee', 3, 'Coffee with a view of the tallest building around. ☕', 'regular')(g) },
-          { label: 'Soft Pretzel (2)', act: () => vend('pretzel', 2, 'Downtown pretzel. Same salt, taller buildings. 🥨')(g) },
-          { label: 'Sit with It', act: () => sitDown('A bench in the shade of the tallest building around.')(g) },
-        ],
-      }) },
+      tree: look('The Survivor Tree', place('survivor-tree', (g) => ({ 'Sit a While': () => sitDown()(g) }))),
+      subway: look('Subway', place('oculus', (g) => ({ 'Ride the Subway': () => g.openSubway(), 'Walk to Wall Street': () => g.goto('wall-street', 'one-world-trade') }))),
+      cart: { label: 'Coffee & Pretzel Cart', act: async (g) => {
+        // the cart's own menu (features/ralphs.ts); ringing it up stays here
+        const v = await import('../features/ralphs').then((m) => m.plazaCartMenu())
+        if (v === 'coffee') vend('coffee', 3, 'Coffee with a view of the tallest building around. ☕', 'regular')(g)
+        if (v === 'pretzel') vend('pretzel', 2, 'Downtown pretzel. Same salt, taller buildings. 🥨')(g)
+        if (v === 'sit') sitDown('A bench in the shade of the tallest building around.')(g)
+      } },
       'bench-1': { label: 'Bench', sit: true }, 'bench-2': { label: 'Bench', sit: true },
     },
   },
@@ -986,24 +715,9 @@ export const ROOMS: Record<string, RoomDef> = {
         },
       },
       booth: { label: 'Sky Deck Photo Booth', act: photoBooth('Sky Deck') },
-      'view-liberty': look('Statue of Liberty', card({
-        title: 'Statue of Liberty', kicker: 'From 1,250 Feet', pic: view('sky-deck', [60, 82, 160, 100]),
-        text: 'From up here Lady Liberty looks pocket-sized, but she stands 305 feet from the ground to the tip of her torch, pedestal included.',
-        joke: 'She didn’t wave back. She’s been holding that torch since 1886. Her arm is busy.',
-        actions: (g) => [{ label: 'Wave at Her', act: () => (g.emote('wave', 2), g.say('Hi, Lady Liberty! 👋')) }],
-      })),
-      'view-empire': look('Empire State Building', card({
-        title: 'Empire State Building', kicker: 'Midtown', pic: view('sky-deck', [400, 18, 130, 165]),
-        text: 'Built in just 410 days and opened in 1931, it was the tallest building in the world for almost 40 years.',
-        joke: 'From up here it looks like a souvenir of itself.',
-        actions: (g) => [{ label: 'Visit the Empire State', act: () => g.goto('empire-street') }],
-      })),
-      'view-bridge': look('Brooklyn Bridge', card({
-        title: 'Brooklyn Bridge', kicker: 'Over the East River', pic: view('sky-deck', [598, 120, 210, 115]),
-        text: 'You can see the whole bridge from here: 1,595 feet between its two stone towers. On the far side is Brooklyn.',
-        joke: 'From up here the traffic on it looks peaceful. It is not.',
-        actions: (g) => [{ label: 'Go to the Bridge', act: () => g.goto('brooklyn-bridge') }],
-      })),
+      'view-liberty': { label: 'Statue of Liberty', decor: true },
+      'view-empire': { label: 'Empire State Building', decor: true },
+      'view-bridge': { label: 'Brooklyn Bridge', decor: true },
     },
   },
 
@@ -1011,25 +725,10 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'apartment', name: 'My Apartment', area: 'A 5th-floor walk-up', bg: 'apartment', indoor: true, npcs: 0, mapSpot: 'apartment',
     objects: {
       door: { label: 'Leave', act: (g) => g.openMap(), instant: true },
-      window: look('Window', card({
-        title: 'Your Window', kicker: 'A 5th-Floor Walk-Up', pic: pic('apartment', 'window'),
-        text: 'Water towers, fire escapes and a slice of the Empire State. Walk-ups like this one have no elevator: just stairs, character and very strong calves.',
-        joke: 'Worth the five flights. Mostly.',
-        actions: (g) => [{ label: 'Open the Window', act: () => (g.sfx.coo(), g.say('A pigeon lands on the sill immediately. We’re roommates now. 🐦')) }],
-      })),
-      radiator: look('Radiator', card({
-        title: 'Radiator', kicker: 'Heat Season', pic: pic('apartment', 'radiator'),
-        text: 'From October 1 to May 31, New York landlords must keep apartments at least 68°F during the day whenever it’s below 55°F outside. This radiator takes the job very seriously.',
-        joke: '*CLANK* *CLANK* The radiator is alive.',
-        actions: (g) => [{ label: 'Bang on the Pipe', act: () => (g.sfx.tick(), g.say('*CLANK* My neighbor bangs back. We’re basically friends now.')) }],
-      })),
+      window: look('Window', (g) => (g.sfx.coo(), g.say('A pigeon lands on the sill immediately. We’re roommates now. 🐦'))),
+      radiator: look('Radiator', (g) => (g.sfx.tick(), g.say('*CLANK* My neighbor bangs back. We’re basically friends now.'))),
       fridge: { label: 'Fridge', act: (g) => souv((m) => m.openFridge(g)) },
-      stove: look('Stove', card({
-        title: 'Stove', kicker: 'The Kitchen', pic: pic('apartment', 'stove'),
-        text: 'Tiny New York kitchens are famous for creative storage. Some people really do keep sweaters in the oven.',
-        joke: 'I use it for storing sweaters. Very New York.',
-        actions: (g) => [{ label: 'Cook Something', act: () => g.say('I made toast. In a pan. I’m basically a chef now.') }],
-      })),
+      stove: look('Stove', say('I made toast. In a pan. I’m basically a chef now.')),
       kitchen: look('Kitchen', say('Tiny but mighty.')),
       // under the first-day list in the corner, so it's scenery rather than a hotspot nobody can reach
       hooks: { label: 'Coat Hooks', decor: true },

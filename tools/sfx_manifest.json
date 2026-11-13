@@ -736,6 +736,83 @@
       ],
       "bus": "fx",
       "vol": 0.55
+    },
+    "cu.flap": {
+      "src": [
+        {
+          "id": "89972c85-0341-42e2-800f-087a7c235209",
+          "title": "Machines, Industrial, Clicking Servo Motor",
+          "max": 1.1,
+          "fade": 0.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.4,
+      "gap": 400
+    },
+    "cu.tick": {
+      "src": [
+        {
+          "id": "62eedce7-acf3-49cf-bd50-e83aa673174b",
+          "title": "Old Wooden Clock, Inside Mechanism, Clicks, Ticks 13",
+          "max": 0.28,
+          "fade": 0.1
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.3,
+      "gap": 500,
+      "jitter": 0.02
+    },
+    "cu.chalk": {
+      "src": [
+        {
+          "id": "1ec7a515-d2b9-4da2-ad64-31d9e3fc8e60",
+          "title": "Chalk, Writing On Blackboard 01",
+          "max": 1.6,
+          "fade": 0.25
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "cu.bell": {
+      "src": [
+        {
+          "id": "8df0ecdb-2614-423e-81e1-a8ce66b8585e",
+          "title": "Bells, Door, Shop Open, Ring",
+          "max": 2.6,
+          "fade": 0.8
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45
+    },
+    "cu.toll": {
+      "src": [
+        {
+          "id": "7308e2f0-2dff-4df4-8c5f-53538c1f4214",
+          "title": "Large Church Bell, One Hit",
+          "max": 6.5,
+          "fade": 2.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.4,
+      "gap": 4000
+    },
+    "cu.wind": {
+      "src": [
+        {
+          "id": "425c4276-0760-4c9a-b60c-fd22f0bc63ef",
+          "title": "Whoosh, Wind Pass By 02",
+          "max": 4.5,
+          "fade": 1.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.4,
+      "gap": 3000
     }
   },
   "ambience": {

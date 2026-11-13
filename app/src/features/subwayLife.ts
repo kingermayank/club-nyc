@@ -6,7 +6,7 @@ import { Actor } from '../engine/actor'
 import { sfx } from '../audio'
 import type { Look } from '../avatar/look'
 import type { Game } from '../types'
-import { picCard } from './infocard'
+import { closeUp } from './moments/closeup'
 import { gameCard, tile, key, me, icon } from './gamecard'
 
 /**
@@ -115,13 +115,13 @@ function perform(song: Song, onBeat: (downbeat: boolean) => void, done: () => vo
 export function busker(g: Game) {
   if (!lou) return
   if (playing) return tip(g)
-  picCard({
-    title: 'Lou the Busker',
-    kicker: 'Requests',
-    text: 'Lou has played this platform since the token days. He knows four chords and three songs, all his own. Pick one and he’ll play it for you.',
-    joke: 'Requests are free. Applause is encouraged. Coins are legendary.',
-    actions: SETLIST.map((song) => ({ label: song.title, note: song.note, act: () => play(g, song) })),
-  })
+  // the open case, up close: his setlist is taped inside the lid. Click a song and he plays it.
+  const c = closeUp('cu-setlist', '/art/closeups/setlist.jpg')
+  c.m.later(() => sfx.coin(), 450)
+  const list = el('div', 'lou-setlist', `<h3>Tonight</h3>` + SETLIST.map((song, i) => `<button type="button" data-i="${i}"><b>${song.title}</b><span>${song.note}</span></button>`).join(''))
+  list.querySelectorAll<HTMLButtonElement>('button').forEach((b) => (b.onclick = () => (c.m.close(), play(g, SETLIST[Number(b.dataset.i)]))))
+  c.layer.append(list)
+  c.pin([330, 398], 'Tip a Coin', () => void import('./moments/riff').then((m) => m.playTheRiff(g)))
 }
 
 let playing: (() => void) | null = null

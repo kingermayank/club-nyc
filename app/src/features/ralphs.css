@@ -21,3 +21,11 @@
 .cloud9 .rc-items { grid-template-columns: repeat(3, 1fr); }
 .cloud9 .rc-item:hover, .cloud9 .rc-item:focus-visible { border-color: #ffd596; }
 .cloud9 .rc-icon { border-color: #12142e; background: #fff4e0; }
+
+/* the plaza cart: steel cart, red-and-white umbrella over the menu */
+.panel.ralphs.cart { width: 440px; padding-top: 62px; background: linear-gradient(#f4f6f8, #cfd6dd); border-color: var(--ink); box-shadow: inset 0 0 0 3px #fff, 0 8px 0 rgba(0, 0, 0, 0.3); color: #1d2140; }
+.panel.ralphs.cart::before { content: ''; position: absolute; box-sizing: border-box; left: 0; right: 0; top: 0; height: 46px; border-bottom: 4px solid var(--ink); border-radius: 20px 20px 0 0; background: repeating-linear-gradient(90deg, #e5484d 0 36px, #fff 36px 72px); }
+.panel.ralphs.cart .rc-head b, .panel.ralphs.cart h3 { color: #b3261e; }
+.panel.ralphs.cart .rc-head span, .panel.ralphs.cart .rc-item small { color: #5d6b7a; }
+.panel.ralphs.cart .rc-item { background: #fff; border-color: var(--ink); color: #1d2140; }
+.panel.ralphs.cart .rc-item b { color: #1d2140; }

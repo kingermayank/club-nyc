@@ -1,0 +1,37 @@
+/* close-ups: a painting of the thing itself fills the stage; what you can know or do sits on the picture */
+.cu { background: #0d1226; }
+.cu-layer { position: absolute; inset: 0; overflow: hidden; transition: transform 0.55s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.4s; }
+.cu-layer.under { pointer-events: none; }
+.cu-layer.arriving { animation: cu-arrive 0.55s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+.cu-layer.leaving { opacity: 0; transform: scale(0.6); pointer-events: none; }
+@keyframes cu-arrive { from { opacity: 0; transform: scale(0.45); } 60% { opacity: 1; } to { opacity: 1; transform: none; } }
+.cu-art { position: absolute; left: 0; top: 0; width: 1000px; height: 565px; object-fit: cover; display: block; user-select: none; }
+.cu-x { position: absolute; z-index: 20; right: 16px; top: 16px; width: 36px; height: 36px; }
+.cu-back { position: absolute; z-index: 20; left: 16px; top: 16px; width: 36px; height: 36px; padding: 6px; border: 3px solid var(--ink); border-radius: 50%; background: linear-gradient(#5aa7ff, #2a6fd6); box-shadow: 0 2px 0 var(--ink); cursor: pointer; }
+.cu-back svg { display: block; width: 100%; height: 100%; }
+.cu-back:hover { transform: scale(1.1); }
+
+/* a ring on the picture: the thing you can click, named in a word or three */
+.cu-pin { position: absolute; z-index: 5; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; border: 0; background: none; cursor: pointer; }
+.cu-pin i { width: 46px; height: 46px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 3px var(--ink), 0 0 18px 6px rgba(255, 224, 138, 0.85), inset 0 0 0 3px var(--ink); background: rgba(255, 224, 138, 0.18); animation: cu-pulse 1.5s ease-in-out infinite; }
+.cu-pin span { padding: 3px 10px; border: 3px solid var(--ink); border-radius: 999px; background: #fff; box-shadow: 0 2px 0 var(--ink); color: var(--ink); font: 15px/1.2 var(--display); white-space: nowrap; }
+.cu-pin:hover i { background: rgba(255, 224, 138, 0.5); animation: none; transform: scale(1.12); }
+@keyframes cu-pulse { 50% { transform: scale(1.14); } }
+
+/* a brass plate screwed to the picture */
+.cu-plate { position: absolute; z-index: 4; padding: 8px 16px; border: 3px solid #3a2a10; border-radius: 8px; background: linear-gradient(#f3d58a, #c9973a 55%, #a87722); box-shadow: 0 3px 0 #3a2a10, inset 0 1px 0 rgba(255, 255, 255, 0.6); color: #3a2a10; font: 17px/1.15 var(--display); letter-spacing: 0.02em; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45); white-space: nowrap; }
+.cu-plate b { display: block; font-size: 26px; font-weight: 400; }
+button.cu-plate { cursor: pointer; }
+button.cu-plate:hover { filter: brightness(1.08); transform: translateY(-1px); }
+@media (prefers-reduced-motion: reduce) { .cu-pin i, .cu-layer.arriving { animation: none; } .cu-layer { transition: opacity 0.2s; } }
+/* a plate you can press (the one thing to do here) */
+.cu-plate.go { cursor: pointer; border-color: var(--ink); background: linear-gradient(#7be07f, #37b24d); box-shadow: 0 4px 0 var(--ink); color: #fff; text-shadow: 0 2px 0 #1f7a33; font-size: 19px; padding: 10px 20px; border-radius: 14px; }
+.cu-plate.go:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.cu-pin.right { flex-direction: row; transform: translate(-23px, -50%); }
+/* Lou's setlist, handwritten on the sheet taped inside his guitar case */
+.lou-setlist { position: absolute; left: 520px; top: 84px; width: 244px; display: flex; flex-direction: column; gap: 1px; transform: rotate(-1.5deg); color: #2b2440; }
+.lou-setlist h3 { margin: 0 0 2px; font: 22px/1 var(--display); font-weight: 400; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.lou-setlist button { display: flex; flex-direction: column; gap: 0; padding: 4px 8px; border: 0; border-radius: 10px; background: none; color: inherit; text-align: left; cursor: pointer; }
+.lou-setlist button:hover { background: rgba(255, 196, 60, 0.45); }
+.lou-setlist b { font: 18px/1.1 var(--display); font-weight: 400; }
+.lou-setlist span { font: 12.5px/1.1 var(--display); color: #6a5f7a; }

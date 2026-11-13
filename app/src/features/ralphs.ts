@@ -77,3 +77,25 @@ export const cloudNineMenu = () =>
     note: { cocoa: 'Above the clouds', coffee: 'Highest cup in town', latte: 'Foam like cumulus', cookie: 'Big as your hand', croissant: 'Flaky, warm', pretzel: 'Salted at altitude' },
     extra: { label: 'Sit at the Counter', value: 'sit' },
   })
+
+/** The Boathouse Café's board, Central Park: something warm for the lake, or a rowboat. */
+export const boathouseMenu = () =>
+  menuBoard({
+    cls: 'boathouse',
+    title: 'Boathouse Café',
+    sub: 'On the lake since 1954',
+    menu: [{ title: 'To Go', ids: ['cocoa', 'coffee', 'pretzel'] }],
+    note: { cocoa: 'By the lake', coffee: 'The blue deli cup', pretzel: 'Warm, with mustard' },
+    extra: { label: 'Rent a Rowboat (3)', value: 'row' },
+  })
+
+/** The coffee and pretzel cart on One World Trade's plaza: its menu, under the striped umbrella. */
+export const plazaCartMenu = () =>
+  menuBoard({
+    cls: 'cart',
+    title: 'Coffee & Pretzels',
+    sub: 'One World Trade Plaza',
+    menu: [{ title: 'From the Cart', ids: ['coffee', 'pretzel'] }],
+    note: { coffee: 'The blue deli cup', pretzel: 'Warm, with mustard' },
+    extra: { label: 'Sit with It', value: 'sit' },
+  })

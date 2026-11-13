@@ -61,10 +61,10 @@ export function openGallery(g: Game) {
   const card = picCard({
     title: 'Skyline Painter',
     kicker: 'Street Artist',
-    text: 'Painters have set their easels up on the bridge promenade for generations. Pick a painting: it’s delivered to your apartment, ready to hang when you decorate.',
+    text: 'Pick a painting. It’s delivered to your apartment.',
     joke: PAINTER_LINE,
     extra: grid,
-    cls: 'gallery',
+    cls: 'gallery easel',
     actions: [
       { label: 'Go Home and Decorate', note: 'place your paintings', act: () => void import('./apartment').then((m) => m.goHome()) },
       { label: 'Just Browsing', act: () => g.say('“Browsing is free. Like the view.”') },
@@ -104,10 +104,10 @@ export function openMagnetStand(g: Game) {
   const card = picCard({
     title: 'Fridge Magnets',
     kicker: 'Souvenir Stand',
-    text: 'The souvenir that survives any suitcase. Every magnet you buy goes straight onto your apartment fridge.',
+    text: 'Every magnet goes on your fridge.',
     joke: MAGNET_LINE,
     extra: grid,
-    cls: 'gallery',
+    cls: 'gallery stand',
     actions: [
       { label: 'Love Locks', note: 'a lock and its key', primary: true, act: () => void import('./moments/lovelocks').then((m) => m.loveLocks(g, 'stand')) },
       { label: 'See My Fridge', act: () => openFridge(g) },
@@ -137,10 +137,8 @@ export function openFridge(g: Game) {
   picCard({
     title: 'Your Fridge',
     kicker: `Magnets: ${have.length} of ${MAGNETS.length}`,
-    cls: 'gallery',
-    text: have.length
-      ? 'Every magnet from the Brooklyn Bridge souvenir stand ends up here. The fridge came with the apartment, like the radiator and the mystery stain.'
-      : 'A New York fridge isn’t done until it’s covered in magnets. The souvenir stand on the Brooklyn Bridge sells nine.',
+    cls: 'gallery fridge',
+    text: have.length ? '' : 'The souvenir stand on the Brooklyn Bridge sells nine.',
     joke: 'Inside: half a halal platter and forty hot sauce packets.',
     extra: grid,
     actions: [

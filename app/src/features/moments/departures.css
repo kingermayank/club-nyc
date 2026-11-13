@@ -1,0 +1,30 @@
+/* the painted board's black panel is x 72 to 930, y 105 to 363 (stage px); the brass ledge under it takes the route */
+.dp-board { position: absolute; left: 80px; top: 111px; width: 842px; height: 246px; display: flex; flex-direction: column; color: #ffd76a; font: 17px/1 var(--display); letter-spacing: 0.06em; text-transform: uppercase; }
+.dp-head, .dp-row { display: grid; grid-template-columns: 150px 1fr 110px 190px; align-items: center; padding: 0 14px; text-align: left; }
+.dp-head { flex: none; height: 28px; color: #9aa3c7; font-size: 12.5px; letter-spacing: 0.14em; border-bottom: 2px solid #2a2f4a; }
+.dp-row { flex: 1; min-height: 0; border: 0; border-bottom: 1px solid #1c2036; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+.dp-row:last-child { border-bottom: 0; }
+.dp-row:hover { background: rgba(255, 215, 106, 0.1); }
+.dp-row.on { background: rgba(255, 215, 106, 0.18); box-shadow: inset 5px 0 0 var(--line); }
+.dp-row span { display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; }
+.dp-row span:nth-child(2) { color: #fff; }
+.dp-row em { flex: none; width: 13px; height: 13px; border-radius: 50%; background: var(--line); box-shadow: 0 0 0 2px #fff; }
+.dp-row i { font-style: normal; color: #7ee08a; }
+.dp-row i.late { color: #ff8a80; }
+.dp-row i.go { color: #fff; animation: dp-blink 1s steps(2) infinite; }
+.dp-row.flip span { animation: dp-flip 0.34s both; animation-delay: inherit; }
+@keyframes dp-flip { from { transform: scaleY(0.05); opacity: 0.2; } to { transform: none; opacity: 1; } }
+@keyframes dp-blink { 50% { opacity: 0.25; } }
+
+/* the route of the train you picked, on the ledge under the board */
+.dp-route { position: absolute; left: 60px; top: 446px; width: 880px; display: flex; align-items: center; gap: 22px; --line: #009b3a; }
+.dp-route:empty { display: none; }
+.dp-track { flex: none; display: flex; flex-direction: column; align-items: center; min-width: 78px; padding: 6px 12px 8px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font: 34px/1 var(--display); font-weight: 400; }
+.dp-track small { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #5d6282; margin-bottom: 3px; }
+.dp-stops { position: relative; flex: 1; display: flex; justify-content: space-between; padding: 12px 18px 10px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; box-shadow: 0 3px 0 var(--ink); }
+.dp-stops > i { position: absolute; left: 40px; right: 40px; top: 20px; height: 6px; border-radius: 3px; background: var(--line); }
+.dp-stops span { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; color: var(--ink); font: 11.5px/1.15 var(--display); text-align: center; }
+.dp-stops span.end { font-size: 12.5px; }
+.dp-stops em { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 4px solid var(--line); box-sizing: border-box; }
+.dp-stops span.end em { background: var(--line); box-shadow: 0 0 0 2px var(--ink); }
+@media (prefers-reduced-motion: reduce) { .dp-row.flip span, .dp-row i.go { animation: none; } }

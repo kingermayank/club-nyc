@@ -39,3 +39,6 @@ tools/playtest/out/
 
 # the full-frame source animations for the subway train (38 MB; tools/subway_train.py cuts the game clips from them)
 app/public/art/raw/train/*.mp4
+
+# art originals from the image generator (the game ships app/public/art)
+raw/
