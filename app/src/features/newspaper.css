@@ -1,23 +1,27 @@
 /* ================= the Club NYC Times ================= */
 /* An in-world object: literal px sizes on purpose (like the subway map and the billboards).
-   Type is the classic newspaper pair: Times New Roman for headlines and body (a system font, nothing to download),
-   a plain grotesque for kickers and section heads, and the blackletter masthead. */
+   Type: Newsreader (a serif drawn for reading news on screens; its optical sizes make the headlines crisp and the
+   body open) for headlines and stories, a plain grotesque for kickers and section heads, and the blackletter masthead. */
 /* the masthead's blackletter, served from our own site (no third-party font requests; licence: /fonts/UnifrakturMaguntia-OFL.txt) */
+/* Newsreader, served from our own site too (licence: /fonts/Newsreader-OFL.txt) */
+@font-face { font-family: 'Newsreader'; src: url('/fonts/Newsreader.woff2') format('woff2-variations'); font-weight: 200 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Newsreader'; src: url('/fonts/Newsreader-Italic.woff2') format('woff2-variations'); font-weight: 200 800; font-style: italic; font-display: swap; }
 @font-face {
   font-family: 'UnifrakturMaguntia';
   src: url('/fonts/UnifrakturMaguntia.woff2') format('woff2');
   font-display: swap;
 }
 .newspaper {
-  --np-serif: 'Times New Roman', Times, 'Liberation Serif', 'Nimbus Roman', serif;
+  --np-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
   --np-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --np-ink: #1d1b16;
-  --np-paper: #f3eee0;
-  --np-rule: #c9c0a8;
+  --np-ink: #1a1813;
+  --np-soft: #48433a;
+  --np-paper: #f4efe2;
+  --np-rule: #cfc6ae;
   --np-red: #a3121f;
   position: relative;
-  width: 780px;
-  height: 540px;
+  width: 700px;
+  height: 480px;
   display: flex;
   flex-direction: column;
   animation: paper-in 0.45s cubic-bezier(0.2, 1.2, 0.4, 1);
@@ -31,10 +35,15 @@
   min-height: 0;
   border-radius: 3px;
   background: var(--np-paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E");
-  box-shadow: 0 2px 0 var(--np-rule), 0 20px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 0 #d9d0b8, 0 3px 0 #e8e1cd, 0 4px 0 #cbc1a7, 0 22px 44px rgba(0, 0, 0, 0.5);
   color: var(--np-ink);
   font-family: var(--np-serif);
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
 }
+/* the sheet's edges catch a little shade, like paper that's been held */
+.np-sheet::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 28px rgba(120, 95, 50, 0.16); }
 /* Turning the page: the page you were reading lifts off as a leaf (a copy of it, with a plain paper back), swings over on
    its hinge edge and lands face down out of sight, while the new edition is already lying underneath. A shadow
    slides across the new page as the leaf passes over it, and the leaf darkens as it tilts away from the light. */
@@ -45,7 +54,7 @@
 @keyframes leaf-fwd { 0% { transform: rotateY(0) skewY(0); } 35% { transform: rotateY(-55deg) skewY(-2deg); } 100% { transform: rotateY(-178deg) skewY(0); } }
 @keyframes leaf-back { 0% { transform: rotateY(0) skewY(0); } 35% { transform: rotateY(55deg) skewY(2deg); } 100% { transform: rotateY(178deg) skewY(0); } }
 .np-leaf-face, .np-leaf-back { position: absolute; inset: 0; border-radius: 3px; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; background: var(--np-paper); }
-.np-leaf-face { padding: 18px 26px 22px; }
+.np-leaf-face { padding: 20px 30px 24px; }
 .np-leaf-back { transform: rotateY(180deg); background: linear-gradient(90deg, #e6dfcb, var(--np-paper) 30%, #ece5d2); }
 /* the light on the turning page: darker toward the hinge as it lifts */
 .np-leaf-face::after, .np-leaf-back::after { content: ''; position: absolute; inset: 0; pointer-events: none; animation: leaf-shade 0.75s ease-in-out forwards; }
@@ -64,7 +73,7 @@
   inset: 0;
   border-radius: inherit;
   overflow-y: auto;
-  padding: 18px 26px 22px;
+  padding: 20px 30px 24px;
   user-select: text;
   scrollbar-width: thin;
   scrollbar-color: #b9ae94 transparent;
@@ -85,12 +94,12 @@
 /* ---------- masthead ---------- */
 .np-head { position: relative; text-align: center; border-bottom: 3px double var(--np-ink); margin-bottom: 12px; }
 .np-ears { display: flex; justify-content: space-between; align-items: flex-end; }
-.np-ear { width: 124px; padding: 4px 5px; border: 1px solid var(--np-ink); font-size: 11px; line-height: 1.25; font-style: italic; text-align: center; }
+.np-ear { width: 100px; padding: 4px 4px; border: 1px solid var(--np-ink); font-size: 10.5px; line-height: 1.25; font-style: italic; text-align: center; }
 .np-ear.right { font-style: normal; }
-.np-ear.right b { display: block; font: 700 9px/1.3 var(--np-sans); letter-spacing: 1.5px; }
-.np-ear small { display: block; font-size: 11px; }
-.np-mast { font-family: 'UnifrakturMaguntia', 'Old English Text MT', serif; font-size: 48px; line-height: 1.05; margin: -40px 0 6px; }
-.np-dateline { display: flex; justify-content: space-between; border-top: 1px solid var(--np-ink); border-bottom: 1px solid var(--np-ink); padding: 3px 2px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 1px; }
+.np-ear.right b { display: block; font: 700 8.5px/1.3 var(--np-sans); letter-spacing: 1px; }
+.np-ear small { display: block; font-size: 10.5px; }
+.np-mast { font-family: 'UnifrakturMaguntia', 'Old English Text MT', serif; font-size: 38px; line-height: 1.05; margin: -36px 0 7px; }
+.np-dateline { display: flex; justify-content: space-between; border-top: 1px solid var(--np-ink); border-bottom: 1px solid var(--np-ink); padding: 4px 2px 3px; font: 600 10px/1.3 var(--np-sans); text-transform: uppercase; letter-spacing: 1.5px; }
 /* back issues: a red rubber stamp where the motto usually sits */
 .np-ear.np-stamp {
   border: 3px double var(--np-red);
@@ -108,35 +117,35 @@
 @keyframes np-stamp { from { transform: rotate(-5deg) scale(1.6); opacity: 0; } }
 
 /* ---------- type ---------- */
-.np-kicker { font: 700 10px/1.3 var(--np-sans); letter-spacing: 2px; text-transform: uppercase; color: var(--np-red); }
-.np-deck { font-style: italic; font-size: 14.5px; margin: 0 0 8px; line-height: 1.3; }
-.np-lead h2 { font: 700 31px/1.1 var(--np-serif); letter-spacing: -0.3px; margin: 2px 0 7px; }
-.np-lead h2.np-banner { font-size: 36px; line-height: 1.1; letter-spacing: 0.5px; text-transform: uppercase; }
-.np-story h3 { font: 700 19px/1.12 var(--np-serif); margin: 2px 0 6px; }
+.np-kicker { font: 700 10.5px/1.3 var(--np-sans); letter-spacing: 1.8px; text-transform: uppercase; color: var(--np-red); }
+.np-deck { font-style: italic; font-size: 15px; margin: 0 0 10px; line-height: 1.35; color: var(--np-soft); }
+.np-lead h2 { font: 650 30px/1.08 var(--np-serif); letter-spacing: -0.5px; margin: 3px 0 8px; text-wrap: balance; }
+.np-lead h2.np-banner { font-size: 34px; line-height: 1.05; letter-spacing: 0; text-transform: uppercase; }
+.np-story h3 { font: 650 19px/1.15 var(--np-serif); letter-spacing: -0.2px; margin: 3px 0 6px; text-wrap: balance; }
 .np-story.small h3 { font-size: 17px; }
-.np-story p { font-size: 13.5px; line-height: 1.38; margin: 0 0 8px; }
-.np-story { border-bottom: 1px solid var(--np-rule); margin-bottom: 10px; }
-.np-cols { column-count: 2; column-gap: 16px; column-rule: 1px solid var(--np-rule); font-size: 14px; line-height: 1.4; }
+.np-story p { font-size: 14px; line-height: 1.45; margin: 0 0 8px; }
+.np-story { border-bottom: 1px solid var(--np-rule); margin-bottom: 12px; padding-bottom: 4px; }
+.np-cols { column-count: 2; column-gap: 18px; column-rule: 1px solid var(--np-rule); font-size: 14.5px; line-height: 1.45; hyphens: auto; }
 .np-cols p { margin: 0 0 8px; }
-.dropcap::first-letter { float: left; font: 700 46px/0.82 var(--np-serif); padding: 5px 6px 0 0; }
+.dropcap::first-letter { float: left; font: 600 48px/0.8 var(--np-serif); padding: 6px 6px 0 0; }
 .np-small { font-size: 12px; font-style: italic; }
 
 /* ---------- pictures ---------- */
 .np-fig { margin: 0 0 8px; }
 .np-fig img { width: 100%; display: block; border: 1px solid var(--np-ink); filter: sepia(0.18) contrast(1.05); object-fit: cover; }
-.np-fig.lead img { height: 230px; }
-.np-fig figcaption { font-size: 11px; line-height: 1.3; font-style: italic; margin-top: 3px; color: #555; }
-.np-grid3 .np-fig img, .np-grid2 .np-fig img { height: 150px; }
-.np-grid3.moments .np-fig img { height: 165px; }
+.np-fig.lead img { height: 210px; }
+.np-fig figcaption { font-size: 12px; line-height: 1.35; font-style: italic; margin-top: 4px; color: var(--np-soft); }
+.np-grid3 .np-fig img, .np-grid2 .np-fig img { height: 132px; }
+.np-grid3.moments .np-fig img { height: 148px; }
 
 /* ---------- front page ---------- */
-.np-front { display: grid; grid-template-columns: 1fr 232px; gap: 16px; }
-.np-rail { border-left: 1px solid var(--np-ink); padding-left: 14px; }
-.np-box { border: 2px solid var(--np-ink); padding: 6px 9px 7px; margin-bottom: 10px; font-size: 13px; line-height: 1.35; }
+.np-front { display: grid; grid-template-columns: 1fr 206px; gap: 18px; }
+.np-rail { border-left: 1px solid var(--np-ink); padding-left: 16px; }
+.np-box { border: 1.5px solid var(--np-ink); padding: 8px 10px 9px; margin-bottom: 12px; font-size: 13.5px; line-height: 1.4; }
 .np-box > b { display: block; font: 700 11px/1.3 var(--np-sans); letter-spacing: 2px; text-transform: uppercase; }
 .np-box p { margin: 4px 0 0; }
 .np-overheard p { font-style: italic; }
-.np-overheard small { display: block; margin-top: 3px; font: 700 9px/1.3 var(--np-sans); letter-spacing: 1px; text-transform: uppercase; color: #555; }
+.np-overheard small { display: block; margin-top: 4px; font: 700 9.5px/1.3 var(--np-sans); letter-spacing: 1px; text-transform: uppercase; color: var(--np-soft); }
 /* "Inside": the index under the lead story; each line jumps to its section */
 .np-inside { margin-top: 4px; padding-top: 6px; border-top: 2px solid var(--np-ink); }
 .np-inside > b { display: block; margin-bottom: 4px; font: 700 11px/1.3 var(--np-sans); letter-spacing: 2px; text-transform: uppercase; }
@@ -147,9 +156,9 @@
 .np-city .np-big { font: 700 22px/1 var(--np-serif); }
 
 /* ---------- sections ---------- */
-.np-sec { margin-top: 14px; }
-.np-section { font: 900 13px/1.3 var(--np-sans); letter-spacing: 3px; text-transform: uppercase; border-top: 3px double var(--np-ink); border-bottom: 1px solid var(--np-ink); padding: 4px 0; margin-bottom: 12px; }
-.np-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.np-sec { margin-top: 18px; }
+.np-section { font: 800 12.5px/1.3 var(--np-sans); letter-spacing: 3px; text-transform: uppercase; text-align: center; border-top: 3px double var(--np-ink); border-bottom: 1px solid var(--np-ink); padding: 5px 0 4px; margin-bottom: 14px; }
+.np-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .np-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .np-grid2.wide-left { grid-template-columns: 1.2fr 1fr; }
 .np-story.otd .np-kicker::before { content: '★ '; }
@@ -169,21 +178,27 @@
 /* ---------- opinion ---------- */
 .np-advice { align-self: start; border: 2px solid var(--np-ink); padding: 10px 14px; background: rgba(255, 255, 255, 0.35); }
 .np-advice h3, .np-secrets h3, .np-classifieds h3 { font: 700 23px/1.15 var(--np-serif); margin: 0 0 3px; }
-.np-byline { font-size: 12px; font-style: italic; margin-bottom: 8px; }
+.np-byline { font-size: 12.5px; font-style: italic; margin-bottom: 8px; color: var(--np-soft); }
 .np-advice .q { font-weight: 700; font-size: 14px; line-height: 1.3; margin: 8px 0 2px; }
 .np-advice .a { font-size: 14px; margin: 0 0 6px; line-height: 1.38; }
 .np-secrets ol { margin: 4px 0 12px; padding-left: 20px; font-size: 13.5px; line-height: 1.4; }
 .np-classifieds p { font-size: 13px; margin: 0 0 6px; line-height: 1.35; }
 .np-classifieds b { font: 700 10px var(--np-sans); letter-spacing: 1px; }
-.np-folio { text-align: center; font-size: 11px; letter-spacing: 2px; margin-top: 14px; color: #6f6a5c; text-transform: uppercase; }
+.np-folio { text-align: center; font: 600 10px/1.3 var(--np-sans); letter-spacing: 2px; margin-top: 16px; color: var(--np-soft); text-transform: uppercase; }
 
-/* ---------- edition controls (the game's buttons) ---------- */
-.np-nav { display: flex; justify-content: center; align-items: center; gap: var(--sp-3); padding-top: var(--sp-3); }
-.np-nav .btn { min-width: 150px; }
-/* on today's paper "Today's Paper" is where you are: a lit sign, not a greyed-out button */
-.np-nav .np-today.on, .np-nav .np-today.on:disabled { background: linear-gradient(#fff3c4, var(--sun)); color: var(--ink); text-shadow: none; filter: none; opacity: 1; cursor: default; transform: none; }
-/* every edition button reads clearly in every state: white only on the strong blue and green, ink on the light ones */
-.np-nav .btn.np-prev:not(:disabled), .np-nav .btn.np-next:not(:disabled) { background: linear-gradient(#5aa6f0, #1f6fd1); color: #fff; text-shadow: 0 2px 0 #0e3f80; }
-.np-nav .btn.np-today.go { background: linear-gradient(#5ccb6b, #1e8a39); color: #fff; text-shadow: 0 2px 0 #0f5222; }
-.np-nav .btn:disabled:not(.on) { background: linear-gradient(#f4f5f8, #dfe2ea); color: #4a4f66; text-shadow: none; filter: none; opacity: 1; cursor: default; transform: none; }
-.newspaper .x-btn { top: -14px; right: -14px; }
+/* ---------- turning the page (the game's own buttons, outside the paper) ---------- */
+.np-arrow { position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 52px; height: 52px; margin-top: -26px; padding: 0; border: 3px solid var(--ink); border-radius: 50%; background: linear-gradient(#ffffff, #dbe9fb); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 4px 0 var(--ink); color: var(--ink); cursor: pointer; transition: transform 0.12s; }
+.np-arrow.prev { left: -72px; }
+.np-arrow.next { right: -72px; }
+.np-arrow svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+.np-arrow:hover { transform: translateY(-2px); }
+.np-arrow.prev:hover svg { transform: translateX(-2px); }
+.np-arrow.next:hover svg { transform: translateX(2px); }
+.np-arrow:active { transform: translateY(2px); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 1px 0 var(--ink); }
+.np-arrow:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+/* back to today, only while you're reading a back issue: it sits on the paper's bottom edge */
+.newspaper .np-today { position: absolute; left: 50%; bottom: -22px; z-index: 4; transform: translateX(-50%); }
+.newspaper .np-today:hover { transform: translate(-50%, -2px); }
+.newspaper .np-today:active { transform: translate(-50%, 2px); }
+.np-arrow[hidden], .newspaper .np-today[hidden] { display: none; }
+.newspaper .x-btn { top: -16px; right: -16px; }

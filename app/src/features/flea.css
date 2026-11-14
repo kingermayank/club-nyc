@@ -16,6 +16,8 @@
 .fl-tag { position: relative; align-self: stretch; margin-top: 8px; padding: 7px 12px 8px 26px; border: 3px solid var(--ink); border-radius: 8px; background: #fbf1d8; box-shadow: 0 3px 0 var(--ink); color: var(--ink); text-align: left; }
 .fl-tag::before { content: ''; position: absolute; box-sizing: border-box; left: 8px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border: 3px solid var(--ink); border-radius: 50%; background: #e9c48a; }
 .fl-tag b { display: block; font: 19px/1.15 var(--display); font-weight: 400; }
+.fl-tag b { display: flex; align-items: center; gap: 8px; }
+.fl-owned { flex: none; padding: 1px 8px 2px; border: 2.5px solid var(--ink); border-radius: 999px; background: #3cb371; color: #fff; font: 13px/1.2 var(--display); font-style: normal; }
 .fl-tag small { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #6a4a22; }
 .fl-tag small i { width: 4px; height: 4px; border-radius: 50%; background: #b9864a; }
 .catalog.flea .btn.fl-buy { align-self: stretch; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; padding: 7px 12px; font-size: 20px; }

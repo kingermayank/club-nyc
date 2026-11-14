@@ -13,7 +13,7 @@ import { rest } from '../net/server'
 import { paper } from '../foley'
 
 /**
- * The Club NYC Times. It opens on today's paper (New York's date); Previous Edition / Next Edition move one day back
+ * The Club NYC Times. It opens on today's paper (New York's date); the arrows either side of it move one day back
  * or forward through the archive (never past today, never before No. 1). Each edition is the whole paper for that day,
  * one long sheet: front page, NYC Moments, Metro & Style, Sports, Opinion and the Classifieds.
  *
@@ -313,11 +313,13 @@ export function openNewspaper() {
   const sheet = el('div', 'np-sheet')
   const scroll = el('div', 'np-scroll')
   sheet.append(scroll)
-  const nav = el('div', 'np-nav')
-  const prev = el('button', 'btn small np-prev', '‹ Previous Edition')
-  const now = el('button', 'btn small np-today', 'Today’s Paper')
-  const next = el('button', 'btn small np-next', 'Next Edition ›')
-  nav.append(prev, now, next)
+  // turning the page: an arrow on each side of the paper, and a way back to today while you read a back issue
+  const chevron = (d: string) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" /></svg>`
+  const prev = el('button', 'np-arrow prev', chevron('M15 5 L8 12 L15 19')) as HTMLButtonElement
+  const next = el('button', 'np-arrow next', chevron('M9 5 L16 12 L9 19')) as HTMLButtonElement
+  prev.setAttribute('aria-label', 'Previous Edition')
+  next.setAttribute('aria-label', 'Next Edition')
+  const now = el('button', 'btn small go np-today', 'Today’s Paper') as HTMLButtonElement
   let live: Press | null = null
   let gen = 0
 
@@ -345,12 +347,10 @@ export function openNewspaper() {
     next.disabled = day >= today
     prev.title = prev.disabled ? 'This is the very first edition' : `The ${shortDate(shiftDay(day, -1))} paper (←)`
     next.title = next.disabled ? 'Tomorrow’s paper isn’t printed yet' : `The ${shortDate(shiftDay(day, 1))} paper (→)`
-    now.classList.toggle('on', isToday)
-    now.classList.toggle('go', !isToday)
-    now.disabled = isToday
-    now.title = isToday ? 'You’re reading today’s paper' : 'Back to today’s paper (T)'
-    if (isToday) now.setAttribute('aria-current', 'date')
-    else now.removeAttribute('aria-current')
+    prev.hidden = prev.disabled
+    next.hidden = next.disabled
+    now.hidden = isToday
+    now.title = 'Back to today’s paper (T)'
     box.dataset.day = day
     if (isToday) {
       if (live) fill(true, live)
@@ -419,7 +419,7 @@ export function openNewspaper() {
     if (!box.isConnected) return window.removeEventListener('keydown', keys, true)
     if (e.key === 'ArrowLeft' && !prev.disabled) prev.click()
     else if (e.key === 'ArrowRight' && !next.disabled) next.click()
-    else if ((e.key === 't' || e.key === 'T') && !now.disabled) now.click()
+    else if ((e.key === 't' || e.key === 'T') && !now.hidden) now.click()
     else return
     e.preventDefault()
     e.stopPropagation()
@@ -427,7 +427,7 @@ export function openNewspaper() {
   window.addEventListener('keydown', keys, true)
 
   render()
-  box.append(sheet, nav, closeButton())
+  box.append(sheet, prev, next, now, closeButton())
   paper.open()
   openOverlay(box, { cls: 'dark', onClose: () => window.removeEventListener('keydown', keys, true) })
   requestAnimationFrame(fade)

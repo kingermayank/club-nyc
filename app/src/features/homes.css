@@ -20,6 +20,9 @@
 .pp-seg:hover { opacity: 1; }
 .pp-seg.on { background: #fff; box-shadow: 0 2px 0 var(--ink); opacity: 1; }
 .pp-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.pp-actions .pp-invite { flex: 1; max-width: 260px; }
+.pp-actions .pp-end { flex: none; width: 52px; padding: 0; }
+.pp-end svg { width: 24px; height: 24px; fill: none; stroke: var(--red); stroke-width: 3; stroke-linecap: round; }
 
 .party-fx { position: absolute; inset: 0; z-index: 9050; pointer-events: none; overflow: hidden; }
 .party-fx.theme-glow { background: radial-gradient(ellipse at 50% 0%, rgba(255, 190, 90, 0.18), transparent 60%); }

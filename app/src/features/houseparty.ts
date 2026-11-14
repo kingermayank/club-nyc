@@ -139,17 +139,19 @@ export function openPartyPanel() {
     })
     const actions = p.querySelector('.pp-actions')!
     if (going) {
-      const end = el('button', 'btn ghost', 'End the Party')
+      // the party keeps going when you close the panel, so there's no "keep partying" button: inviting is the
+      // thing to do here, and ending it is a small power switch off to the side
+      const end = el('button', 'btn ghost pp-end', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v8" /><path d="M7.2 6.6a7.5 7.5 0 1 0 9.6 0" /></svg>')
+      end.title = 'End the Party'
+      end.setAttribute('aria-label', 'End the Party')
       end.onclick = () => {
         closeOverlay()
         endParty()
       }
-      const ok = el('button', 'btn go', 'Keep Partying 🎶')
-      ok.onclick = () => closeOverlay()
       // anyone who opens your link while the party's on comes straight to it
-      const inv = el('button', 'btn ghost', '💌 Invite with a Link')
+      const inv = el('button', 'btn go pp-invite', '💌 Invite')
       inv.onclick = () => void import('./invite').then((m) => m.openInvite())
-      actions.append(end, inv, ok)
+      actions.append(end, inv)
     } else {
       const go = el('button', 'btn go', '🎉 Start the Party')
       go.onclick = () => {

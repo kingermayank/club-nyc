@@ -290,6 +290,40 @@ function drawFire() {
   stage.scene.append(fireEl)
 }
 
+/**
+ * The walk-up's roller blind: rolled up under the painted one at the top of the window, it pulls down over the
+ * glass and back up. `x`/`w` span the window frame, `top` is just under the roll, `drop` how far down the sill is.
+ */
+const BLIND: Record<string, { x: number; top: number; w: number; drop: number }> = { apartment: { x: 306, top: 24, w: 330, drop: 165 } }
+const blindDown = () => !!switches()[`blind:${world.room.id}`]
+let blindEl: HTMLElement | null = null
+export function pullBlind() {
+  if (!BLIND[world.room.id]) return
+  const key = `blind:${world.room.id}`
+  switches()[key] = switches()[key] ? 0 : 1
+  if (isMine()) persist()
+  hm.rustle()
+  refreshLights()
+}
+function drawBlind() {
+  const b = BLIND[world.room.id]
+  if (!b) {
+    blindEl?.remove()
+    blindEl = null
+    return
+  }
+  if (!blindEl?.isConnected) {
+    blindEl = el('div', 'home-blind', '<i></i>')
+    blindEl.style.cssText = `left:${b.x}px;top:${b.top}px;width:${b.w}px;--drop:${b.drop}px`
+    stage.scene.append(blindEl)
+  }
+  const down = blindDown()
+  blindEl.classList.toggle('down', down)
+  // the blind is what you click, rolled up (the roll and its cord) or pulled down over the glass
+  const hit = world.hits.find((h) => h.kind === 'zone' && h.id === 'blind')
+  if (hit) hit.rect[3] = down ? b.top + b.drop + 6 : 78
+}
+
 /** the neon sign that was switched on a moment ago (it stutters as it catches) */
 let struck: PlacedFurniture | null = null
 
@@ -315,9 +349,10 @@ function refreshLights() {
   // what the room itself has: the window, and what it throws on the floor
   const cut = world.geo?.cutouts ?? {}
   const tint = WINDOW_TINT[world.room.id] ?? '255, 200, 150'
+  drawBlind()
   for (const key of ['window', 'view']) {
     const r = cut[key]?.rect
-    if (!r) continue
+    if (!r || (key === 'window' && blindDown())) continue
     out.push({ x: r[0] + r[2] / 2, y: r[1] + r[3] / 2, rx: r[2] * 0.7, ry: r[3] * 0.74, tint, power: 1 })
     out.push({ x: r[0] + r[2] / 2, y: r[1] + r[3] + 95, rx: r[2] * 0.62, ry: 80, tint, power: 0.5, glow: 0.3 })
   }
@@ -964,7 +999,7 @@ export function openFurnitureCatalog() {
         <div class="cat-masthead">Flatbush Flea</div>
         <div class="cat-wallet"><img src="/art/icons/coin.png" alt=""> ${save.coins}</div>
         <div class="fl-floor"><div class="fl-me">${me}</div>${pick ? `<img class="fl-piece${pick.flat ? ' flat' : ''}" src="${pick.src}" alt="" style="width:${showW}px">` : ''}</div>
-        ${pick ? `<div class="fl-tag"><b>${pick.name}</b><small>${[does(pick), have(pick) ? `You have ${have(pick)}` : ''].filter(Boolean).join('<i></i>') || pick.cat}</small></div>
+        ${pick ? `<div class="fl-tag"><b>${pick.name}${have(pick) ? '<em class="fl-owned">Owned</em>' : ''}</b><small>${does(pick) || pick.cat}</small></div>
         <button class="btn go fl-buy" type="button"><img src="/art/icons/coin.png" alt=""> ${pick.price}<span>Buy</span></button>` : ''}
       </div>
       <div class="cat-page"><div class="cat-tabs fl-tabs"></div><div class="cat-grid furn fl-grid"></div></div>`
@@ -990,7 +1025,7 @@ export function openFurnitureCatalog() {
     }
     for (const f of items) {
       const owned = have(f)
-      const card = el('button', 'fl-item' + (f.id === catPick ? ' on' : ''), `<span class="fl-pic"><img src="${f.src}" alt=""></span><b>${f.name}</b><span class="fl-price"><img src="/art/icons/coin.png" alt="">${f.price}</span>${owned ? `<em>×${owned}</em>` : ''}`) as HTMLButtonElement
+      const card = el('button', 'fl-item' + (f.id === catPick ? ' on' : ''), `<span class="fl-pic"><img src="${f.src}" alt=""></span><b>${f.name}</b><span class="fl-price"><img src="/art/icons/coin.png" alt="">${f.price}</span>${owned ? '<em>Owned</em>' : ''}`) as HTMLButtonElement
       card.type = 'button'
       card.onclick = () => {
         sfx.click()

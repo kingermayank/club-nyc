@@ -52,3 +52,9 @@
 @media (prefers-reduced-motion: reduce) {
   .hl-glow.hl-tv, .hl-glow.hl-fire, .home-fire i, .furn-tube, .hl-glow.hl-strike, .furniture.striking, .furniture.rustle, .furniture.tapped { animation: none; }
 }
+
+/* the walk-up's roller blind (features/apartment.ts pullBlind): slats that roll down over the glass */
+.home-blind { position: absolute; z-index: 6; height: var(--drop); pointer-events: none; overflow: hidden; }
+.home-blind i { position: absolute; left: 0; right: 0; top: 0; height: 100%; box-sizing: border-box; border: 3px solid var(--ink); border-top: 0; border-radius: 0 0 4px 4px; background: linear-gradient(90deg, rgba(90, 55, 20, 0.18), transparent 12% 88%, rgba(90, 55, 20, 0.18)), repeating-linear-gradient(#ead1a0 0 9px, #d5b47c 9px 11px, #5b3f1e 11px 12.5px); box-shadow: inset 0 -7px 0 #b88c4f, inset 0 -10px 0 var(--ink); transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.5, 0, 0.3, 1.15); }
+.home-blind.down i { transform: none; }
+@media (prefers-reduced-motion: reduce) { .home-blind i { transition: none; } }
