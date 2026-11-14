@@ -82,7 +82,7 @@
 .sf-note { display: flex; align-items: baseline; justify-content: space-between; padding: 14px 4px 20px; }
 .sf-note b { font: 400 24px/1 var(--display); color: #1d2140; }
 .sf-note span { font: var(--fs-sm) var(--body); color: #4a4f73; }
-.sf-print-actions { display: flex; justify-content: center; gap: 10px; margin-top: 14px; }
+.sf-print-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; max-width: 420px; }
 
 @media (prefers-reduced-motion: reduce) {
   .sf, .sf-view.click, .sf-people.swap svg, .sf-faces.on i, .sf-thumb img { animation: none; }

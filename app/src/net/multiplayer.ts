@@ -379,6 +379,7 @@ function onEvent(e: S2C) {
     case 'n':
       if (e.k === 'gb') notify(`<b>${esc(e.n)}</b> signed your guestbook: “${esc(e.m ?? '')}”`, '📬', [], 10000)
       else if (e.k === 'like') toast(`<b>${esc(e.n)}</b> liked your apartment!`, '❤️', { keep: true })
+      else if (e.k === 'nyc') toast(`<b>${esc(e.n)}</b> gave your NYCgram a pizza!`, '🍕', { keep: true })
       else if (e.k === 'ref') {
         // someone just made a New Yorker through your invite link
         sfx.stamp()

@@ -388,6 +388,35 @@ const MIGRATIONS = [
      created_at INTEGER NOT NULL
    );
    CREATE UNIQUE INDEX community_reports_once ON community_reports(post_id, IFNULL(reply_id, 0), reporter);`,
+  // v19: NYCgram: a private phone gallery and a feed for you and your friends (compressed JPEG data URLs). It comes
+  // after the iFruit phone (v17) and the community board (v18), whose tables are listed here ahead of their code.
+  `CREATE TABLE nycgram_gallery (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     image TEXT NOT NULL,
+     room TEXT NOT NULL,
+     kind TEXT NOT NULL DEFAULT 'selfie',
+     created_at INTEGER NOT NULL
+   );
+   CREATE INDEX nycgram_gallery_user ON nycgram_gallery(user_id, created_at DESC);
+   CREATE TABLE nycgram_posts (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     gallery_id INTEGER REFERENCES nycgram_gallery(id) ON DELETE SET NULL,
+     image TEXT NOT NULL,
+     room TEXT NOT NULL,
+     caption TEXT NOT NULL,
+     created_at INTEGER NOT NULL,
+     removed INTEGER NOT NULL DEFAULT 0
+   );
+   CREATE INDEX nycgram_posts_user ON nycgram_posts(user_id, created_at DESC);
+   CREATE INDEX nycgram_posts_feed ON nycgram_posts(removed, created_at DESC);
+   CREATE TABLE nycgram_likes (
+     post_id INTEGER NOT NULL REFERENCES nycgram_posts(id) ON DELETE CASCADE,
+     liker TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     created_at INTEGER NOT NULL,
+     PRIMARY KEY (post_id, liker)
+   );`,
 ]
 
 function migrate() {

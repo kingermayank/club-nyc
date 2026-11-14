@@ -2,6 +2,7 @@ import { market } from './market.ts'
 import { locks } from './locks.ts'
 import { phone } from './phone.ts'
 import { community } from './community.ts'
+import { nycgram } from './nycgram.ts'
 import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -69,6 +70,7 @@ app.route('/api/market', market)
 app.route('/api/locks', locks)
 app.route('/api/phone', phone)
 app.route('/api/community', community)
+app.route('/api/nycgram', nycgram)
 app.route('/api', api)
 // Railway's health check (and any uptime monitor): 503 while the database is unreachable or we're shutting down
 app.get('/api/health', (c) => {
