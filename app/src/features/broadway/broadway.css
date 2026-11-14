@@ -59,8 +59,6 @@
 .lights-house .bw-actor, .lights-blackout .bw-actor { filter: brightness(0.2); }
 .lights-moment .bw-actor { filter: brightness(0.85); }
 .bw-actor svg { transform-origin: 50% 96%; }
-.bw-actor.bow svg { animation: bw-bow 1.05s ease-in-out; }
-@keyframes bw-bow { 0%, 100% { transform: none; } 38%, 62% { transform: translateY(5px) scale(1.04, 0.82); } }
 .bw-actor.appear svg { animation: bw-appear 0.7s ease-out; }
 @keyframes bw-appear { from { opacity: 0; transform: translateY(24px) scale(0.9); } }
 
@@ -100,13 +98,14 @@
 .carded .bw-controls { display: none; }
 
 /* ---------- the end card ---------- */
-.bw-show .bw-card { position: absolute; left: 50%; top: 47%; width: 480px; max-height: none; margin: 0; overflow: visible; transform: translate(-50%, -46%) scale(0.92); opacity: 0; pointer-events: none; animation: none; transition: opacity 0.35s, transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); color: var(--ink); }
+.bw-show .bw-card { position: absolute; left: 50%; top: 47%; width: 400px; max-height: none; margin: 0; overflow: visible; transform: translate(-50%, -46%) scale(0.92); opacity: 0; pointer-events: none; animation: none; transition: opacity 0.35s, transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); color: var(--ink); }
 .bw-show .bw-card.on { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
 .bw-show.carded .bw-cast, .bw-show.carded .bw-lights { opacity: 0.5; transition: opacity 0.4s; }
 .bw-card h2 { margin-bottom: var(--sp-1); }
 .bw-card p { margin-bottom: var(--sp-3); }
 .bw-card .bw-reward { display: flex; align-items: center; justify-content: center; gap: var(--sp-2); margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: 12px; background: #fff3c4; font: var(--fs-md)/1.35 var(--body); }
-.bw-card .bw-next { margin: 0; font-size: var(--fs-sm); color: #5a5f7a; }
+.bw-card .bw-reward svg { width: 46px; height: 46px; flex: none; }
+.bw-card .bw-reward span { font: 400 var(--fs-lg)/1.2 var(--display); }
 .bw-card-actions { display: flex; justify-content: center; gap: var(--sp-2); margin-top: var(--sp-3); }
 .bw-card-actions .btn { white-space: nowrap; }
 

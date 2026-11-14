@@ -4,13 +4,12 @@
  */
 export const JAM_PERIOD = 8 * 60_000
 export const JAM_LEN = 3 * 60_000
-const SEG = 60_000
-const SET = ['empire-state-of-mine', 'disco-54', 'uptown-bounce']
+/** the show's song (music.ts): Empire State of Mind, from the top of every show, so everyone hears the same bar */
+export const JAM_TRACK = 'empire-state-of-mine'
 
 export function jamState(now = Date.now()) {
   const phase = now % JAM_PERIOD
   const start = now - phase
   const n = Math.floor(start / JAM_PERIOD)
-  const seg = Math.floor(Math.min(phase, JAM_LEN - 1) / SEG)
-  return { on: phase < JAM_LEN, start, end: start + JAM_LEN, next: start + JAM_PERIOD, n, track: SET[(n + seg) % SET.length], since: start + seg * SEG }
+  return { on: phase < JAM_LEN, start, end: start + JAM_LEN, next: start + JAM_PERIOD, n, track: JAM_TRACK, since: start }
 }

@@ -9,6 +9,7 @@
  */
 // multiplayer mini-games ({ t: 'mp', k: … }): their own messages, see app/src/mp/shared/protocol.ts
 import type { MpC2S, MpS2C } from '../mp/shared/protocol'
+import type { DmMessage, CallKind } from '../features/ifruit/wire'
 
 export interface LookWire {
   skin: number
@@ -65,6 +66,7 @@ export type C2S =
   | { t: 'party'; on: boolean; track?: string; theme?: string; pub?: boolean } // host a party at home (or change the music)
   | { t: 'ping'; c: number }
   | { t: 'txt'; i: string; k: TextKind } // a preset text to a friend from your phone ("Meet me here!")
+  | { t: 'call'; k: CallKind; i: string; c: string; d?: string } // iFruit Phone: ring / answer / decline / end a voice call, or 'sig' (WebRTC details in d)
   | MpC2S // multiplayer mini-games: lobbies, races, Carb-Jitsu
 
 // ---------- server -> client ----------
@@ -83,6 +85,7 @@ export type S2C =
   | { t: 'f'; i: string; n: string; on: boolean; r: string | null } // a friend came online / moved / left
   | { t: 'fr'; i: string; n: string } // friend request received
   | { t: 'fa'; i: string; n: string } // friend request accepted
+  | { t: 'fx'; i: string } // a friendship or request with this person ended (declined, cancelled, unfriended)
   | { t: 'n'; k: 'gb' | 'like' | 'ref' | 'refpaid'; i: string; n: string; m?: string; c?: number } // guestbook note / like / a friend joined through your invite / you were paid for it
   | { t: '$'; c: number; why?: string; owned?: string[]; homes?: string[] } // your wallet changed on the server
   | { t: 'xp'; x: number; g: number; why?: string; lv: number; up?: boolean; b?: number } // you earned XP (x: new total, g: gained, lv: level, up: a new level, b: its coin bonus)
@@ -93,8 +96,12 @@ export type S2C =
   | { t: 'o'; n: number } // how many people are in the city (sent when it changes, at most every 2 s)
   | { t: 'pong'; c: number }
   | { t: 'sys'; m: string } // system message (warnings, mute notices)
+  | { t: 'txtr'; i: string; k: TextKind; ok: boolean; why?: 'offline' | 'too-soon' | 'not-friends' } // what became of the text you just sent
   | { t: 'txt'; i: string; n: string; k: TextKind; r: string | null } // a friend texted you (r: the room they're in)
   | { t: 'kick'; m: string; k?: 'replaced' | 'banned' | 'deleted' | 'maintenance' }
+  | { t: 'dm'; m: DmMessage; n: string } // iFruit Messages: a new message in one of your threads (n: the sender's name)
+  | { t: 'payreq'; id: number; i: string; n: string; a: number; note: string } // a friend asked you for coins
+  | { t: 'call'; k: CallKind; i: string; n: string; c: string; d?: string; r?: string | null; look?: LookWire } // a voice call from / to a friend
   | MpS2C // multiplayer mini-games: lobbies, races, Carb-Jitsu
 
 /** what your phone can text a friend: presets only (no free text to moderate) */

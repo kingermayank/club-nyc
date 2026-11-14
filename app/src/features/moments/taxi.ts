@@ -111,7 +111,7 @@ export function taxiRide(g: Game) {
       void goto(room).then(() => {
         m.close()
         sfx.thunk()
-        setTimeout(() => g.say('Keep the change.'), 700)
+        setTimeout(() => g.say('Thanks for the ride!'), 700)
       })
     }, 1000 + RIDE_S * 1000)
   }

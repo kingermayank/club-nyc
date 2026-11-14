@@ -5,7 +5,7 @@
  * Tracks loop and can be started "as of" a wall-clock time, so everyone in the same party hears the same bar.
  * A track can also point at an audio file (`src`) — drop a licensed MP3 in public/music/ and it plays instead.
  */
-import { isMuted } from './audio'
+import { isMuted, onMute } from './audio'
 
 type Drum = 'kick' | 'snare' | 'clap' | 'hat' | 'open' | 'rim' | 'shaker'
 interface Note {
@@ -64,11 +64,14 @@ const rep = (s: string, n: number) => Array.from({ length: n }, () => s).join(' 
 // ---------- the tracks (all original) ----------
 export const TRACKS: Track[] = [
   {
+    // the house-party song: the real recording (public/music/, from the user's file) plays; the notes below are the
+    // synth stand-in, used only if `src` is removed
     id: 'empire-state-of-mine',
-    title: 'Empire State of Mine',
-    by: 'The Concrete Jungle Gym',
+    title: 'Empire State of Mind',
+    by: 'JAY-Z ft. Alicia Keys',
     vibe: 'big-city anthem',
     emoji: '🗽',
+    src: '/music/empire-state-of-mind.mp3',
     bpm: 88,
     swing: 0.12,
     steps: 128,
@@ -281,6 +284,8 @@ interface Playing {
   timer: number
   el?: HTMLAudioElement
   crackle?: AudioBufferSourceNode
+  /** fadeStop() is turning it down */
+  fading?: boolean
 }
 let now: Playing | null = null
 const listeners: ((id: string | null) => void)[] = []
@@ -330,15 +335,37 @@ function playStep(tr: Track, s: number, t: number, loop: number) {
  */
 export function play(id: string, since = Date.now()) {
   const tr = TRACK[id] ?? TRACKS[0]
-  if (now?.track.id === tr.id && now.since === since) return
+  if (now?.track.id === tr.id && now.since === since) {
+    // asked for again while fading out (back in the room before the fade ended): keep it playing
+    if (now.fading) {
+      now.fading = false
+      if (now.el) now.el.volume = isMuted() ? 0 : 0.6
+    }
+    return
+  }
   stop(false)
   const { a } = audio()
   if (tr.src) {
     const el = new Audio(tr.src)
     el.loop = true
     el.volume = isMuted() ? 0 : 0.6
-    el.currentTime = Math.max(0, (Date.now() - since) / 1000) % 600
-    void el.play().catch(() => {})
+    // join the song where everyone else is: seconds since the party started, wrapped to the song's length
+    const seek = () => {
+      if (Number.isFinite(el.duration) && el.duration > 0) el.currentTime = ((Date.now() - since) / 1000) % el.duration
+    }
+    if (el.readyState >= 1) seek()
+    else el.addEventListener('loadedmetadata', seek, { once: true })
+    // a browser that blocks sound until the page is touched: start on the first click or key
+    void el.play().catch(() => {
+      const go = () => {
+        if (now?.el === el) {
+          seek()
+          void el.play().catch(() => {})
+        }
+      }
+      window.addEventListener('pointerdown', go, { once: true })
+      window.addEventListener('keydown', go, { once: true })
+    })
     now = { track: tr, since, t0: 0, next: 0, timer: 0, el }
   } else {
     const loopLen = tr.steps * stepDur(tr)
@@ -368,7 +395,26 @@ export const onMusic = (f: (id: string | null) => void) => void listeners.push(f
 
 /** follow the global mute toggle */
 export function refreshMute() {
-  if (now?.el) now.el.volume = isMuted() ? 0 : 0.6
+  if (now?.el && !now.fading) now.el.volume = isMuted() ? 0 : 0.6
+}
+onMute(() => refreshMute())
+
+/** Stop with a short fade (a recording cut mid-bar sounds broken). The synth tracks just stop. */
+export function fadeStop(ms = 1800) {
+  const p = now
+  const el = p?.el
+  if (!p || !el) return stop()
+  p.fading = true
+  const from = el.volume
+  const t0 = performance.now()
+  const step = () => {
+    if (now !== p || !p.fading) return
+    const k = Math.min(1, (performance.now() - t0) / ms)
+    el.volume = from * (1 - k)
+    if (k < 1) requestAnimationFrame(step)
+    else stop()
+  }
+  requestAnimationFrame(step)
 }
 
 function startCrackle(a: AudioContext) {

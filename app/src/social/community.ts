@@ -5,8 +5,9 @@ import { openOverlay, closeOverlay, closeButton, toast, notify, noticesWaiting }
 import { world, goto, ensureResident, refreshTag } from '../engine/world'
 import { headPortrait } from '../avatar/render'
 import { ROOMS } from '../data/rooms'
+import { placeName } from '../data/placePhrase'
 import { RESIDENT, RESIDENTS, locationOf, type Resident } from './residents'
-import { friends, isFriend, requestFriend, ACCEPT_LINES, LATER_LINES, unfriend } from './friends'
+import { friends, isFriend, ACCEPT_LINES, unfriend } from './friends'
 import { BOARD_GAMES, BOARD, board, fmt, challenge, resolveChallenges, myWeekly } from './leaderboard'
 import { TEAMS, TEAM_IDS, standings, myContribution, myTeam, checkWeeklyResult, localsPoints, type TeamId } from './teams'
 import { msToReset, prevWeekId } from './rng'
@@ -42,7 +43,7 @@ export function findFriend(r: Resident) {
     a?.say(`Hey ${save.name}! 👋`)
     return
   }
-  toast(`Heading to ${roomName(loc)} to find ${r.name}…`, '🚕')
+  toast(`Heading to ${placeName(loc)} to find ${r.name}…`, '🚕')
   goto(loc)
   setTimeout(() => {
     const a = ensureResident(r.id)
@@ -53,21 +54,14 @@ export function findFriend(r: Resident) {
 }
 
 export function addFriendFlow(r: Resident, onDone?: () => void) {
+  // a request, like with anyone: the answer comes later, on your phone (social/friendAsks.ts)
   const actor = world.npcs.find((a) => a.resident?.id === r.id)
-  const res = requestFriend(r)
-  if (res === 'accepted') {
-    sfx.stamp()
-    actor?.emote('cheer', 2)
-    actor?.say(pick(ACCEPT_LINES))
-    toast(`<b>${r.name}</b> is now your friend!`, '🤝')
-    api.stamp('new-friend')
-    if (save.friends.length >= 5) api.stamp('social-butterfly')
+  void import('./friendAsks').then((m) => {
+    m.sendRequest(r)
+    actor?.say(isFriend(r.id) ? pick(ACCEPT_LINES) : pick(['I’ll check my phone! 📱', 'Ooh, a request. Let me think 😄', 'I’ll get back to you!']))
     if (actor) refreshTag(actor)
-  } else if (res === 'later') {
-    actor?.say(pick(LATER_LINES))
-    toast(`${r.name} wants to hang out a bit first. Wave or dance with them!`, '😄')
-  }
-  onDone?.()
+    onDone?.()
+  })
 }
 
 // ---------- the panel ----------
@@ -574,7 +568,7 @@ export function teamPicker(onPick: (t: TeamId) => void): HTMLElement {
   for (const id of TEAM_IDS) {
     const t = TEAMS[id]
     const members = RESIDENTS.filter((r) => r.team === id).length
-    const b = el('button', 'team-card', `<span class="tc-emoji" style="background:${t.color}">${t.emoji}</span><b>${t.name}</b><small>${t.pitch}</small><em>${members} New Yorkers</em>`)
+    const b = el('button', 'team-card', `<span class="tc-emoji" style="background:${t.color}">${t.emoji}</span><b>${t.name}</b><small>${t.pitch}</small><em>${members} locals</em>`)
     b.style.setProperty('--team', t.color)
     b.onclick = () => {
       sfx.stamp()

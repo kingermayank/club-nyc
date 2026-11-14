@@ -1,0 +1,57 @@
+<!doctype html>
+<!--
+  CLUB NYC COMMUNITY BOARD (served at /community, /community/new and /community/post/<id>)
+  Players post bugs, ideas and feedback, reply and upvote. One page: src/community/main.ts draws the list, a post or
+  the new-post form from the address. The API is server/src/community.ts. The top bar and footer are the Help
+  Center's (help/help.css), so the site's pages feel like one place.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Community Board · Club NYC</title>
+    <meta name="description" content="Tell us what to build next. Report bugs, share ideas and upvote what the Club NYC community wants most." />
+    <link rel="icon" type="image/png" href="/art/icons/taxi.png" />
+    <meta name="theme-color" content="#78bdf2" />
+    <link rel="preload" href="/fonts/BurbankSmall-Bold.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/BurbankSmall-Medium.otf" as="font" type="font/otf" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Club NYC" />
+    <meta property="og:title" content="Community Board · Club NYC" />
+    <meta property="og:description" content="Tell us what to build next. Report bugs, share ideas and upvote what the Club NYC community wants most." />
+    <meta property="og:image" content="/og/club-nyc.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="module" src="/src/community/main.ts"></script>
+  </head>
+  <body class="cm-page">
+    <a class="skip-link" href="#board">Skip to Content</a>
+    <header class="topbar">
+      <div class="topbar-in">
+        <a class="brand" href="/community" aria-label="Club NYC Community Board"><span class="brand-logo"><img src="/art/ui/logo.png" alt="" width="900" height="507" /></span><span class="brand-tag">Community</span></a>
+        <nav class="top-links cm-top-links" aria-label="Club NYC">
+          <a class="top-link" href="/">Home</a>
+          <a class="top-link" href="/help/">Help</a>
+          <a class="top-link" href="/help/whats-new/">What’s New</a>
+          <a class="top-link" href="/rules.html">Rules</a>
+          <a class="top-link here" href="/community" aria-current="page">Community</a>
+          <a class="play-btn" href="/play">Play Now</a>
+        </nav>
+      </div>
+    </header>
+    <main class="cm-main" id="board" tabindex="-1" aria-live="polite"></main>
+    <footer class="site-foot">
+      <div class="site-foot-in">
+        <nav aria-label="Footer">
+          <a href="/">Club NYC Home</a>
+          <a href="/play">Play Now</a>
+          <a href="/help/">Help Center</a>
+          <a href="/rules.html">Community Rules</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/terms.html">Terms of Service</a>
+          <a href="/discord" rel="noopener">Discord</a>
+        </nav>
+        <p>Club NYC is an independent game, not affiliated with or endorsed by Disney, Club Penguin, the City of New York, the MTA or any brand parodied in it.</p>
+      </div>
+    </footer>
+  </body>
+</html>

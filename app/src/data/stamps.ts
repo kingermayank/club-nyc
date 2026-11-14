@@ -16,6 +16,17 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'cart-purist': { name: 'Mustard and Onions', icon: '🧅', desc: 'Order it like a New Yorker: mustard, onions, no ketchup.', tier: 2 },
   'ketchup-stare': { name: 'The Stare', icon: '🍅', desc: 'Ask a New York hot dog vendor for ketchup.', tier: 2 },
   'cart-crawl': { name: 'Cart Crawl', icon: '🛒', desc: 'Eat a hot dog at all three carts in the city.', tier: 2 },
+  'dos-tacos': { name: 'Dos Tacos', icon: '🌮', desc: 'Eat a taco at Dos Tacos No. 2 in Chelsea Market.', tier: 1 },
+  'con-todo': { name: 'Con Todo', icon: '🌮', desc: 'Say yes to everything on your taco.', tier: 1 },
+  'pina-catch': { name: 'Piña Colada', icon: '🍍', desc: 'Catch the pineapple the taquero flicks off the trompo.', tier: 2 },
+  'half-dozen': { name: 'Half Dozen', icon: '🦪', desc: 'Shuck and eat six oysters at The Lobster Spot.', tier: 1 },
+  'market-price': { name: 'Market Price', icon: '🦞', desc: 'Actually buy the lobster roll.', tier: 2 },
+  'oyster-pearl': { name: 'The World Is Your Oyster', icon: '🦪', desc: 'Find a pearl in an oyster.', tier: 3 },
+  'hot-minis': { name: 'Hot Minis', icon: '🍩', desc: 'Make a bag of mini doughnuts at Doughnut Dept.', tier: 1 },
+  'sugar-flight': { name: 'Sugar Flight', icon: '🍩', desc: 'Try all four sugars at Doughnut Dept.', tier: 2 },
+  'staff-pick': { name: 'Staff Pick', icon: '📗', desc: 'Read a book at Postman Books, cover to cover.', tier: 1 },
+  'well-read': { name: 'Well Read', icon: '📚', desc: 'Read every book on the Postman Books table.', tier: 2 },
+  'market-crawl': { name: 'Market Crawl', icon: '🧱', desc: 'Eat at all three counters in Chelsea Market and read a book.', tier: 2 },
   'pizza-rat': { name: 'Legend Spotted', icon: '🐀', desc: 'See Pizza Rat with your own eyes.', tier: 1 },
   newshound: { name: 'Newshound', icon: '📰', desc: 'Read the Club NYC Times.', tier: 1 },
   'piano-man': { name: 'Heart and Soul', icon: '🎹', desc: 'Play 8 notes on the giant floor piano.', tier: 1 },
@@ -74,7 +85,7 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'met-inside': { name: 'Inside the Met', icon: '🏷', desc: 'Get your sticker and step inside the Met.', tier: 1 },
   'city-spotter': { name: 'City Spotter', icon: '🏙', desc: 'Find every name in the view from the Empire State’s 86th floor.', tier: 2 },
   'harbor-spotter': { name: 'Harbor Spotter', icon: '🗽', desc: 'Find every name in the view from One World Trade.', tier: 2 },
-  'vessel-top': { name: 'Stairs to Nowhere', icon: '🪜', desc: 'Climb all 16 stories of the Vessel at Hudson Yards.', tier: 1 },
+  'vessel-top': { name: 'Stairs to Nowhere', icon: '🪜', desc: 'See the Hudson and Midtown from the Vessel at Hudson Yards.', tier: 1 },
   'park-walk': { name: 'A Walk in the Park', icon: '🌳', desc: 'Walk the Mall and Bethesda Terrace to the Lake in Central Park.', tier: 1 },
   'duck-lunch': { name: 'Duck Lunch', icon: '🦆', desc: 'Feed every duck on the Lake in Central Park.', tier: 2 },
   'yum-cha': { name: 'Yum Cha', icon: '🥟', desc: 'Eat dim sum in Chinatown.', tier: 1 },
@@ -90,8 +101,6 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'love-lock': { name: 'Love Lock', icon: '🔒', desc: 'Hang a lock and throw away the key.', tier: 1 },
   locksmith: { name: 'Locksmith', icon: '🌈', desc: 'Hang a lock painted with all five spray cans.', tier: 2 },
   'tugboat-key': { name: 'Special Delivery', icon: '🚢', desc: 'Land your key on the ferry.', tier: 3 },
-  'spitting-image': { name: 'Spitting Image', icon: '🗽', desc: 'Match his pose 96% or better.', tier: 2 },
-  'touchdown-george': { name: 'Touchdown, George', icon: '🏈', desc: 'Cast the dummy with both arms straight up.', tier: 3 },
   'busker-riff': { name: 'Sitting In', icon: '🎸', desc: 'Play a riff back to the busker.', tier: 1 },
   encore: { name: 'Encore', icon: '🎶', desc: 'Play all four riffs without a sour note.', tier: 2 },
   'tough-crowd': { name: 'Tough Crowd', icon: '🐦', desc: 'Miss the very first note.', tier: 3 },
@@ -117,9 +126,6 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'air-mail': { name: 'Air Mail', icon: '✈️', desc: 'Land a paper plane on the blimp.', tier: 1 },
   'air-ace': { name: 'Ace', icon: '🎯', desc: 'Three planes on the blimp in a row.', tier: 3 },
   'needle-threader': { name: 'Needle Threader', icon: '📍', desc: 'Hit the tip of the Chrysler Building.', tier: 3 },
-  'row-lake': { name: 'Row, Row, Row', icon: '🚣', desc: 'Row under Bow Bridge and back to the dock.', tier: 1 },
-  'row-clean': { name: 'Smooth Water', icon: '🌊', desc: 'Finish the lake in 18 seconds without bumping a duck.', tier: 2 },
-  'duck-bowling': { name: 'Duck Bowling', icon: '🦆', desc: 'Bump all three painted ducks in one trip.', tier: 3 },
   'ring-toss': { name: 'Ringer', icon: '🛟', desc: 'Land the life ring over something adrift.', tier: 1 },
   'harbor-hero': { name: 'Harbor Hero', icon: '⚓', desc: 'Five ringers out of five rings.', tier: 3 },
   'ring-liberty': { name: 'Ring on Her Finger', icon: '🗽', desc: 'Throw the life ring all the way to Lady Liberty.', tier: 3 },
@@ -138,7 +144,7 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   // multiplayer games (app/src/mp): firsts, wins, and one big moment per game
   'mp-first': { name: 'Game On', icon: '🕹️', desc: 'Play a multiplayer game.', tier: 1 },
   'mp-win': { name: 'Bragging Rights', icon: '🏆', desc: 'Win a multiplayer game against a real New Yorker.', tier: 2 },
-  'mp-crew': { name: 'Full House', icon: '👯', desc: 'Play a game with 4 or more real New Yorkers.', tier: 2 },
+  'mp-crew': { name: 'The Whole Crew', icon: '👯', desc: 'Play a game with 4 or more real New Yorkers.', tier: 2 },
   // the High Line Citi Bike Dash (the ids are from its sled-race days, so stamps already earned stay put)
   'sled-race': { name: 'Gansevoort to 34th', icon: '🚲', desc: 'Finish a Citi Bike Dash on the High Line.', tier: 1 },
   'sled-win': { name: 'Top of the Line', icon: '👑', desc: 'Win a Citi Bike Dash against real New Yorkers.', tier: 3 },
@@ -148,6 +154,9 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'carbs-streak': { name: 'Table Boss', icon: '🥨', desc: 'Win 3 games of Carb-Jitsu in a row at one table.', tier: 3 },
 }
 
+// Every stamp listed here can be earned (the book's total counts them all). Gone with the things they belonged to: the
+// rowboat's three (row-lake, row-clean, duck-bowling) and the statue pose's two (spitting-image, touchdown-george). A
+// save that already holds one of those ids keeps it; it just isn't shown or counted.
 // Halloween stamps only exist while the party is on
 if (!partyOn()) for (const id of ['party-animal', 'candy-hunter']) delete STAMPS[id]
 // no snow in October: the snowball is off the toolbar, so its stamp is hidden until snow season comes back

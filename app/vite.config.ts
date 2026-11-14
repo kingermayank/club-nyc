@@ -83,6 +83,11 @@ function gameRoutes(): Plugin {
       res.setHeader('Location', discordTarget(discord()))
       return res.end()
     }
+    // the community board: one page for /community, /community/new and /community/post/<id> (like the server)
+    if (/^\/community(\/.*)?$/.test(path)) {
+      req.url = '/community.html' + (query ? '?' + query : '')
+      return next()
+    }
     if (!GAME_PAGE.test(path)) return next()
     // before launch (LAUNCH_MODE=waitlist) the game server decides, like it does in production: the game, the Coming
     // Soon page (soon.html), or a preview code to check first (server/src/waitlist.ts)
@@ -138,7 +143,8 @@ export default defineConfig({
     rollupOptions: {
       // soon.html: the Coming Soon page the server shows instead of the game before launch (LAUNCH_MODE=waitlist)
       // help/index.html: the frame every Help Center page is built around (help/vite-plugin.ts writes the pages)
-      input: { index: resolve(import.meta.dirname, 'index.html'), play: resolve(import.meta.dirname, 'play.html'), soon: resolve(import.meta.dirname, 'soon.html'), help: resolve(import.meta.dirname, 'help/index.html') },
+      // community.html: the community board (/community; server/src/community.ts)
+      input: { index: resolve(import.meta.dirname, 'index.html'), play: resolve(import.meta.dirname, 'play.html'), soon: resolve(import.meta.dirname, 'soon.html'), help: resolve(import.meta.dirname, 'help/index.html'), community: resolve(import.meta.dirname, 'community.html') },
     },
   },
 })

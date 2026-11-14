@@ -56,3 +56,12 @@
 .lc-ladder span { flex: 1; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lc-ladder em { flex: none; display: flex; align-items: center; gap: 3px; font-style: normal; font-size: var(--fs-sm); color: #a87610; }
 .lc-ladder em img { width: 16px; height: 16px; object-fit: contain; }
+
+/* while a panel is open toasts sit at the very bottom (style.css): there the level-up is one slim line, so it clears
+   the panel's own buttons (it used to sit on StreetCheesy's "Buy for" button) */
+.overlay.open:not(.clear) ~ .toasts .toast.level-up { gap: 8px; padding: 3px 12px 3px 4px; }
+.overlay.open:not(.clear) ~ .toasts .toast.level-up small { display: none; }
+.overlay.open:not(.clear) ~ .toasts .toast.level-up .lu-badge { width: 24px; height: 24px; border-width: 2px; box-shadow: none; }
+.overlay.open:not(.clear) ~ .toasts .toast.level-up .lu-badge b,
+.overlay.open:not(.clear) ~ .toasts .toast.level-up > span:last-child > b { font-size: var(--fs-md); }
+.overlay.open:not(.clear) ~ .toasts .toast.level-up > span:last-child { padding: 0; }

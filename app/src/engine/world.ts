@@ -229,7 +229,8 @@ function buildRoom(from?: string) {
     if (!def && !c.fg) continue
     const hit: Hit = { kind: 'cutout', id, def, rect: [x, y, x + w, y + h], img, at: c.at, z: c.fg ? z : 6 }
     if (def && !def.decor) {
-      loadAlpha(hit)
+      // a traced outline with a see-through middle (the oven's mouth) is clickable across its whole box
+      if (!def.box) loadAlpha(hit)
       world.hits.push(hit)
     }
   }
@@ -242,9 +243,10 @@ function buildRoom(from?: string) {
     const hit: Hit = { kind: 'zone', id, def, rect, poly, z: 4 }
     world.hits.push(hit)
     // a shop's way out is an invisible zone: give it the same blue arrow sign the streets have, so you can find it
-    if (room.indoor && def.go) {
-      const left = (rect[0] + rect[2]) / 2 < 500
-      const sign = el('button', 'exit-sign' + (left ? '' : ' right'), `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M${left ? '26 9 L13 20 L26 31' : '14 9 L27 20 L14 31'}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`) as HTMLButtonElement
+    if ((room.indoor || def.sign) && def.go) {
+      const dir = def.sign ?? ((rect[0] + rect[2]) / 2 < 500 ? 'left' : 'right')
+      const arrow = { left: '26 9 L13 20 L26 31', right: '14 9 L27 20 L14 31', up: '9 26 L20 13 L31 26' }[dir]
+      const sign = el('button', 'exit-sign' + (dir === 'left' ? '' : ` ${dir}`), `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M${arrow}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`) as HTMLButtonElement
       sign.setAttribute('aria-label', def.label)
       const cx = Math.max(34, Math.min(966, (rect[0] + rect[2]) / 2))
       const cy = Math.max(70, Math.min(462, (rect[1] + rect[3]) / 2))
@@ -585,6 +587,7 @@ function hitAt(p: Pt): Hit | null {
   for (const h of world.hits) {
     if (!inRect(p, h.rect)) continue
     if (h.kind === 'cutout') {
+      if (h.def?.box) return h
       const a = h.alpha
       if (!a) continue
       const [x1, y1, x2, y2] = h.rect
@@ -743,6 +746,10 @@ function travelCard(room: RoomDef): HTMLElement {
 const roomListeners: ((r: RoomDef) => void)[] = []
 export function onRoomChange(f: (r: RoomDef) => void) {
   roomListeners.push(f)
+  return () => {
+    const i = roomListeners.indexOf(f)
+    if (i >= 0) roomListeners.splice(i, 1)
+  }
 }
 
 /**

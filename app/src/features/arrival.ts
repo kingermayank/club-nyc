@@ -126,7 +126,7 @@ export function playArrival(o: { memberNo: number }): Promise<void> {
 
     // ---------- 1. the MetroCard booth ----------
     const booth = () => {
-      scene.innerHTML = `${head('First Stop: Your MetroCard', 'Every New Yorker needs one. Pick a face, then press Snap.')}
+      scene.innerHTML = `${head('First Stop: Your Subway Card', 'Every New Yorker needs one. Pick a face, then press Snap.')}
         <div class="ar-row">
           <div class="ar-cam">
             <div class="ar-cam-top"><i class="ar-lens"></i><b>Photo Booth</b><i class="ar-bulb"></i></div>
@@ -136,12 +136,12 @@ export function playArrival(o: { memberNo: number }): Promise<void> {
             <small class="ar-sign">No refunds for blinking.</small>
           </div>
           <div class="ar-machine">
-            <div class="ar-machine-top"><b>MetroCard</b><span>Member cards printed here</span></div>
+            <div class="ar-machine-top"><b>Subway Cards</b><span>Member cards printed here</span></div>
             <div class="ar-screen">READY</div>
             <div class="ar-slot"></div>
             <div class="ar-out">
               <div class="metrocard-id ar-card">
-                <div class="mc-strip"><span>NYC</span><span>MetroCard</span></div>
+                <div class="mc-strip"><span>NYC Subway</span><i></i></div>
                 <div class="mc-body"><div class="mc-photo ar-photo"><span>PHOTO</span></div>
                   <div class="mc-info"><b class="ar-name"></b><span>🗽 New Yorker</span><small>Member since ${since}</small><small class="ar-no">No. ----</small></div></div>
                 <div class="mc-mag"></div>
@@ -311,7 +311,11 @@ export function playArrival(o: { memberNo: number }): Promise<void> {
         const go = el('button', 'btn go', 'To the Train →')
         go.onclick = () => {
           sfx.pop()
-          turnstile()
+          onKey = null
+          // first your subway card, then your phone (features/ifruit/unboxing.ts), then the train
+          void import('./ifruit/unboxing')
+            .then((m) => m.unboxPhone(false, { arrival: true }))
+            .finally(() => turnstile())
         }
         actions.append(keep, go)
         onKey = (e) => (isGo(e) ? (go.click(), true) : false)

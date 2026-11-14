@@ -496,8 +496,9 @@ export function avatarMarkup(look: Look, o: RenderOpts = {}): string {
   const neckDef = item(look, 'neck')
   if (neckDef?.drawBack && show('neck') && !back) parts.push(neckDef.drawBack(c))
   if (show('body') && top.collar) parts.push(top.collar(c))
-  parts.push(leg(-1), leg(1))
-  parts.push(skirt)
+  // legs and skirt stay planted; everything else (before and after them in the paint order) is the trunk, which can bend
+  const behind = parts.splice(0)
+  const planted = leg(-1) + leg(1) + skirt
   // torso
   if (!only) parts.push(R0(-6, -79, 12, 9, skin))
   if (show('body')) {
@@ -530,7 +531,7 @@ export function avatarMarkup(look: Look, o: RenderOpts = {}): string {
   if (!back) parts.push(arm(1))
 
   // order matters: left arm behind the torso edge looks odd, so lift both arms above the torso
-  return `<g class="av-root"><g class="av-upper">${parts.join('')}</g></g>`
+  return `<g class="av-root"><g class="av-upper"><g class="av-trunk">${behind.join('')}</g>${planted}<g class="av-trunk">${parts.join('')}</g></g></g>`
 }
 
 const R0 = (x: number, y: number, w: number, h: number, fill: string) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${fill}" stroke="${ink(fill)}" stroke-width="3"/>`
@@ -539,12 +540,28 @@ const bareFoot = (x: number) => E(x, -5, 9, 5.5, '#ffd9b8', 2.6)
 export const VIEWBOX = { x: -60, y: -185, w: 120, h: 192 }
 
 // ---------- live avatar with animation ----------
-export type Pose = 'idle' | 'walk' | 'dance' | 'wave' | 'cheer' | 'sit' | 'jump' | 'skate'
+export type Pose = 'idle' | 'walk' | 'dance' | 'wave' | 'cheer' | 'sit' | 'jump' | 'skate' | 'bow'
+
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x))
+const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2)
+/** how far into a bow you are at `s` seconds: a breath up first (-), down with a little give at the bottom, a hold,
+ * then up past straight and settle. 0 = standing, 1 = fully bent. */
+const BOW_TIME = 1.45
+function bowCurve(s: number): number {
+  if (s <= 0 || s >= BOW_TIME) return 0
+  if (s < 0.14) return -0.1 * Math.sin((s / 0.14) * Math.PI * 0.5)
+  if (s < 0.5) return -0.1 + 1.16 * easeInOut((s - 0.14) / 0.36)
+  if (s < 0.64) return 1.06 - 0.06 * easeInOut((s - 0.5) / 0.14)
+  if (s < 0.86) return 1
+  if (s < 1.16) return 1 - 1.08 * easeInOut((s - 0.86) / 0.3)
+  return -0.08 * Math.cos(((s - 1.16) / (BOW_TIME - 1.16)) * Math.PI * 0.5)
+}
 
 export class AvatarView {
   readonly el: HTMLDivElement
   private svg!: SVGSVGElement
   private g: Record<string, SVGGElement | null> = {}
+  private trunk: SVGGElement[] = []
   private look: Look
   private d: 1 | -1 = 1
   private back = false
@@ -593,6 +610,7 @@ export class AvatarView {
   }
   /** the dance's back-view beat is showing */
   private danceBack = false
+  private wasShut = false
 
   private build() {
     const { x, y, w, h } = VIEWBOX
@@ -600,6 +618,7 @@ export class AvatarView {
     this.el.innerHTML = `<svg viewBox="${x} ${y} ${w} ${h}" width="${w * k}" height="${h * k}" style="left:${x * k}px;top:${y * k}px" overflow="visible">${avatarMarkup(this.look, { d: this.d, back: this.back, mood: this.mood })}</svg>`
     this.svg = this.el.firstElementChild as SVGSVGElement
     for (const n of ['root', 'upper', 'legL', 'legR', 'armL', 'armR', 'head', 'eyes', 'prop']) this.g[n] = this.svg.querySelector('.av-' + n)
+    this.trunk = [...this.svg.querySelectorAll<SVGGElement>('.av-trunk')]
   }
 
   /** advance the animation; call every frame */
@@ -612,6 +631,8 @@ export class AvatarView {
     let legL = 0, legR = 0, armL = 0, armR = 0
     let legLift = 0
     let head = ''
+    let trunk = ''
+    let shut = false
     switch (this.pose) {
       case 'idle':
         upper = `translate(0 ${Math.sin(t * 2.2) * 0.6})`
@@ -669,12 +690,33 @@ export class AvatarView {
         break
       case 'jump': {
         const p = Math.min(1, this.poseT / 0.55)
-        root = `translate(0 ${-Math.sin(Math.PI * p) * 34})`
-        legL = -10 * Math.sin(Math.PI * p)
-        legR = 10 * Math.sin(Math.PI * p)
-        armL = 60 * Math.sin(Math.PI * p)
+        // in the air for the middle of it; a dip to load the legs first, and the landing soaks up into the body
+        const air = Math.sin(Math.PI * clamp01((p - 0.1) / 0.78))
+        const dip = p < 0.1 ? Math.sin((p / 0.1) * Math.PI * 0.5) : p > 0.88 ? Math.sin(((1 - p) / 0.12) * Math.PI * 0.5) : 0
+        root = `translate(0 ${-air * 36})`
+        trunk = `translate(0 -44) scale(${1 + dip * 0.05 - air * 0.02} ${1 - dip * 0.1 + air * 0.03}) translate(0 44)`
+        legL = -10 * air
+        legR = 10 * air
+        armL = 60 * air - dip * 8
         armR = -armL
         if (p >= 1) this.pose = 'idle'
+        break
+      }
+      case 'bow': {
+        // a real bow from the waist: the legs stay planted, the trunk folds towards you, the head (never squashed)
+        // tips down a beat behind it, one arm sweeps across the middle and the other swings back
+        const s = this.poseT
+        const b = bowCurve(s)
+        const late = bowCurve(s - 0.07) // the head and arms follow the back, they don't lead it
+        const sx = 1 + b * 0.05
+        const sy = 1 - b * 0.3
+        trunk = `translate(0 -44) scale(${sx} ${sy}) translate(0 44)`
+        // undo the trunk's fold for the head, then nod it forward and down
+        head = `translate(0 -74) scale(${1 / sx} ${1 / sy}) translate(0 74) translate(0 ${late * 7}) rotate(${this.d * late * 5} 0 -78)`
+        armR = late * 52
+        armL = late * 16
+        shut = b > 0.55
+        if (s >= BOW_TIME) this.pose = 'idle'
         break
       }
       case 'sit':
@@ -692,6 +734,7 @@ export class AvatarView {
     set('armL', `rotate(${armL} ${SHOULDER.l[0]} ${SHOULDER.l[1]})`)
     set('armR', `rotate(${armR} ${SHOULDER.r[0]} ${SHOULDER.r[1]})`)
     set('head', head)
+    for (const n of this.trunk) n.setAttribute('transform', trunk)
     // blink
     if (t > this.blinkAt) {
       const b = t - this.blinkAt
@@ -699,6 +742,9 @@ export class AvatarView {
       this.g.eyes?.setAttribute('transform', `translate(0 ${EYE_Y}) scale(1 ${s}) translate(0 ${-EYE_Y})`)
       if (b > 0.14) this.blinkAt = t + 2.5 + Math.random() * 3.5
     }
+    // eyes closed at the bottom of a bow
+    if (shut || this.wasShut) this.g.eyes?.setAttribute('transform', `translate(0 ${EYE_Y}) scale(1 ${shut ? 0.12 : 1}) translate(0 ${-EYE_Y})`)
+    this.wasShut = shut
     if (this.g.prop) this.g.prop.setAttribute('transform', `translate(0 -149) scale(${Math.cos(t * 18)} 1) translate(0 149)`)
   }
 }

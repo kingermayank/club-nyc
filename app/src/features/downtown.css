@@ -36,6 +36,8 @@
 .wsb-top b { font: 17px/1 var(--display); font-weight: 400; color: #fff7c2; letter-spacing: 0.03em; }
 .wsb-logo { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border: 2px solid #000; border-radius: 50%; background: var(--c); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25); }
 .wsb-logo img { width: 15px; height: 15px; object-fit: contain; }
+.wsb-logo.tile { background: none; border: 0; border-radius: 7px; box-shadow: none; }
+.wsb-logo.tile img { width: 26px; height: 26px; }
 .wsb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--fs-2xs)/1.25 var(--body); color: #8f9bb3; }
 .wsb-price { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
 .wsb-price em { font: 21px/1.05 var(--display); font-style: normal; font-variant-numeric: tabular-nums; white-space: nowrap; }

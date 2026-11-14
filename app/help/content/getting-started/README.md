@@ -33,7 +33,7 @@ Welcome to New York! Club NYC is a pocket-sized Manhattan you can hang out in wi
 
 | | Where | What it shows |
 | :---: | --- | --- |
-| 1 | Top left | The place you're in, the **?** button (replays the tour), your postcards, and your first-day list |
+| 1 | Top left | The place you're in, the **?** button (replays the tour) and your first-day list |
 | 2 | Top right | Who's online, your **level** ring and your **coins** |
 | 3 | Bottom | The [toolbar](getting-started/toolbar.md): emotes, moves, chat, map, subway, the paper, your phone, friends, your player card, stamps, home and sound |
 

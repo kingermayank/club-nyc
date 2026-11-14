@@ -38,6 +38,7 @@ import { consentPanel } from './features/consent'
 import { walletOnline, syncWallet, claimCoins, spendCoins, buyOnline, grantOnline, onWalletChange } from './net/wallet'
 import { rest } from './net/server'
 import { ROOMS } from './data/rooms'
+import { placeName } from './data/placePhrase'
 import { isHomeRoom } from './data/homes'
 import { nycDay, weekStart, visitReward, WELCOME_GIFTS } from './data/economy'
 import { XP_FOR_CLAIM, jobXp } from './data/levels'
@@ -73,6 +74,7 @@ export const api: Game = {
       save.coins += n
       persist()
       renderCoins()
+      void import('./features/ifruit/store').then((m) => m.recordLocal(n, reason))
       // offline, the XP that comes with a claim (or a shift) is counted locally; online the server awards it
       const xpReason = reason === 'job' ? 'job' : XP_FOR_CLAIM[reason]
       if (xpReason) void import('./social/levels').then((m) => m.xpEvent(xpReason, reason === 'job' ? `${Date.now()}` : ref ?? reason, reason === 'job' ? jobXp(n) : undefined))
@@ -94,6 +96,7 @@ export const api: Game = {
     persist()
     renderCoins()
     if (walletOnline()) void spendCoins(n, reason)
+    else void import('./features/ifruit/store').then((m) => m.recordLocal(-n, reason))
     return true
   },
   async buy(item) {
@@ -109,6 +112,7 @@ export const api: Game = {
       save.coins -= def.price
       api.give(item)
       renderCoins()
+      void import('./features/ifruit/store').then((m) => m.recordLocal(-def.price, `item:${item}`))
       return true
     }
     const r = await buyOnline('item', item)
@@ -131,7 +135,8 @@ export const api: Game = {
     setTimeout(() => {
       // an enamel pin that flips in, then flies into the Stamp Book (features/stampToast.ts); it plays its own sound
       void import('./features/stampToast').then((m) => m.stampToast(s))
-      const n = save.stamps.length
+      // only stamps still in the book count (an old save can hold retired ones)
+      const n = save.stamps.filter((x) => STAMPS[x]).length
       if (n % 5 === 0) {
         setTimeout(() => api.earn(25, `${n} stamps bonus!`, 'stamp-bonus', n), 900)
         if (n === 5) {
@@ -183,6 +188,8 @@ export const api: Game = {
 }
 
 export async function startGame(host: HTMLElement) {
+  // friend requests and invites with city locals answer on your phone (social/friendAsks.ts)
+  setTimeout(() => void import('./social/friendAsks').then((m) => m.startFriendAsks()), 4000)
   mountStage(host)
   setMuted(save.muted)
   onWalletChange(() => renderCoins())
@@ -235,7 +242,8 @@ export async function startGame(host: HTMLElement) {
             await startTour()
             api.stamp('welcome')
             if (online) accountStamps()
-            setTimeout(() => void import('./features/mail').then((m) => m.sendPostcard({ id: 'welcome', from: 'Rosa, your building’s super', art: '🗽', title: 'Welcome to the city!', text: `Your MetroCard came loaded with ${save.coins} coins. THREAD in SoHo has outfits, and the I ♥ NY shop in Times Square has souvenirs. Work a job when you want more. See you around the building! (The elevator’s out again. Take the stairs.)`, go: { label: 'Take Me to SoHo', room: 'soho' } })), 6000)
+            // the iFruit comes in the arrival, right after the subway card; anyone who skipped the intro gets it here
+            setTimeout(() => void import('./features/ifruit/unboxing').then((m) => m.unboxIfNew()), 2600)
             setTimeout(dailyBonus, 3200)
           }, 500)
         },
@@ -290,6 +298,8 @@ export async function startGame(host: HTMLElement) {
     goLive()
     if (online) accountStamps()
     void import('./features/creator').then((m) => m.titleCard())
+    // New Yorkers from before the phone get theirs once, a little after they arrive
+    setTimeout(() => void import('./features/ifruit/unboxing').then((m) => m.unboxIfNew()), 5200)
     dailyBonus()
     startQuests()
     // came back through a friend's invite link?
@@ -304,7 +314,15 @@ export async function startGame(host: HTMLElement) {
       )
     }
     // players from before Neighborhood Wars existed pick a team once
-    if (!save.team) setTimeout(() => void import('./social/community').then((m) => m.openCommunity('teams')), 2600)
+    // (a quiet notice, once ever: never a panel over the city on every visit)
+    if (!save.team && !save.stats.teamNudge) {
+      save.stats.teamNudge = 1
+      persist()
+      setTimeout(
+        () => notify('Pick your neighborhood', '🏙️', [{ label: 'Pick a Team', act: () => void import('./social/community').then((m) => m.openCommunity('teams')) }], 12000, { quiet: true }),
+        9000,
+      )
+    }
   }
   // debug / QA handle (tools/*.py drive the game through this)
   ;(window as unknown as { clubNyc: unknown }).clubNyc = {
@@ -319,6 +337,9 @@ export async function startGame(host: HTMLElement) {
     listings: () => void import('./features/streetcheesy').then((m) => m.openListings()),
     jam: () => void import('./features/dancejam').then((m) => m.openDanceJam()),
     /** replay the arrival (MetroCard booth, turnstile, train, up the stairs) without making a new New Yorker */
+    /** replay the iFruit unboxing */
+    unbox: () => void import('./features/ifruit/unboxing').then((m) => m.unboxPhone(true)),
+    phone: (app?: string, arg?: string) => void import('./features/ifruit/phone').then((m) => (app ? m.openApp(app as never, arg) : m.togglePhone())),
     arrival: () => void import('./features/arrival').then((m) => m.playArrival({ memberNo: account.me?.memberNo ?? 42 })),
     /** dev builds: finish the running mini-game now (to look at the payout card) */
     endGame: (r?: GameResult) => void import('./games/host').then((m) => m.endRunningGame(r ?? { coins: 14, score: 9, lines: ['9 pizzas served', 'Best streak: 4'] })),
@@ -390,7 +411,7 @@ function celebrateDaily(n: number, week: number, days: number) {
   sfx.coin()
   save.stats.earned = (save.stats.earned ?? 0) + n
   // plain feedback, never "come back or lose it"
-  toast(`Daily MetroCard refill <b>+${n}</b>`, coinIcon)
+  toast(`Daily subway card refill <b>+${n}</b>`, coinIcon)
   if (week >= 7) {
     api.stamp('week-7')
     confetti(50)
@@ -427,7 +448,7 @@ async function welcomeInvited() {
       }, 2500)
     } else if (f?.online && f.room && ROOMS[f.room] && f.room !== world.room.id) {
       setTimeout(() => {
-        toast(`Heading to <b>${ROOMS[f.room!].name}</b> to find ${inv.by}…`, '🚕')
+        toast(`Heading to <b>${placeName(f.room)}</b> to find ${inv.by}…`, '🚕')
         api.goto(f.room!)
       }, 2500)
     }

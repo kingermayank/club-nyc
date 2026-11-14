@@ -12,6 +12,10 @@ import { banOf, muteOf, logChat } from '../moderation.ts'
 import { settleReferrals } from '../referrals.ts'
 import { awardXp, setXpPush } from '../xp.ts'
 import { handleMp, mpOnline, mpOffline } from './mp/index.ts'
+import { STAMPS } from '../../../app/src/data/stamps.ts'
+
+/** iFruit Phone call signals a client may send (busy is the server's answer) */
+const CALL_KINDS: readonly string[] = ['ring', 'answer', 'decline', 'end', 'busy', 'sig']
 import { EMOTES, POSES, PARTY_THEMES, HOME_ROOM_IDS, TEXT_KINDS, type C2S, type S2C, type LookWire, type PlayerWire, type PartyWire } from '../../../app/src/net/protocol.ts'
 
 /**
@@ -67,7 +71,8 @@ interface Client {
   b: { move: Bucket; say: Bucket; act: Bucket; snow: Bucket; msg: Bucket; hop: Bucket }
   mutedUntil: number
   strikes: number
-  alive: boolean
+  /** when this connection last answered a ping or sent anything */
+  heard: number
   /** what this player owns (looks are checked against it) */
   wallet: Wallet
   /** a moderator's (or the auto-moderator's) chat mute */
@@ -93,6 +98,9 @@ const PARTY_MAX_MS = 60 * 60 * 1000
 const THEME_SET = new Set<string>(PARTY_THEMES)
 const clients = new Map<string, Client>()
 const offlineTimers = new Map<string, NodeJS.Timeout>()
+/** every connection is pinged this often, and closed when nothing (not even a pong) has come back for this long */
+const PING_EVERY_MS = Number(process.env.WS_PING_MS) || 4000
+const DEAD_AFTER_MS = PING_EVERY_MS * 2
 
 export const stats = { msgsIn: 0, msgsOut: 0, bytesOut: 0, flushes: 0, flushMs: 0, dropped: 0 }
 
@@ -184,6 +192,8 @@ export function friendshipChanged(a: string, b: string, kind: 'request' | 'accep
   if (kind === 'removed') {
     ca?.friends.delete(b)
     cb?.friends.delete(a)
+    // a request declined or cancelled, or an unfriend: the other side's lists catch up (no message, no name)
+    if (cb) direct(cb, { t: 'fx', i: a })
   }
 }
 /** Push an async social notification (guestbook note, like) to someone if they're online. */
@@ -281,6 +291,24 @@ function leaveInstance(c: Client) {
 /** Apartments belong to real players: visiting a made-up one would just mint empty rooms. */
 const realUser = (id: string) => !!q.get('SELECT 1 FROM users WHERE id = ?', id)
 
+/**
+ * Who may walk into a home: the owner, their friends, and anyone while the owner keeps an open house or hosts a
+ * party open to everyone there. Never someone the owner has blocked, or who has blocked the owner. City locals'
+ * places (npc-<id>) are open to all.
+ */
+function mayEnterHome(c: Client, room: string, host: string): boolean {
+  if (host === c.id || host.startsWith('npc-')) return true
+  if (q.get('SELECT 1 FROM blocks WHERE (a = ? AND b = ?) OR (a = ? AND b = ?)', c.id, host, host, c.id)) return false
+  if (c.friends.has(host)) return true
+  const party = parties.get(host)
+  if (party && party.pub && party.until > Date.now() && party.key === `${room}@${host}`) return true
+  try {
+    return !!JSON.parse(q.get<{ save: string | null }>('SELECT save FROM users WHERE id = ?', host)?.save ?? '{}')?.openHouse
+  } catch {
+    return false
+  }
+}
+
 function pickInstance(key: string, room: string, c: Client): Instance {
   let list = instances.get(key)
   if (!list) instances.set(key, (list = []))
@@ -311,6 +339,11 @@ function join(c: Client, room: string, x: number, y: number, owner?: string) {
   const host = owner && /^[\w-]{8,64}$/.test(owner) ? owner : c.id
   // a player's place, or a city local's (npc-<id>); made-up owners are refused (and any empty home is retired, so none pile up)
   if (HOME_ROOMS.has(room) && host !== c.id && !host.startsWith('npc-') && !instances.has(`${room}@${host}`) && !realUser(host)) return direct(c, { t: 'sys', m: 'That apartment doesn’t exist.' })
+  // someone else's home: only with the door open to you (the game checks first; this is the lock)
+  if (HOME_ROOMS.has(room) && !mayEnterHome(c, room, host)) {
+    leaveInstance(c)
+    return direct(c, { t: 'sys', m: 'That door is closed.' })
+  }
   const key = HOME_ROOMS.has(room) ? `${room}@${host}` : room
   leaveInstance(c)
   const inst = pickInstance(key, room, c)
@@ -333,6 +366,19 @@ function join(c: Client, room: string, x: number, y: number, owner?: string) {
 // ---------- message handling ----------
 /** when each player last texted each friend (Phone → Text a Friend), so a text can't be spammed */
 const lastText = new Map<string, number>()
+/**
+ * The server's answer to a 'txt' (Text a Friend, invites from the player card): `ok` when the friend got it, or why
+ * not. Sent to the sender only. Not in app/src/net/protocol.ts yet: add it to S2C there when the game starts reading it.
+ */
+interface TextResult {
+  t: 'txtr'
+  /** the friend it was for, and which preset */
+  i: string
+  k: string
+  ok: boolean
+  /** offline: not in the city right now (or they've blocked you) · too-soon: one text per friend every 8 seconds · not-friends */
+  why?: 'offline' | 'too-soon' | 'not-friends'
+}
 const POSE_SET = new Set<string>(POSES)
 const EMOTE_SET = new Set(EMOTES)
 
@@ -408,8 +454,9 @@ function handle(c: Client, msg: C2S) {
     }
     case 'tag': {
       if (!c.b.act.take()) return
-      c.title = String(msg.ti ?? '').slice(0, 40)
-      if (TEAMS.includes(msg.tm)) c.team = msg.tm
+      // a title is one of the game's stamps (or none): never free text. A neighborhood is picked once, as over REST
+      c.title = typeof msg.ti === 'string' && STAMPS[msg.ti] ? msg.ti : ''
+      if (!c.team && TEAMS.includes(msg.tm)) c.team = msg.tm
       q.run('UPDATE users SET title = ?, team = ? WHERE id = ?', c.title, c.team, c.id)
       return emit(inst, { t: 'tag', i: c.id, ti: c.title, tm: c.team })
     }
@@ -445,15 +492,34 @@ function handle(c: Client, msg: C2S) {
     case 'txt': {
       // Phone → Text a Friend: a preset message ("Meet me here!") to a friend who's online, at most one every few
       // seconds per friend; they get it with a Go button to wherever you are
-      if (!(TEXT_KINDS as readonly string[]).includes(msg.k) || !c.friends.has(msg.i)) return
+      // The sender always hears back (TextResult): delivered, or why not, so the phone never says "Sent" for nothing.
+      if (typeof msg.i !== 'string' || !(TEXT_KINDS as readonly string[]).includes(msg.k)) return
+      const answer = (ok: boolean, why?: TextResult['why']) => direct(c, { t: 'txtr', i: msg.i, k: msg.k, ok, ...(why ? { why } : {}) } satisfies TextResult as unknown as S2C)
+      if (!c.friends.has(msg.i)) return answer(false, 'not-friends')
       const to = clients.get(msg.i)
-      if (!to || to.blocked.has(c.id)) return
+      // a friend who blocked you reads as offline (a block is never announced)
+      if (!to || to.blocked.has(c.id) || c.blocked.has(msg.i)) return answer(false, 'offline')
       const key = `${c.id}>${msg.i}`
       const now = Date.now()
-      if ((lastText.get(key) ?? 0) > now - 8000) return direct(c, { t: 'sys', m: 'Give them a second to read that one!' })
+      if ((lastText.get(key) ?? 0) > now - 8000) {
+        answer(false, 'too-soon')
+        return direct(c, { t: 'sys', m: 'Give them a second to read that one!' })
+      }
       lastText.set(key, now)
       if (lastText.size > 5000) lastText.clear()
-      return direct(to, { t: 'txt', i: c.id, n: c.name, k: msg.k, r: inst.room })
+      direct(to, { t: 'txt', i: c.id, n: c.name, k: msg.k, r: inst.room })
+      return answer(true)
+    }
+    case 'call': {
+      // iFruit Phone: voice calls between friends who are both online. The audio goes peer to peer (WebRTC); the
+      // server only relays the ring, the answer and the connection details ('sig'), and only between friends
+      if (!CALL_KINDS.includes(msg.k) || typeof msg.c !== 'string' || msg.c.length > 40 || !c.friends.has(msg.i)) return
+      const to = clients.get(msg.i)
+      if (!to || to.blocked.has(c.id) || c.blocked.has(msg.i)) return msg.k === 'ring' ? direct(c, { t: 'call', k: 'busy', i: msg.i, n: '', c: msg.c }) : undefined
+      if (msg.k === 'ring' && !c.b.act.take()) return
+      const d = msg.k === 'sig' && typeof msg.d === 'string' && msg.d.length <= 12_000 ? msg.d : undefined
+      if (msg.k === 'sig' && !d) return
+      return direct(to, { t: 'call', k: msg.k, i: c.id, n: c.name, c: msg.c, d, r: inst.room, look: msg.k === 'ring' ? c.look : undefined })
     }
   }
 }
@@ -500,17 +566,19 @@ export function attachRealtime(server: Server) {
   // play time is what makes an invite "count" (and a handy engagement number)
   setInterval(accruePlayTime, Number(process.env.PLAYTIME_TICK_MS) || 60_000).unref()
 
-  // keepalive: drop dead connections
+  // keepalive: a connection that has gone quiet (wifi dropped, laptop lid shut) is closed after about 8 to 12
+  // seconds, so nobody is left standing in a room they've left. Browsers answer pings by themselves, even in a
+  // background tab; a player who comes back reconnects and is put back in the same room by the game.
   setInterval(() => {
+    const now = Date.now()
     for (const c of clients.values()) {
-      if (!c.alive) {
+      if (now - c.heard > DEAD_AFTER_MS) {
         c.ws.terminate()
         continue
       }
-      c.alive = false
       c.ws.ping()
     }
-  }, 25000)
+  }, PING_EVERY_MS)
   setInterval(flush, config.tickMs)
   return wss
 }
@@ -547,7 +615,7 @@ function connect(ws: WebSocket, user: UserRow) {
     b: { move: new Bucket(6, 10), say: new Bucket(0.7, 3), act: new Bucket(4, 8), snow: new Bucket(1.5, 3), msg: new Bucket(30, 60), hop: new Bucket(1, 4) },
     mutedUntil: 0,
     strikes: 0,
-    alive: true,
+    heard: Date.now(),
     wallet,
     modMute: mute?.until ?? 0,
     modMuteReason: mute?.reason ?? '',
@@ -558,12 +626,12 @@ function connect(ws: WebSocket, user: UserRow) {
   // back in a mini-game lobby or match after a reload or a dropped connection
   mpOnline(user.id)
 
-  ws.on('pong', () => (c.alive = true))
+  ws.on('pong', () => (c.heard = Date.now()))
   // an oversized message (> maxPayload) or invalid UTF-8: ws closes the connection (1009 / 1007); without this
   // listener the 'error' event would be thrown and take the whole server down
   ws.on('error', () => ws.terminate())
   ws.on('message', (data, isBinary) => {
-    c.alive = true
+    c.heard = Date.now()
     if (isBinary || !c.b.msg.take()) return
     let msg: C2S
     try {

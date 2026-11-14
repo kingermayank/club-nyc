@@ -26,7 +26,7 @@ Club NYC's Manhattan has more than 25 places to explore, from the bright lights 
 - [SoHo](places/soho.md) {img:/help/img/place-soho.webp} Cobblestones, THREAD, Sneaker Vault and Starducks Coffee.
 - [Chinatown & Little Italy](places/chinatown-and-little-italy.md) {img:/help/img/place-chinatown.webp} Golden Dumpling, Boba Bay and 99¢ Slice.
 - [Brooklyn Bridge](places/brooklyn-bridge.md) {img:/help/img/place-brooklyn-bridge.webp} The promenade and a street painter.
-- [The High Line & Chelsea Market](places/high-line-and-chelsea-market.md) {img:/help/img/place-high-line.webp} A park on old train tracks, and lunch below.
+- [The High Line & Chelsea Market](places/high-line-and-chelsea-market.md) {img:/help/img/place-high-line.webp} A park on old train tracks, and a food hall below.
 :::
 
 ## Lower Manhattan and the Harbor {#lower-manhattan}
@@ -45,7 +45,7 @@ Club NYC's Manhattan has more than 25 places to explore, from the bright lights 
 | **Clothes** | I ♥ NY Souvenirs (Times Square), THREAD and Sneaker Vault (SoHo), Louis Vuittown and Snacks Fifth Avenue (Fifth Avenue), the Souvenir Kiosk (Liberty Island). [All shops](shops-and-wardrobe.md#the-shops) |
 | **Toys and balloons** | I ♥ NY Souvenirs (Times Square) |
 | **Ice skates** | Skate Rentals (Rockefeller Center) |
-| **Snacks** | Hot dogs (Times Square, The Met, Wall Street), pretzels (Central Park, The Met, One World Trade), cocoa (Central Park, Sky Deck 102), coffee (Starducks Coffee, One World Trade, Sky Deck 102), slices (99¢ Slice), dumplings and boba (Golden Dumpling and Boba Bay, Chinatown), gelato (High Line), donuts, tacos and bagels (Chelsea Market) |
+| **Snacks** | Hot dogs (Times Square, The Met, Wall Street), pretzels (Central Park, The Met, One World Trade), cocoa (Central Park, Sky Deck 102), coffee (Starducks Coffee, One World Trade, Sky Deck 102), slices (99¢ Slice), dumplings and boba (Golden Dumpling and Boba Bay, Chinatown), gelato (High Line), tacos, oysters and mini doughnuts (Chelsea Market) |
 | **Furniture** | The Flatbush Flea catalog in your [apartment](apartment/decorating.md), and original paintings on the [Brooklyn Bridge](places/brooklyn-bridge.md#gallery) |
 | **Fridge magnets** | The souvenir stand on the [Brooklyn Bridge](places/brooklyn-bridge.md#magnets) |
 | **Photo booths** | The I ♥ NY neon (Times Square) and Sky Deck 102 (One World Trade). [Photo Booths](events/photo-booths.md) |

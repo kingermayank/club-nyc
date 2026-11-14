@@ -1,0 +1,54 @@
+/* The light in a home (features/homeLights.ts): a sheet of evening over the room, with holes where light still is */
+/* no z-index on the wrapper: it would wall the blending off from the room behind it */
+.home-lights { position: absolute; inset: 0; pointer-events: none; }
+.hl-dark { position: absolute; inset: 0; z-index: 8900; width: 100%; height: 100%; mix-blend-mode: multiply; opacity: 0; transition: opacity 0.45s ease-out; }
+.hl-shade { fill: #4d5298; }
+.home-lights.dark .hl-dark { opacity: 1; }
+
+/* each light's own colour on what it falls on: faint with the room lit, strong in the dark */
+.hl-glows { position: absolute; inset: 0; z-index: 8901; mix-blend-mode: screen; }
+.hl-glow { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--tint), 0.55), rgba(var(--tint), 0.22) 45%, rgba(var(--tint), 0) 100%); opacity: calc(var(--glow) * 0.3); transition: opacity 0.45s ease-out; }
+.home-lights.dark .hl-glow { opacity: var(--glow); }
+
+/* a TV's picture is never steady (the light changes, nothing in the painting moves) */
+.hl-glow.hl-tv { animation: hl-tv 2.8s steps(1) infinite; }
+.hl-glow.hl-fire { animation: hl-fire 1.3s ease-in-out infinite; }
+@keyframes hl-fire { 0%, 100% { filter: brightness(1); } 28% { filter: brightness(0.8); } 52% { filter: brightness(1.12); } 76% { filter: brightness(0.9); } }
+@keyframes hl-tv { 0% { filter: brightness(1); } 9% { filter: brightness(0.72); } 21% { filter: brightness(1.12); } 34% { filter: brightness(0.86); } 52% { filter: brightness(1); } 61% { filter: brightness(0.64); } 68% { filter: brightness(1.08); } 83% { filter: brightness(0.9); } }
+/* neon catches, drops, then holds */
+.hl-glow.hl-strike { animation: hl-strike 0.7s steps(1) 1; }
+@keyframes hl-strike { 0% { visibility: hidden; } 12% { visibility: visible; } 22% { visibility: hidden; } 40% { visibility: visible; } 48% { visibility: hidden; } 62% { visibility: visible; } }
+
+/* a ceiling light painted into the room, switched off */
+.cutout.unlit { filter: saturate(0.3) brightness(0.6); }
+.cutout.unlit.hover { filter: saturate(0.3) brightness(0.6) drop-shadow(0 0 5px #ffd166) drop-shadow(0 0 2px #fff); }
+/* the fire in the brownstone's grate: three painted frames, and the grate's own bars back over them */
+.home-fire { position: absolute; z-index: 6; width: 54px; height: 52px; pointer-events: none; animation: fire-catch 0.5s ease-out; transform-origin: 50% 100%; }
+.home-fire i { position: absolute; inset: 0; background: url(/art/cutouts/brownstone/fire.png) 0 0 / 300% 100%; animation: fire-frames 0.54s steps(3, jump-none) infinite; }
+.home-fire img { position: absolute; left: 0.5px; top: 23px; width: 54px; height: 36px; }
+@keyframes fire-frames { to { background-position: 100% 0; } }
+@keyframes fire-catch { from { scale: 0.3; opacity: 0; } }
+
+/* the pieces themselves */
+.furniture.unlit { filter: saturate(0.25) brightness(0.55); }
+.furniture.striking { animation: furn-strike 0.7s steps(1) 1; }
+@keyframes furn-strike { 0%, 22%, 48% { filter: saturate(0.25) brightness(0.55); } 12%, 40%, 62% { filter: none; } }
+/* a tap answers: the piece gives a little and comes back */
+.furniture.tapped { animation: furn-tap 0.24s ease-out; }
+@keyframes furn-tap { 40% { scale: 1.05 0.94; } }
+.furniture.rustle { animation: furn-rustle 0.7s ease-in-out; }
+@keyframes furn-rustle { 20% { rotate: -4deg; } 45% { rotate: 3.2deg; } 70% { rotate: -1.6deg; } }
+
+/* the TV's tube, lit: laid over the glass of the painted set */
+.furn-fx { position: absolute; pointer-events: none; transform-origin: 50% 100%; }
+.furn-tube { position: absolute; left: 11.5%; top: 16.5%; width: 37%; height: 31.5%; border-radius: 22% 20% 24% 20% / 20% 22% 22% 24%; transform: skewY(7.5deg); background: radial-gradient(ellipse at 45% 40%, #f4feff, #9fe4ff 38%, #3f9fe0 78%, #2a6fb8); box-shadow: 0 0 10px 2px rgba(130, 215, 255, 0.75); animation: hl-tv 2.8s steps(1) infinite; opacity: 0.94; }
+.furn-tube::after { content: ''; position: absolute; inset: 0; box-sizing: border-box; border-radius: inherit; background: repeating-linear-gradient(rgba(10, 40, 90, 0.16) 0 1px, transparent 1px 3px); }
+
+/* a heart off the cat, notes off the record */
+.furn-puff { position: absolute; z-index: 8800; pointer-events: none; font: 22px var(--display); color: #fff; -webkit-text-stroke: 4px #1d2140; paint-order: stroke fill; animation: furn-puff 1.5s ease-out forwards; }
+.furn-puff.heart { color: #ff5d7a; }
+@keyframes furn-puff { 0% { opacity: 0; translate: 0 6px; scale: 0.6; } 15% { opacity: 1; scale: 1; } 100% { opacity: 0; translate: var(--drift, 10px) -54px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-glow.hl-tv, .hl-glow.hl-fire, .home-fire i, .furn-tube, .hl-glow.hl-strike, .furniture.striking, .furniture.rustle, .furniture.tapped { animation: none; }
+}

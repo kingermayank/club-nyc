@@ -21,7 +21,7 @@ const vend = (item: string, _price: number, line: string, stamp?: string) => asy
   if (stamp) g.stamp(stamp)
 }
 /** treats that count as a meal for "Belly Full" */
-const FOOD = new Set(['hotdog', 'pretzel', 'pretzel-cinnamon', 'pretzel-everything', 'pretzel-mustard', 'cocoa', 'coffee', 'latte', 'bagel', 'dumplings', 'boba', 'pizza-slice', 'gelato', 'donut', 'ralphs-coffee', 'cold-brew', 'cookie', 'black-white', 'croissant'])
+const FOOD = new Set(['hotdog', 'pretzel', 'pretzel-cinnamon', 'pretzel-everything', 'pretzel-mustard', 'cocoa', 'coffee', 'latte', 'bagel', 'dumplings', 'boba', 'pizza-slice', 'gelato', 'gelato-pistachio', 'gelato-strawberry', 'gelato-chocolate', 'gelato-stracciatella', 'gelato-lemon', 'gelato-mango', 'donut', 'ralphs-coffee', 'cold-brew', 'cookie', 'black-white', 'croissant'])
 /** "Belly Full": every food spot you've eaten at (a spot is a place plus what you had there) */
 function tasted(g: Game, item: string) {
   if (!FOOD.has(item)) return
@@ -114,6 +114,8 @@ type Souv = typeof import('../features/souvenirs')
 const fun = (f: (m: Fun) => unknown) => void import('../features/roomfun').then(f)
 const down = (f: (m: Down) => unknown) => void import('../features/downtown').then(f)
 const souv = (f: (m: Souv) => unknown) => void import('../features/souvenirs').then(f)
+/** a home's own lights and hearth (features/apartment.ts) */
+const home = (f: (m: typeof import('../features/apartment')) => unknown) => void import('../features/apartment').then(f)
 // landmark moments (features/moments): things you do WITH a landmark, in the room. No card, no caption.
 const MOMENTS = import.meta.glob('../features/moments/*.ts') as Record<string, () => Promise<Record<string, (g: Game) => void>>>
 /** mo('rowboat', 'rowTheLake'): open the moment exported as `fn` from features/moments/<file>.ts */
@@ -225,7 +227,8 @@ export const ROOMS: Record<string, RoomDef> = {
       cathedral: { label: 'St. Patrick’s Cathedral', decor: true },
       'street-sign': { label: 'Hail a Taxi', act: taxi, instant: true },
       hydrant: { label: 'Fire Hydrant', act: mo('hydrant', 'openTheHydrant') },
-      manhole: look('Steaming Manhole', (g) => (g.emote('cheer', 2), g.say('Instant facial. Very New York.'))),
+      // under the toolbar, so it can't be clicked: scenery (it still steams)
+      manhole: { label: 'Steaming Manhole', decor: true },
       'exit-left': exit('To Rockefeller Center', 'rockefeller'),
       'exit-right': exit('To Central Park', 'central-park'),
     },
@@ -407,7 +410,8 @@ export const ROOMS: Record<string, RoomDef> = {
       rat: look('???', (g) => void import('../features/subwayLife').then((m) => m.pizzaRat(g))),
       trash: look('Trash Can', (g) => void import('../features/moments/trashToss').then((m) => m.trashToss(g))),
       bench: { label: 'Bench', sit: true },
-      sign: { label: 'Subway Map', act: (g) => g.openSubway(), instant: true },
+      // behind the place name; the map on the wall opens the same thing
+      sign: { label: 'Subway Map', decor: true },
     },
   },
 
@@ -538,13 +542,14 @@ export const ROOMS: Record<string, RoomDef> = {
     objects: {
       // first person at the counter: pick a pie, it reheats, shake, fold, eat (features/moments/pizzaSlice.ts)
       counter: { label: 'Order a Slice', act: mo('pizzaSlice', 'orderASlice') },
-      oven: { label: 'Work a Shift', act: (g) => g.playGame('slice-factory') },
+      oven: { label: 'Work a Shift', act: (g) => g.playGame('slice-factory'), box: true },
       menu: { label: 'Order a Slice', act: mo('pizzaSlice', 'orderASlice') },
       'photos-left': look('Wall of Fame', place('wall-of-fame', (g) => ({ 'Pose for the Wall': () => snap('Signed, framed, hung. In my dreams.')(g) }))),
       'photos-right': look('Wall of Fame', say('Someday my headshot will be up there.')),
       soda: { label: 'Soda Fridge', act: (g) => { if (!g.spend(1, 'soda')) return; g.sfx.register(); g.say('Ice cold. *crack* Fizzzz. 🥤') } },
       window: look('Window', (g) => { g.sfx.honk(); g.say('The taxis never stop honking.') }),
-      neon: look('OPEN', say('Open 24/7. Pizza never sleeps.')),
+      // under the coin counter: scenery
+      neon: { label: 'OPEN', decor: true },
       boxes: look('Pizza Boxes', say('Ready for delivery. Superhero not included.')),
       'table-1': { label: 'Table', sit: true }, 'table-2': { label: 'Table', sit: true }, 'table-3': { label: 'Table', sit: true }, 'table-4': { label: 'Table', sit: true },
       door: exit('Exit to Little Italy', 'chinatown'),
@@ -559,7 +564,8 @@ export const ROOMS: Record<string, RoomDef> = {
       easel: { label: 'Skyline Painter', act: (g) => souv((m) => m.openGallery(g)) },
       souvenirs: { label: 'Souvenir Stand', act: (g) => souv((m) => m.openMagnetStand(g)) },
       tugboat: look('Tugboat', (g) => { g.sfx.toot(); g.say('TOOOOT') }),
-      'gull-1': look('Seagull', (g) => { g.sfx.squawk(); g.say('That seagull is judging me.') }),
+      // behind the place name: scenery
+      'gull-1': { label: 'Seagull', decor: true },
       'gull-2': look('Seagull', (g) => { g.sfx.squawk(); g.say('It wants my pretzel. It cannot have my pretzel.') }),
       tower: look('Brooklyn Bridge', place('bridge-tower', (g) => ({ 'Walk the Bridge': () => void import('../features/bridgeWalk').then((w) => w.walkToBrooklyn()), 'Hang a Lock': () => mo('lovelocks', 'loveLocks')(g) }))),
       locks: { label: 'Love Locks', act: mo('lovelocks', 'loveLocks') },
@@ -604,7 +610,8 @@ export const ROOMS: Record<string, RoomDef> = {
           if (v === 'go') g.goto('battery-park', 'liberty-island')
         },
       },
-      bench: { label: 'Bench', sit: true },
+      // almost all of it is under the toolbar: scenery (press S near it to sit)
+      bench: { label: 'Bench', decor: true },
       skyline: { label: 'Manhattan Skyline', decor: true },
       gulls: look('Seagulls', (g) => { g.sfx.squawk(); g.say('Even the seagulls came to see Lady Liberty.') }),
     },
@@ -616,22 +623,35 @@ export const ROOMS: Record<string, RoomDef> = {
     objects: {
       loungers: { label: 'Rolling Loungers', sit: true },
       bench: { label: 'Bench', sit: true },
-      gelato: { label: 'Gelato Cart', act: vend('gelato', 3, 'Pistachio and strawberry. Yes, both. 🍨') },
+      // the cart's own board (features/ralphs.ts); ringing it up stays here
+      gelato: { label: 'Gelato Cart', act: async (g) => {
+        const v = await import('../features/ralphs').then((m) => m.gelatoCartMenu())
+        const line: Record<string, string> = {
+          'gelato-pistachio': 'Pistachio. The color of the High Line in June. 🍨',
+          'gelato-strawberry': 'Strawberry. It’s dripping. Worth it. 🍨',
+          'gelato-chocolate': 'Chocolate. I regret nothing. 🍨',
+          'gelato-stracciatella': 'Stracciatella. Fun to eat, hard to spell. 🍨',
+          'gelato-lemon': 'Lemon sorbet. My whole face just woke up. 🍨',
+          'gelato-mango': 'Mango sorbet, matching the sunset. 🍨',
+          gelato: 'Pistachio and strawberry. Yes, both. 🍨',
+        }
+        if (v && line[v]) vend(v, 3, line[v])(g)
+      } },
       stairs: exit('Down to Chelsea Market', 'chelsea-market'),
       sailboat: { label: 'Sailboat', decor: true },
       'river-view': { label: 'Hudson River View', act: binoc(840, 120, [[860, 100, 'Hudson River'], [900, 140, 'New Jersey'], [810, 180, 'Chelsea Piers']]) },
       'water-tower': { label: 'Water Tower', decor: true },
       'exit-left': exit('To SoHo', 'soho'),
     },
-    zones: { 'exit-north': exit('North to Hudson Yards', 'hudson-yards') },
+    zones: { 'exit-north': { ...exit('North to Hudson Yards', 'hudson-yards'), sign: 'up' } },
   },
 
   'hudson-yards': {
     id: 'hudson-yards', name: 'Hudson Yards', area: 'West Side', bg: 'hudson-yards', npcs: 4, mapSpot: 'hudson-yards',
     chatter: ['2,500 steps. I counted. Then I lost count.', 'It’s a staircase to more staircase.', 'The 7 train ends right here.', 'Sunset from the top is the move.'],
     objects: {
-      // walk in, look up, climb to the top for two views (features/moments/vessel.ts)
-      vessel: { label: 'Climb the Vessel', act: mo('vessel', 'climbTheVessel') },
+      // a ticket, then a landing to look out from: the Hudson side, the Midtown side, up the middle (features/moments/vessel.ts)
+      vessel: { label: 'Visit the Vessel', act: ticketed('vessel', 'admit', mo('vessel', 'climbTheVessel')) },
       subway: { label: 'Subway', act: (g) => g.openSubway(), instant: true },
       'bench-left': { label: 'Bench', sit: true },
       'bench-right': { label: 'Bench', sit: true },
@@ -640,17 +660,18 @@ export const ROOMS: Record<string, RoomDef> = {
   },
 
   'chelsea-market': {
-    id: 'chelsea-market', name: 'Chelsea Market', area: 'Old Biscuit Factory', bg: 'chelsea-market', indoor: true, npcs: 4, mapSpot: 'high-line',
-    chatter: ['A famous cookie was invented in this building!', 'Lobster roll or tacos? Why not both.'],
+    id: 'chelsea-market', name: 'Chelsea Market', area: 'Old Biscuit Factory', bg: 'chelsea-market-v2', indoor: true, npcs: 5, mapSpot: 'high-line',
+    chatter: ['A famous cookie was invented in this building!', 'Freight trains used to run right through here.', 'The taco line moves fast. Have your order ready.', 'Half dozen oysters, then doughnuts. That’s lunch.', 'I came in for one book.'],
     objects: {
       waterfall: { label: 'The Waterfall', act: wish },
-      tacos: look('Taco Loco', (g) => { if (!g.spend(3, 'tacos')) return; g.sfx.register(); g.say('Al pastor, extra cilantro. 🌮') }),
-      lobster: look('Lobster Pot', (g) => g.say('A lobster roll costs 30 coins. I’ll… just smell it.')),
-      donuts: { label: 'Donut Drop', act: vend('donut', 2, 'Sprinkles make everything better. 🍩') },
-      bagels: { label: 'Bagel Bros', act: vend('bagel', 2, 'Scallion cream cheese. Elite. 🥯') },
+      // each shop is its own first-person scene over its own painting (features/moments)
+      tacos: { label: 'Dos Tacos No. 2', act: mo('tacos', 'tacoStand') },
+      lobster: { label: 'The Lobster Spot', act: mo('oysterBar', 'oysterBar') },
+      books: { label: 'Postman Books', act: mo('bookshop', 'bookshop') },
+      donuts: { label: 'Doughnut Dept.', act: mo('doughnuts', 'doughnutDept') },
       bench: { label: 'Bench', sit: true },
       stairs: exit('Up to the High Line', 'high-line'),
-      'menu-board': look('The Board', place('chelsea-board', (g) => Object.fromEntries((['tacos', 'bagels', 'donuts', 'lobster'] as const).map((k) => [({ tacos: 'Taco Loco', bagels: 'Bagel Bros', donuts: 'Donut Drop', lobster: 'Lobster Pot' })[k], () => void ROOMS['chelsea-market'].objects?.[k]?.act?.(g)])))),
+      clock: { label: 'Factory Clock', decor: true },
     },
   },
 
@@ -784,6 +805,7 @@ export const ROOMS: Record<string, RoomDef> = {
       stairs: look('Spiral Stairs', say('They lead up to a storage closet. A very glamorous storage closet.')),
       window: look('Arched Windows', say(['Cobblestones, cast iron and a taxi that hasn’t moved in ten minutes.', 'Artists lived here once. Now: me.'])),
       easel: look('Easel', say('A half-finished painting of a blue square. It’s “a statement”.')),
+      pendants: look('Pendant Lights', () => home((m) => m.switchFixture('pendants'))),
       island: look('Kitchen Island', say('Butcher block, three stools, zero cooking. It’s for vibes.')),
       kitchen: look('Kitchen', (g) => souv((m) => m.openFridge(g))),
     },
@@ -793,7 +815,8 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'brownstone', name: 'My Brownstone', area: 'West Village', bg: 'brownstone', indoor: true, npcs: 0, mapSpot: 'apartment',
     objects: {
       door: { label: 'Leave', act: (g) => g.openMap(), instant: true },
-      fireplace: look('Fireplace', say(['A real fire. In an apartment. In New York. I checked twice.', 'Marble mantel, 1850s. It has seen things.'])),
+      fireplace: look('Fireplace', () => home((m) => m.lightFire())),
+      chandelier: look('Chandelier', () => home((m) => m.switchFixture('chandelier'))),
       window: look('Bay Window', say(['A whole street of stoops. Somebody is always sitting on one.', 'The trees turned this week. The block looks like a postcard.'])),
       bookshelf: look('Built-In Shelves', say('Room for 400 books. I own six. And a plant.')),
       kitchen: look('Kitchen', (g) => souv((m) => m.openFridge(g))),
@@ -804,6 +827,7 @@ export const ROOMS: Record<string, RoomDef> = {
     id: 'sky-residence', name: 'My Sky Residence', area: 'Hudson Yards', bg: 'sky-residence', indoor: true, npcs: 0, mapSpot: 'apartment',
     objects: {
       door: { label: 'Leave', act: (g) => g.openMap(), instant: true },
+      pendants: look('Pendant Lights', () => home((m) => m.switchFixture('pendants'))),
       stairs: look('Floating Stairs', say('No railing on one side. Very chic. Very careful.')),
       view: look('The View', say(['The whole Hudson. The Vessel looks like a paperweight from here.', 'Every sunset is like this. I may never leave.'])),
       kitchen: look('Kitchen', (g) => souv((m) => m.openFridge(g))),

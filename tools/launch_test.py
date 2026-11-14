@@ -313,7 +313,7 @@ async def main():
             jam = (await api(A, '/wallet/earn', 'POST', {'reason': 'dance-jam', 'ref': 1}))['body']
             check(not jam['ok'], 'Dance Jam tips can’t be claimed for an old show', jam.get('error'))
             poor = (await api(A, '/wallet/buy', 'POST', {'kind': 'home', 'id': 'penthouse'}))['body']
-            check(not poor['ok'] and poor['error'] == 'poor', 'you can’t buy the penthouse without 4,000 coins')
+            check(not poor['ok'] and poor['error'] == 'poor', 'you can’t buy the penthouse without 6,000 coins')
             reward = (await api(A, '/wallet/grant', 'POST', {'item': 'chef-coat'}))['body']
             check(not reward['ok'] and reward['error'] == 'not-earned', 'job uniforms can’t be claimed before working that job')
             before = (await api(A, '/wallet'))['body']['coins']

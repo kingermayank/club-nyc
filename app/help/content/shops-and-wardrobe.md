@@ -12,7 +12,7 @@ Your New Yorker can wear hats, glasses, scarves, tops, bottoms, shoes and someth
 | Shop | Where | What's there | Prices |
 | --- | --- | --- | :---: |
 | **I ♥ NY Souvenirs** | [Times Square](places/times-square.md#i-love-ny-souvenirs) (also the Souvenir Stand on the [Brooklyn Bridge](places/brooklyn-bridge.md)) | Tees and hoodies, hats and crowns, snow globes, toys and minis, balloons, gifts and gear | 3 to 35 |
-| **THREAD** | [SoHo](places/soho.md#supreme) | This week's drop (Box Logo Hoodie, brick, Oreos), tops, jackets, denim, accessories | 5 to 800 |
+| **THREAD** | [SoHo](places/soho.md#supreme) | This week's drop (Box Logo Hoodie, brick, cookies), tops, jackets, denim, accessories | 5 to 800 |
 | **Sneaker Vault** | [SoHo](places/soho.md#sneaker-vault) | Sky Highs, Lows, Stoop Ones Uptowns, more shoes, extras | 12 to 230 |
 | **Louis Vuittown** | [Fifth Avenue](places/fifth-avenue.md#louis-vuitton) | Designer bags, ready-to-wear, jewelry and shades | 80 to 260 |
 | **Snacks Fifth Avenue** | [Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) | The 10022-SHOE floor, coats and jackets, jewelry and shades | 15 to 260 |

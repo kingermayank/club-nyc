@@ -78,7 +78,7 @@
   * [Inviting Friends](community/inviting-friends.md)
   * [Neighborhood Wars](community/neighborhood-wars.md)
   * [Leaderboards](community/leaderboards.md)
-  * [Postcards & Notices](community/postcards-and-notices.md)
+  * [Notices](community/postcards-and-notices.md)
   * [Playing Online](community/playing-online.md)
 
 ## Events & Fun

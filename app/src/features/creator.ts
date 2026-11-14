@@ -473,7 +473,7 @@ export function openCreator(done: () => void, opts: CreatorOpts = {}) {
         // online: claim the name now (the server checks it once more)
         void (async () => {
           nx.disabled = true
-          nx.textContent = 'Printing your MetroCard…'
+          nx.textContent = 'Printing your subway card…'
           const problem = await opts.claim!(name, look, '')
           if (problem) {
             nameErr = problem
@@ -520,10 +520,10 @@ export function flipMetroCard(memberNo = 0) {
   const t = save.team ? TEAMS[save.team as TeamId] : null
   const no = memberNo ? String(memberNo).padStart(4, '0') : 'OFFLINE'
   const since = new Date(save.memberSince || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-  const card = el('button', 'mc-corner', `<div class="metrocard-id"><div class="mc-strip"><span>NYC</span><span>MetroCard</span></div>
+  const card = el('button', 'mc-corner', `<div class="metrocard-id"><div class="mc-strip"><span>NYC Subway</span><i></i></div>
     <div class="mc-body"><div class="mc-photo">${miniPortrait(save.look)}</div><div class="mc-info"><b>${save.name}</b><span>${t ? `<i style="background:${t.color}"></i>${t.emoji} ${t.name}` : '🗽 New Yorker'}</span><small>Member since ${since}</small><small>No. ${no}</small></div></div>
     <div class="mc-mag"></div></div><small class="mc-hint">📸 Click to save your card</small>`)
-  card.setAttribute('aria-label', 'Your MetroCard: click to save it')
+  card.setAttribute('aria-label', 'Your subway card: click to save it')
   card.onclick = () => {
     sfx.click()
     void downloadCard(save.look, save.name, t?.name ?? 'New Yorker', t?.color ?? '#3d72d9', since, no)
@@ -558,49 +558,35 @@ function burbankFaces(): Promise<string> {
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 
 /**
- * Shareable keepsake: your MetroCard as a PNG. The real card's face (the gold card, the gold seal in the corner, the
- * big rising blue "MetroCard" with its pale reflection, the magnetic stripe) with your photo and name on it.
+ * Shareable keepsake: your subway card as a PNG. The Club NYC card (blue bands, the yellow card, the train) with your
+ * photo and name on it.
  */
 export async function downloadCard(look: Look, name: string, team: string, color: string, since: string, no: string) {
   const faces = await burbankFaces()
   const BOLD = `font-family="CardBold, 'Arial Rounded MT Bold', Arial"`
   const MED = `font-family="CardMed, Arial"`
-  // the word sits on a rising slant; its reflection is the same word, flipped and squashed, in pale cream
-  const WORD = `rotate(-6) skewX(-9)`
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
     <defs>
       <style>${faces}</style>
-      <linearGradient id="mcg" x1="0" y1="0" x2="0.32" y2="1"><stop offset="0" stop-color="#fcf0d6"/><stop offset="0.3" stop-color="#f4d99f"/><stop offset="0.68" stop-color="#e9b552"/><stop offset="1" stop-color="#d99a2f"/></linearGradient>
-      <radialGradient id="mcglow" cx="0.3" cy="0.12" r="0.75"><stop offset="0" stop-color="#fffaf0" stop-opacity="0.75"/><stop offset="1" stop-color="#fffaf0" stop-opacity="0"/></radialGradient>
-      <linearGradient id="mcshine" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.36" stop-color="#fff" stop-opacity="0"/><stop offset="0.47" stop-color="#fff" stop-opacity="0.42"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.12"/><stop offset="0.56" stop-color="#fff" stop-opacity="0.3"/><stop offset="0.66" stop-color="#fff" stop-opacity="0"/></linearGradient>
-      <linearGradient id="mcecho" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0" stop-opacity="0.75"/><stop offset="1" stop-color="#fffaf0" stop-opacity="0.08"/></linearGradient>
-      <linearGradient id="mcseal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eab24a"/><stop offset="1" stop-color="#d4952a"/></linearGradient>
-      <linearGradient id="mcmag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2b30"/><stop offset="0.45" stop-color="#1b1b1f"/><stop offset="0.55" stop-color="#26262b"/><stop offset="1" stop-color="#141417"/></linearGradient>
+      <linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd31c"/><stop offset="0.55" stop-color="#fecd01"/><stop offset="1" stop-color="#f7c200"/></linearGradient>
+      <linearGradient id="mcb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a5fe6"/><stop offset="1" stop-color="#0a4fd6"/></linearGradient>
+      <linearGradient id="mcshine" x1="0" y1="0" x2="1" y2="0.6"><stop offset="0.36" stop-color="#fff" stop-opacity="0"/><stop offset="0.47" stop-color="#fff" stop-opacity="0.3"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.08"/><stop offset="0.56" stop-color="#fff" stop-opacity="0.2"/><stop offset="0.66" stop-color="#fff" stop-opacity="0"/></linearGradient>
       <linearGradient id="mcsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e4f2ff"/><stop offset="1" stop-color="#b9dcf7"/></linearGradient>
       <filter id="mcdrop" x="-10%" y="-10%" width="120%" height="130%"><feGaussianBlur stdDeviation="9"/></filter>
-      <filter id="mcsoft" x="-5%" y="-5%" width="110%" height="120%"><feGaussianBlur stdDeviation="1.2"/></filter>
       <clipPath id="mcc"><rect x="18" y="12" width="604" height="362" rx="26"/></clipPath>
       <clipPath id="mcp"><rect x="46" y="128" width="164" height="168" rx="16"/></clipPath>
     </defs>
     <rect x="30" y="34" width="588" height="352" rx="28" fill="#1d2140" opacity="0.35" filter="url(#mcdrop)"/>
     <rect x="18" y="12" width="604" height="362" rx="26" fill="url(#mcg)"/>
     <g clip-path="url(#mcc)">
-      <rect x="18" y="12" width="604" height="362" fill="url(#mcglow)"/>
-      <circle cx="44" cy="40" r="80" fill="url(#mcseal)"/>
-      <circle cx="44" cy="40" r="80" fill="none" stroke="#fff3d6" stroke-opacity="0.35" stroke-width="2"/>
-      <text x="62" y="80" text-anchor="middle" ${BOLD} font-style="italic" font-size="30" fill="#fbecc6" letter-spacing="-0.5">NYC</text>
-      <g transform="translate(150 116) ${WORD} scale(1 -0.42)" opacity="0.85"><text x="0" y="0" ${BOLD} font-size="74" letter-spacing="-2.5" fill="url(#mcecho)">MetroCard</text></g>
-      <g transform="translate(150 110) ${WORD}">
-        <text x="2.5" y="3" ${BOLD} font-size="74" letter-spacing="-2.5" fill="#173f80" opacity="0.55" filter="url(#mcsoft)">MetroCard</text>
-        <text x="0" y="0" ${BOLD} font-size="74" letter-spacing="-2.5" fill="#2459a8">MetroCard</text>
-        <text x="0" y="0" ${BOLD} font-size="74" letter-spacing="-2.5" fill="none" stroke="#5f8fd6" stroke-width="0.8" stroke-opacity="0.6">MetroCard</text>
-      </g>
+      <rect x="18" y="12" width="604" height="92" fill="url(#mcb)"/>
+      <rect x="18" y="338" width="604" height="36" fill="#0a4fd6"/>
+      <ellipse cx="74" cy="38" rx="24" ry="9" fill="#fff" opacity="0.9" transform="rotate(-8 74 38)"/>
+      <text x="46" y="84" ${BOLD} font-size="46" fill="#fff">NYC Subway</text>
+      <g transform="translate(528 22) scale(2.9)"><rect x="4" y="2" width="16" height="16" rx="5" fill="#fff"/><rect x="6.5" y="6" width="4.6" height="5" rx="1" fill="#0a4fd6"/><rect x="12.9" y="6" width="4.6" height="5" rx="1" fill="#0a4fd6"/><rect x="9" y="3.4" width="6" height="1.2" rx="0.6" fill="#0a4fd6"/><circle cx="8" cy="14.5" r="1.3" fill="#0a4fd6"/><circle cx="16" cy="14.5" r="1.3" fill="#0a4fd6"/><path d="M8 18l-3 4h2.6l1.6-2.2h5.6l1.6 2.2H19l-3-4z" fill="#fff"/></g>
       <rect x="18" y="12" width="604" height="362" fill="url(#mcshine)"/>
-      <rect x="18" y="314" width="604" height="40" fill="url(#mcmag)"/>
-      <rect x="18" y="314" width="604" height="1.5" fill="#fff" opacity="0.18"/>
     </g>
     <rect x="18" y="12" width="604" height="362" rx="26" fill="none" stroke="#1d2140" stroke-width="7"/>
-    <rect x="23" y="17" width="594" height="352" rx="22" fill="none" stroke="#fffaf0" stroke-opacity="0.5" stroke-width="1.5"/>
     <rect x="46" y="128" width="164" height="168" rx="16" fill="url(#mcsky)"/>
     <g clip-path="url(#mcp)"><g transform="translate(128 330) scale(1.38)">${avatarMarkup(look, { mood: 'grin' })}</g>
       <rect x="46" y="128" width="164" height="168" fill="none" stroke="#1d2140" stroke-opacity="0.18" stroke-width="10"/></g>
@@ -619,7 +605,7 @@ export async function downloadCard(look: Look, name: string, team: string, color
     c.getContext('2d')!.drawImage(img, 0, 0, 1280, 800)
     const a = document.createElement('a')
     a.href = c.toDataURL('image/png')
-    a.download = `club-nyc-metrocard-${name}.png`
+    a.download = `club-nyc-subway-card-${name}.png`
     a.click()
   }
   img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)

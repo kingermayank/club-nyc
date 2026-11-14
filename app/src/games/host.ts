@@ -42,6 +42,10 @@ const REWARDS: Record<string, string[]> = {
   'ferry-captain': ['captain-hat'],
   'bagel-counters': ['barista-apron'],
 }
+/** The uniform takes a real shift: the least a run must show for it (pizzas made, orders served, deliveries). The
+ * ferry's hat is for docking at Liberty Island. A run that ends with nothing done pays its coins and no outfit. */
+const OUTFIT_MIN: Record<string, number> = { 'slice-factory': 5, 'halal-rush': 4, 'bagel-counters': 10 }
+const earnedOutfit = (id: string, r: GameResult) => (id === 'ferry-captain' ? !!r.flags?.includes('arrived') : (r.score ?? 0) >= (OUTFIT_MIN[id] ?? 1))
 
 /** each job's stamp, shown on the payout card (earned or still to get) */
 const JOB_STAMP: Record<string, string> = { 'slice-factory': 'slice-pro', 'halal-rush': 'halal-hero', 'ferry-captain': 'captain', 'bagel-counters': 'bagel-boss', showtime: 'showtime' }
@@ -117,7 +121,7 @@ export async function playGame(id: string) {
     setTimeout(() => {
       if (e.defaultPrevented || asking) return
       if (!ended) ask()
-      else stage.root.querySelector<HTMLButtonElement>('.payout:not(.out) .go')?.click()
+      else stage.root.querySelector<HTMLButtonElement>('.payout:not(.out) .payout-btns .go')?.click()
     })
   }
   // (capture, so it hears keys before the game does)
@@ -170,6 +174,8 @@ export async function playGame(id: string) {
       unask()
       endRunning = null
       close()
+      // a shift counts once it's worked to the end (leaving early is not a shift: no quest, no "Work 2 Shifts")
+      bump(`played:${id}`)
       payout(id, entry.title, r, run, () => {
         unEsc()
         shell.classList.add('out')
@@ -179,7 +185,6 @@ export async function playGame(id: string) {
       })
     },
   }
-  bump(`played:${id}`)
   if (import.meta.env.DEV) endRunning = ctx.end
   try {
     mod.start(ctx)
@@ -225,6 +230,9 @@ function leaderboard(id: string): { box: HTMLElement; me: HTMLElement; load: () 
       : mine
         ? ''
         : `No score yet${period === 'all' ? '' : ' this week'}.`
+    // the list shows three rows at a time on the results card (it scrolls): start it on your own row
+    const you = rowsEl.querySelector<HTMLElement>('li.you')
+    rowsEl.scrollTop = you ? Math.max(0, you.offsetTop - rowsEl.offsetTop - (rowsEl.clientHeight - you.offsetHeight) / 2) : 0
   }
   const load = async () => {
     rowsEl.innerHTML = '<li class="lobby-empty">Loading scores…</li>'
@@ -275,20 +283,26 @@ function payout(id: string, title: string, r: GameResult, run: Promise<string | 
   if (g && r.score !== undefined && !online) submit(id, r.score)
   const beaten = g && r.score !== undefined ? rematchWins(id, r.score) : []
   const team = myTeam()
-  const newItems = (REWARDS[id] ?? []).filter((i) => !save.owned.includes(i))
+  const newItems = earnedOutfit(id, r) ? (REWARDS[id] ?? []).filter((i) => !save.owned.includes(i)) : []
   const card = el('div', 'payout')
+  // title on top, you and your coins on the left, the board and what you got on the right (that side scrolls by
+  // itself if a run earns everything at once), and the buttons underneath, always on the card
   card.innerHTML = `<div class="payout-card">
       <div class="payout-title">${title}</div>
-      <div class="payout-avatar">${avatarPortrait(save.look, 'grin')}</div>
-      <div class="payout-coins"><img src="/art/icons/coin.png" alt=""><b>0</b><span>coins earned</span></div>
-      ${r.score !== undefined ? `<div class="payout-score">Score <b>${g ? fmt(id, r.score) : r.score}</b>${isBest ? ' <em>New best!</em>' : ''}</div>` : ''}
-      ${g ? '<div class="payout-board-slot"></div>' : ''}
-      ${beaten.length ? `<div class="payout-team">⚔️ You won the rematch vs <b>${beaten.map((b) => b.name).join(', ')}</b>!</div>` : ''}
-      ${team && coins ? `<div class="payout-team pts">+${coins} points for ${team.emoji} <b>${team.name}</b></div>` : ''}
-      <ul class="payout-lines">${(r.lines ?? []).map((l) => `<li>${l}</li>`).join('')}</ul>
-      ${newItems.length ? `<div class="payout-reward"><small>Unlocked!</small><div class="payout-items">${newItems.map((i) => `<span>${itemIcon(i)}${ITEM[i]?.name ?? i}</span>`).join('')}</div></div>` : ''}
-      ${stampLine(id, r)}
-      ${coins + save.coins > 0 ? `<div class="payout-spend"><small>Spend your coins</small><button class="spend" data-go="thread">${iconHtml('🛍')}<span>THREAD</span></button><button class="spend" data-go="iloveny">${iconHtml('🗽')}<span>Souvenirs</span></button><button class="spend" data-go="furniture">${iconHtml('🛋')}<span>Flatbush Flea</span></button></div>` : ''}
+      <div class="payout-side">
+        <div class="payout-avatar">${avatarPortrait(save.look, 'grin')}</div>
+        <div class="payout-coins"><img src="/art/icons/coin.png" alt=""><b>0</b><span>coins earned</span></div>
+        ${r.score !== undefined ? `<div class="payout-score">Score <b>${g ? fmt(id, r.score) : r.score}</b>${isBest ? ' <em>New best!</em>' : ''}</div>` : ''}
+        ${beaten.length ? `<div class="payout-team">⚔️ You won the rematch vs <b>${beaten.map((b) => b.name).join(', ')}</b>!</div>` : ''}
+        ${team && coins ? `<div class="payout-team pts">+${coins} points for ${team.emoji} <b>${team.name}</b></div>` : ''}
+      </div>
+      <div class="payout-main">
+        ${g ? '<div class="payout-board-slot"></div>' : ''}
+        <ul class="payout-lines">${(r.lines ?? []).map((l) => `<li>${l}</li>`).join('')}</ul>
+        ${newItems.length ? `<div class="payout-reward"><small>Unlocked!</small><div class="payout-items">${newItems.map((i) => `<span>${itemIcon(i)}${ITEM[i]?.name ?? i}</span>`).join('')}</div></div>` : ''}
+        ${stampLine(id, r)}
+        ${coins + save.coins > 0 ? `<div class="payout-spend"><small>Spend your coins</small><button class="spend" data-go="thread">${iconHtml('🛍')}<span>THREAD</span></button><button class="spend" data-go="iloveny">${iconHtml('🗽')}<span>Souvenirs</span></button><button class="spend" data-go="furniture">${iconHtml('🛋')}<span>Flatbush Flea</span></button></div>` : ''}
+      </div>
       <div class="payout-btns"><button class="btn ghost rematch">↻ Play Again</button><button class="btn go">Back to the City</button></div>
     </div>`
   stage.root.append(card)
@@ -375,7 +389,6 @@ function payout(id: string, title: string, r: GameResult, run: Promise<string | 
     setTimeout(() => card.remove(), 350)
     world.player.emote('cheer', 2)
     done()
-    if (shown > 0) void import('../features/mail').then((m) => m.sendPostcard({ id: 'first-paycheck', from: `${title} crew`, art: '🪙', title: 'Your first paycheck!', text: `Nice shift! <b>${shown}</b> coins went straight onto your MetroCard. Not rent money yet, but it’s a start. Every job has a weekly leaderboard and a stamp to collect.` }))
     // first shift without a neighborhood: now the team choice means something (every coin counts for it). If Rosa is
     // talking (a first shift often finishes the first-day list), her card goes first.
     if (!save.team) {
@@ -388,7 +401,7 @@ function payout(id: string, title: string, r: GameResult, run: Promise<string | 
       setTimeout(pickTeam, 1400)
     }
   }
-  card.querySelector<HTMLButtonElement>('.go')!.onclick = collect
+  card.querySelector<HTMLButtonElement>('.payout-btns .go')!.onclick = collect
   card.querySelector<HTMLButtonElement>('.rematch')!.onclick = () => {
     collect()
     setTimeout(() => playGame(id), 450)

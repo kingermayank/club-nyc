@@ -152,7 +152,8 @@ const server = new GameServer()
 type Metrics = { online: number; msgsIn: number; msgsOut: number; bytesOut: number; flushes: number; flushMs: number; dropped: number; rssMB: number; heapMB: number; rooms: Record<string, number> }
 async function metrics(): Promise<Metrics | null> {
   try {
-    const r = await fetch(`${BASE}/api/metrics`, { signal: AbortSignal.timeout(3000) })
+    // the server's numbers are behind the Launch HQ key (ADMIN_TOKEN; development servers use the development key)
+    const r = await fetch(`${BASE}/api/metrics`, { signal: AbortSignal.timeout(3000), headers: { authorization: `Bearer ${process.env.ADMIN_TOKEN || 'clubnyc123'}` } })
     return r.ok ? ((await r.json()) as Metrics) : null
   } catch {
     return null

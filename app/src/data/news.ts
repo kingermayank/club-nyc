@@ -412,7 +412,7 @@ const BRIEFS: Story[] = [
   {
     kicker: 'CHELSEA',
     headline: 'Chelsea Market Waterfall Collects Wishes, Pennies and One Retainer',
-    img: '/art/rooms/chelsea-market.jpg',
+    img: '/art/rooms/chelsea-market-v2.jpg',
     body: ['The indoor waterfall in the old factory (a very famous cookie was invented in this building) takes one coin per wish. The retainer has been returned to its owner, who wished for it back.'],
   },
   {
@@ -910,7 +910,7 @@ const LETTERS: Letter[] = [
   },
   {
     q: 'Dear Bodega Cat, my friend says bagels should be toasted. Signed, Torn on Twenty-Third',
-    a: 'A fresh bagel is never toasted. A day-old bagel is a different conversation, and we don’t have it in front of the children. Get yours at Starducks Coffee in SoHo or Bagel Bros in Chelsea Market.',
+    a: 'A fresh bagel is never toasted. A day-old bagel is a different conversation, and we don’t have it in front of the children. Get yours at Starducks Coffee in SoHo.',
   },
   {
     q: 'Dear Bodega Cat, how do I get on TV? Signed, Ready for My Close-Up',

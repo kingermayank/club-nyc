@@ -326,6 +326,7 @@ export function renderPage(template: string, site: Site, page: Page, o: RenderPa
     <button class="search-btn" type="button" data-search-open aria-label="Search the Help Center">${SEARCH_ICON}<span class="search-ph">Search the Help Center</span><span class="kbd-hint" aria-hidden="true"><kbd class="k-mod">Ctrl</kbd><kbd>K</kbd></span></button>
     <nav class="top-links" aria-label="Club NYC">
       <a class="top-link" href="/">Home</a>
+      <a class="top-link" href="/community">Community</a>
       <a class="top-link" href="/discord" rel="noopener">Discord</a>
       <a class="play-btn" href="/play">Play Now</a>
     </nav>
@@ -357,6 +358,7 @@ export function renderPage(template: string, site: Site, page: Page, o: RenderPa
     <nav aria-label="Footer">
       <a href="/">Club NYC Home</a>
       <a href="/play">Play Now</a>
+      <a href="/community">Community Board</a>
       <a href="/rules.html">Community Rules</a>
       <a href="/privacy.html">Privacy Policy</a>
       <a href="/terms.html">Terms of Service</a>

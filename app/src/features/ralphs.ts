@@ -111,3 +111,16 @@ export const pretzelCartMenu = () =>
     ],
     note: { pretzel: 'Salt, nothing else', 'pretzel-mustard': 'The New York way', 'pretzel-cinnamon': 'Sweet and warm', 'pretzel-everything': 'Like the bagel', cocoa: 'For cold hands', coffee: 'The blue deli cup' },
   })
+
+/** The gelato cart on the High Line: every flavor in the case, under the green striped umbrella. */
+export const gelatoCartMenu = () =>
+  menuBoard({
+    cls: 'gelato-cart',
+    title: 'Gelato Cart',
+    sub: 'Scooped on the High Line',
+    menu: [
+      { title: 'Gelato', ids: ['gelato-pistachio', 'gelato-strawberry', 'gelato-chocolate', 'gelato-stracciatella'] },
+      { title: 'Sorbet and Doubles', ids: ['gelato-lemon', 'gelato-mango', 'gelato'] },
+    ],
+    note: { 'gelato-pistachio': 'The real green', 'gelato-strawberry': 'Tastes like June', 'gelato-chocolate': 'Dark, no notes', 'gelato-stracciatella': 'Cream and chips', 'gelato-lemon': 'Sharp and cold', 'gelato-mango': 'Sunset in a cone', gelato: 'Two scoops' },
+  })

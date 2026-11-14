@@ -25,6 +25,10 @@ export interface ObjDef {
   sit?: boolean
   /** not interactive, just occludes/decor */
   decor?: boolean
+  /** the whole rectangle is the click target, not the traced silhouette (for cutouts that are mostly outline) */
+  box?: boolean
+  /** an invisible way out on a street gets the blue arrow sign shops have, pointing this way */
+  sign?: 'up' | 'left' | 'right'
 }
 
 export interface RoomDef {

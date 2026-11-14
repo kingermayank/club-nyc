@@ -6,6 +6,7 @@ import { dropOf, grailItemId } from '../../app/src/avatar/grails.ts'
 import { STAMPS } from '../../app/src/data/stamps.ts'
 import { XP_FOR_CLAIM } from '../../app/src/data/levels.ts'
 import { awardXp } from './xp.ts'
+import { knownStamps } from './save.ts'
 import { partyOn } from '../../app/src/data/party.ts'
 import { jamState } from '../../app/src/data/jam.ts'
 import { EARN_RULES as EARN, QUEST_REWARDS, STARTING_COINS, MIGRATION_COIN_CAP, CREATOR_OUTFIT, WELCOME_GIFTS, DAILY_CAPS, nycDay, weekStart, visitReward } from '../../app/src/data/economy.ts'
@@ -168,6 +169,8 @@ export function claim(userId: string, reason: string, rawRef?: unknown): WalletR
     case 'stamp-bonus': {
       const n = Number(ref)
       if (!Number.isInteger(n) || n <= 0 || n % 5 || n > Object.keys(STAMPS).length + 5) return fail('bad-ref')
+      // the bonus for 5, 10, 15… stamps is only for stamps the server has seen you earn (save.ts)
+      if (knownStamps(u).size < n) return fail('not-earned')
       break
     }
     case 'dance-jam': {
@@ -283,13 +286,7 @@ export function grantItem(userId: string, itemId: string): WalletResult {
   if (def.reward === 'team') allowed = itemId === `team-scarf-${u.team}`
   else if (GAMES[def.reward]) allowed = !!q.get('SELECT 1 FROM scores WHERE user_id = ? AND game = ? LIMIT 1', userId, def.reward)
   else if (def.reward === 'stamps-5') {
-    let stamps = 0
-    try {
-      stamps = (JSON.parse(u.save ?? '{}').stamps ?? []).length
-    } catch {
-      stamps = 0
-    }
-    allowed = stamps >= 5 || !!q.get(`SELECT 1 FROM ledger WHERE user_id = ? AND reason = 'stamp-bonus' LIMIT 1`, userId)
+    allowed = knownStamps(u).size >= 5 || !!q.get(`SELECT 1 FROM ledger WHERE user_id = ? AND reason = 'stamp-bonus' LIMIT 1`, userId)
   } else if (def.reward === 'broadway-show') allowed = true
   else if (def.reward === 'halloween' || def.reward === 'candy-hunt') allowed = partyOn()
   if (!allowed) return no('not-earned')

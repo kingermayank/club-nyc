@@ -19,7 +19,7 @@ SoHo is Club NYC's style district: three shops in a row, a street vendor with "t
 
 | What | Where | Cost |
 | --- | --- | :---: |
-| This week's drop: the Box Logo Hoodie, the brick, the Oreos | **THREAD** (door) | 40 to 800 |
+| This week's drop: the Box Logo Hoodie, the brick, the cookies | **THREAD** (door) | 40 to 800 |
 | Sky Highs, Lows and Uptowns | **Sneaker Vault** (door) | 110 to 230 |
 | Coffee, cookies, croissants and a job | **Starducks Coffee** (door) | 2 to 5 |
 | "Designer" shades or a tote bag | **Street Vendor** | 5 each |
@@ -40,7 +40,7 @@ The skate shop that opened on Lafayette Street in 1994 and never stopped drawing
 | Box Logo Tee | 240 |
 | THREAD Skate Deck | 180 |
 | Camp Cap | 120 |
-| THREAD Oreos | 40 |
+| THREAD Cookies | 40 |
 
 The racks open the rest by section: **Tops & Dresses**, **Jackets & Coats**, **Denim & Bottoms** and **Accessories**. **Checkout** shows everything. Point at an item to try it on before you buy. The **Mirror** and **Fitting Room** open your wardrobe. [How shopping works](shops-and-wardrobe.md)
 

@@ -7,6 +7,7 @@ import { rest } from '../net/server'
 import { inviteLink } from '../net/invite'
 import { account } from '../net/session'
 import { REFERRAL } from '../data/economy'
+import { coinIcon } from '../game'
 
 /** the X logo (the 𝕏 character comes from a fallback font that sits off the label's line) */
 const X_LOGO = `<svg class="inv-x" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64z"/></svg>`
@@ -27,7 +28,13 @@ export function openInvite() {
   const p = el('div', 'panel wide invite-panel')
   p.append(closeButton())
   if (!link.account || !save.owner) {
-    p.insertAdjacentHTML('afterbegin', `<div class="panel-art">💌</div><h2>Invite Friends</h2><p>Invites work when you’re playing online. Sign in from the front door and come back here for your link.</p>`)
+    // a small centred card, not the wide invite layout
+    p.className = 'panel'
+    p.insertAdjacentHTML('afterbegin', `<div class="panel-art">💌</div><h2>Invite Friends</h2><p>Sign in to get your link.</p>`)
+    const go = el('button', 'btn go', 'Sign In')
+    // the front door: this page without the offline / test-save switches
+    go.onclick = () => (location.href = location.pathname)
+    p.append(go)
     return openOverlay(p)
   }
   const url = inviteLink(save.name)
@@ -35,18 +42,17 @@ export function openInvite() {
   const pitch = `Come hang out with me in Club NYC, a cozy online New York. No rent, no subway delays. Make a New Yorker in 30 seconds and you’ll land right next to me 🗽`
   p.insertAdjacentHTML(
     'afterbegin',
-    `<div class="inv-head"><div class="panel-art">💌</div><div><h2>Bring Your Friends to the City</h2>
-      <p class="inv-sub">Anyone who opens your link lands right next to you, and you’re friends instantly.</p></div></div>
+    `<div class="inv-head"><span class="inv-art" aria-hidden="true">💌</span><h2>Bring Friends to the City</h2>${no ? `<span class="inv-no" title="Your New Yorker number">No. ${String(no).padStart(4, '0')}</span>` : ''}</div>
+    <p class="inv-sub">They land right next to you.</p>
     <div class="inv-link"><input readonly value="${esc(url)}" aria-label="Your invite link"><button class="btn go inv-copy">Copy Link</button></div>
     <div class="inv-share"></div>
     <div class="inv-perks">
-      <div><b>+${REFERRAL.welcome}</b><small>coins for your friend when they arrive</small></div>
-      <div><b>+${REFERRAL.reward}</b><small>coins for you once they’ve played ${REFERRAL.activationMs / 60000} minutes</small></div>
-      <div><b>💌 👯 🏙️</b><small>stamps at 1, 3 and 10 friends</small></div>
+      <div><b>${coinIcon}+${REFERRAL.welcome}</b><small>For them</small></div>
+      <div><b>${coinIcon}+${REFERRAL.reward}</b><small>For you</small></div>
+      <div><b class="inv-stamps">💌👯🏙️</b><small>Stamps</small></div>
     </div>
-    <div class="inv-stats"><span class="inv-loading">Counting your crew…</span></div>
-    ${no ? `<p class="inv-member">You’re New Yorker <b>No. ${String(no).padStart(4, '0')}</b></p>` : ''}
-    <small class="inv-fine">Up to ${REFERRAL.dailyCap} paid invites a day. Invites are for real friends: farming accounts gets them removed.</small>`,
+    <div class="inv-stats"><span class="inv-crew"><i></i><i></i><i></i></span><span class="inv-loading">Your crew</span></div>
+    <small class="inv-fine">Up to ${REFERRAL.dailyCap} paid invites a day. Real friends only.</small>`,
   )
   const input = p.querySelector<HTMLInputElement>('.inv-link input')!
   const copy = p.querySelector<HTMLButtonElement>('.inv-copy')!
@@ -60,7 +66,7 @@ export function openInvite() {
     sfx.pop()
     bump('shares')
     copy.textContent = 'Copied! ✓'
-    setTimeout(() => (copy.textContent = 'Copy link'), 1800)
+    setTimeout(() => (copy.textContent = 'Copy Link'), 1800)
     toast('Link copied! Send it to someone who needs more New York in their life 🗽', '💌')
   }
   input.onclick = () => input.select()
@@ -93,11 +99,11 @@ export function openInvite() {
     .then((s) => {
       const box = p.querySelector<HTMLElement>('.inv-stats')!
       if (!s.count) {
-        box.innerHTML = '<span>No one yet. Your first friend gets you the <b>Bring a Friend</b> stamp.</span>'
+        box.innerHTML = '<span class="inv-crew"><i></i><i></i><i></i></span><span>No one yet</span>'
         return
       }
-      box.innerHTML = `<b>${s.count}</b> ${s.count === 1 ? 'friend has' : 'friends have'} joined through you${s.earned ? ` and earned you <b>${s.earned}</b> coins` : ''}
-        <ul>${s.recent.slice(0, 6).map((r) => `<li>${esc(r.name)}<small>${r.active ? '✓ playing' : 'just arrived'}</small></li>`).join('')}</ul>`
+      box.innerHTML = `<span class="inv-crew">${s.recent.slice(0, 6).map((r) => `<i class="on${r.active ? ' active' : ''}" title="${esc(r.name)}">${esc(r.name.slice(0, 1).toUpperCase())}</i>`).join('')}</span>
+        <span><b>${s.count}</b> joined${s.earned ? `, <b translate="no">${coinIcon}${s.earned}</b> earned` : ''}</span>`
     })
     .catch(() => (p.querySelector<HTMLElement>('.inv-stats')!.textContent = ''))
 }

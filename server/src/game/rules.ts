@@ -1,6 +1,7 @@
 import { ITEM } from '../../../app/src/avatar/items.ts'
 import { HAIR_STYLES, SKINS, HAIR_COLORS, SIG_COLORS, FACE_FIELDS, type FaceField } from '../../../app/src/avatar/look.ts'
 import type { LookWire } from '../../../app/src/net/protocol.ts'
+import { cleanName } from './filter.ts'
 
 /**
  * Server-side sanity rules. Scores are submitted by the client, so every game gets a run token,
@@ -44,10 +45,47 @@ export function validLook(l: unknown): LookWire | null {
   return { skin, hair, hairColor, ...sig, ...face, items }
 }
 
-/** Names: 2–14 chars, letters, numbers and _ . Shown to everyone, so they go through the filter too. */
+/**
+ * Names nobody can claim: the team and anything that reads as staff, and the city's own locals.
+ * RESIDENT_NAMES mirrors NAMES in app/src/social/residents.ts (scripts/economy-test.ts checks the two stay the same).
+ */
+export const RESIDENT_NAMES = [
+  'BagelQueen', 'SubwaySam', 'PizzaRatFan', 'BrooklynBree', 'TaxiTony', 'Halal4Life', 'SohoSofia', 'MetMuseMo',
+  'DollarSliceDev', 'BodegaBobby', 'ParkSlopePat', 'Liberty_Lu', 'HarlemHank', 'NolitaNat', 'FerryFrankie',
+  'CoffeeCarla', 'BroadwayBen', 'ChinatownChen', 'HighLineHaz', 'GothamGabi', 'UWS_Uma', 'ConeyKai',
+  'ExpressTrainEd', 'RooftopRiya', 'MetroCardMika', 'BigAppleAbby', 'StoopSitterSal', 'LoxAndLatte', 'CannoliCam',
+  'DumplingDee', 'SkylineSkye', 'WaterTowerWes', 'FireEscapeFi', 'YellowCabYuki', 'NightOwlNico', 'KnishKing',
+  'EggCreamEmma', 'SteamVentSteve', 'PretzelPriya', 'GelatoGio', 'SneakerheadZo', 'ThreadCountTess', 'RinkRatRory',
+  'OperaOlive', 'JazzCatJules', 'BikeLaneBo', 'PigeonPete', 'ShowtimeShay', 'TimesSqTina', 'CabCallerCal',
+  'HudsonHarper', 'DeliDanny', 'MuseumMaya', 'GalleryGus', 'ParadeParker', 'SliceSlinger', 'EspressoElla',
+]
+/** read a name the way a person would: no case, no _, digits as the letters they stand in for, no number on the end */
+const plain = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/\d+$/, '')
+    .replace(/[013457]/g, (d) => ({ '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't' })[d] ?? d)
+    .replace(/[^a-z]/g, '')
+/** taken as a whole name ("Rosa", "R0sa_", "Rosa2"; "Rosalind" is fine) */
+const RESERVED = new Set(
+  [...RESIDENT_NAMES, 'BullMarketBrad', 'Rosa', 'LouTheBusker', 'Mayank', 'MayankKinger', 'Guest', 'System', 'Server', 'Owner', 'Founder', 'Developer', 'Dev', 'Bot'].map(plain),
+)
+/** taken anywhere in a name ("ClubNYC_Help", "xModeratorx") */
+const RESERVED_ANYWHERE = /clubnyc|clubnewyork|moderator|administrator|helpdesk/
+/** taken as a word of a name ("Admin_Joe", "TheAdmin", "STAFF"; "Badminton" and "Modesto" are fine) */
+const RESERVED_WORDS = new Set(['admin', 'admins', 'staff', 'mod', 'mods', 'official', 'support'])
+export function reservedName(name: string): boolean {
+  const p = plain(name)
+  if (RESERVED.has(p) || RESERVED_ANYWHERE.test(p)) return true
+  return name.split(/[_\d]+|(?<=[a-z])(?=[A-Z])/).some((w) => RESERVED_WORDS.has(plain(w)))
+}
+
+/** Names: 2–14 chars, letters, numbers and _ . Shown to everyone, so they go through the filter too, and can't pass for staff or a city local. */
 export function nameProblem(name: string): string | null {
   if (name.length < 2 || name.length > 14) return 'Names are 2–14 characters.'
   if (!/^[A-Za-z0-9_]+$/.test(name)) return 'Letters, numbers and _ only.'
+  if (!cleanName(name)) return 'Please pick a different name.'
+  if (reservedName(name)) return 'That name is taken.'
   return null
 }
 

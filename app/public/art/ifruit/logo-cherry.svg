@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<path d="M23 40 C24 28 29 18 36 12 M43 44 C42 32 39 21 36 12" fill="none" stroke="#1d2140" stroke-width="3" stroke-linecap="round"/>
+<path d="M36 12 C40 6 49 5 54 8 C51 14 43 16 36 12 Z" fill="#3cb371" stroke="#1d2140" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M38 11.5 C43 10 48 9 52 8.6" fill="none" stroke="#2c8f58" stroke-width="1.6" stroke-linecap="round"/>
+<circle cx="22" cy="44" r="11.5" fill="#e5483b" stroke="#1d2140" stroke-width="3"/>
+<circle cx="43" cy="47" r="11.5" fill="#e5483b" stroke="#1d2140" stroke-width="3"/>
+<clipPath id="c1"><circle cx="22" cy="44" r="10"/></clipPath><clipPath id="c2"><circle cx="43" cy="47" r="10"/></clipPath>
+<circle cx="25.5" cy="47.5" r="10" fill="#b8322a" clip-path="url(#c1)" opacity=".55"/><circle cx="20" cy="42" r="10" fill="#e5483b" clip-path="url(#c1)"/>
+<circle cx="46.5" cy="50.5" r="10" fill="#b8322a" clip-path="url(#c2)" opacity=".55"/><circle cx="41" cy="45" r="10" fill="#e5483b" clip-path="url(#c2)"/>
+<path d="M15.5 41 a7 7 0 0 1 4.5-4.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+<path d="M36.5 44 a7 7 0 0 1 4.5-4.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

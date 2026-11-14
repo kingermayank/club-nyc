@@ -16,7 +16,6 @@ The toolbar runs along the bottom of the screen. Point at any button to see its 
 | {tb:dance} | **Moves** | | Dance [[D]], Wave [[W]], Cheer [[C]], Jump [[J]] and Sit [[S]]. Each move shows a little picture of you doing it. |
 | {tb:chat} | **Chat** | [[Enter]] | The chat box. Type and press [[Enter]] to talk to everyone in the place. The smiley beside it pops an emoji over your head. [More on chat](getting-started/chat-and-emotes.md) |
 | {tb:map} | **Map** | [[M]] | The city map. Click a place to go there. [Map, Subway & Taxis](getting-started/map-and-subway.md) |
-| {tb:metrocard} | **Subway** | [[U]] | The subway map. Click a station to ride there. |
 | {tb:news} | **Club NYC Times** | [[N]] | The city paper: news, the bodega cat's advice and this week's leaders. [The Club NYC Times](events/club-nyc-times.md) |
 | {tb:phone} | **Phone** | | Invite Friends [[I]], Text a Friend [[T]], How to Play [[?]] and this Help Center. |
 | {tb:wave} | **Friends & Leaderboards** | [[F]] | Who's in the city, your friends, the leaderboards and Neighborhood Wars. [Friends & Community](community/README.md) |
@@ -38,7 +37,7 @@ Click the **Phone** button for:
 
 The toolbar isn't the only place with buttons:
 
-- **Top left:** the name of the place you're in, the **?** button (Rosa's tour), the **envelope** for your [postcards](community/postcards-and-notices.md), and your [first-day list](getting-started/first-day.md#new-in-town) or [Today in the City](today-in-the-city.md).
+- **Top left:** the name of the place you're in, the **?** button (Rosa's tour) and your [first-day list](getting-started/first-day.md#new-in-town) or [Today in the City](today-in-the-city.md).
 - **Top right:** the **online** count (click it to see who's around), your **level** ring (click it for your player card) and your **coins**.
 
 > [!TIP] Can't Click Anything?

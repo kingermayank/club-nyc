@@ -32,7 +32,7 @@ Each day's three are picked from this list:
 | Buy Something New to Wear | THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you're feeling fancy. |
 | Sign a Guestbook | Visit someone's apartment and leave a note. Compliment the square footage. |
 | Share Your Invite Link | Phone, then Invite Friends ([[I]]). |
-| Ride the Subway Twice | Click the MetroCard on your toolbar ([[U]]). |
+| Ride the Subway Twice | Open the Map and pick a subway stop, or press [[U]]. |
 | Start or Join a Flash Mob | Press [[D]] near other New Yorkers. |
 | Take a Group Photo | Find a [photo booth](events/photo-booths.md): the I ♥ NY neon in Times Square, or Sky Deck 102. Everyone nearby squeezes in. |
 

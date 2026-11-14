@@ -83,7 +83,7 @@ Click **Stamp Book** on the toolbar.
 | Magnetic Personality | Collect all nine fridge magnets from the Brooklyn Bridge stand. | [Brooklyn Bridge](places/brooklyn-bridge.md#magnets) |
 | Crown Jewel | Climb the 354 steps to Lady Liberty's crown. | [Liberty Island](places/battery-park-and-liberty-island.md#crown) |
 | Bragging Rights | Win a multiplayer game against a real New Yorker. | [Multiplayer Games](multiplayer-games/README.md) |
-| Full House | Play a game with 4 or more real New Yorkers. | [Multiplayer Games](multiplayer-games/README.md) |
+| The Whole Crew | Play a game with 4 or more real New Yorkers. | [Multiplayer Games](multiplayer-games/README.md) |
 
 ## Experts {#experts}
 

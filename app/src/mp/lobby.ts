@@ -126,23 +126,23 @@ export function renderLobby(box: HTMLElement, l: LobbyWire, act: LobbyActions) {
   side.append(el('div', 'mp-card mp-how', `<h4>How to Play</h4><div class="gc-how">${HOW[l.g].tiles().join('')}</div>`))
   const set = el('div', 'mp-card mp-set')
   set.append(el('h4', '', 'Settings'))
-  const seg = (opts: [string, string][], val: string, on: (v: string) => void, enabled: boolean) => {
-    const s = el('div', 'mp-seg')
-    for (const [v, label] of opts) {
-      const b = el('button', v === val ? 'on' : '', label) as HTMLButtonElement
-      b.disabled = !enabled
-      b.onclick = () => {
-        sfx.click()
-        on(v)
-      }
-      s.append(b)
+  /** one setting, one row: what it is on the left, an on/off switch on the right */
+  const toggle = (label: string, value: boolean, on: (v: boolean) => void, enabled: boolean) => {
+    const b = el('button', 'mp-toggle' + (value ? ' on' : ''), `<span>${label}</span><i class="mp-switch"><i></i></i>`) as HTMLButtonElement
+    b.setAttribute('role', 'switch')
+    b.setAttribute('aria-checked', String(value))
+    b.disabled = !enabled
+    b.onclick = () => {
+      sfx.click()
+      b.classList.toggle('on')
+      on(!value)
     }
-    return s
+    return b
   }
   const canSet = host && l.st === 'open'
-  if (def.teams) set.append(seg([['ffa', 'Free-for-All'], ['teams', 'Uptown vs Downtown']], l.mode, (v) => send({ k: 'set', mode: v as 'ffa' | 'teams' }), canSet))
-  if (l.g !== 'carbs') set.append(seg([['on', 'City Locals On'], ['off', 'Locals Off']], l.bots ? 'on' : 'off', (v) => send({ k: 'set', bots: v === 'on' }), canSet))
-  set.append(seg([['pub', 'Public'], ['priv', 'Invite Only']], l.priv ? 'priv' : 'pub', (v) => send({ k: 'set', priv: v === 'priv' }), canSet))
+  if (def.teams) set.append(toggle('Uptown vs Downtown', l.mode === 'teams', (v) => send({ k: 'set', mode: v ? 'teams' : 'ffa' }), canSet))
+  if (l.g !== 'carbs') set.append(toggle('City Locals', l.bots, (v) => send({ k: 'set', bots: v }), canSet))
+  set.append(toggle('Invite Only', l.priv, (v) => send({ k: 'set', priv: v }), canSet))
   if (!canSet) set.append(el('div', 'mp-setline', host ? 'Settings lock while a round is on.' : `${esc(l.seats.find((s) => s.i === l.host)?.n ?? 'The host')} picks the settings.`))
   side.append(set)
 

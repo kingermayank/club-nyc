@@ -825,6 +825,215 @@
       ],
       "bus": "fx",
       "vol": 0.55
+    },
+    "mk.sizzle": {
+      "src": [
+        {
+          "id": "9da52e05-c9fa-4d0d-a05e-47d6e142b66b",
+          "title": "Frying, High Temperature, Sizzle (the taqueria griddle)",
+          "start": 2,
+          "max": 1.5,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "mk.shave": {
+      "src": [
+        {
+          "id": "111a1ef2-6371-4c2c-9b8f-a3673225e8d2",
+          "title": "Carrot, Slice, Knife 04 (the knife down the trompo)",
+          "max": 0.44
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.08
+    },
+    "mk.shuck": {
+      "src": [
+        {
+          "id": "14aacf7c-3068-492c-9237-77c8788501c6",
+          "title": "Egg, Shell, Crack 01 (an oyster hinge popping)",
+          "max": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.06
+    },
+    "mk.slurp": {
+      "src": [
+        {
+          "id": "4bba0de8-9203-4df3-b5f1-91c27a3b0a43",
+          "title": "Sip, Slurp 10 (an oyster going down)",
+          "max": 1.2,
+          "fade": 0.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.06
+    },
+    "mk.fry": {
+      "src": [
+        {
+          "id": "5d688c48-3c1b-4a36-ac21-ec95da7423e6",
+          "title": "Deep Frying, Oil (the mini doughnut machine)",
+          "start": 6,
+          "max": 2.6,
+          "fade": 0.7
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.4
+    },
+    "mk.shake": {
+      "src": [
+        {
+          "id": "8972f78d-1f06-4d99-bb18-73ef4d3954a5",
+          "title": "Sugar, Paper Bag, Shake (one shake)",
+          "max": 0.35,
+          "fade": 0.08
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.1,
+      "gap": 70
+    },
+    "mk.bag": {
+      "src": [
+        {
+          "id": "f8d71e8e-cf26-4d10-83ef-31103628e997",
+          "title": "Popcorn, Paper Bag, Shake, Open",
+          "max": 0.9,
+          "fade": 0.2
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "mk.page": {
+      "src": [
+        {
+          "id": "a6780e74-6d41-443d-ba5d-36946e2967f5",
+          "title": "Book, Page Turn",
+          "max": 0.95,
+          "fade": 0.15
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.06
+    },
+    "mk.thump": {
+      "src": [
+        {
+          "id": "42c2a242-c964-43b2-b677-a7a4210a53c2",
+          "title": "Books, Drop Down On Table",
+          "max": 0.35
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "mk.clunk": {
+      "src": [
+        {
+          "id": "cbfe0b72-0dec-4283-9a10-44614b314a89",
+          "title": "Mechanical, Lever, Pull",
+          "max": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5,
+      "jitter": 0.05
+    },
+    "mk.till": {
+      "src": [
+        {
+          "id": "f9673ec2-4034-4c5b-a1bd-3dee6592c1c9",
+          "title": "Antique Cash Register, Kerrching (the bookshop till)",
+          "max": 0.6,
+          "fade": 0.15
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "hm.chain": {
+      "src": [
+        {
+          "id": "9ecb4de3-e2b4-48e9-a4c4-403ed73affc4",
+          "title": "Light Switch, Pull Cord",
+          "max": 0.6,
+          "fade": 0.19999999999999998
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.55
+    },
+    "hm.neon": {
+      "src": [
+        {
+          "id": "a1df055b-974f-499d-b3e1-aef476033014",
+          "title": "Neon Light Buzz",
+          "max": 1.4,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.35
+    },
+    "hm.tvOn": {
+      "src": [
+        {
+          "id": "6d95d106-b340-4c91-b926-6e25364f8eec",
+          "title": "Device Turn On, Scramble",
+          "max": 1.2,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.4
+    },
+    "hm.tvOff": {
+      "src": [
+        {
+          "id": "a843e07b-ba27-4e31-a979-acae95c7cd22",
+          "title": "Television Switch Off",
+          "max": 0.4,
+          "fade": 0.13333333333333333
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.45
+    },
+    "hm.rustle": {
+      "src": [
+        {
+          "id": "0428c897-764c-4770-bfdb-7ec0b9b94952",
+          "title": "Foliage Hit, Small Bush",
+          "max": 1.1,
+          "fade": 0.3
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
+    },
+    "hm.fire": {
+      "src": [
+        {
+          "id": "fd21514b-a0d3-48ac-aeae-ee6354df61d9",
+          "title": "Fire, Ignite, Match, Strike 02",
+          "max": 2.2,
+          "fade": 0.5
+        }
+      ],
+      "bus": "fx",
+      "vol": 0.5
     }
   },
   "ambience": {
@@ -932,6 +1141,13 @@
       "start": 10,
       "len": 40,
       "vol": 0.2
+    },
+    "market": {
+      "id": "9887d7a3-b6db-4082-99ac-9293b558e398",
+      "title": "Mall Crowd Chatting, Eating, Food Court (Chelsea Market)",
+      "start": 10,
+      "len": 40,
+      "vol": 0.3
     }
   }
 }

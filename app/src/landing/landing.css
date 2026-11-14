@@ -376,7 +376,7 @@ a.tile:hover { translate: 0 -3px; }
   .steps { grid-template-columns: 1fr; gap: 34px; max-width: 520px; margin-left: auto; margin-right: auto; }
   .rules { grid-template-columns: repeat(2, 1fr); }
   .community-grid, .safety-panel .ticks { grid-template-columns: 1fr; }
-  .board, .board.two { grid-template-columns: 1fr; max-width: 520px; }
+  .board, .board.two { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
   .stat + .stat { border-left: 0; border-top: 2px dashed rgba(255, 255, 255, 0.2); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .footer-brand { grid-column: span 2; }
@@ -421,4 +421,12 @@ a.tile:hover { translate: 0 -3px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* a six-digit count is wider than a small phone: smaller flaps, so the page never slides sideways */
+@media (max-width: 430px) {
+  .stat { padding-left: 12px; padding-right: 12px; }
+  .flap-row { gap: 4px; }
+  .flap-row b { width: 42px; height: 60px; font-size: 39px; }
+  .flap-row i { font-size: 38px; }
+  .flaps.long .flap-row b { width: 33px; height: 50px; font-size: 31px; }
 }

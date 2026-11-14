@@ -4,7 +4,8 @@ import { stage, el } from '../engine/stage'
 import { confetti, ui } from '../engine/ui'
 import { onRoomChange, world, guideTo } from '../engine/world'
 import { api } from '../game'
-import { EARN, QUEST_REWARDS, nycDay, weekStart, WELCOME_GIFTS } from '../data/economy'
+import { link } from '../net/link'
+import { EARN, QUEST_REWARDS, nycDay, WELCOME_GIFTS } from '../data/economy'
 
 /**
  * "New in Town": five first steps (a walk, the welcome gift, a friend, a job, the subway); "Show Me" points at the next one.
@@ -22,11 +23,15 @@ interface Quest {
 const QUESTS: Quest[] = [
   { id: 'walk', text: 'Take a Walk', hint: 'Click anywhere on the ground.', done: () => (save.stats.walks ?? 0) > 0 },
   { id: 'gift', text: 'Pick Up Your Welcome Gift', hint: 'Click Sal’s glowing hot dog cart in Times Square.', done: () => WELCOME_GIFTS.some((id) => save.owned.includes(id)) },
-  { id: 'friend', text: 'Make a Friend', hint: 'Click any New Yorker, then Add Friend.', done: () => save.friends.length > 0 },
-  { id: 'job', text: 'Work a Shift', hint: 'The pizzeria, the halal cart or the ferry.', done: () => Object.keys(save.stats).some((k) => k.startsWith('played:')) },
-  { id: 'subway', text: 'Ride the Subway', hint: 'Click the MetroCard on your toolbar.', done: () => save.stamps.includes('straphanger') },
+  { id: 'friend', text: 'Make a Friend', hint: 'Click any New Yorker, then Add Friend.', done: () => save.friends.length + link.friends.size > 0 },
+  { id: 'job', text: 'Work a Shift', hint: 'The pizzeria, the halal cart or the ferry.', done: () => shiftsWorked() > 0 },
+  { id: 'subway', text: 'Ride the Subway', hint: 'Open the Map and pick a subway stop.', done: () => save.stamps.includes('straphanger') },
 ]
 const reward = (q: Quest) => QUEST_REWARDS[q.id] ?? 0
+/** shifts worked to the end (games/host.ts counts `played:<job>` when a run finishes; leaving early doesn't count) */
+function shiftsWorked(): number {
+  return Object.entries(save.stats).reduce((n, [k, v]) => (k.startsWith('played:') ? n + v : n), 0)
+}
 
 // ---------- Today in the City ----------
 type Metric = 'shifts' | 'earned' | 'places' | 'chats' | 'jams' | 'snacks' | 'photos' | 'buys' | 'signs' | 'shares' | 'rides' | 'mobs'
@@ -48,7 +53,7 @@ const DAILY: Daily[] = [
   { id: 'shop', text: 'Buy Something New to Wear', hint: 'THREAD in SoHo, I ♥ NY in Times Square, or Fifth Avenue if you’re feeling fancy.', metric: 'buys', target: 1 },
   { id: 'sign', text: 'Sign a Guestbook', hint: 'Visit someone’s apartment and leave a note. Compliment the square footage.', metric: 'signs', target: 1 },
   { id: 'share', text: 'Share Your Invite Link', hint: 'Phone → Invite friends. They land right next to you.', metric: 'shares', target: 1 },
-  { id: 'rides', text: 'Ride the Subway Twice', hint: 'Click the MetroCard on your toolbar.', metric: 'rides', target: 2 },
+  { id: 'rides', text: 'Ride the Subway Twice', hint: 'Open the Map and pick a subway stop.', metric: 'rides', target: 2 },
   { id: 'mob', text: 'Start or Join a Flash Mob', hint: 'Press D near other New Yorkers.', metric: 'mobs', target: 1 },
 ]
 const DAILY_BY_ID = Object.fromEntries(DAILY.map((d) => [d.id, d]))
@@ -70,7 +75,7 @@ function picksFor(day: string): string[] {
 
 function metricNow(m: Metric): number {
   if (m === 'places') return save.daily.places.length
-  if (m === 'shifts') return Object.entries(save.stats).reduce((n, [k, v]) => (k.startsWith('played:') ? n + v : n), 0)
+  if (m === 'shifts') return shiftsWorked()
   return save.stats[m] ?? 0
 }
 
@@ -105,10 +110,10 @@ function render() {
 
 const pips = (done: boolean[]) => `<span class="q-pips">${done.map((d) => `<i${d ? ' class="on"' : ''}></i>`).join('')}</span>`
 /** the bar: closed it's the whole pill (pips and a count), open it's the card's title */
-const head = (title: string, done: boolean[], extra = '') => {
+const head = (title: string, done: boolean[]) => {
   const count = `${done.filter(Boolean).length}/${done.length}`
   return open
-    ? `<button class="q-head" aria-expanded="true"><b>${title}</b>${extra}<span>${count}</span></button>`
+    ? `<button class="q-head" aria-expanded="true" aria-label="${title}: ${count}"><b>${title}</b>${pips(done)}</button>`
     : `<button class="q-head" aria-expanded="false" aria-label="${title}: ${count}" title="${title}">${pips(done)}<span>${count}</span></button>`
 }
 
@@ -164,12 +169,13 @@ async function showMe(id: string) {
       return t.pointAt(t.toolbarButton('Friends & Leaderboards'), 'Make a Friend', 'Nobody’s out right now. Your Friends list shows who’s around once they are.')
     }
     case 'subway':
-      return t.pointAt(t.toolbarButton('Subway'), 'Ride the Subway', 'Click your MetroCard and pick any stop.')
+      return t.pointAt(t.toolbarButton('Map'), 'Ride the Subway', 'Open the Map and click a subway stop. Pressing U works too.')
     case 'job': {
-      const jobs = /adel’s famous halal food|order a slice|order counter|board the train|ferry tickets|board the ferry/i
+      // the things that actually start a job (at 99¢ Slice that's the oven; the counter only sells slices)
+      const jobs = /^halal bros$|work a shift|order counter|ferry tickets|board the ferry/i
       if (!here(jobs)) await arrive('pizza')
       const h = here(jobs)
-      if (h) return t.pointAt(h, 'Work a Shift', 'Click it and choose “Work a Shift”. Every job has a weekly leaderboard.')
+      if (h) return t.pointAt(h, 'Work a Shift', world.room.id === 'pizza' ? 'Click the oven.' : 'Click it, then pick the job.')
       return t.pointAt(t.toolbarButton('Map'), 'Work a Shift', 'Jobs: 99¢ Slice in Little Italy, the Halal Bros cart on Fifth Avenue, Starducks Coffee in SoHo, the ferry at Battery Park and Showtime in the subway.')
     }
   }
@@ -179,11 +185,6 @@ const dist = (e: HTMLElement, p: number[]) => {
   return m ? Math.hypot(Number(m[1]) - p[0], Number(m[2]) - p[1]) : 1e9
 }
 
-/** 📅 days you've dropped by this week (the daily refill grows with it) */
-function weekChip() {
-  const w = save.week
-  return w?.start === weekStart(nycDay()) && w.days >= 2 ? `<em class="q-week" title="You’ve dropped by ${w.days} of 7 days this week">📅 ${w.days}/7</em>` : ''
-}
 
 function renderDaily() {
   rollDay()
@@ -191,13 +192,13 @@ function renderDaily() {
   const done = save.daily.done.length
   box.className = 'quests daily' + (done === picks.length ? ' all-done' : '') + (open ? ' open' : '')
   box.innerHTML =
-    head('Today in the City', picks.map((d) => save.daily.done.includes(d.id)), weekChip()) +
+    head('Today in the City', picks.map((d) => save.daily.done.includes(d.id))) +
     (open
       ? `<ul class="q-list daily-list">${picks
           .map((d) => {
             const p = progress(d)
             const ok = save.daily.done.includes(d.id)
-            return `<li class="${ok ? 'done' : ''}"><span>${d.text}</span><small>${ok ? `+${DAILY_REWARD}` : `${p}/${d.target}`}</small><i style="--p:${(p / d.target) * 100}%"></i></li>`
+            return `<li class="${ok ? 'done' : ''}"><span>${d.text}</span><small>${ok ? '✓' : `+${DAILY_REWARD}`}</small><i style="--p:${(p / d.target) * 100}%"></i></li>`
           })
           .join('')}<li class="q-bonus${done === picks.length ? ' done' : ''}"><span>All ${picks.length}</span><small>+${DAILY_BONUS}</small></li></ul>`
       : '')

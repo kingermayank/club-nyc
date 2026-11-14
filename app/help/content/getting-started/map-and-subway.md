@@ -24,7 +24,7 @@ Press [[M]] or click **Map** on the toolbar.
 
 ## The Subway {#subway}
 
-Press [[U]] or click the MetroCard (**Subway**) on the toolbar. You can also read the **Subway Map** poster in the station, or click **Board the Train** in the [Times Sq–42 St Station](places/subway-station.md) and choose **Ride the Subway**.
+Press [[U]], or open the **Map** and click a **Subway** stop. You can also read the **Subway Map** poster in the station, or click **Board the Train** in the [Times Sq–42 St Station](places/subway-station.md) and choose **Ride the Subway**.
 
 ![The Club NYC Subway map, with colored lines and stations from 86 St down to South Ferry.](/help/img/subway-map.webp "Point at a station to see where it goes, then click to ride.")
 

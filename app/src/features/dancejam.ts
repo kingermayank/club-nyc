@@ -11,11 +11,13 @@ import type { Look } from '../avatar/look'
 import { RESIDENTS } from '../social/residents'
 import { api } from '../game'
 import { jamState, JAM_PERIOD } from '../data/jam'
+import { play, fadeStop, playing } from '../music'
 
 /**
  * Dance Jam — the Times Square stage comes alive on a city-wide schedule (everyone online sees the same show,
- * no server needed): the LED wall lights up, a DJ takes the decks, the crowd floods the plaza. No music: a song
- * playing on its own in the background was too much (the owner's call, 19 October 2026).
+ * no server needed): the LED wall lights up, a DJ takes the decks, the crowd floods the plaza, and Empire State of
+ * Mind plays for the length of the show, in step for everyone (the owner's call, 14 November 2026: music only while
+ * the show is on, never in the background between shows).
  * Dance on the floor in front of the stage to earn tips.
  */
 const PERIOD = JAM_PERIOD
@@ -34,6 +36,12 @@ let wasOn: boolean | null = null
 let danced = 0
 let rewardedJam = -1
 const crew = new Set<Actor>()
+/** the show's song is playing here (so leaving, or the show ending, stops only that, never a house party's) */
+let jamMusic = false
+const stopJamMusic = () => {
+  if (jamMusic && playing()) fadeStop()
+  jamMusic = false
+}
 
 const DJ_LOOK: Look = { skin: 3, hair: 'short', hairColor: 0, items: { head: 'headphones', body: 'varsity', legs: 'jeans', feet: 'hightops', face: 'shades' } }
 
@@ -70,6 +78,10 @@ onRoom('times-square', ({ geo, scene }) => {
     dj = { view, el: holder }
   }
   joinBtn = el('button', 'jam-join')
+  // named and out of the tab order while there's no jam to join (it's invisible then)
+  joinBtn.setAttribute('aria-label', 'Join the Dance Jam')
+  joinBtn.setAttribute('aria-hidden', 'true')
+  joinBtn.tabIndex = -1
   joinBtn.onclick = (e) => {
     e.stopPropagation()
     joinJam()
@@ -77,6 +89,7 @@ onRoom('times-square', ({ geo, scene }) => {
   stage.root.append(joinBtn)
   tick(0)
   return () => {
+    stopJamMusic()
     led = null
     dj = null
     joinBtn?.remove()
@@ -95,11 +108,15 @@ function tick(dt: number) {
     led?.classList.toggle('on', j.on)
     dj?.el.classList.toggle('on', j.on)
     if (j.on) {
+      // joining mid-show lands on the same bar as everyone else (the song started with the show)
+      play(j.track, j.since)
+      jamMusic = true
       confetti(40)
       sfx.stamp()
       if (save.created) toast('🪩 DANCE JAM! Get to the middle of the plaza and dance (D)', '🪩')
       fillCrowd()
     } else {
+      stopJamMusic()
       for (const a of crew) {
         a.mob = false
         a.held = null
@@ -114,7 +131,12 @@ function tick(dt: number) {
   const dancingHere = p.held === 'dance' && !p.moving && p.pos[0] > x1 && p.pos[0] < x2 && p.pos[1] > y1 - 30 && p.pos[1] < y2 + 30
   if (joinBtn) {
     // once you're on the floor the button would only hide the crowd
-    joinBtn.classList.toggle('show', j.on && !dancingHere)
+    const show = j.on && !dancingHere
+    if (joinBtn.classList.contains('show') !== show) {
+      joinBtn.setAttribute('aria-hidden', String(!show))
+      joinBtn.tabIndex = show ? 0 : -1
+    }
+    joinBtn.classList.toggle('show', show)
     if (j.on) joinBtn.innerHTML = `🪩 Join the Dance Jam <small>${mmss(j.end - now)} left</small>`
   }
   if (dj) {

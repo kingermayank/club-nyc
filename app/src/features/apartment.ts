@@ -15,6 +15,8 @@ import { rest, HttpError, type PublicUser } from '../net/server'
 import { HOME, HOME_ROOMS, isHomeRoom, homeOfRoom } from '../data/homes'
 import { avatarMarkup } from '../avatar/render'
 import { ART_FURNITURE } from '../data/souvenirs'
+import { mountLights, setLights, type Light } from './homeLights'
+import { hm } from '../sound/home'
 
 interface FurnitureDef {
   id: string
@@ -27,7 +29,7 @@ interface FurnitureDef {
   /** can be sat on: hip height as a fraction of the sprite height */
   seat?: number
   /** clicking it does something */
-  use?: 'music' | 'screen' | 'light' | 'cat' | 'game'
+  use?: 'music' | 'screen' | 'light' | 'cat' | 'game' | 'plant'
   cat: 'Seating' | 'Tables & Storage' | 'Lights' | 'Fun' | 'Decor' | 'Beds'
   /** sold in the catalog (vs. earned) */
   shop?: boolean
@@ -56,8 +58,8 @@ export const FURNITURE: FurnitureDef[] = [
   { id: 'torch-lamp', name: 'Liberty Torch Lamp', price: 65, w: 52, src: '/art/furniture/torch-lamp.png', use: 'light', cat: 'Lights', shop: true },
   { id: 'street-lamp', name: 'Street Lamp', price: 50, w: 50, src: '/art/furniture/street-lamp.png', use: 'light', cat: 'Lights', shop: true },
   { id: 'neon', name: 'NYC Neon Sign', price: 65, w: 120, src: '/art/furniture/neon.png', use: 'light', cat: 'Lights', shop: true },
-  { id: 'plant', name: 'Monstera', price: 20, w: 78, src: '/art/furniture/plant.png', cat: 'Decor', shop: true },
-  { id: 'water-tower', name: 'Water Tower Planter', price: 75, w: 104, src: '/art/furniture/water-tower.png', cat: 'Decor', shop: true },
+  { id: 'plant', name: 'Monstera', price: 20, w: 78, src: '/art/furniture/plant.png', use: 'plant', cat: 'Decor', shop: true },
+  { id: 'water-tower', name: 'Water Tower Planter', price: 75, w: 104, src: '/art/furniture/water-tower.png', use: 'plant', cat: 'Decor', shop: true },
   { id: 'painting', name: 'Skyline Painting', price: 0, w: 100, src: '/art/cutouts/brooklyn-bridge/easel.png', cat: 'Decor' },
   // the Brooklyn Bridge painter's gallery (data/souvenirs.ts): sold on the bridge, not in the catalog
   ...ART_FURNITURE,
@@ -214,37 +216,200 @@ function seatFor(i: number): Seat | null {
   return { id: `furn-${i}`, sit: [p.x, p.y - h * f.seat], stand: world.nav!.nearest([p.x, p.y + 14]) }
 }
 
-// furniture that does things
+// ---------- furniture that does things ----------
+/**
+ * Lamps. Each has a pull chain: off, its shade goes cold (art/furniture/<id>-off.png, tools/furniture/light_states.py)
+ * and the room goes to evening around whatever is still lit (homeLights.ts). `head` is how far up the piece the
+ * bulb is; `tint` the colour of its light.
+ */
+const LAMPS: Record<string, { head: number; tint: string }> = {
+  lamp: { head: 0.85, tint: '255, 204, 118' },
+  'torch-lamp': { head: 0.9, tint: '255, 172, 80' },
+  'street-lamp': { head: 0.74, tint: '255, 226, 164' },
+}
+/** light through the glass, by home: sunset over the East Village, daylight on a SoHo street, dusk up high */
+const WINDOW_TINT: Record<string, string> = { apartment: '255, 168, 110', loft: '214, 226, 255', brownstone: '255, 214, 150', penthouse: '176, 204, 255', 'sky-residence': '255, 170, 120' }
+const sizeOf = (p: PlacedFurniture) => {
+  const f = FDEF[p.id]
+  const s = depthScale(p.y)
+  const w = fw(f) * s
+  return { s, w, h: w * (aspectOf.get(f.id) ?? 1) }
+}
+/**
+ * Lights painted into the rooms themselves (traced out of the painting like any other cutout): they switch like a
+ * lamp. `at` is where the bulbs are, `floor` how far down the room the light lands.
+ */
+const FIXTURES: Record<string, Record<string, { at: Pt; reach: number; floor: number; tint: string }>> = {
+  brownstone: { chandelier: { at: [500, 76], reach: 300, floor: 440, tint: '255, 216, 156' } },
+  loft: { pendants: { at: [835, 126], reach: 270, floor: 400, tint: '255, 222, 170' } },
+  'sky-residence': { pendants: { at: [935, 100], reach: 250, floor: 330, tint: '255, 200, 130' } },
+}
+/** the brownstone's hearth: where the fire sits in the grate */
+const HEARTH: Record<string, Pt> = { brownstone: [229.5, 367] }
+/**
+ * What is switched in this home: your own is kept with your save (stats `off:<room>:<light>`, `fire:<room>`),
+ * someone else's only for the visit.
+ */
+let visitSwitches: Record<string, number> = {}
+const switches = () => (isMine() ? save.stats : visitSwitches)
+const fixtureOff = (id: string) => !!switches()[`off:${world.room.id}:${id}`]
+const fireLit = () => !!switches()[`fire:${world.room.id}`]
+const cutoutEl = (id: string) => stage.scene.querySelector<HTMLElement>(`img.cutout[src$="/${id}.png"]`)
+
+/** Click a ceiling light: it switches, like a lamp. */
+export function switchFixture(id: string) {
+  if (!FIXTURES[world.room.id]?.[id]) return
+  const key = `off:${world.room.id}:${id}`
+  switches()[key] = switches()[key] ? 0 : 1
+  if (isMine()) persist()
+  hm.chain()
+  refreshLights()
+}
+/** Click the fireplace: light the fire, or put it out. */
+export function lightFire() {
+  if (!HEARTH[world.room.id]) return
+  const key = `fire:${world.room.id}`
+  switches()[key] = switches()[key] ? 0 : 1
+  if (isMine()) persist()
+  switches()[key] ? hm.fire() : hm.fireOut()
+  refreshLights()
+}
+let fireEl: HTMLElement | null = null
+function drawFire() {
+  const at = HEARTH[world.room.id]
+  const lit = !!at && fireLit()
+  if (!lit) {
+    fireEl?.remove()
+    fireEl = null
+    return
+  }
+  if (fireEl?.isConnected) return
+  // the fire, then the grate's own brass bars back over it so it sits IN the basket
+  fireEl = el('div', 'home-fire', `<i></i><img src="/art/cutouts/${world.room.id}/grate.png" alt="" draggable="false">`)
+  fireEl.style.cssText = `left:${at[0] - 27}px;top:${at[1] - 52}px`
+  stage.scene.append(fireEl)
+}
+
+/** the neon sign that was switched on a moment ago (it stutters as it catches) */
+let struck: PlacedFurniture | null = null
+
+/** Work out what is giving light in this home right now and hand it to the lighting layer. */
+function refreshLights() {
+  const items = layout()
+  const out: Light[] = []
+  for (const p of items) {
+    if (!FDEF[p.id]) continue
+    const { s, w, h } = sizeOf(p)
+    const side = p.flip ? 1 : -1
+    const lamp = LAMPS[p.id]
+    if (lamp && !p.off) {
+      out.push({ x: p.x, y: p.y - h * lamp.head, rx: 235 * s, tint: lamp.tint, glow: 0.62 })
+      // and its pool on the floor
+      out.push({ x: p.x, y: p.y + 4, rx: 215 * s, ry: 66 * s, tint: lamp.tint, power: 0.85, glow: 0.4 })
+    }
+    if (p.id === 'neon' && !p.off) out.push({ x: p.x, y: p.y - h * 0.5, rx: 175 * s, ry: 145 * s, tint: '255, 84, 214', power: 0.8, glow: 0.6, strike: p === struck })
+    if (p.id === 'tv' && p.on) out.push({ x: p.x + side * w * 0.2, y: p.y - h * 0.66, rx: 190 * s, ry: 150 * s, tint: '120, 204, 255', power: 0.78, glow: 0.55, flicker: 'tv' })
+    if (p.id === 'arcade') out.push({ x: p.x, y: p.y - h * 0.62, rx: 80 * s, tint: '130, 160, 255', power: 0.6, glow: 0.25 })
+    if (p.id === 'jukebox') out.push({ x: p.x, y: p.y - h * 0.55, rx: 115 * s, tint: '255, 190, 96', power: 0.7, glow: 0.3 })
+  }
+  // what the room itself has: the window, and what it throws on the floor
+  const cut = world.geo?.cutouts ?? {}
+  const tint = WINDOW_TINT[world.room.id] ?? '255, 200, 150'
+  for (const key of ['window', 'view']) {
+    const r = cut[key]?.rect
+    if (!r) continue
+    out.push({ x: r[0] + r[2] / 2, y: r[1] + r[3] / 2, rx: r[2] * 0.7, ry: r[3] * 0.74, tint, power: 1 })
+    out.push({ x: r[0] + r[2] / 2, y: r[1] + r[3] + 95, rx: r[2] * 0.62, ry: 80, tint, power: 0.5, glow: 0.3 })
+  }
+  // the lights painted into the room, and the fire
+  let fixtureDark = false
+  for (const [id, f] of Object.entries(FIXTURES[world.room.id] ?? {})) {
+    const off = fixtureOff(id)
+    cutoutEl(id)?.classList.toggle('unlit', off)
+    if (off) {
+      fixtureDark = true
+      continue
+    }
+    out.push({ x: f.at[0], y: f.at[1], rx: f.reach, ry: f.reach * 0.8, tint: f.tint, glow: 0.45 })
+    out.push({ x: f.at[0], y: f.floor, rx: f.reach * 0.95, ry: 90, tint: f.tint, power: 0.8, glow: 0.3 })
+  }
+  drawFire()
+  const hearth = HEARTH[world.room.id]
+  if (hearth && fireLit()) {
+    out.push({ x: hearth[0], y: hearth[1] - 22, rx: 150, ry: 130, tint: '255, 150, 70', power: 0.95, glow: 0.6, flicker: 'fire' })
+    out.push({ x: hearth[0], y: hearth[1] + 62, rx: 190, ry: 62, tint: '255, 150, 70', power: 0.7, glow: 0.45, flicker: 'fire' })
+  }
+  // decorating is done with the lights up
+  setLights(!editing && (fixtureDark || items.some((p) => LAMPS[p.id] && p.off)), out)
+}
+
+/** A heart off the cat, a note off the record: one glyph that rises from a piece and is gone. */
+function puff(p: PlacedFurniture, glyph: string, cls = '') {
+  if (!layer) return
+  const { w, h } = sizeOf(p)
+  const n = el('span', 'furn-puff ' + cls, glyph)
+  n.style.left = `${p.x + (Math.random() - 0.5) * w * 0.4 - 8}px`
+  n.style.top = `${p.y - h - 14}px`
+  n.style.setProperty('--drift', `${Math.round((Math.random() - 0.5) * 40)}px`)
+  // beside the furniture, not in with it: switching a lamp redraws the pieces and would take the heart with them
+  layer.parentElement?.append(n)
+  setTimeout(() => n.remove(), 1600)
+}
+const again = (img: HTMLElement, cls: string) => {
+  img.classList.remove(cls)
+  void img.offsetWidth
+  img.classList.add(cls)
+}
+
 let music: (() => void) | null = null
-const lit = new Set<number>()
+/** the piece the music is coming from */
+let playing: PlacedFurniture | null = null
 function useFurniture(i: number, img: HTMLImageElement) {
-  const f = FDEF[layout()[i].id]
+  const p = layout()[i]
+  const f = FDEF[p.id]
   if (!f?.use) return false
+  again(img, 'tapped')
+  const keep = () => isMine() && persist()
   if (f.use === 'music') {
     if (music) {
       music()
       music = null
-      img.classList.remove('playing')
-      toast('Music off', '🎵')
+      render()
     } else {
-      music = startBeat(f.id === 'jukebox' ? 104 : 92)
+      const stop = startBeat(f.id === 'jukebox' ? 104 : 92)
+      const notes = window.setInterval(() => puff(p, Math.random() < 0.5 ? '♪' : '♫'), 650)
+      puff(p, '♪')
+      music = () => (stop(), window.clearInterval(notes))
+      playing = p
       img.classList.add('playing')
-      toast(f.id === 'jukebox' ? 'The jukebox kicks in 🎶 (press D to dance!)' : 'Dropping the needle… 🎵', '🎶')
     }
   }
   if (f.use === 'light') {
-    lit.has(i) ? lit.delete(i) : lit.add(i)
-    img.classList.toggle('lit', lit.has(i))
-    sfx.tick()
+    p.off = !p.off
+    keep()
+    if (p.id === 'neon') {
+      p.off ? sfx.tick() : hm.neon()
+      struck = p.off ? null : p
+    } else hm.chain()
+    render()
+    if (struck) layer?.querySelectorAll<HTMLElement>('img.furniture')[i]?.classList.add('striking')
+    struck = null
   }
   if (f.use === 'screen') {
-    img.classList.toggle('on')
-    sfx.ding()
-    world.player.say(img.classList.contains('on') ? pick(['Ooh, Broadway highlights 📺', 'The news! Pizza Rat again?', 'Cartoons! 📺']) : 'Off it goes.')
+    p.on = !p.on
+    keep()
+    p.on ? hm.tvOn() : hm.tvOff()
+    render()
+    if (p.on) world.player.say(pick(['Ooh, Broadway highlights 📺', 'The news! Pizza Rat again?', 'Cartoons! 📺']))
   }
   if (f.use === 'cat') {
     sfx.purr()
+    puff(p, '♥', 'heart')
     world.player.say(pick(['Prrrrr… 🐈', 'The bodega cat approves.', 'It’s a very good cat.']))
+  }
+  if (f.use === 'plant') {
+    hm.rustle()
+    again(img, 'rustle')
   }
   if (f.use === 'game') {
     world.player.say('One more game… 🕹️')
@@ -261,15 +426,22 @@ function render() {
     const f = FDEF[p.id]
     if (!f) return
     const interactive = !!(f.seat || f.use)
-    const img = el('img', 'furniture' + (editing ? ' editable' : '') + (interactive && !editing ? ' sittable' : '') + (lit.has(i) ? ' lit' : '')) as HTMLImageElement
-    img.src = f.src
+    const img = el('img', 'furniture' + (editing ? ' editable' : '') + (interactive && !editing ? ' sittable' : '') + (p.id === 'neon' && p.off ? ' unlit' : '') + (music && playing === p ? ' playing' : '')) as HTMLImageElement
+    img.src = LAMPS[p.id] && p.off ? f.src.replace('.png', '-off.png') : f.src
     img.alt = f.name
     img.draggable = false
-    img.onload = () => {
+    // the TV's tube, lit, lies over the glass of the painted set and goes wherever the set goes
+    const tube = p.id === 'tv' && p.on ? el('div', 'furn-fx', '<i class="furn-tube"></i>') : null
+    const seat = () => {
       placeEl(img, f, p.x, p.y, p.flip)
-      rebuildNav()
+      if (tube) tube.style.cssText = img.style.cssText.replace(/z-index:\s*(\d+)/, (_, z) => `z-index:${+z + 1}`)
     }
-    placeEl(img, f, p.x, p.y, p.flip)
+    img.onload = () => {
+      seat()
+      rebuildNav()
+      refreshLights()
+    }
+    seat()
     img.title = editing ? `${f.name}: drag to move, double-click to flip` : f.use ? `${f.name}: click to use` : f.seat ? `${f.name}: click to sit` : f.name
     img.onpointerdown = (e) => {
       if (!editing) return
@@ -294,7 +466,9 @@ function render() {
       render()
     }
     layer!.append(img)
+    if (tube) layer!.append(tube)
   })
+  refreshLights()
 }
 
 /**
@@ -442,9 +616,12 @@ let controls: HTMLElement | null = null
 function renderControls() {
   if (!controls) return
   controls.innerHTML = ''
-  const btn = (html: string, title: string, act: () => void, cls = '') => {
+  const btn = (html: string, title: string, act: () => void, cls = '', name = '') => {
     const b = el('button', 'apt-btn ' + cls, html)
     b.title = title
+    // its name for screen readers: the small label under the icon (or what the count means)
+    const label = b.querySelector('span')?.textContent ?? ''
+    b.setAttribute('aria-label', name || (/^\d*$/.test(label) ? title : label))
     b.onclick = (e) => {
       e.stopPropagation()
       sfx.click()
@@ -457,22 +634,24 @@ function renderControls() {
     btn('🛋️<span>Decorate</span>', 'Move & place furniture', () => setEditing(true), 'primary')
     btn('📖<span>Catalog</span>', 'Buy furniture', () => openFurnitureCatalog())
     btn(`📬<span>Guestbook</span>${unread ? `<i>${unread}</i>` : ''}`, 'Notes from visitors', () => openGuestbook())
-    btn(`${save.openHouse ? '🎉' : '🚪'}<span>${save.openHouse ? 'Open house: ON' : 'Open house'}</span>`, 'Let friends drop by while you’re home', () => toggleOpenHouse(), save.openHouse ? 'on' : '')
+    // the door, always (the party popper is Party's): open shows as a lit button with a green dot
+    btn('🚪<span>Open House</span>', 'Let friends drop by while you’re home', () => toggleOpenHouse(), save.openHouse ? 'on open' : '')
+    controls.lastElementChild!.setAttribute('aria-pressed', String(save.openHouse))
     const likes = save.likes + (cloudBook?.likes ?? 0)
-    btn(`❤️<span>${likes}</span>`, 'Likes from visitors', () => toast(`${likes} people have liked your place ❤️`, '❤️'), 'likes')
+    btn(`❤️<span>${likes}</span>`, 'Likes from visitors', () => toast(`${likes} ${likes === 1 ? 'person likes' : 'people like'} your place`, '❤️'), 'likes', `${likes} ${likes === 1 ? 'like' : 'likes'}`)
     btn('🎉<span>Party</span>', 'Throw a party: pick the music, invite friends', () => void import('./houseparty').then((m) => m.openPartyPanel()), 'party')
     btn('🔑<span>Listings</span>', 'StreetCheesy: buy a new place', () => void import('./streetcheesy').then((m) => m.openListings()))
   } else if (owner?.kind === 'resident') {
     const o = owner.r
     const liked = !!save.liked[o.id]
-    btn('✍️<span>Sign guestbook</span>', `Leave ${o.name} a note`, () => signGuestbook(o), 'primary')
+    btn('✍️<span>Sign Guestbook</span>', `Leave ${o.name} a note`, () => signGuestbook(o), 'primary')
     btn(`${liked ? '💖' : '🤍'}<span>${likesFor(o)}</span>`, liked ? 'You liked this place' : 'Like this place', () => likePlace(o), liked ? 'on' : '')
-    btn('🏠<span>Go home</span>', 'Back to your apartment', () => goHome())
+    btn('🏠<span>Go Home</span>', 'Back to your apartment', () => goHome())
   } else if (owner?.kind === 'player') {
     const pl = owner.place
-    btn('✍️<span>Sign guestbook</span>', `Leave ${pl.user.name} a note`, () => signPlayerGuestbook(pl), 'primary')
+    btn('✍️<span>Sign Guestbook</span>', `Leave ${pl.user.name} a note`, () => signPlayerGuestbook(pl), 'primary')
     btn(`${pl.liked ? '💖' : '🤍'}<span>${pl.likes}</span>`, pl.liked ? 'You liked this place' : 'Like this place', () => likePlayerPlace(pl), pl.liked ? 'on' : '')
-    btn('🏠<span>Go home</span>', 'Back to your apartment', () => goHome())
+    btn('🏠<span>Go Home</span>', 'Back to your apartment', () => goHome())
   }
 }
 
@@ -667,17 +846,16 @@ function guestArrives() {
 // ---------- room hook (every kind of home shares it) ----------
 const homeWord = (room: string) => (room === 'penthouse' ? 'Penthouse' : room === 'loft' ? 'Loft' : room === 'brownstone' ? 'Brownstone' : room === 'sky-residence' ? 'Sky Residence' : 'Apartment')
 for (const room of HOME_ROOMS) onRoom(room, homeHook)
-/** friends you've invited over: they're at your place next time you're home */
-const guests = new Set<string>()
+/** Invite a local friend over: they get a text and answer; a yes means they come by next time you're home. */
 export function inviteOver(r: Resident) {
-  guests.add(r.id)
-  toast(`${r.name} is on the way to your place 🛋️`, '🏠')
-  goHome()
+  void import('../social/friendAsks').then((m) => m.inviteOver(r))
 }
 function homeHook({ scene }: { scene: HTMLElement }) {
   layer = el('div', 'furniture-layer')
   scene.append(layer)
-  lit.clear()
+  const lightsOut = mountLights()
+  if (owner) visitSwitches = {}
+  fireEl = null
   render()
   setTimeout(() => {
     render()
@@ -687,9 +865,10 @@ function homeHook({ scene }: { scene: HTMLElement }) {
   stage.root.append(controls)
   renderControls()
   // your place: anyone you invited over comes in the door and says hi
-  if (!owner && guests.size) {
-    const list = [...guests].map((id) => RESIDENT[id]).filter(Boolean)
-    guests.clear()
+  if (!owner && save.guestsComing?.length) {
+    const list = save.guestsComing.map((id) => RESIDENT[id]).filter(Boolean)
+    save.guestsComing = []
+    persist()
     list.forEach((r, i) =>
       setTimeout(() => {
         const g = spawnResident(r, { enter: true })
@@ -738,6 +917,7 @@ function homeHook({ scene }: { scene: HTMLElement }) {
   })
   return () => {
     offFrame()
+    lightsOut()
     if (editing) setEditing(false)
     music?.()
     music = null

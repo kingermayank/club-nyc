@@ -23,5 +23,6 @@ export const SELFIE_SPOTS: Record<string, SelfieSpot> = {
   'one-world-trade': { title: 'One World Trade', art: 'one-world-trade', box: [391, 0, 225, 247], sky: '#8ec9ef' },
   'fifth-ave': { title: 'St. Patrick’s Cathedral', art: 'fifth-ave-v2', box: [791, 4, 132, 249], sky: '#8ec9ef' },
   chinatown: { title: 'Chinatown', art: 'chinatown', box: [574, 67, 223, 285], sky: '#8ec9ef' },
+  'central-park': { title: 'Central Park', art: 'central-park', box: [356, 30, 311, 137], sky: '#8ec9ef' },
 }
 

@@ -20,7 +20,8 @@ const WORKERS = process.env.WORKERS ? Number(process.env.WORKERS) : undefined
 type Metrics = { msgsIn: number; msgsOut: number; bytesOut: number; flushMs: number; flushes: number; dropped: number; rssMB: number; heapMB: number; online: number; rooms: Record<string, number> }
 const metrics = async (): Promise<Metrics | null> => {
   try {
-    const r = await fetch(`${BASE}/api/metrics`)
+    // the server's numbers are behind the Launch HQ key (ADMIN_TOKEN; development servers use the development key)
+    const r = await fetch(`${BASE}/api/metrics`, { headers: { authorization: `Bearer ${process.env.ADMIN_TOKEN || 'clubnyc123'}` } })
     return r.ok ? ((await r.json()) as Metrics) : null
   } catch {
     return null

@@ -12,6 +12,7 @@ import { kickUser, setLiveMute, warnUser, announce, setMaintenance, maintenanceS
 import { listBackups, snapshotNow, backupFile } from './ops.ts'
 import { growth } from './growth.ts'
 import { hq } from './hq.ts'
+import { communityAdmin } from './community.ts'
 import { waitlistOverview, waitlistRows, waitlistCsv, deleteSignup, startLaunchEmail, sendLaunchTest, launchEmailPreview, launchModeNow } from './waitlist.ts'
 import { createReadStream, statSync } from 'node:fs'
 import { basename } from 'node:path'
@@ -55,6 +56,11 @@ function sessionOk(v: string | undefined): boolean {
   const [exp, sig] = v.split('.')
   return !!exp && !!sig && Number(exp) > Date.now() && same(sign(Number(exp)), sig)
 }
+/** GET /api/metrics (api.ts): the same key, sent as "Authorization: Bearer <key>" by the load-test scripts */
+export function metricsAuthorized(header: string | undefined): boolean {
+  const m = /^Bearer\s+(.+)$/i.exec(header ?? '')
+  return !!adminToken && !!m && same(typed(m[1]), typed(adminToken))
+}
 const requireAdmin: MiddlewareHandler = async (c, next) => {
   if (!sessionOk(getCookie(c, COOKIE))) return c.json({ error: 'admin-only' }, 401)
   await next()
@@ -86,6 +92,8 @@ admin.use('*', requireAdmin)
 
 // Launch HQ (hq.html): the go-to-market page, same login
 admin.route('/hq', hq)
+// the community board's moderator tools (hide, show, delete), used from /community itself
+admin.route('/community', communityAdmin)
 
 // ---------- the city at a glance ----------
 const DAY = 86400_000

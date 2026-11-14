@@ -10,7 +10,7 @@ There's always something going on in Club NYC. Some events run on the city's clo
 :::cards
 - [Dance Jam](events/dance-jam.md) {icon:disco-ball} Every 8 minutes in Times Square. Dance for 20 seconds, earn 20 coins.
 - [Flash Mobs](events/flash-mobs.md) {icon:dancer} Start dancing anywhere, and the city joins in.
-- [House Parties](apartment/house-parties.md) {icon:party-popper} Your place, your playlist, your guests.
+- [House Parties](apartment/house-parties.md) {icon:party-popper} Your place, your vibe, your guests.
 - [Photo Booths](events/photo-booths.md) {icon:camera} Squeeze in with everyone nearby and save the strip.
 - [The Club NYC Times](events/club-nyc-times.md) {icon:newspaper} News, advice from the bodega cat, and this week's leaders.
 - [Seasonal Parties](events/seasonal-parties.md) {icon:pumpkin} The city throws a party now and then. Free costumes included.

@@ -140,3 +140,20 @@ export function todaysIpo(): Ipo {
 }
 
 export const fmt = (p: number) => (p >= 1000 ? Math.round(p).toLocaleString('en-US') : p.toFixed(2))
+
+/**
+ * The city's listings as the floor trades them: today's IPO and the class of the days before it, with where each one
+ * is now. One source for the Exchange's tape and the Big Board outside, so the two always agree.
+ */
+export function cityClass(days = 7): { ipo: Ipo; price: number; pct: number; today: boolean }[] {
+  const out: { ipo: Ipo; price: number; pct: number; today: boolean }[] = []
+  const t = ipoFor(0)
+  out.push({ ipo: t, price: t.price * (1 + t.pop / 100), pct: t.pop, today: true })
+  for (let d = 1; d <= days; d++) {
+    const p = ipoFor(d)
+    // last week's class has had time to settle: some held the pop, some gave it back
+    const move = Math.round(p.pop * (0.9 - (((d - 1) * 37 + p.sym.length * 13) % 10) / 6))
+    out.push({ ipo: p, price: p.price * (1 + move / 100), pct: move, today: false })
+  }
+  return out
+}

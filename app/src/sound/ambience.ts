@@ -36,7 +36,7 @@ const ROOM_AMBIENCE: Record<string, string | string[]> = {
   'the-met': 'museum',
   coffee: 'cafe',
   pizza: 'cafe',
-  'chelsea-market': 'cafe',
+  'chelsea-market': 'market',
   'toy-palace': 'shop',
   'saks-2': 'shop',
   'maison-malle': 'shop',

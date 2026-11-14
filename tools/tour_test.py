@@ -125,8 +125,26 @@ async def main():
         st = await pg.evaluate(CARD_STATE)
         check('Show Me for a job elsewhere takes you there and points at it', room == 'pizza' and st and st['title'] == 'Work a Shift' and not st['centered'], (room, st))
         if st:
-            await pg.locator('.tour-next').last.click()
-            await pg.wait_for_timeout(400)
+            # the lit-up thing is live: a click on it goes through (it's the oven, which starts the shift) and the
+            # pointer puts itself away; leaving the game before it ends is not a shift
+            h = await pg.evaluate("(() => { const r = document.querySelector('.tour-hole').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2] })()")
+            await pg.mouse.click(h[0], h[1])
+            try:
+                await pg.wait_for_selector('.game-shell .game-root *', timeout=12000)
+                started = True
+            except Exception:
+                started = False
+            check('a click on what Show Me lit up reaches it (the oven starts the shift)', started and not await pg.evaluate("!!document.querySelector('.tour:not(.out)')"))
+            if started:
+                await pg.wait_for_timeout(800)
+                await pg.keyboard.press('Escape')
+                await pg.wait_for_timeout(400)
+                await pg.keyboard.press('Escape')
+                await pg.wait_for_timeout(1200)
+                check('leaving a shift early is not a shift', not await pg.evaluate("Object.keys(clubNyc.save.stats).some((k) => k.startsWith('played:')) || !!clubNyc.save.quests.job"))
+            else:
+                await pg.locator('.tour-next').last.click()
+                await pg.wait_for_timeout(400)
 
         # ---------- a job: how to play first, the leaderboard after (on the results card) ----------
         await pg.evaluate("clubNyc.api.playGame('slice-factory')")
@@ -186,7 +204,8 @@ async def main():
         await pg.click('.help-btn')
         await pg.wait_for_selector('.tour-card', timeout=4000)
         t0 = await pg.evaluate(CARD_STATE)
-        check('the ? button replays the tour', t0 and 'Welcome to New York' in t0['title'], t0)
+        # a replay is a refresher: no day-one welcome card, straight to the four things
+        check('the ? button replays the tour without the day-one welcome', t0 and t0['title'].lower() == 'walk around', t0)
         await pg.keyboard.press('Escape')
         await pg.wait_for_timeout(400)
         check('Escape closes the tour', not await pg.evaluate("!!document.querySelector('.tour')"))

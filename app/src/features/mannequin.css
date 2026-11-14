@@ -22,3 +22,9 @@
 .mq-mirror span { margin-top: 5px; color: #6b4e1a; font: 400 var(--fs-sm)/1.2 var(--display); }
 .mq-mirror.pop { animation: mq-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1); }
 @keyframes mq-pop { 40% { transform: scale(1.06); } }
+
+/* a piece you clicked keeps its outline, and its tag takes clicks: the Buy / Wear button lives on it */
+.mq-piece.picked { fill: rgba(255, 224, 138, 0.14); stroke-opacity: 1; filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.95)); }
+.mq-tag.pick { pointer-events: auto; }
+.mq-tag .mq-buy { margin-top: 5px; align-self: stretch; justify-content: center; }
+.mq-tag .mq-buy img { width: 16px; height: 16px; vertical-align: -3px; }

@@ -29,18 +29,6 @@ const PLACES: Record<string, Place> = {
   chrysler: { art: 'chrysler', sound: () => cu.wind(), plate: '<b>11 months</b>The world’s tallest, 1930', dives: [{ name: 'Eagle', at: [366, 392], art: 'chrysler-eagle', plate: '<b>Steel eagles</b>Copied from a 1929 hood ornament', sound: () => (cu.wind(), setTimeout(() => sfx.coo(), 900)) }] },
   'little-italy': { art: 'little-italy', plate: '<b>Mulberry Street</b>San Gennaro, every September', dives: [{ name: 'Pastry Shop', at: [900, 330], art: 'little-italy-pastry', plate: '<b>Cannoli</b>Filled to order', sound: () => cu.bell() }] },
   'scale-model': { art: 'scale-model', plate: '<b>102 floors</b>73 elevators' },
-  // the old biscuit factory's chalkboard: what the hall sells, written on it; click a line to get it
-  'chelsea-board': {
-    art: 'chelsea-board',
-    sound: () => cu.chalk(),
-    plate: '<b>1912</b>A famous cookie was born here',
-    build(c, _g, acts) {
-      const rows: [string, string, string][] = [['Taco Loco', 'Al pastor', '3'], ['Bagel Bros', 'Scallion cream cheese', '2'], ['Donut Drop', 'With sprinkles', '2'], ['Lobster Pot', 'One roll', '30']]
-      const b = el('div', 'pl-chalk', `<h3>Chelsea Market</h3>` + rows.map(([n, what, p]) => `<button type="button" data-n="${n}"><b>${n}</b><span>${what}</span><i>${p}</i></button>`).join(''))
-      b.querySelectorAll<HTMLButtonElement>('button').forEach((r) => (r.onclick = () => (cu.chalk(), c.m.close(), acts[r.dataset.n!]?.())))
-      c.layer.append(b)
-    },
-  },
   // the slice shop's wall: your own signed photo hangs in the big frame
   'wall-of-fame': {
     art: 'wall-of-fame',

@@ -1,5 +1,7 @@
 import { market } from './market.ts'
 import { locks } from './locks.ts'
+import { phone } from './phone.ts'
+import { community } from './community.ts'
 import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -65,6 +67,8 @@ app.route('/api/launch', launch)
 app.route('/api/admin', admin)
 app.route('/api/market', market)
 app.route('/api/locks', locks)
+app.route('/api/phone', phone)
+app.route('/api/community', community)
 app.route('/api', api)
 // Railway's health check (and any uptime monitor): 503 while the database is unreachable or we're shutting down
 app.get('/api/health', (c) => {
@@ -149,9 +153,9 @@ if (existsSync(config.staticDir)) {
     }
   })()
   app.get('/sitemap.xml', (c) => {
-    const urls = ['/', '/rules.html', '/privacy.html', '/terms.html', '/cookies.html', '/refunds.html', ...helpUrls]
+    const urls = ['/', '/community', '/rules.html', '/privacy.html', '/terms.html', '/cookies.html', '/refunds.html', ...helpUrls]
       .map((p) => {
-        const mtime = staticMtime(root, p === '/' ? '/index.html' : p.startsWith('/help') ? `${p}/index.html` : p)
+        const mtime = staticMtime(root, p === '/' ? '/index.html' : p === '/community' ? '/community.html' : p.startsWith('/help') ? `${p}/index.html` : p)
         return `  <url><loc>${abs(p)}</loc>${mtime ? `<lastmod>${new Date(mtime).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`
       })
       .join('\n')
@@ -167,6 +171,14 @@ if (existsSync(config.staticDir)) {
     return gamePage(c, withMeta(`${host || 'A friend'} invited you to ${def.title}`, `${p.players} of ${p.max} seats taken at ${def.place}. Make a New Yorker in 30 seconds and you’re in the game.`, def.art, abs(`/play?lobby=${p.code}`)), soon)
   })
   app.get('/play/', (c) => gamePage(c, game, soon))
+  // the community board: one page (community.html) for /community, /community/new and /community/post/<id>; the
+  // page's script draws the right view, so every address works as a link
+  const communityFile = join(root, 'community.html')
+  if (existsSync(communityFile)) {
+    const communityHtml = fill(absolute(readFileSync(communityFile, 'utf8'), abs('/community')))
+    app.get('/community', (c) => c.html(communityHtml))
+    app.get('/community/*', (c) => c.html(communityHtml))
+  }
   app.get('/play.html', (c) => gamePage(c, game, soon))
   // Art goes out as WebP to browsers that take it (every current one), about a third of the bytes. tools/webp.py
   // writes "<file>.webp" next to each picture, and the game keeps asking for the .jpg / .png, so nothing else

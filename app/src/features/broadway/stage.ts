@@ -85,10 +85,9 @@ class Performer {
     this.view.face(d, false)
   }
   bow() {
-    this.view.setPose('idle')
-    this.wrap.classList.remove('bow')
-    void this.wrap.offsetWidth
-    this.wrap.classList.add('bow')
+    // a bow from the waist, drawn by the avatar itself (avatar/render.ts)
+    this.view.pose = 'idle'
+    this.view.setPose('bow')
   }
   update(now: number, dt: number) {
     const tw = this.tw

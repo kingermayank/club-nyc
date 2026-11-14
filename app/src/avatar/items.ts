@@ -383,7 +383,7 @@ const NECK: ItemDef[] = [
       draw: () => R(-16, -77, 32, 10, 5, col) + P('M 6 -70 L 14 -70 L 13 -48 L 5 -48 Z', col) + L(6, -53, 13, -53, stripe, 2) + L(6, -58, 13, -58, stripe, 2) + L(-10, -72, -10, -72, stripe, 0),
     }
   }),
-  { id: 'lanyard', name: 'MetroCard Lanyard', slot: 'neck', price: 6, shop: 'iloveny', draw: (c) => L(-8, -73, 0, -54, '#3f7fe8', 2) + L(8, -73, 0, -54, '#3f7fe8', 2) + (c.back ? '' : R(-6, -55, 12, 8, 1.5, '#ffcf1f', 1.6) + L(-4, -51, 4, -51, '#1f2d5c', 1.4)) },
+  { id: 'lanyard', name: 'Subway Card Lanyard', slot: 'neck', price: 6, shop: 'iloveny', draw: (c) => L(-8, -73, 0, -54, '#3f7fe8', 2) + L(8, -73, 0, -54, '#3f7fe8', 2) + (c.back ? '' : R(-6, -55, 12, 8, 1.5, '#ffcf1f', 1.6) + L(-4, -51, 4, -51, '#1f2d5c', 1.4)) },
 ]
 
 // ---------- in hand (drawn around the right hand at 0,0) ----------
@@ -408,10 +408,14 @@ const HAND: ItemDef[] = [
   { id: 'newspaper', name: 'Club NYC Times', slot: 'hand', price: 1, shop: 'street', draw: () => P('M -6 -10 L 14 -12 L 15 10 L -5 12 Z', '#f4f0e4') + L(-3, -6, 11, -7.5, O, 1.6) + L(-3, -2, 11, -3, '#8a8a8a', 1.2) + L(-3, 1, 11, 0, '#8a8a8a', 1.2) + L(-3, 4, 11, 3, '#8a8a8a', 1.2) },
   { id: 'gelato', name: 'Gelato Cone', slot: 'hand', price: 3, shop: 'street', draw: () => P('M -4 0 L 8 0 L 2 16 Z', '#e8b56b') + L(-1, 4, 5, 4, '#c98f45', 1.2) + C(2, -4, 6.5, '#9be3c3') + C(-1, -9, 4.5, '#ffb3d6') },
   { id: 'donut', name: 'Sprinkle Donut', slot: 'hand', price: 2, shop: 'street', draw: () => E(6, 0, 10, 8, '#e3a35c') + P('M -3 -2 C -2 -8 14 -8 15 -2 C 14 2 -2 2 -3 -2 Z', '#ff8fc7', 'stroke-width="1.6"') + E(6, -1, 3, 2.2, '#fff7ea', 1.6) + [[0, -4, '#3fd0ff'], [10, -5, '#ffd23f'], [12, -2, '#8cff6a'], [2, -1, '#b06bff']].map(([x, y, c]) => `<rect x="${x}" y="${y}" width="2.4" height="1" fill="${c}" transform="rotate(30 ${x} ${y})"/>`).join('') },
+  { id: 'taco', name: 'Adobada Taco', slot: 'hand', price: 3, shop: 'chelsea', draw: () => P('M -6 4 C -6 -10 16 -10 16 4 Z', '#e9c46a') + P('M -3 0 C -1 -7 11 -7 13 0 Z', '#c0452c', 'stroke-width="1.4"') + C(1, -3, 1.6, '#5cb83a', 1) + C(6, -5, 1.6, '#fff7ea', 1) + C(10, -3, 1.6, '#5cb83a', 1) },
+  { id: 'lobster-roll', name: 'Lobster Roll', slot: 'hand', price: 30, shop: 'chelsea', draw: () => P('M -7 6 L 17 6 L 14 12 L -4 12 Z', '#f4efe2', 'stroke-width="1.6"') + R(-6, -2, 22, 9, 4, '#e3a35c') + C(-1, -3, 3.4, '#e8503a', 1.4) + C(5, -4, 3.6, '#ff8f7a', 1.4) + C(11, -3, 3.4, '#e8503a', 1.4) },
+  { id: 'mini-donuts', name: 'Bag of Mini Doughnuts', slot: 'hand', price: 3, shop: 'chelsea', draw: () => E(1, -6, 4.6, 3.6, '#d9a05a', 1.6) + E(9, -7, 4.6, 3.6, '#c98b4a', 1.6) + P('M -5 -4 L 15 -4 L 13 14 L -3 14 Z', '#c79a5f') + L(-1, 2, 11, 2, '#a67a43', 1.4) },
+  { id: 'book', name: 'Postman Books Paperback', slot: 'hand', price: 5, shop: 'chelsea', draw: () => R(-5, -12, 18, 24, 2, '#8bc53f') + R(-5, -12, 4, 24, 1.5, '#6da02c', 1.4) + L(2, -5, 10, -5, '#fffaf0', 2) + L(2, 0, 8, 0, '#fffaf0', 1.6) },
   { id: 'dumplings', name: 'Dumpling Box', slot: 'hand', price: 3, shop: 'chinatown', draw: () => P('M -6 -2 L 16 -2 L 13 14 L -3 14 Z', '#ffffff') + P('M -2 -2 L 2 -10 L 12 -10 L 16 -2', 'none', 'stroke-width="2"') + Pn('M 0 6 L 12 6', 'none', `stroke="#d6303a" stroke-width="2"`) },
   { id: 'cocoa', name: 'Hot Cocoa', slot: 'hand', price: 3, shop: 'street', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#c0392b') + R(-7, -7, 14, 4, 2, '#f4f4f8', 1.6) + `<path d="M -2 -10 q 2 -4 0 -7 M 3 -10 q 2 -4 0 -7" fill="none" stroke="#fff" stroke-width="1.6" opacity=".8"/>` },
   // the real card's look: gold, the rising blue word, the black magnetic stripe near the bottom
-  { id: 'metrocard', name: 'MetroCard', slot: 'hand', price: 3, shop: 'subway', draw: () => R(-2, -6, 18, 11, 2, '#efc463', 2) + `<path d="M 0 -0.5 L 13 -4.4" stroke="#2459a8" stroke-width="2.4" stroke-linecap="round"/>` + R(-2, 1.4, 18, 2.4, 0, '#1f1f22', 0) },
+  { id: 'metrocard', name: 'Subway Card', slot: 'hand', price: 3, shop: 'subway', draw: () => R(-2, -6, 18, 11, 2, '#fecd01', 2) + R(-1, -5, 16, 2.6, 0, '#0a4fd6', 0) + R(-1, 1.4, 16, 2.6, 0, '#0a4fd6', 0) + R(4.6, -1.9, 4.8, 2.8, 1, '#0b1a55', 0) },
 ]
 
 // ---------- souvenirs: every shelf in the I ♥ NY shop has its own thing ----------
@@ -539,7 +543,7 @@ const SOHO: ItemDef[] = [
   { id: 'sup-box-tee', name: 'Box Logo Tee', slot: 'body', price: 240, shop: 'thread', top: { color: '#ffffff', sleeves: 'short', front: (c) => (c.back ? '' : boxLogo(c.fx * 0.3, -58, 24)) } },
   { id: 'sup-camp-cap', name: 'Camp Cap', slot: 'head', price: 120, shop: 'thread', draw: (c) => capDome('#16171c') + (c.back ? capRear('#3a3c46') : capBrim(c.fx, '#0e0f13') + boxLogo(c.fx, -124, 22)) + C(0, -147, 2.6, '#16171c', 1.6) },
   { id: 'sup-brick', name: 'THREAD Brick', slot: 'hand', price: 300, shop: 'thread', draw: () => R(-5, -4, 24, 11, 1.4, '#c43b2b') + T(7, 3.6, 5, 'THREAD', '#ffffff', 'font-weight="900"') },
-  { id: 'sup-oreos', name: 'THREAD Oreos', slot: 'hand', price: 40, shop: 'thread', draw: () => R(-4, -8, 21, 15, 2.4, '#16171c') + C(2, -8, 4.6, '#2b1d1a', 1.4) + C(10, -8, 4.6, '#2b1d1a', 1.4) + T(6.5, 2.5, 4.6, 'THREAD', '#ffffff', 'font-weight="900"') },
+  { id: 'sup-oreos', name: 'THREAD Cookies', slot: 'hand', price: 40, shop: 'thread', draw: () => R(-4, -8, 21, 15, 2.4, '#16171c') + C(2, -8, 4.6, '#2b1d1a', 1.4) + C(10, -8, 4.6, '#2b1d1a', 1.4) + T(6.5, 2.5, 4.6, 'THREAD', '#ffffff', 'font-weight="900"') },
   { id: 'sup-deck', name: 'THREAD Skate Deck', slot: 'hand', price: 180, shop: 'thread', draw: () => `<g transform="rotate(-70 6 0)">${R(-12, -4, 36, 9, 4.5, '#16171c')}${T(6, 2.4, 5, 'THREAD', '#ffffff', 'font-weight="900"')}</g>` },
   // Starducks Coffee: the green cup, and something to go with it
   { id: 'ralphs-coffee', name: 'Starducks Coffee', slot: 'hand', price: 4, shop: 'coffee', draw: () => P('M -6 -4 L 6 -4 L 5 12 L -5 12 Z', '#1d5c3c') + Pn('M -5.6 2 L 5.6 2 L 5.4 5.4 L -5.4 5.4 Z', '#f4efe2') + R(-7, -7, 14, 4, 2, '#f4efe2', 1.6) },
@@ -664,9 +668,23 @@ const PRETZELS: ItemDef[] = [
   { id: 'pretzel-everything', name: 'Everything Pretzel', slot: 'hand', price: 3, shop: 'street', draw: twist('#a9682a', speck([[-3, -2], [2, -9], [14, -9], [18, -1], [6, 8]], '#1d2140') + speck([[0, -7], [9, 2], [16, 4], [11, 8]], '#fff6e0')) },
   { id: 'pretzel-mustard', name: 'Pretzel with Mustard', slot: 'hand', price: 3, shop: 'street', draw: twist('#b9732f', `<path d="M -4 -1 q 3 -4 6 0 t 6 0 t 6 0 t 6 0" fill="none" stroke="#f6c514" stroke-width="2.2" stroke-linecap="round"/>`) },
 ]
-export const ITEMS: ItemDef[] = [...TOPS, ...BOTTOMS, ...SHOES, ...HATS, ...FACE, ...NECK, ...HAND, ...SOUVENIRS, ...PARTY, ...SOHO, ...VAULT, ...LUXE, ...BOUTIQUE, ...PRETZELS]
+// the High Line gelato cart's flavors (the two-scoop cone is 'gelato')
+const cone = (scoop: string, extra = '') => () =>
+  P('M -4 0 L 8 0 L 2 16 Z', '#e8b56b') + L(-1, 4, 5, 4, '#c98f45', 1.2) + L(0, 8, 4, 8, '#c98f45', 1.2) + C(2, -5, 7.5, scoop) + `<path d="M -2 -8 q 2 -3 5 -2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/>` + extra
+const GELATO: ItemDef[] = [
+  { id: 'gelato-pistachio', name: 'Pistachio Gelato', slot: 'hand', price: 3, shop: 'street', draw: cone('#a9d18e', speck([[-1, -3], [5, -6], [3, -1]], '#5f8f3e', 0.9)) },
+  { id: 'gelato-strawberry', name: 'Strawberry Gelato', slot: 'hand', price: 3, shop: 'street', draw: cone('#ff9fc0', speck([[-1, -4], [5, -3], [2, 0]], '#e0457b', 0.8)) },
+  { id: 'gelato-chocolate', name: 'Chocolate Gelato', slot: 'hand', price: 3, shop: 'street', draw: cone('#7a4a2b') },
+  { id: 'gelato-stracciatella', name: 'Stracciatella', slot: 'hand', price: 3, shop: 'street', draw: cone('#fff3dc', speck([[-2, -4], [4, -7], [6, -2], [1, 0], [2, -4]], '#4a2c17', 1)) },
+  { id: 'gelato-lemon', name: 'Lemon Sorbet', slot: 'hand', price: 3, shop: 'street', draw: cone('#ffe45c') },
+  { id: 'gelato-mango', name: 'Mango Sorbet', slot: 'hand', price: 3, shop: 'street', draw: cone('#ffa733') },
+]
+export const ITEMS: ItemDef[] = [...TOPS, ...BOTTOMS, ...SHOES, ...HATS, ...FACE, ...NECK, ...HAND, ...SOUVENIRS, ...PARTY, ...SOHO, ...VAULT, ...LUXE, ...BOUTIQUE, ...PRETZELS, ...GELATO]
 export const ITEM: Record<string, ItemDef> = Object.fromEntries(ITEMS.map((i) => [i.id, i]))
-export const STARTER_ITEMS = ITEMS.filter((i) => i.price === 0 && !i.reward).map((i) => i.id)
+// (the Vault's archive pairs are price 0 because they are never for sale: try-on only, nobody owns them)
+export const STARTER_ITEMS = ITEMS.filter((i) => i.price === 0 && !i.reward && i.shop !== 'vault').map((i) => i.id)
+/** archive grails that older saves were handed by mistake: taken back off the shelf when a save loads */
+export const NEVER_OWNED = ITEMS.filter((i) => i.price === 0 && i.shop === 'vault').map((i) => i.id)
 
 export const SHOPS: Record<string, { name: string; tagline: string }> = {
   iloveny: { name: 'I ♥ NY Souvenirs', tagline: 'Every tourist essential, priced to move' },

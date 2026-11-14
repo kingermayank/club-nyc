@@ -1,0 +1,32 @@
+/* The Vessel (moments/vessel.ts): spots you stand at, arrows to the next spot, rings on the things worth seeing */
+.vsl-spot { transition: none; }
+/* changing spots: a short dissolve that leans the way you went */
+.vsl-spot[class*='in-'] { animation: vsl-in 0.6s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+.vsl-spot.in-l { --vx: -40px; } .vsl-spot.in-r { --vx: 40px; } .vsl-spot.in-u { --vy: -30px; } .vsl-spot.in-d { --vy: 30px; }
+@keyframes vsl-in { from { opacity: 0; transform: translate(calc(-1 * var(--vx, 0px)), calc(-1 * var(--vy, 0px))) scale(1.06); } }
+.vsl-spot[class*='out-'] { pointer-events: none; animation: vsl-out 0.6s ease both; }
+.vsl-spot.out-l { --vx: 60px; } .vsl-spot.out-r { --vx: -60px; } .vsl-spot.out-u { --vy: 50px; } .vsl-spot.out-d { --vy: -50px; }
+@keyframes vsl-out { to { opacity: 0; transform: translate(var(--vx, 0px), var(--vy, 0px)) scale(0.96); } }
+
+/* where you are */
+.vsl-where { position: absolute; z-index: 10; left: 20px; top: 16px; padding: 6px 14px 7px; border: 3px solid var(--ink); border-radius: 12px; background: #fff; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font: 400 14px/1.1 var(--display); pointer-events: none; }
+.vsl-where b { display: block; font-size: 20px; font-weight: 400; }
+
+/* head somewhere: a green arrow with its name */
+.vsl-go { position: absolute; z-index: 6; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; padding: 7px 14px 7px 8px; border: 3px solid var(--ink); border-radius: 999px; background: linear-gradient(#7be07f, #37b24d); box-shadow: 0 4px 0 var(--ink); color: #fff; font: 400 17px/1 var(--display); text-shadow: 0 2px 0 #1f7a33; white-space: nowrap; cursor: pointer; }
+.vsl-go svg { width: 22px; height: 22px; flex: none; filter: drop-shadow(0 2px 0 #1f7a33); }
+.vsl-go.r { flex-direction: row-reverse; padding: 7px 8px 7px 14px; }
+.vsl-go.u, .vsl-go.d { padding: 7px 14px 7px 8px; }
+.vsl-go:hover { filter: brightness(1.07); transform: translate(-50%, calc(-50% - 2px)); }
+.vsl-go.l:hover svg { translate: -2px 0; } .vsl-go.r:hover svg { translate: 2px 0; }
+
+/* things to see: the close-up rings, a little smaller, quieter once looked at */
+.vsl-see i { width: 34px; height: 34px; }
+.vsl-see span { font-size: 14px; }
+.vsl-see.seen i { animation: none; opacity: 0.6; }
+
+/* the one line about what you're looking at */
+.vsl-line { position: absolute; z-index: 10; left: 50%; bottom: 20px; max-width: 620px; margin: 0; padding: 9px 18px; border: 3px solid #3a2a10; border-radius: 10px; background: linear-gradient(#f3d58a, #c9973a 55%, #a87722); box-shadow: 0 3px 0 #3a2a10; color: #3a2a10; font: 400 17px/1.25 var(--display); text-align: center; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45); transform: translate(-50%, 8px); opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s; }
+.vsl-line.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) { .vsl-spot[class*='in-'], .vsl-spot[class*='out-'] { animation: none; } }

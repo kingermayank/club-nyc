@@ -1,22 +1,25 @@
 /* ===== house parties ===== */
-/* the house-party panel (.wide); the Halloween party panels share .party-panel but keep the centred layout */
-.party-panel.wide { width: min(700px, 94%); max-height: calc(100% - 24px); text-align: left; }
-.party-panel.wide h2 { text-align: center; }
-.party-panel.wide h4 { margin: 12px 0 10px; font: var(--fs-base) var(--display); color: var(--blue-dark); }
-.pp-sub { text-align: center; margin: -4px 0 4px; font-size: var(--fs-sm); opacity: 0.8; }
-.pp-tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.pp-track { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 2.5px solid var(--ink); border-radius: 14px; background: #fff; text-align: left; transition: transform 0.1s; }
-.pp-track:hover { transform: translateY(-2px); }
-.pp-track.on { background: #fff1b8; box-shadow: 0 0 0 3px var(--sun); }
-.pp-track > span:last-child { min-width: 0; }
-.pp-track b { display: block; font: var(--fs-md)/1.2 var(--display); }
-.pp-track small { display: block; overflow: hidden; font-size: var(--fs-2xs); line-height: 1.3; white-space: nowrap; text-overflow: ellipsis; opacity: 0.7; }
-.pp-em { font-size: 24px; }
-.pp-themes, .pp-who { display: flex; flex-wrap: wrap; gap: 6px; }
-.pp-opt { display: flex; flex-direction: column; align-items: flex-start; padding: 6px 12px; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; font: var(--fs-md) var(--display); }
-.pp-opt small { font: var(--fs-2xs)/1.3 var(--body); opacity: 0.7; }
-.pp-opt.on { background: #e3f1ff; box-shadow: 0 0 0 3px var(--blue-light); }
-.pp-actions { display: flex; justify-content: center; gap: 10px; margin-top: 14px; }
+/* the house-party panel (.pp-compact): the song, three vibe tiles, a two-way guest switch, the button.
+   The Halloween party panels share .party-panel but keep their own layout. */
+.party-panel.pp-compact { width: min(440px, 92%); }
+.pp-compact h4 { margin: var(--sp-4) 0 var(--sp-2); font: var(--fs-base) var(--display); color: var(--blue-dark); text-align: left; }
+.pp-compact .pp-song { display: inline-flex; align-items: center; gap: var(--sp-2); max-width: 100%; margin: 0 0 var(--sp-1); padding: 5px 12px 5px 9px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; font-size: var(--fs-sm); line-height: 1.2; }
+.pp-song b { font: var(--fs-md) var(--display); white-space: nowrap; }
+.pp-song small { overflow: hidden; font-size: var(--fs-xs); white-space: nowrap; text-overflow: ellipsis; opacity: 0.7; }
+.pp-song .pc-eq { width: 16px; height: 14px; flex: none; }
+.pp-themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: var(--sp-2); }
+.pp-vibe { display: flex; flex-direction: column; align-items: center; gap: var(--sp-1); padding: 10px 6px 9px; border: 2.5px solid var(--ink); border-radius: 16px; background: #fff; box-shadow: 0 3px 0 var(--ink); transition: transform 0.1s; }
+.pp-vibe:hover { transform: translateY(-2px); }
+.pp-vibe b { font: var(--fs-md)/1.15 var(--display); }
+.pp-vibe-em { font-size: 28px; line-height: 1; transition: transform 0.15s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.pp-vibe.on { background: #fff1b8; box-shadow: 0 0 0 3px var(--sun), 0 3px 0 3px var(--ink); }
+.pp-vibe.on .pp-vibe-em { transform: scale(1.18) rotate(-6deg); }
+/* who's invited: one pill, two halves */
+.pp-who { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; border: 2.5px solid var(--ink); border-radius: 14px; background: #ece6d3; }
+.pp-seg { height: 36px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: var(--fs-md) var(--display); white-space: nowrap; opacity: 0.65; }
+.pp-seg:hover { opacity: 1; }
+.pp-seg.on { background: #fff; box-shadow: 0 2px 0 var(--ink); opacity: 1; }
+.pp-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 
 .party-fx { position: absolute; inset: 0; z-index: 9050; pointer-events: none; overflow: hidden; }
 .party-fx.theme-glow { background: radial-gradient(ellipse at 50% 0%, rgba(255, 190, 90, 0.18), transparent 60%); }
@@ -41,7 +44,7 @@
 .pf-neon { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); font: var(--fs-3xl) var(--display); color: #8bff9e; text-shadow: 0 0 6px #2bff6a, 0 0 18px #2bff6a, 0 0 2px #fff; animation: pf-flicker 2.4s steps(1) infinite; }
 @keyframes pf-flicker { 0%, 100% { opacity: 1; } 47% { opacity: 1; } 48% { opacity: 0.3; } 50% { opacity: 1; } 72% { opacity: 0.6; } 73% { opacity: 1; } }
 
-.party-chip { position: absolute; left: 12px; bottom: 74px; z-index: 9260; display: flex; align-items: center; gap: 8px; max-width: 290px; padding: 6px 12px 6px 8px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--paper); box-shadow: 0 3px 0 var(--ink); text-align: left; }
+.party-chip { position: absolute; left: 50%; translate: -50% 0; bottom: 74px; z-index: 9260; display: flex; align-items: center; gap: 8px; max-width: 290px; padding: 6px 12px 6px 8px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--paper); box-shadow: 0 3px 0 var(--ink); text-align: left; }
 .party-chip b { display: block; font: var(--fs-sm) var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .party-chip small { font-size: var(--fs-2xs); opacity: 0.75; }
 .pc-eq { display: flex; align-items: flex-end; gap: 2px; width: 20px; height: 18px; }

@@ -4,6 +4,7 @@ import { ITEM } from '../avatar/items'
 import { avatarPortrait } from '../avatar/render'
 import { el } from '../engine/stage'
 import { save } from '../state'
+import TRACED from '../data/mannequins.json'
 import type { Game } from '../types'
 import { closeUp } from './moments/closeup'
 import { sparks } from './moments/kit'
@@ -11,56 +12,17 @@ import { sparks } from './moments/kit'
 /**
  * A boutique mannequin, up close (art/closeups/<id>.jpg). Every piece it wears is for sale: point at the hat, the
  * shades, the coat, the bag, and it glows along its own outline with a price tag; your New Yorker tries it on in the
- * mirror in the corner; click it to buy (or, if it's yours already, to put it on).
+ * mirror in the corner; click it to pick it, and its tag grows a Buy button (or Wear, if it's yours already).
  */
 type Pt = [number, number]
-interface Piece { item: string; pts: Pt[] }
+/** `d` is the piece's own outline, traced from the painting (tools/mannequin_trace.py); `box` is its bounds */
+interface Piece { item: string; d: string; box: [number, number, number, number] }
 interface Look { art: string; pieces: Piece[] }
 
 /** pieces later in the list sit on top (the shades over the hat, the bag over the coat) */
-const LOOKS: Record<string, Look> = {
-  'maison-1': {
-    art: 'maison-mannequin-1',
-    pieces: [
-      { item: 'midnight-gown', pts: [[392, 168], [438, 150], [522, 150], [568, 172], [598, 318], [622, 515], [365, 515], [378, 330]] },
-      { item: 'wide-brim', pts: [[342, 92], [380, 62], [420, 14], [500, 2], [560, 22], [600, 62], [620, 92], [560, 110], [430, 112]] },
-      { item: 'cat-eye', pts: [[428, 78], [532, 74], [528, 102], [432, 104]] },
-      { item: 'diamond-choker', pts: [[452, 144], [508, 144], [506, 166], [454, 166]] },
-      { item: 'gold-clutch', pts: [[560, 308], [624, 314], [622, 354], [556, 346]] },
-    ],
-  },
-  'maison-2': {
-    art: 'maison-mannequin-2',
-    pieces: [
-      { item: 'camel-coat', pts: [[396, 136], [448, 124], [530, 124], [586, 146], [612, 330], [585, 490], [370, 490], [350, 330]] },
-      { item: 'fedora', pts: [[392, 52], [420, 8], [470, 0], [530, 6], [556, 46], [568, 60], [480, 78], [394, 64]] },
-      { item: 'aviators', pts: [[430, 66], [534, 66], [530, 100], [432, 100]] },
-      { item: 'silk-scarf', pts: [[452, 122], [526, 122], [522, 152], [510, 246], [490, 246], [470, 160]] },
-      { item: 'monogram-tote', pts: [[540, 270], [590, 262], [612, 330], [646, 470], [540, 470]] },
-    ],
-  },
-  'maison-3': {
-    art: 'maison-mannequin-3',
-    pieces: [
-      { item: 'tweed-jacket', pts: [[395, 142], [452, 130], [520, 130], [575, 148], [612, 290], [598, 316], [362, 316], [355, 290]] },
-      { item: 'pillbox', pts: [[430, 18], [462, 4], [500, 4], [528, 20], [524, 58], [432, 58]] },
-      { item: 'pearls', pts: [[448, 128], [526, 128], [522, 160], [452, 160]] },
-      { item: 'mini-trunk', pts: [[560, 340], [602, 332], [652, 360], [648, 438], [562, 438]] },
-    ],
-  },
-  thread: {
-    art: 'thread-mannequin',
-    pieces: [
-      { item: 'windbreaker', pts: [[380, 120], [450, 108], [530, 108], [600, 128], [640, 330], [610, 362], [360, 362], [334, 330]] },
-      { item: 'bucket-hat', pts: [[414, 92], [436, 20], [470, 2], [520, 2], [548, 22], [562, 92], [490, 100]] },
-      { item: 'sport-shades', pts: [[440, 60], [538, 60], [534, 88], [444, 88]] },
-      { item: 'silver-chain', pts: [[450, 128], [526, 128], [520, 168], [456, 168]] },
-      { item: 'sling-bag', pts: [[512, 296], [586, 296], [594, 372], [510, 372]] },
-    ],
-  },
-}
+const LOOKS = TRACED as unknown as Record<string, Look>
 
-const centroid = (pts: Pt[]): Pt => [pts.reduce((a, p) => a + p[0], 0) / pts.length, pts.reduce((a, p) => a + p[1], 0) / pts.length]
+const centre = (p: Piece): Pt => [(p.box[0] + p.box[2]) / 2, (p.box[1] + p.box[3]) / 2]
 
 export function mannequin(g: Game, id: string) {
   const look = LOOKS[id]
@@ -87,50 +49,99 @@ export function mannequin(g: Game, id: string) {
 
   const owned = (item: string) => save.owned.includes(item)
   const wearing = (item: string) => save.look.items[ITEM[item].slot] === item
+  /** the piece you clicked: its tag stays up with a Buy (or Wear) button. Buying is its own click, never the first one. */
+  let picked: Piece | null = null
+  const polys = new Map<Piece, SVGPathElement>()
   const showTag = (p: Piece) => {
     const def = ITEM[p.item]
-    const [cx] = centroid(p.pts)
-    const top = Math.min(...p.pts.map((q) => q[1]))
+    const [cx] = centre(p)
+    const top = p.box[1]
     const right = cx > 500
     const state = wearing(p.item) ? '<em class="on">Wearing</em>' : owned(p.item) ? '<em class="have">Yours</em>' : `<em><img src="/art/icons/coin.png" alt="">${def.price}</em>`
-    tag.innerHTML = `<b>${def.name}</b>${state}`
+    // (picked and not yours yet: the price is on the Buy button)
+    tag.innerHTML = `<b>${def.name}</b>${p === picked && !owned(p.item) ? '' : state}`
     // beside the piece, on the side with room
-    const x = right ? Math.max(...p.pts.map((q) => q[0])) + 14 : Math.min(...p.pts.map((q) => q[0])) - 14
+    const x = right ? p.box[2] + 14 : p.box[0] - 14
     tag.style.cssText = `left:${x}px;top:${Math.max(16, top + 4)}px`
     tag.classList.toggle('left', !right)
+    tag.classList.toggle('pick', p === picked)
     tag.hidden = false
+    if (p !== picked || wearing(p.item)) return
+    const btn = el('button', 'btn small go mq-buy', owned(p.item) ? 'Wear' : `Buy <img src="/art/icons/coin.png" alt=""> ${def.price}`) as HTMLButtonElement
+    btn.type = 'button'
+    btn.onclick = (e) => {
+      e.stopPropagation()
+      void take(p, btn)
+    }
+    tag.append(btn)
   }
+  const take = async (p: Piece, btn: HTMLButtonElement) => {
+    const item = p.item
+    const def = ITEM[item]
+    if (!owned(item)) {
+      if (save.coins < def.price) return g.toast('Not enough coins. Try a job around town!', '🪙')
+      btn.disabled = true
+      if (!(await g.buy(item))) return void (btn.disabled = false)
+      sfx.register()
+      sparks(c.m, centre(p), 10, '#ffe08a')
+      polys.get(p)?.classList.add('bought')
+      g.toast(`Bought ${def.name}!`, '🛍️')
+    } else {
+      sfx.pop()
+      g.toast(`Wearing ${def.name}`, '✨')
+    }
+    g.wear(item)
+    showTag(p)
+    tryOn()
+    mirror.classList.remove('pop')
+    void mirror.offsetWidth
+    mirror.classList.add('pop')
+  }
+  const pick = (p: Piece | null) => {
+    picked = p
+    for (const [q, poly] of polys) poly.classList.toggle('picked', q === p)
+    if (p) {
+      showTag(p)
+      tryOn(p.item)
+    } else {
+      tag.hidden = true
+      tryOn()
+    }
+  }
+  // a click on the picture (not on a piece or its tag) puts the piece back
+  layer.addEventListener('click', (e) => {
+    if (picked && !(e.target as Element).closest('.mq-piece, .mq-tag')) pick(null)
+  })
 
   for (const p of look.pieces) {
     if (!ITEM[p.item]) continue
-    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-    poly.setAttribute('points', p.pts.map((q) => q.join(',')).join(' '))
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    poly.setAttribute('d', p.d)
+    poly.setAttribute('fill-rule', 'evenodd')
     poly.classList.add('mq-piece')
     poly.dataset.item = p.item
     svg.append(poly)
+    polys.set(p, poly)
     poly.onpointerenter = () => {
+      if (p === picked) return
       sfx.tick()
       showTag(p)
       tryOn(p.item)
     }
     poly.onpointerleave = () => {
-      tag.hidden = true
-      tryOn()
+      if (p === picked) return
+      // back to the piece you picked, if there is one
+      if (picked) {
+        showTag(picked)
+        tryOn(picked.item)
+      } else {
+        tag.hidden = true
+        tryOn()
+      }
     }
-    poly.onclick = async () => {
-      const item = p.item
-      if (!owned(item)) {
-        if (!(await g.buy(item))) return
-        sfx.register()
-        sparks(c.m, centroid(p.pts), 10, '#ffe08a')
-        poly.classList.add('bought')
-      } else sfx.pop()
-      g.wear(item)
-      showTag(p)
-      tryOn()
-      mirror.classList.remove('pop')
-      void mirror.offsetWidth
-      mirror.classList.add('pop')
+    poly.onclick = () => {
+      sfx.click()
+      pick(p)
     }
   }
 }

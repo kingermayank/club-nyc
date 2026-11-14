@@ -10,7 +10,7 @@ import { hash } from '../social/rng'
 import type { Look } from '../avatar/look'
 import type { Game } from '../types'
 import type { Pt } from '../geometry'
-import { todaysIpo, loadMarket } from '../data/ipos'
+import { todaysIpo, loadMarket, cityClass } from '../data/ipos'
 
 /**
  * Lower Manhattan: Wall Street (The Bull, the Big Board of tech stocks, a broker who only speaks in stock jargon),
@@ -46,28 +46,26 @@ export function quadMatrix(w: number, h: number, q: [Pt, Pt, Pt, Pt]): string {
 }
 
 // ---------- Wall Street: the Big Board ----------
-interface Tick { sym: string; name: string; price: number; move: number }
+interface Tick { sym: string; name: string; price: number; move: number; logo?: string; icon?: string; color?: string }
 /**
- * The companies the startup world won't stop talking about (the AI labs, the IPO class of 2025 and 2026) and the
- * rent. Prices are made up and in Club NYC coins, never dollars: it's a joke board, not a quote.
+ * The same companies the Exchange trades inside (data/ipos.ts cityClass: today's IPO and the past week's class), at
+ * the same prices, ticking a little, plus two board regulars that are jokes, not companies: GPUs and the rent.
+ * Prices are in Club NYC coins, never dollars.
  */
 function market(): Tick[] {
-  const t = (sym: string, name: string, base: number, spread: number): Tick => {
-    const price = Math.round((base + (Math.random() - 0.5) * spread) * 100) / 100
-    return { sym, name, price, move: Math.round((price - base) * 100) / 100 || 0.01 }
-  }
+  const jiggle = (v: number) => Math.round(v * (1 + (Math.random() - 0.5) * 0.02) * 100) / 100
+  const city = cityClass(7).map(({ ipo, price, pct }): Tick => {
+    const now = jiggle(price)
+    const open = ipo.price
+    return { sym: ipo.sym, name: ipo.name, price: now, move: Math.round((now - open) * 100) / 100 || (pct >= 0 ? 0.01 : -0.01), logo: ipo.logo, icon: ipo.icon, color: ipo.color }
+  })
+  const rentBase = 3450
+  const rent = jiggle(rentBase + 120)
   return [
-    t('AI', 'The whole AI trade', 100, 24),
-    t('ANTHRPC', 'Anthropic', 420, 60),
-    t('OPENAI', 'OpenAI', 850, 90),
-    t('RAMP', 'Ramp', 32, 6),
-    t('SPACEX', 'SpaceX', 750, 120),
-    t('FIGMA', 'Figma', 38, 10),
-    t('CRWV', 'CoreWeave', 110, 30),
-    t('KLARNA', 'Klarna', 36, 8),
-    t('GPU', 'GPUs in stock', 0, 0),
-    t('RENT', 'Studio, monthly', 3450, 260),
-  ].map((x) => (x.sym === 'GPU' ? { ...x, price: 0, move: -0.01 } : x.sym === 'RENT' ? { ...x, move: Math.abs(x.move) } : x))
+    ...city,
+    { sym: 'GPU', name: 'GPUs in stock', price: 0, move: -0.01, icon: 'joystick', color: '#5b6475' },
+    { sym: 'RENT', name: 'Studio, monthly', price: rent, move: Math.abs(rent - rentBase), icon: 'key', color: '#e5483b' },
+  ]
 }
 const money = (t: Tick) => (t.price >= 1000 ? Math.round(t.price).toLocaleString('en-US') : t.price.toFixed(2))
 const arrow = (m: number) => (m >= 0 ? '▲' : '▼')
@@ -93,26 +91,17 @@ function mountTicker(scene: HTMLElement) {
   return () => clearInterval(timer)
 }
 
-/**
- * Each row's emblem: one of our own city icons on a colored coin, a nod to what the company does. Never the
- * company's real logo (those are their trademarks; the board is a parody).
- */
-const EMBLEM: Record<string, [icon: string, color: string]> = {
-  AI: ['sparkles', '#7b5cff'], ANTHRPC: ['idea', '#d9774b'], OPENAI: ['chat', '#2fa98c'], RAMP: ['tag', '#d8c22f'],
-  SPACEX: ['moon', '#3c4a7a'], FIGMA: ['palette', '#e0559a'], CRWV: ['construction', '#3f7fe8'], KLARNA: ['shopping-bag', '#f2a7c3'],
-  GPU: ['joystick', '#5b6475'], RENT: ['key', '#e5483b'],
-}
 /** the news crawl across the top of the card (a few at a time, so it reads fresh) */
 const HEADLINES = [
   'Every company on this board is an AI company now. Even the rent.',
-  'Another AI lab raised another round this morning. The bodega cat is still not taking meetings.',
-  'SpaceX went public and went to space. Rent still went up more.',
-  'Figma went public. The logo is still in review.',
-  'Ramp expensed the ticker tape. And the pretzel.',
+  'Pigeon AI trained its model on crumbs. Analysts say the crumbs are undervalued.',
+  'OpenBagel goes open source. Everything seasoning, no schmear.',
+  'Pizza Rat Ventures carried a whole slice down the subway stairs. Strong buy.',
   'GPUs in stock: zero. Same as yesterday. Strong buy.',
-  'Klarna lets you pay for this headline in four installments.',
+  'Brownstone Bank adds a stoop. Deposits up.',
+  'Yellowcab Autonomous drives itself. Still honks.',
   'Analysts upgrade pigeons to Strong Buy. Pigeons upgrade analysts to Bread Source.',
-  'CoreWeave sells shovels. Everyone else is digging.',
+  'The rent went up again. It is not on any exchange. It does not need one.',
 ]
 /** a tile's line chart of its last prices */
 const spark = (h: number[]) => {
@@ -137,9 +126,12 @@ export function bigBoard() {
   const clock = () => new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' })
   let best = save.stats[BEST] ?? 0
   const tile = (t: Tick, i: number) => {
-    const [icon, color] = EMBLEM[t.sym] ?? ['coin', '#7b5cff']
+    // the company's own app-icon logo (the tech class), or one of the city's icons on its colour
+    const logo = t.logo
+      ? `<i class="wsb-logo tile"><img src="${t.logo}" alt="" draggable="false"></i>`
+      : `<i class="wsb-logo" style="--c:${t.color ?? '#7b5cff'}"><img src="/art/icons/e/${t.icon ?? 'coin'}.png" alt="" draggable="false"></i>`
     return `<button class="wsb-tile" type="button" role="option" aria-selected="false" data-i="${i}">
-        <span class="wsb-top"><i class="wsb-logo" style="--c:${color}"><img src="/art/icons/e/${icon}.png" alt="" draggable="false"></i><b>${t.sym}</b></span>
+        <span class="wsb-top">${logo}<b>${t.sym}</b></span>
         <span class="wsb-name">${t.name}</span>
         <span class="wsb-price"></span>
         <span class="wsb-tag"></span>
@@ -322,6 +314,8 @@ function spawnBrad() {
   // a local the room runs by hand: the city's routine doesn't move him, and every word out of him is jargon
   a.mob = true
   a.setTag('BullMarketBrad')
+  // his card (features/playerCard.ts) says who he is instead of a locked "Not friends yet" door
+  ;(a as Actor & { blurb?: string }).blurb = 'Only speaks stock jargon.'
   const plain = a.say.bind(a)
   a.say = (_text: string, ms?: number) => plain(pick(JARGON), ms)
   world.npcs.push(a)

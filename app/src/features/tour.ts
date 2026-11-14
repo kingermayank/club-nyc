@@ -1,7 +1,7 @@
 import { sfx } from '../audio'
 import { save, persist } from '../state'
 import { stage, el } from '../engine/stage'
-import { world } from '../engine/world'
+import { world, depthScale } from '../engine/world'
 import { ui } from '../engine/ui'
 import type { Pt } from '../geometry'
 import { avatarPortrait } from '../avatar/render'
@@ -29,6 +29,9 @@ interface Step {
   text: string
   /** the player can act during this step (clicks pass through); resolves when they've done it */
   doIt?: () => boolean
+  /** a "Show me" pointer: a click on the lit-up thing reaches it (and puts the pointer away); the dimmed city around
+   * it still takes no clicks (one there just puts the pointer away) */
+  through?: boolean
   /** button labels for the first and last cards */
   next?: string
   skip?: string
@@ -85,7 +88,7 @@ function groundSpot(): Pt | null {
   return null
 }
 
-function steps(): Step[] {
+function steps(replay = false): Step[] {
   const from = world.player ? [...world.player.pos] : [0, 0]
   // Five cards, no more: a welcome, then four things to know. Everything else the city teaches as you go (the
   // first-day list, "Show me", hover labels).
@@ -121,6 +124,8 @@ function steps(): Step[] {
       next: 'Let’s Go!',
     },
   ]
+  // a replay (the ? button, Phone > How to Play) is a refresher: no day-one welcome, straight to the four things
+  if (replay) list.shift()
   // skip spots that aren't on screen (e.g. a room with nothing to click)
   return list.filter((s) => !s.target || visible(s.target()))
 }
@@ -163,13 +168,49 @@ function cardSpot(b: { x: number; y: number; w: number; h: number }, pad: number
   return inside.sort((p, q) => overlap(p) - overlap(q))[0]
 }
 
+/** A point on screen (client px) that's surely on a target: for a prop, a solid bit of its drawing near the middle
+ * with nobody standing in front of it; for anything else, its middle. */
+function aimAt(t: Element | Rect4): [number, number] {
+  const root = stage.root.getBoundingClientRect()
+  const k = stage.scale || 1
+  const client = (x: number, y: number): [number, number] => [root.left + x * k, root.top + y * k]
+  const b = boxOf(t)
+  const mid: Pt = [b.x + b.w / 2, b.y + b.h / 2]
+  const hit = world.hits.find((h) => (Array.isArray(t) ? h.rect === t : h.img === t))
+  if (!hit) return client(mid[0], mid[1])
+  // someone standing in front takes the click (people come first in the city's hit test)
+  const behindSomeone = (p: Pt) =>
+    world.npcs.some((a) => {
+      const sc = depthScale(a.pos[1])
+      return !a.leaving && Math.abs(p[0] - a.pos[0]) < 24 * sc && p[1] > a.pos[1] - 114 * sc && p[1] < a.pos[1] + 26 * sc
+    })
+  const [x1, y1, x2, y2] = hit.rect
+  const al = hit.kind === 'cutout' ? hit.alpha : undefined
+  const solid = (ax: number, ay: number) => !al || (ax >= 0 && ay >= 0 && ax < al.w && ay < al.h && al.data[(ay * al.w + ax) * 4 + 3] > 60)
+  const cols = al?.w ?? 24, rows = al?.h ?? 24
+  let best: Pt | null = null, bestD = Infinity
+  for (let ay = 2; ay < rows - 2; ay += 2)
+    for (let ax = 2; ax < cols - 2; ax += 2) {
+      // solid here and a couple of pixels either side (not a hairline edge)
+      if (!solid(ax, ay) || !solid(ax - 2, ay) || !solid(ax + 2, ay) || !solid(ax, ay - 2) || !solid(ax, ay + 2)) continue
+      const p: Pt = [x1 + ((ax + 0.5) / cols) * (x2 - x1), y1 + ((ay + 0.5) / rows) * (y2 - y1)]
+      const d = Math.hypot(p[0] - mid[0], p[1] - mid[1])
+      if (d >= bestD || behindSomeone(p)) continue
+      best = p
+      bestD = d
+    }
+  const p = best ?? mid
+  return client(p[0], p[1])
+}
+
 let active: { close: () => void } | null = null
 export const tourOpen = () => !!active
 
 /** One spotlight + card. Resolves with how the card was left. */
 function showCard(step: Step, index: number, count: number): Promise<'next' | 'back' | 'skip'> {
   return new Promise((resolve) => {
-    const layer = el('div', 'tour' + (step.doIt ? ' tour-try' : ''))
+    const through = !!step.through && !step.doIt
+    const layer = el('div', 'tour' + (step.doIt ? ' tour-try' : through ? ' tour-point' : ''))
     const hole = el('div', 'tour-hole')
     // four dim panels around the spotlight (a giant box-shadow isn't painted reliably everywhere)
     const dims = [0, 1, 2, 3].map(() => el('div', 'tour-dim'))
@@ -264,6 +305,28 @@ function showCard(step: Step, index: number, count: number): Promise<'next' | 'b
     })
     // clicks on the dimmed city do nothing during an explain step (in a "try it" step they reach the city)
     for (const ev of ['pointerdown', 'mousedown', 'click']) layer.addEventListener(ev, (e) => e.stopPropagation())
+    if (through) {
+      // "Show me": the lit-up thing is live (the layer lets the pointer through: see .tour-point in style.css). A
+      // click anywhere inside the yellow ring counts as a click on the thing itself, so it's passed on to a spot
+      // that's surely on it (a prop's drawing can have see-through parts, like the mouth of the pizza oven, and the
+      // ring is a little bigger than the thing), and the pointer puts itself away. A click on the dimmed city just
+      // puts the pointer away.
+      const onClick = (e: MouseEvent) => {
+        if (!e.isTrusted || layer.classList.contains('tour-center') || card.contains(e.target as Node)) return
+        const h = hole.getBoundingClientRect()
+        if (e.clientX < h.left || e.clientX > h.right || e.clientY < h.top || e.clientY > h.bottom) return
+        const t = step.target?.()
+        const at = t && visible(t) ? aimAt(t) : null
+        finish('next')
+        if (!at) return
+        e.stopPropagation()
+        e.preventDefault()
+        document.elementFromPoint(at[0], at[1])?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window, clientX: at[0], clientY: at[1] }))
+      }
+      window.addEventListener('click', onClick, true)
+      layer.addEventListener('remove-keys', () => window.removeEventListener('click', onClick, true))
+      for (const d of dims) d.addEventListener('click', () => finish('next'))
+    }
     // keyboard: → / Enter next, ← back, Esc skip; other game keys wait until the card is closed
     // (while a panel is open the tour steps aside, and the keys belong to the panel)
     const onKey = (e: KeyboardEvent) => {
@@ -284,12 +347,13 @@ function showCard(step: Step, index: number, count: number): Promise<'next' | 'b
 export async function startTour(): Promise<void> {
   if (active) return
   world.player?.hush() // Rosa's talking now (your hello would peek out from under her card)
-  const list = steps()
+  // 'offered' only means the invitation was shown: Rosa hasn't walked them round yet
+  const list = steps(save.tour === 'done' || save.tour === 'skipped')
   let i = 0
   while (i < list.length) {
     const how = await showCard(list[i], i, list.length)
     if (how === 'skip') {
-      save.tour = save.tour || 'skipped'
+      if (save.tour !== 'done') save.tour = 'skipped'
       break
     }
     i = how === 'back' ? Math.max(0, i - 1) : i + 1
@@ -301,7 +365,7 @@ export async function startTour(): Promise<void> {
 /** A one-off spotlight ("Show me" on a checklist item). Falls back to a centred card when the thing isn't on screen. */
 export async function pointAt(target: Target | undefined, title: string, text: string, action?: Step['action'], extra: Partial<Step> = {}): Promise<void> {
   active?.close()
-  await showCard({ target, title, text, next: 'Got It', action, ...extra }, 0, 1)
+  await showCard({ target, title, text, next: 'Got It', action, through: true, ...extra }, 0, 1)
 }
 
 /** "Show me" for walking: you and a glowing spot on the ground to click (never "click yourself") */

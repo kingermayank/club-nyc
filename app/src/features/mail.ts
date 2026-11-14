@@ -6,6 +6,9 @@ import { goto, world } from '../engine/world'
 import { jamState } from '../data/jam'
 
 /**
+ * Not mounted (2026-11-14): the envelope and its postcards were taken out of the HUD at the user's request. Kept for
+ * a possible Mail app on the iFruit phone; nothing imports it now.
+ *
  * Penguin mail, Club NYC style: a postcard inbox for the city's own messages (welcome, first paycheck,
  * Dance Jam invites). Calmer than a toast: it waits on your desk until you look, and invites carry a
  * "Go there!" button. Saved with the rest of your progress; the newest 30 are kept.
@@ -38,6 +41,8 @@ function badge() {
   const c = button.querySelector<HTMLElement>('.mail-count')!
   c.textContent = n ? String(n) : ''
   button.classList.toggle('unread', n > 0)
+  // the name says what the button shows (the count)
+  button.setAttribute('aria-label', n ? `Postcards, ${n} unread` : 'Postcards')
 }
 
 /** the envelope for the top-left HUD corner */

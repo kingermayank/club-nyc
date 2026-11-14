@@ -99,11 +99,11 @@
 .mp-reacts .mp-r img.ji { width: 22px; height: 22px; margin: 0; vertical-align: 0; }
 .mp-reacts .mp-p { display: inline-flex; align-items: center; min-height: 30px; padding: 0 10px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; font: var(--fs-sm) var(--display); }
 .mp-reacts .mp-r:hover, .mp-reacts .mp-p:hover { background: #fff3c4; }
-.mp-side { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.mp-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding-bottom: 6px; }
 .mp-how { padding: 10px 12px; }
 /* the lobby's how-to: the card's tiles, smaller */
 .mp-how .gc-how { padding: 2px 0 0; gap: 8px; }
-.mp-how .gc-scene { height: 52px; border-width: 2.5px; border-radius: 10px; }
+.mp-how .gc-scene { height: 44px; border-width: 2.5px; border-radius: 10px; }
 .mp-how .gc-scene .pose-pic { width: 30px; height: 40px; margin-left: -15px; bottom: 4px; }
 .mp-how .gc-bike-wrap { scale: 0.66; transform-origin: 50% 100%; }
 .mp-how .gc-scene img:not(.gc-bike) { scale: 0.75; }
@@ -113,19 +113,27 @@
 .mp-how .gc-key.wide { min-width: 54px; font-size: var(--fs-2xs); }
 .mp-how .gc-tile > b { font-size: var(--fs-xs); }
 .mp-how h4, .mp-set h4 { margin: 0 0 6px; font: var(--fs-base) var(--display); color: var(--blue-dark); }
-.mp-set h4 { margin-bottom: 10px; }
+.mp-set h4 { margin-bottom: 4px; }
 .mp-hint kbd { opacity: 1; margin: 0 1px; padding: 2px 5px 0; border: 2px solid var(--ink); border-radius: 6px; background: #fff; font: var(--fs-2xs) var(--display); line-height: calc(1.5em - 2px); }
-.mp-set { padding: 10px 14px 12px; }
+.mp-set { padding: 10px 14px 8px; }
+/* a setting: label left, switch right */
+.mp-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 30px; padding: 0 2px; border: 0; border-top: 2px solid rgba(29, 33, 64, 0.08); background: none; color: var(--ink); font: var(--fs-sm) var(--display); text-align: left; cursor: pointer; }
+.mp-toggle:first-of-type { border-top: 0; }
+.mp-toggle:disabled { cursor: default; opacity: 0.55; }
+.mp-switch { position: relative; flex: none; width: 46px; height: 26px; border: 2.5px solid var(--ink); border-radius: 999px; background: #c9d2e4; transition: background 0.18s; }
+.mp-switch i { position: absolute; left: 2px; top: 50%; width: 18px; height: 18px; margin-top: -9px; border: 2px solid var(--ink); border-radius: 50%; background: #fff; transition: transform 0.18s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.mp-toggle.on .mp-switch { background: #4cc46a; }
+.mp-toggle.on .mp-switch i { transform: translateX(19px); }
 .mp-seg { display: flex; margin-bottom: 6px; border: 2.5px solid var(--ink); border-radius: 10px; overflow: hidden; }
 .mp-seg button { flex: 1; min-height: 28px; padding: 0 6px; border: 0; border-right: 2px solid var(--ink); background: #eef4ff; font: var(--fs-xs) var(--display); }
 .mp-seg button:last-child { border-right: 0; }
 .mp-seg button.on { background: var(--sun); }
 .mp-seg button:disabled { cursor: default; opacity: 0.55; }
 .mp-setline { font-size: var(--fs-xs); line-height: 1.35; opacity: 0.85; }
-.mp-go { padding: 12px 14px 14px; margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.mp-go { padding: 10px 12px 12px; margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
 .mp-status { font: var(--fs-lg) var(--display); text-align: center; line-height: 1.2; }
 .mp-status small { display: block; margin-top: 3px; font: var(--fs-xs) var(--body); opacity: 0.8; }
-.mp-go .btn.big { width: 100%; font-size: var(--fs-2xl); min-height: 50px; flex-direction: row; gap: 8px; }
+.mp-go .btn.big { width: 100%; font-size: var(--fs-2xl); min-height: 46px; flex-direction: row; gap: 8px; }
 .mp-go .btn.big kbd { font-size: var(--fs-2xs); text-shadow: none; }
 .mp-go .mp-row { display: flex; gap: 6px; }
 .mp-go .mp-row .btn { flex: 1; min-width: 0; padding: 6px 8px; font-size: var(--fs-md); flex-direction: row; gap: 4px; white-space: nowrap; }

@@ -30,7 +30,7 @@ export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
     left.innerHTML = `<div class="pc-portrait">${avatarPortrait(save.look)}</div>
       <div class="pc-name">${save.name}</div>
       ${team ? `<span class="pc-team" style="background:${team.color};color:${teamText(team)}">${team.emoji} ${team.name}</span>` : ''}
-      <div class="pc-stats"><span><img src="/art/icons/coin.png" alt="">${save.coins}</span><span><img src="/art/icons/stamps.png" alt="">${save.stamps.filter((id) => STAMPS[id]).length}/${Object.keys(STAMPS).length}</span><span><img src="/art/icons/wave.png" alt="">${save.friends.length}</span></div>`
+      <div class="pc-stats"><span><img src="/art/icons/coin.png" alt="">${save.coins}</span><span><img src="/art/icons/stamps.png" alt="">${save.stamps.filter((id) => STAMPS[id]).length}/${Object.keys(STAMPS).length}</span><span><img src="/art/icons/wave.png" alt="">${friendCount()}</span></div>`
     // your level and title come from XP (everything you do in the city earns it); titles aren't picked any more
     const l = myLevel()
     left.append(
@@ -117,7 +117,7 @@ export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
   drawRight()
   openOverlay(card)
   // the left side can change while the card is open (a level-up, coins from a quest, a new stamp): keep it current
-  const shown = () => `${save.coins}|${save.stamps.length}|${save.friends.length}|${save.xp ?? 0}|${save.team}`
+  const shown = () => `${save.coins}|${save.stamps.length}|${friendCount()}|${save.xp ?? 0}|${save.team}`
   let last = shown()
   const live = window.setInterval(() => {
     if (!card.isConnected) return clearInterval(live)
@@ -128,6 +128,8 @@ export function openPlayerCard(tab: 'items' | 'look' | 'account' = 'items') {
 }
 
 export const openWardrobe = () => openPlayerCard('items')
+/** everyone you're friends with: city locals (in the save) and real New Yorkers (from the server) */
+const friendCount = () => save.friends.length + link.friends.size
 
 /**
  * The look pickers (shared with the creator), in tabs so no screen is a wall of options:
@@ -260,10 +262,11 @@ function friendCard(a: Actor, opts: { remote?: boolean } = {}): FriendCard {
       card.dataset.rel = rel
       name.innerHTML = `${esc(a.name)}${rel === 'friends' ? ' <i class="fc-star">★</i>' : ''}`
       lock.innerHTML =
-        rel === 'friends' ? '♥' : rel === 'requested' ? '…'
+        rel === 'friends' ? '' : rel === 'requested' ? '…'
           : '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 11 V8 a4 4 0 0 1 8 0 V11" fill="none" stroke="#1d2140" stroke-width="2.6" stroke-linecap="round"/><rect x="5.5" y="11" width="13" height="9.5" rx="2.2" fill="#8a93ad" stroke="#1d2140" stroke-width="2.2"/></svg>'
       title.textContent = rel === 'friends' ? 'Friends' : rel === 'requested' ? 'Request sent' : rel === 'incoming' ? `${a.name} wants to be friends` : 'Not friends yet'
-      sub.textContent = rel === 'friends' ? 'Your doors are open to each other.' : 'Friends can visit each other’s places anytime.'
+      sub.textContent = rel === 'none' ? 'Friends visit each other’s places.' : ''
+      sub.hidden = !sub.textContent
     },
   }
 }
@@ -285,15 +288,37 @@ export function npcCard(a: Actor) {
   const r = a.resident
   const fc = friendCard(a)
   const draw = () => {
-    const rel: Rel = r && isFriend(r.id) ? 'friends' : 'none'
+    const ask = r ? save.friendAsks?.[r.id]?.from : undefined
+    const rel: Rel = r && isFriend(r.id) ? 'friends' : ask === 'me' ? 'requested' : ask === 'them' ? 'incoming' : 'none'
     fc.paint(rel)
     fc.actions.innerHTML = ''
     fc.extra.innerHTML = ''
-    if (!r) return
+    if (!r) {
+      // a character a place runs by hand (BullMarketBrad on Wall Street): there's no door to open with them, so no
+      // "Not friends yet" and no lock, just who they are and a wave
+      fc.card.dataset.rel = 'character'
+      fc.card.querySelector<HTMLElement>('.fc-doors')!.style.display = 'none'
+      fc.card.querySelector<HTMLElement>('.fc-title')!.textContent = 'City Character'
+      fc.card.querySelector<HTMLElement>('.fc-sub')!.textContent = (a as Actor & { blurb?: string }).blurb ?? ''
+      fbtn(fc.actions, '👋 Wave', 'go', () => {
+        closeOverlay()
+        world.player.emote('wave', 2)
+        a.emote('wave', 2)
+        a.say('Hey!')
+      })
+      return
+    }
     if (rel === 'none')
+      // a request: they answer on your phone a little later (social/friendAsks.ts; your first friend always says yes)
       fbtn(fc.actions, '➕ Add Friend', 'go', () =>
-        void import('../social/community').then((m) => {
-          m.addFriendFlow(r)
+        void import('../social/community').then((m) => m.addFriendFlow(r, () => setTimeout(draw, 50))),
+      )
+    else if (rel === 'requested') fbtn(fc.actions, '⏳ Request sent', 'ghost', () => {}, true)
+    else if (rel === 'incoming')
+      fbtn(fc.actions, '✓ Accept', 'go', () =>
+        void import('../social/friendAsks').then((m) => {
+          m.acceptRequest(r)
+          refreshTag(a)
           draw()
         }),
       )
@@ -364,7 +389,10 @@ export function remoteCard(a: Actor) {
     safety.innerHTML = ''
     if (rel === 'none') fbtn(fc.actions, '➕ Add Friend', 'go', () => void mp.addFriend(id, a.name).then(draw))
     if (rel === 'requested') fbtn(fc.actions, '⏳ Request sent', 'ghost', () => {}, true)
-    if (rel === 'incoming') fbtn(fc.actions, '✓ Accept', 'go', () => void mp.acceptFriend(id).then(draw))
+    if (rel === 'incoming') {
+      fbtn(fc.actions, '✓ Accept', 'go', () => void mp.acceptFriend(id).then(draw))
+      fbtn(fc.actions, 'Decline', 'ghost', () => void mp.declineFriend(id).then(draw))
+    }
     if (rel === 'friends' || info?.openHouse)
       fbtn(fc.actions, '🏠 Visit their place', rel === 'friends' ? 'go' : 'ghost', () => {
         closeOverlay()
@@ -377,6 +405,21 @@ export function remoteCard(a: Actor) {
         void import('../engine/ui').then((m) => m.toast(`Invite sent to <b>${esc(a.name)}</b>`, hosting ? '🎉' : '🛋️'))
       })
     }
+    // their friends: how many, the ones you share, and (friends see friends) the whole list on your phone
+    void rest<{ count: number; visible: boolean; mutual: { look: Look | null }[]; mutualCount: number }>(`/users/${id}/friends`)
+      .then((f) => {
+        if (!card.isConnected || !f.count) return
+        const box = el('button', 'fc-friends', `<span class="fc-faces">${f.mutual.slice(0, 3).map((m) => `<i>${m.look ? headPortrait(m.look) : ''}</i>`).join('')}</span><span><b>${f.count}</b> ${f.count === 1 ? 'friend' : 'friends'}${f.mutualCount ? `<small>${f.mutualCount} mutual</small>` : ''}</span>`) as HTMLButtonElement
+        box.title = f.visible ? `See ${a.name}’s friends` : `${a.name}’s friends`
+        box.onclick = () => {
+          sfx.click()
+          closeOverlay()
+          void import('./ifruit/phone').then((m) => m.openApp('contacts', `u:${id}`))
+        }
+        fc.extra.querySelector('.fc-friends')?.remove()
+        fc.extra.prepend(box)
+      })
+      .catch(() => {})
     fbtn(fc.extra, '👋 Wave', 'tiny ghost', () => {
       world.player.emote('wave', 2)
       void import('./chat').then((m) => m.emoteBubble('👋'))

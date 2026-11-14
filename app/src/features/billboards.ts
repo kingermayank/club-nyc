@@ -4,6 +4,8 @@ import { el } from '../engine/stage'
 import { save } from '../state'
 import { avatarPortrait } from '../avatar/render'
 import { link } from '../net/link'
+import { account } from '../net/session'
+import { ui } from '../engine/ui'
 import { rest } from '../net/server'
 import { BOARD, fmt } from '../social/leaderboard'
 import { TEAMS, type TeamId } from '../social/teams'
@@ -49,6 +51,15 @@ async function loadShouts() {
   }
 }
 
+/** Your own welcome, on your first day in the city (the boards used to greet the newcomer before you instead). */
+function myWelcome(): string {
+  if (!save.created || !save.name || save.memberSince !== new Date().toISOString().slice(0, 10)) return ''
+  const no = account.me?.memberNo
+  return `WELCOME TO NEW YORK, ${save.name.toUpperCase()}!${no ? ` NEW YORKER #${String(no).padStart(4, '0')}` : ''} ★`
+}
+/** shown once on the big screen as soon as you're up the subway stairs */
+let welcomed = false
+
 /** Times Square: real billboards in the art come alive with rotating ads. */
 onRoom('times-square', ({ geo, scene }) => {
   const quads = Object.entries(geo.screens ?? {}) as [string, Pt[]][]
@@ -71,10 +82,17 @@ onRoom('times-square', ({ geo, scene }) => {
     const show = () => {
       const slide = el('div', 'bb-slide')
       const r = Math.random()
-      if (shouts.length && r > 0.55 && r < 0.8) {
+      const mine = myWelcome()
+      // your own name leads the shout-outs on day one (and the server's copy of it isn't shown twice)
+      const pool = mine ? [mine, ...shouts.filter((t) => !t.startsWith(mine.split('!')[0] + '!'))] : shouts
+      if (mine && !welcomed && id === biggest && !ui.busy) {
+        welcomed = true
+        slide.classList.add('bb-led', 'led-ticker', 'led-shout')
+        slide.innerHTML = `<span>${esc(mine)}</span>`
+      } else if (pool.length && r > 0.55 && r < 0.8) {
         // a shout-out on the Times Square boards: new New Yorkers and this week's #1s
         slide.classList.add('bb-led', 'led-ticker', 'led-shout')
-        slide.innerHTML = `<span>${esc(shouts[Math.floor(Math.random() * shouts.length)])}</span>`
+        slide.innerHTML = `<span>${esc(pool[Math.floor(Math.random() * pool.length)])}</span>`
       } else if (id === biggest && r < 0.18) {
         slide.classList.add('bb-cam')
         slide.innerHTML = `<div class="bb-cam-inner">${avatarPortrait(save.look)}</div><span class="bb-live">● LIVE</span><span class="bb-caption">SMILE, ${save.name.toUpperCase() || 'NEW YORK'}!</span>`

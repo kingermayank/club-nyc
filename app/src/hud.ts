@@ -7,12 +7,8 @@ import { api } from './game'
 import { posePictogram, type Pose } from './avatar/render'
 import { chatBar } from './features/chat'
 import { isHomeRoom } from './data/homes'
-import { mailButton, startMail } from './features/mail'
 import { levelPlate, xpEvent } from './social/levels'
-import { SELFIE_SPOTS } from './data/selfieSpots'
 
-/** the Discord mark (same drawing as the front door's sign-in button) */
-const DISCORD_PATH = 'M20.32 4.37A19.8 19.8 0 0 0 15.4 2.84a.07.07 0 0 0-.08.04c-.21.38-.45.87-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.53.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08 0l.37.3a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z'
 
 const icon = (name: string) => `<img src="/art/icons/${name}.png" alt="" draggable="false">`
 
@@ -73,8 +69,8 @@ function popMenu(cls: string, items: { html: string; act: () => void }[], from: 
 export function buildHud() {
   // your level (a ring that fills with XP) sits next to your coins; clicking it opens its own little level view
   hudRight.append(levelPlate(), coinPlate)
-  hudLeft.append(placePlate, helpBtn, mailButton())
-  startMail()
+  // (2026-11-14) no postcard envelope here any more: the user found it wasn't adding much; city mail may come back as an iFruit app
+  hudLeft.append(placePlate, helpBtn)
   stage.hud.append(hudLeft, hudRight)
   renderCoins()
   const setPlace = () => (placePlate.innerHTML = `<b>${world.plate?.name ?? world.room.name}</b><span>${(world.plate?.area ?? world.room.area).split(' · ')[0]}</span>`)
@@ -86,7 +82,6 @@ export function buildHud() {
     xpEvent('visit', isHomeRoom(r.id) ? 'home' : r.id)
   })
 
-  const takeSelfie = () => void import('./features/moments/selfie').then((m) => m.landmarkSelfie(api, world.room.id))
   const tb = (name: string, label: string, fn: (b: HTMLButtonElement) => void, key?: string) => {
     const b = el('button', 'tb-btn', icon(name))
     // one small label on hover, the same for every button: its name and its key
@@ -95,7 +90,7 @@ export function buildHud() {
     b.onclick = (e) => {
       e.stopPropagation()
       sfx.click()
-      if (ui.busy && !ui.modal) return
+      if (ui.busy && !ui.modal && !b.classList.contains('tb-phone')) return
       fn(b)
     }
     stage.toolbar.append(b)
@@ -111,21 +106,11 @@ export function buildHud() {
   )
   stage.toolbar.append(chatBar())
   tb('map', 'Map', () => api.openMap(), 'M')
-  tb('metrocard', 'Subway', () => api.openSubway(), 'U')
   tb('news', 'Club NYC Times', () => api.newspaper(), 'N')
-  // the phone: bring friends in, text the ones already here, and help (photo booths live in places now)
-  tb('phone', 'Phone: Invite & Text Friends', (b) =>
-    popMenu('phone', [
-      // a selfie with the landmark here (the Bull, the bridge, Lady Liberty…)
-      ...(SELFIE_SPOTS[world.room.id] ? [{ html: `📸 Selfie: ${SELFIE_SPOTS[world.room.id].title}<kbd>K</kbd>`, act: takeSelfie }] : []),
-      { html: '💌 Invite Friends<kbd>I</kbd>', act: () => void import('./features/invite').then((m) => m.openInvite()) },
-      { html: '💬 Text a Friend<kbd>T</kbd>', act: () => void import('./features/textFriend').then((m) => m.openTextFriend()) },
-      { html: '🗽 How to Play<kbd>?</kbd>', act: replayTour },
-      { html: '📖 Help Center', act: () => void window.open('/help/', '_blank', 'noopener') },
-      // the Club NYC Discord (/discord follows DISCORD_INVITE_URL on the server)
-      { html: `<svg class="pm-discord" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="${DISCORD_PATH}"/></svg> Join the Discord`, act: () => void window.open('/discord', '_blank', 'noopener') },
-    ], b),
-  )
+  // iFruit: the phone (features/ifruit). Friends, messages, calls, camera, photos, bank, stocks and the map; it holds
+  // what the old phone menu did (invite, text a friend, how to play, help, Discord) in its apps
+  const phoneBtn = tb('phone', 'Phone', () => void import('./features/ifruit/phone').then((m) => m.togglePhone()), 'Q')
+  void import('./features/ifruit/phone').then((m) => m.attachPhoneButton(phoneBtn))
   stage.toolbar.append(el('div', 'tb-gap'))
   tb('wave', 'Friends & Leaderboards', () => import('./social/community').then((m) => m.openCommunity()), 'F')
   tb('card', 'Player Card & Wardrobe', () => import('./features/playerCard').then((m) => m.openPlayerCard()), 'P')
@@ -160,13 +145,14 @@ export function buildHud() {
     if (k === 's') sitHere()
     if (k === 'm') api.openMap()
     if (k === 'u') api.openSubway()
-    if (k === 't') void import('./features/textFriend').then((m) => m.openTextFriend())
+    if (k === 'q') void import('./features/ifruit/phone').then((m) => m.togglePhone())
+    if (k === 't') void import('./features/ifruit/phone').then((m) => m.openApp('messages'))
     if (k === 'n') api.newspaper()
     if (k === 'p') import('./features/playerCard').then((m) => m.openPlayerCard())
     if (k === 'f') import('./social/community').then((m) => m.openCommunity())
     if (k === 'h') goHome()
     if (k === 'i') void import('./features/invite').then((m) => m.openInvite())
-    if (k === 'k' && SELFIE_SPOTS[world.room.id]) takeSelfie()
+    if (k === 'k') void import('./features/ifruit/phone').then((m) => m.openApp('camera'))
     if (e.key === '?') replayTour()
   })
 }

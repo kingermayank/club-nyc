@@ -14,8 +14,8 @@ import type { PartyWire } from '../net/protocol'
 import { api } from '../game'
 
 /**
- * House parties. Host one at home (the Billionaires' Row terrace was built for it): pick the music and the vibe,
- * invite friends or the whole city. Everyone in the room hears the same song from the same bar, the lights go up,
+ * House parties. Host one at home (the Billionaires' Row terrace was built for it): pick the vibe, invite friends
+ * or the whole city. There's one party song (music.ts, TRACKS[0]). Everyone in the room hears the same song from the same bar, the lights go up,
  * and city locals drop by to dance when the guest list is thin.
  */
 export const THEMES: Record<string, { name: string; emoji: string; desc: string }> = {
@@ -88,10 +88,10 @@ export function startParty(track: string, theme: string, pub: boolean) {
   else applyParty({ h: ME(), n: save.name, track, theme, since: Date.now(), pub })
   guestTimer = 2
 }
-function updateParty(change: { track?: string; theme?: string; pub?: boolean }) {
+function updateParty(change: { theme?: string; pub?: boolean }) {
   if (!party || !isHosting()) return
-  if (link.online) link.send({ t: 'party', on: true, track: change.track ?? party.track, theme: change.theme ?? party.theme, pub: change.pub ?? party.pub })
-  else applyParty({ ...party, ...change, since: change.track && change.track !== party.track ? Date.now() : party.since })
+  if (link.online) link.send({ t: 'party', on: true, track: party.track, theme: change.theme ?? party.theme, pub: change.pub ?? party.pub })
+  else applyParty({ ...party, ...change })
 }
 export function endParty() {
   if (!isHosting()) return
@@ -99,36 +99,28 @@ export function endParty() {
   else applyParty(null)
 }
 
-/** The host's panel: music, vibe, guest list — or the DJ controls once it's going. */
+/**
+ * The host's panel: the vibe and who's invited, or the DJ controls once it's going. There's one party song
+ * (TRACKS[0], Empire State of Mind), so there's nothing to pick there: a small now-playing tag shows it.
+ */
 export function openPartyPanel() {
   const going = isHosting()
-  let track = party?.track ?? 'empire-state-of-mine'
+  const song = TRACKS[0]
   let theme = party?.theme ?? (world.room.id === 'penthouse' ? 'glow' : 'disco')
   let pub = party?.pub ?? false
-  const p = el('div', 'panel wide party-panel')
+  const p = el('div', 'panel party-panel pp-compact')
   const draw = () => {
     p.innerHTML = `<h2>${going ? '🎧 You’re the DJ' : '🎉 Throw a party'}</h2>
-      <p class="pp-sub">${going ? 'Switch the music or the vibe. Everyone hears it.' : world.room.id === 'penthouse' ? 'Ninety floors up, a terrace, a DJ booth. This is what the penthouse is for.' : 'Clear the floor. Your place, your playlist.'}</p>
-      <h4>Music</h4><div class="pp-tracks"></div>
+      <p class="pp-song"><span class="pc-eq"><i></i><i></i><i></i></span><b>${song.title}</b><small>${song.by}</small></p>
       <h4>Vibe</h4><div class="pp-themes"></div>
-      ${link.account ? `<h4>Who’s Invited</h4><div class="pp-who"><button class="pp-opt ${pub ? '' : 'on'}" data-pub="0">👯 Friends</button><button class="pp-opt ${pub ? 'on' : ''}" data-pub="1">🗽 Everyone in the City</button></div>` : ''}
+      ${link.account ? `<h4>Who’s Invited</h4><div class="pp-who" role="radiogroup"><button class="pp-seg ${pub ? '' : 'on'}" data-pub="0" role="radio" aria-checked="${!pub}">👯 Friends</button><button class="pp-seg ${pub ? 'on' : ''}" data-pub="1" role="radio" aria-checked="${pub}">🗽 Everyone in the City</button></div>` : ''}
       <div class="pp-actions"></div>`
-    const list = p.querySelector('.pp-tracks')!
-    for (const t of TRACKS) {
-      const b = el('button', 'pp-track' + (t.id === track ? ' on' : ''), `<span class="pp-em">${t.emoji}</span><span><b>${t.title}</b><small>${t.by}</small></span>`)
-      b.onclick = () => {
-        sfx.click()
-        track = t.id
-        if (going) updateParty({ track })
-        else play(t.id) // preview
-        draw()
-      }
-      list.append(b)
-    }
     const themes = p.querySelector('.pp-themes')!
     for (const [id, th] of Object.entries(THEMES)) {
       if (id === 'spooky' && !partyOn() && theme !== 'spooky') continue // a Halloween vibe, only offered during the party
-      const b = el('button', 'pp-opt' + (id === theme ? ' on' : ''), `${th.emoji} ${th.name}<small>${th.desc}</small>`)
+      const b = el('button', 'pp-vibe' + (id === theme ? ' on' : ''), `<span class="pp-vibe-em">${th.emoji}</span><b>${th.name}</b>`)
+      b.title = th.desc
+      b.setAttribute('aria-pressed', String(id === theme))
       b.onclick = () => {
         sfx.click()
         theme = id
@@ -137,8 +129,9 @@ export function openPartyPanel() {
       }
       themes.append(b)
     }
-    p.querySelectorAll<HTMLButtonElement>('.pp-who .pp-opt').forEach((b) => {
+    p.querySelectorAll<HTMLButtonElement>('.pp-who .pp-seg').forEach((b) => {
       b.onclick = () => {
+        sfx.click()
         pub = b.dataset.pub === '1'
         if (going) updateParty({ pub })
         draw()
@@ -161,19 +154,14 @@ export function openPartyPanel() {
       const go = el('button', 'btn go', '🎉 Start the Party')
       go.onclick = () => {
         closeOverlay()
-        startParty(track, theme, pub)
+        startParty(song.id, theme, pub)
       }
       actions.append(go)
     }
     p.append(closeButton())
   }
   draw()
-  openOverlay(p, {
-    onClose: () => {
-      // stop a preview that never turned into a party
-      if (!isHosting()) stop()
-    },
-  })
+  openOverlay(p)
 }
 
 // ---------- invitations ----------
@@ -198,7 +186,7 @@ function renderChip() {
   if (!party) return
   chip?.remove()
   const t = TRACK[party.track]
-  chip = el('button', 'party-chip', `<span class="pc-eq"><i></i><i></i><i></i></span><span><b>${t?.title ?? 'Music'}</b><small>${esc(party.h === ME() ? 'Your party' : `${party.n}’s party`)}</small></span>`)
+  chip = el('button', 'party-chip', `<span class="pc-eq"><i></i><i></i><i></i></span><span><b>${t?.title ?? 'Music'}</b><small>${esc(t?.by ?? (party.h === ME() ? 'Your party' : `${party.n}’s party`))}</small></span>`)
   chip.title = isHosting() ? 'DJ controls' : 'Now playing'
   chip.onclick = (e) => {
     e.stopPropagation()

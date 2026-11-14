@@ -45,8 +45,18 @@ export function desktopOnly(root: HTMLElement, carryOn: () => void) {
   page.querySelector<HTMLButtonElement>('.do-share')?.addEventListener('click', () => void navigator.share({ title: 'Club NYC', text: pitch, url }).catch(() => {}))
   page.querySelector<HTMLButtonElement>('.do-anyway')!.onclick = () => {
     page.remove()
+    rotateHint()
     carryOn()
   }
+}
+
+/** Playing on a phone anyway: held upright the city is a thin strip, so say to turn it (CSS shows this in portrait only). */
+function rotateHint() {
+  const hint = document.createElement('div')
+  hint.className = 'rotate-hint'
+  hint.setAttribute('role', 'status')
+  hint.innerHTML = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="22" y="8" width="20" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="4"/><path d="M12 44 A 22 22 0 0 0 34 58 M34 58 L28 52 M34 58 L27 61" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Rotate your phone</b>`
+  document.body.append(hint)
 }
 
 /** A calendar reminder for 8 pm tonight (or tomorrow, if it's already late) to open Club NYC on a computer. */

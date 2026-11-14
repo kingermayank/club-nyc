@@ -2,7 +2,7 @@
 title: Dance Jam
 description: Every 8 minutes, Times Square throws a 3 minute Dance Jam. Get to the middle of the plaza, dance for 20 seconds, and earn 20 coins in tips.
 icon: disco-ball
-updated: 2026-10-20
+updated: 2026-11-14
 ---
 
 The Dance Jam runs on the city's clock: a 3 minute jam every 8 minutes, the same time for everyone. It's the easiest 20 coins in the city.
@@ -18,7 +18,7 @@ The Dance Jam runs on the city's clock: a 3 minute jam every 8 minutes, the same
 4. **Tips!** You earn **20 coins** and the **Dance Jam** stamp.
 :::
 
-City locals crowd in when the jam starts, so you're never dancing alone.
+The DJ plays **Empire State of Mind** by JAY-Z featuring Alicia Keys for the whole jam, in step for everyone in the plaza. City locals crowd in when the jam starts, so you're never dancing alone.
 
 ## Rewards {#rewards}
 
@@ -32,7 +32,6 @@ City locals crowd in when the jam starts, so you're never dancing alone.
 ## When's the Next One? {#next-one}
 
 - Jams start every 8 minutes and last 3 minutes, on the same clock for everyone in the city.
-- Now and then, DJ Cadenza sends a [postcard](community/postcards-and-notices.md) when a jam is about to start, with a button that takes you to Times Square.
 - Nothing follows you around the city counting down. If you miss one, another starts in a few minutes.
 
 > [!TIP] Make It a Takeover

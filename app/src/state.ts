@@ -1,5 +1,5 @@
 import type { Look } from './avatar/look'
-import { STARTER_ITEMS } from './avatar/items'
+import { NEVER_OWNED, STARTER_ITEMS } from './avatar/items'
 
 const profile = new URLSearchParams(location.search).get('profile')
 /** ?profile=name keeps a separate save slot (handy for testing without touching your real save) */
@@ -10,6 +10,10 @@ export interface PlacedFurniture {
   x: number
   y: number
   flip?: boolean
+  /** a lamp or the neon sign, switched off (they come lit) */
+  off?: boolean
+  /** the TV, switched on */
+  on?: boolean
 }
 
 export interface SaveState {
@@ -42,6 +46,10 @@ export interface SaveState {
   friends: string[]
   /** how well you know each resident (waves, dances, visits…) */
   affinity: Record<string, number>
+  /** friend requests with city locals still waiting for an answer: sent by you, or asked by them */
+  friendAsks: Record<string, { at: number; from: 'me' | 'them' }>
+  /** locals you've invited over who said yes: they come by the next time you're home */
+  guestsComing: string[]
   guestbook: { from: string; text: string; at: number; read?: boolean }[]
   likes: number
   openHouse: boolean
@@ -77,6 +85,8 @@ export interface SaveState {
   magnetAt?: Record<string, [number, number]>
   /** love locks while playing offline (online the server keeps them, features/moments/lovelocks.ts): locks and keys in
    * your pocket and the locks you've hung on the Brooklyn Bridge railing */
+  /** the iFruit phone (features/ifruit/store.ts fills in defaults, so older saves load untouched) */
+  ifruit?: import('./features/ifruit/store').IFruitSave
   loveLocks?: { locks: number; keys: number; hung: { x: number; y: number; body: number; shape: string; initials: string; paint: string | null; at: number; kept: boolean }[] }
 }
 
@@ -101,6 +111,8 @@ export const freshSave = (): SaveState => ({
   title: '',
   friends: [],
   affinity: {},
+  friendAsks: {},
+  guestsComing: [],
   guestbook: [],
   likes: 0,
   openHouse: false,
@@ -117,12 +129,19 @@ export const freshSave = (): SaveState => ({
   daily: { day: '', picks: [], base: {}, places: [], done: [], bonus: false },
 })
 
+/** the Vault's archive pairs were never anyone's: off the owned list, and off your feet */
+function shelve(s: SaveState) {
+  s.owned = s.owned.filter((id) => !NEVER_OWNED.includes(id))
+  if (s.look?.items?.feet && NEVER_OWNED.includes(s.look.items.feet)) s.look = { ...s.look, items: { ...s.look.items, feet: 'sneakers' } }
+}
+
 function load(): SaveState {
   try {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const s = { ...freshSave(), ...JSON.parse(raw) } as SaveState
       for (const id of STARTER_ITEMS) if (!s.owned.includes(id)) s.owned.push(id)
+      shelve(s)
       return s
     }
   } catch {
@@ -149,6 +168,7 @@ export function persist() {
 export function adoptSave(data: Partial<SaveState>, owner: string) {
   const next = { ...freshSave(), ...data, owner } as SaveState
   for (const id of STARTER_ITEMS) if (!next.owned.includes(id)) next.owned.push(id)
+  shelve(next)
   for (const k of Object.keys(save) as (keyof SaveState)[]) delete save[k]
   Object.assign(save, next)
   try {

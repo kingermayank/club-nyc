@@ -14,6 +14,8 @@ import { presenceOf, onlineCount, roomCounts, friendshipChanged, blockChanged, p
 import { HOME } from '../../app/src/data/homes.ts'
 import { ensureWallet, claim, debit, buyItem, buyHome, grantItem, grantCreatorItems, ownedLook, withWallet, payJob, daysThisWeek, daysVisited } from './economy.ts'
 import { banOf, autoModAfterReport } from './moderation.ts'
+import { checkSave, realStamps } from './save.ts'
+import { metricsAuthorized } from './admin.ts'
 import { inviterByName, recordReferral, referralStats } from './referrals.ts'
 import { POLICY_VERSION, MIN_AGE, oldEnough } from '../../app/src/data/policy.ts'
 
@@ -77,10 +79,11 @@ api.get('/referrals', requireUser, (c) => c.json(referralStats(c.get('user').id)
 
 api.get('/name-available', (c) => {
   const name = (c.req.query('name') ?? '').trim()
-  const problem = nameProblem(name) ?? (cleanChat(name) !== name ? 'Please pick a different name.' : null)
+  const me = currentUser(c)
+  // the name you already have stays yours, whatever the rules for new names say now
+  const problem = me?.name === name ? null : nameProblem(name)
   if (problem) return c.json({ ok: false, reason: problem })
   // your own name (claimed from the waitlist) is fine; a name someone saved on the waitlist is taken until they claim it
-  const me = currentUser(c)
   const taken = !!q.get('SELECT 1 FROM users WHERE name = ? AND id != ?', name, me?.id ?? '') || nameHeldForOther(name, me?.id)
   return c.json({ ok: !taken, reason: taken ? 'That name is taken.' : null })
 })
@@ -117,11 +120,13 @@ api.post('/profile', requireUser, async (c) => {
     if (body.data.consent !== POLICY_VERSION) return c.json({ error: 'consent', reason: 'Please agree to the Terms, Privacy Policy and Community Rules to play.' }, 400)
   }
   const name = body.data.name.trim()
-  const problem = nameProblem(name) ?? (cleanChat(name) !== name ? 'Please pick a different name.' : null)
+  // existing accounts keep the name they have (unless a moderator reset it); a new or changed name follows today's rules
+  const problem = name === u.name && !u.name_reset ? null : nameProblem(name)
   if (problem) return c.json({ error: 'name', reason: problem }, 400)
   const valid = validLook(body.data.look)
   if (!valid) return c.json({ error: 'look' }, 400)
-  const team = TEAMS.includes(body.data.team) ? body.data.team : ''
+  // a neighborhood is picked once: redoing your New Yorker keeps the team you're on
+  const team = u.team || (TEAMS.includes(body.data.team) ? body.data.team : '')
   const taken = q.get<{ id: string }>('SELECT id FROM users WHERE name = ?', name)
   if ((taken && taken.id !== u.id) || nameHeldForOther(name, u.id)) return c.json({ error: 'name', reason: 'That name is taken.' }, 409)
   let wallet = ensureWallet(u, first ? body.data.local ?? {} : undefined)
@@ -239,21 +244,23 @@ api.put('/save', requireUser, async (c) => {
   const u = c.get('user')
   const raw = await c.req.text()
   if (raw.length > 200_000) return c.json({ error: 'too-big' }, 413)
-  let body: { save?: Record<string, unknown> }
+  let body: { save?: unknown } | null
   try {
     body = JSON.parse(raw)
   } catch {
     return c.json({ error: 'bad-json' }, 400)
   }
-  if (!body.save || typeof body.save !== 'object') return c.json({ error: 'bad-request' }, 400)
+  // a save is an object of the game's fields: stamps and furniture are checked, fields of the wrong type are dropped (save.ts)
+  const checked = body && typeof body === 'object' ? checkSave(body.save, u) : null
+  if (!checked) return c.json({ error: 'bad-request' }, 400)
   // coins, wardrobe and homes are the server's — a save can't change them
   const wallet = ensureWallet(u)
-  const s = withWallet(body.save, wallet)
-  // keep the public profile in sync with what the player is wearing
-  const team = TEAMS.includes(String(s.team)) ? String(s.team) : u.team ?? ''
+  const s = withWallet(checked, wallet)
+  // keep the public profile in sync with what the player is wearing (a neighborhood is picked once)
+  const team = u.team || (TEAMS.includes(String(s.team)) ? String(s.team) : '')
   const valid = validLook(s.look)
   const look = valid ? ownedLook(valid, wallet, team) : null
-  const title = typeof s.title === 'string' ? s.title.slice(0, 40) : u.title
+  const title = typeof s.title === 'string' ? s.title : u.title
   q.run('UPDATE users SET save = ?, save_updated = ?, look = COALESCE(?, look), team = ?, title = ? WHERE id = ?', JSON.stringify(s), Date.now(), look ? JSON.stringify(look) : null, team, title, u.id)
   return c.json({ ok: true, coins: wallet.coins })
 })
@@ -268,7 +275,7 @@ api.get('/users/:id', requireUser, (c) => {
   const likes = q.get<{ n: number }>('SELECT COUNT(*) AS n FROM likes WHERE owner = ?', u.id)!.n
   return c.json({
     user: publicUser(u),
-    stamps: Array.isArray(save.stamps) ? save.stamps.length : 0,
+    stamps: realStamps(save.stamps).length,
     furniture: Array.isArray(save.furniture) ? save.furniture.slice(0, 40) : [],
     openHouse: !!save.openHouse,
     home: (typeof save.home === 'string' && HOME[save.home]?.room) || 'apartment',
@@ -372,10 +379,68 @@ api.delete('/friends/:id', requireUser, (c) => {
   return c.json({ ok: true })
 })
 
+/** People you may know: friends of your friends you aren't connected to yet, most friends in common first. */
+api.get('/friends/suggested', requireUser, (c) => {
+  const me = c.get('user')
+  const rows = q.all<UserRow & { n: number }>(
+    `WITH mine AS (SELECT CASE WHEN a = ? THEN b ELSE a END AS id FROM friends WHERE (a = ? OR b = ?) AND status = 'accepted'),
+          known AS (SELECT CASE WHEN a = ? THEN b ELSE a END AS id FROM friends WHERE a = ? OR b = ?),
+          shut AS (SELECT CASE WHEN a = ? THEN b ELSE a END AS id FROM blocks WHERE a = ? OR b = ?),
+          fof AS (SELECT CASE WHEN f.a = m.id THEN f.b ELSE f.a END AS id FROM friends f JOIN mine m ON (f.a = m.id OR f.b = m.id) WHERE f.status = 'accepted')
+     SELECT u.*, COUNT(*) AS n FROM fof JOIN users u ON u.id = fof.id
+     WHERE fof.id != ? AND u.profile_done = 1 AND fof.id NOT IN (SELECT id FROM known) AND fof.id NOT IN (SELECT id FROM shut)
+     GROUP BY u.id ORDER BY n DESC, u.xp DESC LIMIT 12`,
+    me.id, me.id, me.id, me.id, me.id, me.id, me.id, me.id, me.id, me.id,
+  )
+  return c.json({ people: rows.map((u) => ({ ...publicUser(u), online: presenceOf(u.id).online, room: null, rel: 'none', mutualCount: u.n })) })
+})
+
+/**
+ * Someone's friends. Their friends are visible to them and to their own friends (friends of friends, so you can meet
+ * the people your friends know); everyone else sees only how many they have and the friends you share. Blocked people
+ * (either way) are left out, and where a friend of a friend is in the city stays private: just online or not.
+ */
+api.get('/users/:id/friends', requireUser, (c) => {
+  const me = c.get('user')
+  const id = c.req.param('id')
+  const target = q.get<UserRow>('SELECT * FROM users WHERE id = ? AND profile_done = 1', id)
+  if (!target) return c.json({ error: 'not-found' }, 404)
+  if (id !== me.id && q.get('SELECT 1 FROM blocks WHERE (a = ? AND b = ?) OR (a = ? AND b = ?)', me.id, id, id, me.id)) return c.json({ error: 'not-found' }, 404)
+  const mine = q.all<{ other: string; a: string; status: string }>(
+    `SELECT CASE WHEN a = ? THEN b ELSE a END AS other, a, status FROM friends WHERE a = ? OR b = ?`,
+    me.id, me.id, me.id,
+  )
+  const rel = new Map(mine.map((r) => [r.other, r.status === 'accepted' ? 'friends' : r.a === me.id ? 'requested' : 'incoming']))
+  const blocked = new Set(q.all<{ other: string }>('SELECT CASE WHEN a = ? THEN b ELSE a END AS other FROM blocks WHERE a = ? OR b = ?', me.id, me.id, me.id).map((r) => r.other))
+  const rows = q.all<UserRow>(
+    `SELECT u.* FROM friends f JOIN users u ON u.id = CASE WHEN f.a = ? THEN f.b ELSE f.a END
+     WHERE (f.a = ? OR f.b = ?) AND f.status = 'accepted' AND u.profile_done = 1`,
+    id, id, id,
+  ).filter((u) => !blocked.has(u.id))
+  const visible = id === me.id || rel.get(id) === 'friends'
+  const item = (u: UserRow) => {
+    const p = presenceOf(u.id)
+    const r = u.id === me.id ? 'me' : (rel.get(u.id) ?? 'none')
+    return { ...publicUser(u), online: p.online, room: r === 'friends' ? p.room : null, rel: r, mutual: r === 'friends' }
+  }
+  const order = (a: ReturnType<typeof item>, b: ReturnType<typeof item>) =>
+    Number(b.rel === 'me') - Number(a.rel === 'me') || Number(b.mutual) - Number(a.mutual) || Number(b.online) - Number(a.online) || a.name.localeCompare(b.name)
+  const mutual = rows.filter((u) => u.id !== me.id && rel.get(u.id) === 'friends').map(item).sort(order)
+  return c.json({
+    count: rows.length,
+    visible,
+    mutual: id === me.id ? [] : mutual.slice(0, 12),
+    mutualCount: id === me.id ? 0 : mutual.length,
+    friends: visible ? rows.map(item).sort(order).slice(0, 300) : [],
+  })
+})
+
 // ---------- safety: block & report ----------
 api.post('/blocks/:id', requireUser, (c) => {
   const me = c.get('user')
   const id = c.req.param('id')
+  if (id === me.id) return c.json({ error: 'bad-request' }, 400)
+  if (!q.get('SELECT 1 FROM users WHERE id = ?', id)) return c.json({ error: 'not-found' }, 404)
   tx(() => {
     q.run('INSERT OR IGNORE INTO blocks (a, b) VALUES (?, ?)', me.id, id)
     q.run('DELETE FROM friends WHERE (a = ? AND b = ?) OR (a = ? AND b = ?)', me.id, id, id, me.id)
@@ -395,11 +460,18 @@ api.get('/blocks', requireUser, (c) => {
   return c.json({ blocked: rows.map((r) => r.b), users: rows.map((r) => ({ id: r.b, name: r.name ?? 'a deleted New Yorker' })) })
 })
 
+const REPORT_AGAIN_MS = 24 * 3600_000
 const ReportBody = z.object({ target: z.string().max(64), reason: z.string().max(40), context: z.string().max(500).optional() })
 api.post('/reports', requireUser, async (c) => {
   const body = ReportBody.safeParse(await c.req.json().catch(() => null))
   if (!body.success) return c.json({ error: 'bad-request' }, 400)
-  q.run('INSERT INTO reports (reporter, target, reason, context, created_at) VALUES (?, ?, ?, ?, ?)', c.get('user').id, body.data.target, body.data.reason, body.data.context ?? '', Date.now())
+  const me = c.get('user')
+  if (body.data.target === me.id) return c.json({ error: 'bad-request' }, 400)
+  if (!q.get('SELECT 1 FROM users WHERE id = ?', body.data.target)) return c.json({ error: 'not-found' }, 404)
+  // one open report per reporter and player is enough for a moderator: sending it again within the day is a no-op
+  // (it still answers ok, so the game's "Thanks, we'll take a look" stays true)
+  if (q.get(`SELECT 1 FROM reports WHERE reporter = ? AND target = ? AND status = 'open' AND created_at > ?`, me.id, body.data.target, Date.now() - REPORT_AGAIN_MS)) return c.json({ ok: true, duplicate: true })
+  q.run('INSERT INTO reports (reporter, target, reason, context, created_at) VALUES (?, ?, ?, ?, ?)', me.id, body.data.target, body.data.reason, body.data.context ?? '', Date.now())
   // several different people reporting the same player within an hour pauses their chat until a moderator looks
   const paused = autoModAfterReport(body.data.target)
   if (paused) setLiveMute(body.data.target, paused.until, paused.reason)
@@ -550,8 +622,12 @@ api.get('/stats', (c) => {
 api.get('/city', requireUser, (c) => c.json({ count: onlineCount(), rooms: cityPulse(), parties: partiesFor(c.get('user').id) }))
 api.get('/parties', requireUser, (c) => c.json({ parties: partiesFor(c.get('user').id) }))
 
+/**
+ * Server internals for the load tests (scripts/loadtest*.ts): memory, message counters, flush timings. Needs the
+ * Launch HQ key as a Bearer token, in development too (the scripts send the development key on their own).
+ */
 api.get('/metrics', (c) => {
-  if (!config.dev) return c.json({ error: 'not-found' }, 404)
+  if (!metricsAuthorized(c.req.header('authorization'))) return c.json({ error: 'not-found' }, 404)
   const m = process.memoryUsage()
   return c.json({ online: onlineCount(), rooms: roomCounts(), ...stats, avgFlushMs: stats.flushes ? stats.flushMs / stats.flushes : 0, rssMB: Math.round(m.rss / 1048576), heapMB: Math.round(m.heapUsed / 1048576) })
 })

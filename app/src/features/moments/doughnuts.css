@@ -1,0 +1,176 @@
+/* Doughnut Dept. (features/moments/doughnuts.ts): first person over the painting of the mini doughnut machine, in
+   stage units over the 1000 × 565.5 stage. Same family as the hot dog cart: the painting, a live maker behind the
+   machine, a step tracker, coins and Leave top right. Pieces of the painting are re-drawn over the moving parts
+   (.dd-plunger, .dd-collar, .dd-tray-front) so rings and the plunger pass behind the right edges. */
+.moment.mo-doughnuts { z-index: 9700; }
+.dd { --art: url('/art/places/cm-doughnuts.jpg'); position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #3a2418; user-select: none; -webkit-user-select: none; animation: dd-in 0.45s ease; }
+@keyframes dd-in { from { opacity: 0; } }
+.dd [hidden] { display: none !important; }
+.dd button { font: inherit; color: inherit; }
+.dd-bg { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; pointer-events: none; }
+
+/* the plunger on the hopper: bricks from one brick over hide the painted one, a copy of it does the moving,
+   and the collar it slides into is drawn back on top */
+.dd-brick { position: absolute; z-index: 1; left: 156px; top: 84px; width: 70px; height: 78px; background: var(--art) -208px -84px / 1000px 565.5px no-repeat; -webkit-mask-image: linear-gradient(to right, transparent, #000 17%, #000 83%, transparent), linear-gradient(to bottom, transparent, #000 15%); -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 17%, #000 83%, transparent), linear-gradient(to bottom, transparent, #000 15%); mask-composite: intersect; pointer-events: none; }
+.dd-plunger, .dd-collar, .dd-tray-front { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; background: var(--art) 0 0 / 1000px 565.5px no-repeat; pointer-events: none; }
+.dd-plunger { z-index: 1; clip-path: polygon(169.5px 114px, 171px 108px, 175.5px 103.5px, 183px 101px, 190.5px 100.3px, 198px 101px, 205.5px 103.5px, 210px 108px, 211.5px 114px, 209.5px 120px, 204.5px 124.5px, 200.5px 126.5px, 200.5px 157.5px, 180.5px 157.5px, 180.5px 126.5px, 176.5px 124.5px, 171.5px 120px); }
+.dd-collar { z-index: 1; clip-path: polygon(166px 154.5px, 216px 154.5px, 216px 173px, 166px 173px); }
+.dd-tray-front { z-index: 4; clip-path: polygon(768px 389px, 938px 391px, 948px 428px, 778px 428px); }
+
+/* the third jar reads pink in the painting: lavender is purple */
+.dd-jar-tint { position: absolute; z-index: 1; left: 757px; top: 163px; width: 52px; height: 57px; border-radius: 5px 5px 9px 9px; background: #8a55d8; mix-blend-mode: hue; opacity: 0.9; pointer-events: none; }
+
+/* the doughnut maker stands behind the machine, between the hopper and the sign; the fryer hides him from the chest */
+.dd-guy { position: absolute; z-index: 1; left: 272px; top: 100px; width: 150px; height: 196px; overflow: hidden; pointer-events: none; }
+.dd-guy-body { position: absolute; left: 0; top: 0; width: 150px; transition: transform 0.42s cubic-bezier(0.45, 0.05, 0.3, 1); transform-origin: 50% 100%; animation: dd-breathe 2.8s ease-in-out infinite; }
+.dd-guy-body svg { display: block; width: 150px; height: 240px; overflow: visible; }
+@keyframes dd-breathe { 50% { translate: 0 2px; } }
+.dd-guy.reach-r .dd-guy-body { transform: translateX(26px) rotate(8deg); }
+.dd-guy.hop .dd-guy-body { animation: dd-hop 0.42s ease-out, dd-breathe 2.8s 0.42s ease-in-out infinite; }
+@keyframes dd-hop { 40% { translate: 0 -8px; } }
+
+.dd-bubble { position: absolute; left: 394px; bottom: 372px; z-index: 6; max-width: 210px; margin: 0; padding: 8px 14px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 16px 16px 16px 4px; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 var(--fs-md)/1.25 var(--display); pointer-events: none; animation: dd-pop 0.28s cubic-bezier(0.2, 1.6, 0.4, 1); transition: opacity 0.25s; }
+.dd-bubble.out { opacity: 0; }
+@keyframes dd-pop { from { transform: scale(0.6) translateY(8px); opacity: 0; } }
+
+/* hot oil: a slow shimmer on the surface and a little heat coming off it */
+.dd-shimmer { position: absolute; z-index: 2; left: 247px; top: 310px; width: 453px; height: 23.5px; background: repeating-linear-gradient(104deg, rgba(255, 244, 180, 0) 0 36px, rgba(255, 244, 180, 0.55) 44px, rgba(255, 244, 180, 0) 52px 96px); background-size: 192px 100%; mix-blend-mode: soft-light; opacity: 0.7; pointer-events: none; animation: dd-shimmer 7s linear infinite; }
+@keyframes dd-shimmer { to { background-position: 192px 0; } }
+.dd.frying .dd-shimmer { animation-duration: 3s; opacity: 0.95; }
+.dd-haze { position: absolute; z-index: 2; left: 290px; top: 250px; width: 400px; height: 62px; pointer-events: none; }
+.dd-haze i { position: absolute; bottom: 0; width: 30px; height: 52px; border-radius: 50%; background: radial-gradient(ellipse at 50% 60%, rgba(255, 250, 235, 0.3), rgba(255, 250, 235, 0) 70%); filter: blur(2.5px); animation: dd-haze 3.6s ease-in infinite; }
+.dd-haze i:nth-child(1) { left: 20px; }
+.dd-haze i:nth-child(2) { left: 130px; animation-delay: 1.3s; }
+.dd-haze i:nth-child(3) { left: 240px; animation-delay: 2.2s; }
+.dd-haze i:nth-child(4) { left: 345px; animation-delay: 0.6s; }
+.dd.frying .dd-haze i { background: radial-gradient(ellipse at 50% 60%, rgba(255, 250, 235, 0.5), rgba(255, 250, 235, 0) 70%); animation-duration: 2.4s; }
+@keyframes dd-haze { 0% { transform: translateY(16px) scaleX(0.7); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-34px) scaleX(1.4); opacity: 0; } }
+
+/* rings in the oil: clipped to the painted channel, the lower half under the surface */
+.dd-oil { position: absolute; z-index: 2; left: 0; top: 0; width: 1000px; height: 565.5px; clip-path: polygon(247px 270px, 704px 270px, 704px 334px, 247px 334px); pointer-events: none; }
+.dd-belt, .dd-tray { position: absolute; z-index: 3; left: 0; top: 0; width: 1000px; height: 565.5px; pointer-events: none; }
+.dd-ring { position: absolute; left: 0; top: 0; width: 38px; height: 31.45px; will-change: transform; }
+.dd-ring-in { position: absolute; inset: 0; transform-origin: 50% 62%; }
+.dd-ring img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dd-ring-oil { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(232, 168, 28, 0) 46%, rgba(232, 168, 28, 0.6) 62%, rgba(206, 136, 10, 0.86) 100%); -webkit-mask: url('/art/places/sprites/cm-dn-raw.png') center / 100% 100% no-repeat; mask: url('/art/places/sprites/cm-dn-raw.png') center / 100% 100% no-repeat; }
+.dd-ripple { position: absolute; z-index: -1; left: -6px; top: 13px; width: 50px; height: 16px; border-radius: 50%; border: 1.6px solid rgba(255, 244, 190, 0.75); box-shadow: 0 0 5px rgba(255, 236, 150, 0.6); animation: dd-ripple 1.2s ease-out infinite; }
+@keyframes dd-ripple { from { transform: scale(0.8); opacity: 1; } to { transform: scale(1.18); opacity: 0; } }
+.dd-ring u { position: absolute; z-index: 1; left: 2px; top: 19px; width: 3px; height: 3px; border-radius: 50%; background: rgba(255, 248, 205, 0.95); animation: dd-bubble 0.7s ease-out infinite; }
+.dd-ring u + u { left: 32px; top: 21px; animation-delay: 0.33s; }
+@keyframes dd-bubble { from { transform: translateY(3px) scale(0.4); opacity: 0; } 40% { opacity: 1; } to { transform: translateY(-5px) scale(1.2); opacity: 0; } }
+.dd-ring.drop .dd-ring-in { animation: dd-drop 0.24s cubic-bezier(0.5, 0, 0.9, 0.6); }
+@keyframes dd-drop { from { translate: 0 -20px; scale: 0.5; opacity: 0.3; } 80% { translate: 0 2px; scale: 1.06 0.9; opacity: 1; } }
+.dd-ring.dry .dd-ring-oil, .dd-ring.dry .dd-ripple, .dd-ring.dry u { display: none; }
+.dd-ring.dry { filter: drop-shadow(0 2px 1.5px rgba(30, 20, 10, 0.4)); }
+
+/* the paddle that flips them halfway */
+.dd-paddle { position: absolute; z-index: 3; left: 454px; top: 303px; width: 40px; height: 40px; overflow: visible; pointer-events: none; }
+.dd-paddle-arm { transform-box: view-box; transform-origin: 20px 31px; transform: rotate(-82deg); }
+.dd-paddle-arm.go { animation: dd-paddle 0.5s cubic-bezier(0.3, 0, 0.4, 1); }
+@keyframes dd-paddle { 0% { transform: rotate(-82deg); } 45% { transform: rotate(62deg); } 100% { transform: rotate(-82deg); } }
+
+/* the lever: plain steel from further along hides the painted one, a clean one is drawn where it was */
+.dd-steel { position: absolute; z-index: 3; left: 474px; top: 334px; width: 84px; height: 39px; background: var(--art) -550px -334px / 1000px 565.5px no-repeat; -webkit-mask-image: linear-gradient(to right, transparent, #000 11%, #000 86%, transparent); mask-image: linear-gradient(to right, transparent, #000 11%, #000 86%, transparent); pointer-events: none; }
+.dd-steel2 { position: absolute; z-index: 3; left: 484px; top: 370px; width: 20px; height: 11px; background: var(--art) -574px -370px / 1000px 565.5px no-repeat; -webkit-mask-image: linear-gradient(to right, #000 55%, transparent); mask-image: linear-gradient(to right, #000 55%, transparent); pointer-events: none; }
+.dd-machine { position: absolute; z-index: 3; left: 0; top: 0; width: 1000px; height: 565.5px; overflow: visible; pointer-events: none; }
+.dd-lever { transform-box: view-box; transform-origin: 454.5px 387px; transition: transform 0.07s linear; filter: drop-shadow(2px 3px 1.5px rgba(20, 14, 10, 0.4)); }
+.dd-lever.snap { transition: transform 0.26s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.dd-lever-hit { pointer-events: stroke; cursor: grab; }
+.dd-lever-hit:active { cursor: grabbing; }
+.dd-lever:hover { filter: drop-shadow(2px 3px 1.5px rgba(20, 14, 10, 0.4)) drop-shadow(0 0 6px rgba(255, 209, 102, 0.95)); }
+.dd-pulse { fill: none; stroke: #ffd166; stroke-width: 4; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.dd.ready .dd-pulse { animation: dd-pulse 1.1s ease-out infinite; }
+@keyframes dd-pulse { from { transform: scale(0.85); opacity: 1; } to { transform: scale(1.7); opacity: 0; } }
+/* six small lamps on the machine: one lights for every ring dropped */
+.dd-lamp { fill: #3b332b; stroke: #1c1614; stroke-width: 1.3; transition: fill 0.15s; }
+.dd-lamp.on { fill: #ffc94a; filter: drop-shadow(0 0 3px #ffb21e); }
+.dd-belt-run { fill: none; stroke: rgba(24, 16, 10, 0.55); stroke-width: 9; stroke-dasharray: 2 6.5; opacity: 0; transition: opacity 0.2s; }
+.dd.belting .dd-belt-run { opacity: 0.5; animation: dd-belt 0.35s linear infinite; }
+@keyframes dd-belt { to { stroke-dashoffset: -8.5; } }
+
+/* the jars, traced from the painting: the glow follows the glass */
+.dd-shapes { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; z-index: 4; overflow: visible; pointer-events: none; }
+.dd-shape { fill: rgba(255, 209, 102, 0); stroke: #ffd166; stroke-width: 3; stroke-linejoin: round; stroke-opacity: 0; pointer-events: all; cursor: pointer; transition: fill 0.15s, stroke-opacity 0.15s; }
+.dd-shape:hover { fill: rgba(255, 220, 130, 0.16); stroke-opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 209, 102, 0.95)); }
+.dd-shape.sel { stroke-opacity: 1; filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.9)); }
+.dd-label { position: absolute; z-index: 8; margin: 0; transform: translate(-50%, -100%); padding: 4px 11px 5px; background: rgba(29, 33, 64, 0.9); border-radius: 999px; color: #fff; font: 400 var(--fs-sm)/1.2 var(--display); white-space: nowrap; pointer-events: none; }
+
+/* which sugar: four pictures on the counter */
+.dd-menu { position: absolute; left: 424px; top: 422px; z-index: 7; display: flex; gap: 8px; transform: translateX(-50%); padding: 10px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 18px; box-shadow: 0 4px 0 #1d2140, 0 12px 26px rgba(30, 14, 4, 0.35); animation: dd-menu 0.32s cubic-bezier(0.2, 1.5, 0.4, 1); }
+@keyframes dd-menu { from { transform: translateX(-50%) scale(0.7) translateY(10px); opacity: 0; } }
+.dd-pick { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 108px; padding: 7px 0 7px; background: #fff; border: 2.5px solid #1d2140; border-radius: 14px; box-shadow: 0 3px 0 #1d2140; cursor: pointer; transition: transform 0.12s, background 0.12s; }
+.dd-pick:hover { transform: translateY(-3px); background: #fff4c9; }
+.dd-pick:active { transform: translateY(1px); box-shadow: 0 1px 0 #1d2140; }
+.dd-pick > img { width: 60px; height: 52px; object-fit: contain; filter: drop-shadow(0 2px 1.5px rgba(30, 20, 10, 0.3)); }
+.dd-pick span { color: #1d2140; font: 400 var(--fs-sm)/1.2 var(--display); white-space: nowrap; }
+
+/* paying, then eating here or taking the bag with you */
+.dd-pay { position: absolute; left: 500px; top: 470px; z-index: 6; transform: translateX(-50%); }
+.dd .dd-paybtn { flex-direction: row; gap: 5px; padding: 8px 26px; white-space: nowrap; animation: dd-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.dd-paybtn img { width: 20px; height: 20px; }
+.dd-after { position: absolute; left: 656px; top: 462px; z-index: 6; display: flex; gap: 8px; animation: dd-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.dd-after .btn { min-width: 104px; white-space: nowrap; }
+
+/* where you are in it: Sugar, Pay, Fry, Shake */
+.dd-steps { position: absolute; right: 16px; bottom: 14px; z-index: 6; display: flex; gap: 6px; margin: 0; padding: 5px; list-style: none; counter-reset: s; background: rgba(29, 33, 64, 0.72); border-radius: 999px; }
+.dd-steps li { counter-increment: s; display: flex; align-items: center; gap: 6px; padding: 4px 11px 5px 5px; border-radius: 999px; color: rgba(255, 255, 255, 0.6); font: 400 var(--fs-sm)/1.2 var(--display); }
+.dd-steps li::before { content: counter(s); display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); font-size: var(--fs-xs); }
+.dd-steps li.now { background: #fff; color: #1d2140; }
+.dd-steps li.now::before { background: #ffd166; color: #1d2140; }
+.dd-steps li.done { color: #9fe3b5; }
+.dd-steps li.done::before { content: '✓'; background: #2fae4a; color: #fff; }
+
+/* on the counter: the bag, then the paper with the six on it */
+.dd-counter { position: absolute; inset: 0; z-index: 5; pointer-events: none; transition: transform 0.45s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.45s; transform-origin: 500px 490px; }
+.dd-counter.done { transform: scale(0.2) rotate(-25deg) translate(-900px, 300px); opacity: 0; }
+.dd-shadow { position: absolute; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(46, 22, 6, 0.55), rgba(46, 22, 6, 0.28) 45%, rgba(46, 22, 6, 0) 70%); animation: dd-in 0.2s ease; }
+.dd-bag { position: absolute; transform-origin: 50% 100%; transition: transform 0.22s cubic-bezier(0.3, 1.6, 0.5, 1); touch-action: none; }
+.dd-bag img { position: absolute; transform-origin: 50% 100%; filter: drop-shadow(0 3px 2px rgba(46, 22, 6, 0.3)); pointer-events: none; }
+.dd-bag.live { pointer-events: auto; cursor: grab; }
+.dd-bag.live:hover img { filter: drop-shadow(0 3px 2px rgba(46, 22, 6, 0.3)) drop-shadow(0 0 9px rgba(255, 209, 102, 0.85)); }
+.dd-bag.held { cursor: grabbing; transition: transform 0.05s linear; }
+.dd-prog { position: absolute; width: 180px; height: 180px; margin-top: 2px; pointer-events: none; animation: dd-in 0.3s ease; }
+.dd-prog circle { fill: none; stroke-width: 7; }
+.dd-prog-track { stroke: rgba(29, 33, 64, 0.38); }
+.dd-prog-fill { stroke: #ffd166; stroke-linecap: round; transition: stroke-dashoffset 0.16s ease-out; filter: drop-shadow(0 0 3px rgba(255, 209, 102, 0.8)); }
+.dd-paper { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; overflow: visible; animation: dd-paper 0.3s cubic-bezier(0.2, 1.4, 0.4, 1); transform-origin: 500px 490px; }
+@keyframes dd-paper { from { transform: scale(0.5, 0.3); opacity: 0; } }
+.dd-mini { position: absolute; filter: drop-shadow(0 1.5px 1px rgba(46, 22, 6, 0.35)); animation: dd-mini 0.34s cubic-bezier(0.2, 1.6, 0.4, 1) backwards; transition: translate 0.12s; }
+@keyframes dd-mini { from { transform: translateY(-26px) scale(0.5); opacity: 0; } }
+.dd[data-phase='serve'] .dd-mini, .dd[data-phase='eat'] .dd-mini { pointer-events: auto; cursor: pointer; }
+.dd[data-phase='serve'] .dd-mini:hover, .dd[data-phase='eat'] .dd-mini:hover { translate: 0 -4px; filter: drop-shadow(0 1.5px 1px rgba(46, 22, 6, 0.35)) drop-shadow(0 0 8px rgba(255, 209, 102, 0.9)); }
+.dd-mini.gone { pointer-events: none !important; }
+.dd-mini-shadow { position: absolute; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(46, 22, 6, 0.55), rgba(46, 22, 6, 0) 68%); animation: dd-in 0.4s ease; transition: opacity 0.2s; }
+.dd-mini-shadow.gone { opacity: 0; }
+.dd-steam { position: absolute; left: 420px; top: 380px; width: 170px; height: 70px; z-index: 5; pointer-events: none; }
+.dd-steam i { position: absolute; bottom: 0; width: 24px; height: 56px; border-radius: 50%; background: radial-gradient(ellipse at 50% 60%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 70%); filter: blur(2px); animation: dd-haze 3s ease-in infinite; }
+.dd-steam i:nth-child(1) { left: 16px; }
+.dd-steam i:nth-child(2) { left: 72px; animation-delay: 1s; }
+.dd-steam i:nth-child(3) { left: 128px; animation-delay: 2s; }
+
+/* things in the air */
+.dd-fly { position: absolute; z-index: 7; pointer-events: none; filter: drop-shadow(0 6px 5px rgba(30, 20, 10, 0.3)); }
+.dd-grain { position: absolute; z-index: 8; border-radius: 1.5px; pointer-events: none; }
+.dd-grain.round { border-radius: 50%; }
+.dd-scoop { position: absolute; z-index: 7; width: 60px; height: 40px; pointer-events: none; transform-origin: 30% 60%; transition: rotate 0.22s ease-out; filter: drop-shadow(0 6px 5px rgba(30, 20, 10, 0.3)); }
+.dd-scoop svg { display: block; width: 60px; height: 40px; overflow: visible; }
+.dd-scoop.tip { rotate: -42deg; }
+
+/* a hint bubble pointing down at the thing */
+.dd-hint { position: absolute; z-index: 7; margin: 0; transform: translate(-50%, -100%); padding: 6px 13px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 14px; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 var(--fs-lg)/1.25 var(--display); white-space: nowrap; pointer-events: none; animation: dd-bob 1.1s ease-in-out infinite alternate; transition: opacity 0.25s; }
+.dd-hint::after { content: ''; position: absolute; z-index: -1; left: 50%; bottom: -9px; box-sizing: border-box; width: 13px; height: 13px; margin-left: -6.5px; background: #fbfaf6; border: solid #1d2140; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.dd-hint span { position: relative; z-index: 1; }
+.dd-hint.out { opacity: 0; }
+@keyframes dd-bob { to { translate: 0 -5px; } }
+
+/* the corner: your coins, the way out */
+.dd-actions { position: absolute; right: 16px; top: 16px; z-index: 8; display: flex; align-items: center; gap: 8px; }
+.dd-coins { display: flex; align-items: center; gap: 4px; padding: 3px 10px 3px 5px; background: #fbfaf6; border: 2.5px solid #1d2140; border-radius: 999px; color: #1d2140; font: 400 15px/1 var(--display); }
+.dd-coins img { width: 20px; height: 20px; }
+.dd-coins b { font-weight: 400; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dd-shimmer, .dd-haze i, .dd-steam i, .dd-ripple, .dd-ring u, .dd-hint, .dd-guy-body { animation: none !important; }
+  .dd-haze, .dd-steam { display: none; }
+  .dd.ready .dd-pulse { animation: none; opacity: 1; }
+}

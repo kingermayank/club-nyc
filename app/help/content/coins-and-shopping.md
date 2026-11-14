@@ -61,7 +61,7 @@ If you reach a limit, you'll see a note like "That's all the coins the city hand
 | Furniture | Flatbush Flea, in your [apartment](apartment/decorating.md) | 20 to 150 |
 | Original paintings | The [Brooklyn Bridge](places/brooklyn-bridge.md#gallery) gallery | 10 to 15 |
 | Fridge magnets | The [Brooklyn Bridge](places/brooklyn-bridge.md#magnets) souvenir stand | 3 to 5 |
-| A bigger home | [StreetCheesy](apartment/moving-homes.md) | 1,500 or 4,000 |
+| A bigger home | [StreetCheesy](apartment/moving-homes.md) | 2,250 to 12,000 |
 | A Broadway show | [Times Square](places/times-square.md#broadway-theater) | 5 |
 | A carriage ride, or a rowboat | [Central Park](places/central-park.md) | 4, or 3 |
 | The ferry (as a passenger) | [Battery Park](places/battery-park-and-liberty-island.md) | 2 |

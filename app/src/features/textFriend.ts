@@ -7,15 +7,14 @@ import { sfx } from '../audio'
 import { el } from '../engine/stage'
 import { openOverlay, closeOverlay, closeButton, toast } from '../engine/ui'
 import { headPortrait } from '../avatar/render'
-import { ROOMS } from '../data/rooms'
-import { isHomeRoom } from '../data/homes'
+import { placePhrase } from '../data/placePhrase'
 import { link } from '../net/link'
 import { rest, type PublicUser, type Presence } from '../net/server'
 import type { TextKind } from '../net/protocol'
 import './textFriend.css'
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
-const where = (room: string | null) => (!room ? '' : isHomeRoom(room) ? 'at home' : `in ${ROOMS[room]?.name ?? room}`)
+const where = (room: string | null) => placePhrase(room)
 
 export const TEXTS: Record<TextKind, { label: string; icon: string }> = {
   meet: { label: 'Meet Me Here', icon: '📍' },
@@ -89,6 +88,9 @@ export function gotText(from: string, name: string, k: TextKind, room: string | 
     const visit = { label: 'Go', act: () => void import('./apartment').then((m) => m.visitPlayerApartment(from)) }
     if (k === 'home') return notify(`${who} invited you over to their place 🛋️`, '🏠', [visit], 20000)
     if (k === 'party') return notify(`${who} invited you to their party 🎉`, '🎉', [visit], 20000)
-    notify(`${who} says hi! 👋`, '💬', [{ label: 'Say Hi Back', act: () => link.send({ t: 'txt', i: from, k: 'hi' }) }], 9000)
+    notify(`${who} says hi! 👋`, '💬', [{ label: 'Say Hi Back', act: () => {
+      link.send({ t: 'txt', i: from, k: 'hi' })
+      toast(`Sent to ${who}: “${TEXTS.hi.label}” 📨`, '💬')
+    } }], 9000)
   })
 }

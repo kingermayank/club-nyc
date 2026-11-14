@@ -26,7 +26,9 @@ SAVE = {"created": True, "name": "Bea_NYC", "team": "midtown", "memberSince": "2
         "furniture": FURNITURE, "stats": {"party-intro": 1},
         # (the flash mob stamp already earned, so no local stops to teach it on camera: "Dance with me! Press D")
         "quests": {q: 1 for q in ['walk', 'gift', 'friend', 'job', 'subway']}, "stamps": ["local", "flash-mob"], "tour": "done",
-        "lastDaily": "", "seenNews": 1}
+        "lastDaily": "", "seenNews": 1,
+        # the iFruit phone already unboxed, so its welcome box doesn't open over the shot
+        "ifruit": {"unboxed": 1}}
 # nudge the clock so a Dance Jam starts 14 s after the page loads (shows start every 8 minutes)
 JAM_CLOCK = "(() => { const real = Date.now.bind(Date); const P = 480000; const shift = P - (real() % P) - 14000; Date.now = () => real() + shift })()"
 
@@ -204,7 +206,7 @@ async def map_scene(b):
 PLACES = [('central-park', (300, 470), (640, 480)), ('brooklyn-bridge', (260, 470), (700, 470)), ('liberty-island', (300, 480), (650, 470)),
           ('grand-central', (330, 480), (660, 470)), ('the-met', (300, 480), (640, 470)), ('chinatown', (300, 480), (650, 480)),
           ('rockefeller', (330, 480), (650, 470)), ('high-line', (300, 470), (640, 470)), ('soho', (300, 480), (650, 480)),
-          ('sky-deck', (300, 470), (650, 470)), ('empire-deck', (300, 480), (650, 480)), ('chelsea-market', (300, 480), (650, 470)),
+          ('sky-deck', (300, 470), (650, 470)), ('empire-deck', (300, 480), (650, 480)), ('empire-street', (300, 480), (520, 455)), ('chelsea-market', (300, 480), (650, 470)),
           ('battery-park', (300, 470), (650, 470))]
 
 
@@ -214,6 +216,8 @@ async def places(b):
     for room, a, z in [p for p in PLACES if not only or p[0] in only]:
         try:
             await goto(pg, room)
+            # the page can reload between rooms (a dev server, a reconnect): put the HUD away every time
+            await pg.add_style_tag(content=HIDE_HUD)
             await walk(pg, *a)
             await pg.wait_for_timeout(1800)
 

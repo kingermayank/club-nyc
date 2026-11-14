@@ -16,7 +16,7 @@ import { persist, save } from '../state'
  * What you hold is one number in save.stats: the day as 20261112, times ten, plus the tier (1 = the deck,
  * 2 = the deck and the viewers).
  */
-export type Venue = 'empire' | 'oneworld'
+export type Venue = 'empire' | 'oneworld' | 'vessel'
 
 interface Offer {
   tier: 1 | 2
@@ -41,6 +41,12 @@ const VENUES: Record<Venue, { title: string; deck: Offer[]; viewer: string }> = 
       { tier: 2, name: 'Sky Deck and Viewers', gets: 'Unlimited looks, all day', price: 8 },
     ],
     viewer: 'Harbor Viewers',
+  },
+  // the real Vessel sells timed tickets for about ten dollars: a short walk, so a small price
+  vessel: {
+    title: 'The Vessel',
+    deck: [{ tier: 1, name: 'Vessel Ticket', gets: 'Every landing, all day', price: 2 }],
+    viewer: '',
   },
 }
 

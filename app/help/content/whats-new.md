@@ -2,10 +2,20 @@
 title: What's New
 description: The latest changes to Club NYC, newest first, and what's coming next.
 icon: sparkles
-updated: 2026-11-12
+updated: 2026-11-14
 ---
 
 Club NYC is in early access, so the city changes often. Here's what's new, newest first. For first looks at what's coming, join the [Discord](/discord).
+
+## November 14, 2026 {#2026-11-14}
+
+- **Lights at home.** Pull a lamp's chain and the room goes to evening: the window glows, and anything still on lights its own corner. The neon sign and the TV switch too, the cat gets a heart, the plants rustle, and the jukebox throws notes. The brownstone's chandelier and the pendant lights in the loft and sky residence switch the same way, and the brownstone fireplace now lights. Your lights stay how you left them.
+
+## November 13, 2026 {#2026-11-13}
+
+- **Chelsea Market, rebuilt.** The old biscuit factory now looks like the real hall: brick arches, the pipe waterfall, the factory clock. Four shops you step up to: shave your own adobada at **Dos Tacos No. 2**, shuck a half dozen at **The Lobster Spot**, fry mini doughnuts at **Doughnut Dept.** and flip through six books at **Postman Books**. Eleven new stamps. See [Chelsea Market](places/high-line-and-chelsea-market.md#chelsea-market).
+- **Gelato flavors on the High Line.** The cart now has a menu: pistachio, strawberry, chocolate, stracciatella, lemon sorbet, mango sorbet, or two scoops. 3 coins each.
+- **The Vessel is a place to look from.** A 2-coin ticket gets you onto a landing. From there, head to the Hudson side, the Midtown side, or the middle to look up, and click what you see along the way.
 
 ## November 12, 2026 {#2026-11-12}
 
@@ -30,7 +40,7 @@ Club NYC is in early access, so the city changes often. Here's what's new, newes
 
 ## October 23, 2026 {#2026-10-23}
 
-- **Real New York names.** The shops and food spots now go by their real names: [Louis Vuittown](places/fifth-avenue.md#louis-vuitton), [Snacks Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) and the Halal Bros cart on Fifth Avenue, [THREAD](places/soho.md#supreme), [Sneaker Vault](places/soho.md#sneaker-vault) and [Starducks Coffee](places/soho.md#ralphs-coffee) in SoHo, and Golden Dumpling, Boba Bay and [99¢ Slice](places/chinatown-and-little-italy.md#joes-pizza) downtown. Everything you own stays yours.
+- **New names around town.** The shops and food spots have their own Club NYC names now: [Louis Vuittown](places/fifth-avenue.md#louis-vuitton), [Snacks Fifth Avenue](places/fifth-avenue.md#saks-fifth-avenue) and the Halal Bros cart on Fifth Avenue, [THREAD](places/soho.md#supreme), [Sneaker Vault](places/soho.md#sneaker-vault) and [Starducks Coffee](places/soho.md#ralphs-coffee) in SoHo, and Golden Dumpling, Boba Bay and [99¢ Slice](places/chinatown-and-little-italy.md#joes-pizza) downtown. Everything you own stays yours.
 - **The toy store is now Snacks Fifth Avenue.** Snacks sells shoes (from the 10022-SHOE floor), coats, jewelry and shades. The toys, balloons and dress-up moved to [I ♥ NY Souvenirs](places/times-square.md#i-love-ny-souvenirs) in Times Square. The floor piano went with the toys, so the Heart and Soul stamp is retired.
 
 ## October 21, 2026 {#2026-10-21}

@@ -85,7 +85,7 @@ export function awardXp(userId: string, reason: XpReason, opts: { amount?: numbe
 
 /** the last few awards, for the player card's "recently" list */
 export const recentXp = (userId: string, limit = 8) =>
-  q.all<{ amount: number; reason: string; at: number }>('SELECT amount, reason, at FROM xp_log WHERE user_id = ? ORDER BY id DESC LIMIT ?', userId, limit)
+  q.all<{ amount: number; reason: string; at: number }>('SELECT amount, reason, at FROM xp_log WHERE user_id = ? AND amount > 0 ORDER BY id DESC LIMIT ?', userId, limit)
 
 // ---------- REST: /api/xp ----------
 export const xpApi = new Hono<Env>()
@@ -101,5 +101,9 @@ const StampBody = z.object({ id: z.string().max(48) })
 xpApi.post('/stamp', requireUser, async (c) => {
   const body = StampBody.safeParse(await c.req.json().catch(() => null))
   if (!body.success || !STAMPS[body.data.id]) return c.json({ error: 'bad-request' }, 400)
-  return c.json(awardXp(c.get('user').id, 'stamp', { ref: body.data.id }))
+  const me = c.get('user').id
+  const r = awardXp(me, 'stamp', { ref: body.data.id })
+  // past today's XP ceiling the stamp pays nothing, but it is still written down: the stamp bonuses count these rows (save.ts)
+  if (!r.ok) q.run(`INSERT OR IGNORE INTO xp_log (user_id, amount, reason, ref, day, at) VALUES (?, 0, 'stamp', ?, ?, ?)`, me, body.data.id, nycDay(), Date.now())
+  return c.json(r)
 })

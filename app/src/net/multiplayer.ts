@@ -5,6 +5,7 @@ import { world, onRoomBuilt, refreshTag, trimLocals, removeActor, goto, walkTo }
 import { el, stage } from '../engine/stage'
 import { toast, notify, openOverlay, closeOverlay } from '../engine/ui'
 import { ROOMS } from '../data/rooms'
+import { placeName, placePhrase } from '../data/placePhrase'
 import type { Look } from '../avatar/look'
 import type { Pose } from '../avatar/render'
 import { logLine, onChatName } from '../features/chat'
@@ -30,6 +31,8 @@ export const mp = {
   friends: new Map<string, Friend>(),
   incoming: new Map<string, PublicUser>(),
   outgoing: new Set<string>(),
+  /** requests you sent that are still waiting, with who they're to */
+  sent: new Map<string, PublicUser>(),
   blocked: new Set<string>(),
   /** muted for this session: their bubbles and chat lines are hidden */
   muted: new Set<string>(),
@@ -39,7 +42,10 @@ export const mp = {
   /** UI that lists people re-renders when this fires */
   listeners: [] as (() => void)[],
 }
-const changed = () => mp.listeners.forEach((f) => f())
+const changed = () => {
+  mp.listeners.forEach((f) => f())
+  void import('../features/ifruit/store').then((m) => m.syncRequestBadge(mp.incoming.size))
+}
 export const onPeopleChange = (f: () => void) => {
   mp.listeners.push(f)
   return () => {
@@ -190,6 +196,7 @@ export async function refreshFriends() {
     mp.friends = new Map(r.friends.map((f) => [f.id, f]))
     mp.incoming = new Map(r.incoming.map((f) => [f.id, f]))
     mp.outgoing = new Set(r.outgoing.map((f) => f.id))
+    mp.sent = new Map(r.outgoing.map((f) => [f.id, f]))
     link.friends = new Set(mp.friends.keys())
     for (const a of mp.players.values()) refreshTag(a)
     changed()
@@ -216,6 +223,7 @@ export async function acceptFriend(id: string) {
   const who = mp.incoming.get(id)
   try {
     await rest(`/friends/${id}/accept`, { method: 'POST' })
+    void import('../features/ifruit/store').then((m) => m.readNotes('contacts', `u:${id}`))
     sfx.stamp()
     toast(`You and <b>${esc(who?.name ?? 'them')}</b> are friends!`, '🤝')
     void import('../game').then((m) => {
@@ -225,6 +233,22 @@ export async function acceptFriend(id: string) {
   } catch {
     toast('That request expired.', '🤝')
   }
+  await refreshFriends()
+}
+
+/** say no to a request (they aren't told; it just goes away), or take back one you sent */
+export async function declineFriend(id: string) {
+  mp.incoming.delete(id)
+  changed()
+  await rest(`/friends/${id}`, { method: 'DELETE' }).catch(() => {})
+  void import('../features/ifruit/store').then((m) => m.readNotes('contacts', `u:${id}`))
+  await refreshFriends()
+}
+export async function cancelRequest(id: string) {
+  mp.outgoing.delete(id)
+  mp.sent.delete(id)
+  changed()
+  await rest(`/friends/${id}`, { method: 'DELETE' }).catch(() => {})
   await refreshFriends()
 }
 
@@ -294,7 +318,7 @@ export function goToFriend(id: string) {
     toast(`Hopping over to ${esc(f.name)}’s side of ${roomName(f.room)}…`, '🚕')
     return rejoin()
   }
-  toast(`Heading to ${roomName(f.room)} to find ${esc(f.name)}…`, '🚕')
+  toast(`Heading to ${placeName(f.room)} to find ${esc(f.name)}…`, '🚕')
   goto(f.room)
 }
 
@@ -304,7 +328,7 @@ function friendPresence(e: Extract<S2C, { t: 'f' }>) {
   if (f) Object.assign(f, { name: e.n, online: e.on, room: e.r })
   else void refreshFriends()
   if (e.on && !wasOnline && f && !save.notifyOff && !document.hidden)
-    notify(`<b>${esc(e.n)}</b> is online${e.r ? ` at <b>${roomName(e.r)}</b>` : ''}`, '🟢', [{ label: 'Go', act: () => goToFriend(e.i) }])
+    notify(`<b>${esc(e.n)}</b> is online${e.r ? ` ${placePhrase(e.r).replace(/ /, ' <b>')}</b>` : ''}`, '🟢', [{ label: 'Go', act: () => goToFriend(e.i) }])
   changed()
 }
 
@@ -336,11 +360,20 @@ function onEvent(e: S2C) {
       mp.incoming.set(e.i, { id: e.i, name: e.n, look: null, team: '', title: '', memberSince: '' })
       changed()
       notify(`<b>${esc(e.n)}</b> wants to be friends!`, '🤝', [{ label: 'Accept', act: () => void acceptFriend(e.i) }, { label: 'Later', act: () => {} }], 16000)
+      void import('../features/ifruit/store').then((m) => m.phoneNotify({ app: 'contacts', title: e.n, text: 'Wants to be friends', arg: `u:${e.i}`, kind: 'fr' }))
+      // the real request (with their face) from the server
+      void refreshFriends()
       return
     case 'fa':
       sfx.stamp()
       toast(`<b>${esc(e.n)}</b> accepted your friend request!`, '🤝', { keep: true })
       void import('../game').then((m) => m.api.stamp('new-friend'))
+      void import('../features/ifruit/store').then((m) => m.phoneNotify({ app: 'contacts', title: e.n, text: 'Accepted your friend request', arg: `u:${e.i}` }))
+      void refreshFriends()
+      return
+    case 'fx':
+      // a request to or from them went away, or a friendship ended: quietly bring the lists up to date
+      void import('../features/ifruit/store').then((m) => m.readNotes('contacts', `u:${e.i}`))
       void refreshFriends()
       return
     case 'n':
@@ -361,10 +394,24 @@ function onEvent(e: S2C) {
       // the server changed your wallet (a payout, a purchase on another device, a moderator)
       applyWallet({ coins: e.c, owned: e.owned, homes: e.homes })
       if (e.why) toast(esc(e.why), '🪙')
+      void import('../features/ifruit/store').then((m) => m.emit('bank'))
       return
     case 'txt':
       // a friend texted you from their phone ("Meet me here!"): a notice with a Go button
       void import('../features/textFriend').then((m) => m.gotText(e.i, e.n, e.k, e.r))
+      return
+    case 'dm':
+      // iFruit Messages: a new message in one of your threads
+      if (mp.blocked.has(e.m.from)) return
+      void import('../features/ifruit/net').then((m) => m.onDm(e.m, e.n))
+      return
+    case 'payreq':
+      if (mp.blocked.has(e.i)) return
+      void import('../features/ifruit/net').then((m) => m.onPayRequest(e.id, e.i, e.n, e.a, e.note))
+      return
+    case 'call':
+      if (mp.blocked.has(e.i)) return
+      void import('../features/ifruit/apps/calls').then((m) => m.onCallEvent(e as Parameters<typeof m.onCallEvent>[0]))
       return
     case 'xp':
       // you earned XP somewhere (the HUD chip shows it; a new level gets a celebration)
@@ -378,6 +425,12 @@ function onEvent(e: S2C) {
     case 'sys':
       toast(esc(e.m), '📢')
       logLine({ name: '', text: e.m, kind: 'sys' })
+      // the server would not let you into that home (not a friend any more, or blocked): back to the street
+      if (e.m === 'That door is closed.' && isHomeRoom(world.room.id) && apartmentHost()) goto('times-square')
+      return
+    case 'txtr':
+      // "Sent" only means it left your phone: say so when it did not arrive
+      if (!e.ok) toast(e.why === 'too-soon' ? 'Too fast. Try again in a moment.' : 'Not delivered.', '💬')
       return
     case 'kick':
       return kicked(e.m, e.k)

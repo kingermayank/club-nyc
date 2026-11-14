@@ -175,8 +175,10 @@ export function landmarkSelfie(g: Game, room: string) {
   let pose: PoseId = poses[0]
 
   const root = el('div', 'sf')
+  // the iFruit's own shell colour (your signature colour)
+  root.style.setProperty('--shell', sigColor(save.look))
   root.innerHTML = `<div class="sf-phone">
-      <div class="sf-left"><svg class="sf-bolt" viewBox="0 0 20 28" aria-hidden="true"><path d="M12 1 L2 16 L9 16 L7 27 L18 11 L11 11 Z" fill="none" stroke="#fbfaf6" stroke-width="2.2" stroke-linejoin="round"/></svg><i class="sf-island"></i></div>
+      <div class="sf-left"><i class="sf-island"></i></div>
       <div class="sf-view">
         <img class="sf-bg" src="${ART}" alt="" draggable="false">
         <div class="sf-people"></div>
@@ -188,7 +190,7 @@ export function landmarkSelfie(g: Game, room: string) {
         <div class="sf-modes" role="radiogroup" aria-label="Pose">${poses.map((p) => `<button type="button" role="radio" data-p="${p}">${LABEL[p]}</button>`).join('')}</div>
       </div>
       <div class="sf-right">
-        <svg class="sf-flip" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 13 A 10 10 0 0 1 25 11 M25 19 A 10 10 0 0 1 7 21" fill="none" stroke="#fbfaf6" stroke-width="2.4" stroke-linecap="round"/><path d="M25 5 L25 11 L19 11 M7 27 L7 21 L13 21" fill="none" stroke="#fbfaf6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <i class="sf-flip" aria-hidden="true"></i>
         <button class="sf-shutter" type="button" aria-label="Take the photo"><i></i></button>
         <div class="sf-thumb"><img alt="" hidden></div>
       </div>
@@ -476,6 +478,8 @@ export function landmarkSelfie(g: Game, room: string) {
     lastShot = shot
     shots++
     const url = shot.toDataURL('image/jpeg', 0.9)
+    // every selfie lands in your iFruit's Photos too
+    void import('../ifruit/store').then((m) => m.addPhoto({ room, title: spot.title, jpeg: url, kind: 'selfie' }))
     thumb.src = url
     thumb.hidden = false
     // the print slides out and develops

@@ -109,13 +109,11 @@ export function swipeIn(o: SwipeOpts = {}): Promise<boolean | 'skip'> {
         <i class="ts-glow" style="--len:${SLOT_LEN}px;transform:translate(${SLOT_A[0]}px, ${SLOT_A[1] - 5}px) rotate(${SLOT_DEG}deg)"></i>
         <div class="ts-push" hidden><span>Push</span></div>
       </div>
-      <div class="ts-card" role="button" tabindex="0" aria-label="Your MetroCard: click it to swipe, or press Space">
-        <div class="ts-mc-face"><i class="ts-mc-gloss"></i><span class="ts-mc-seal">NYC</span>
-        <b class="ts-mc-word">MetroCard</b><b class="ts-mc-echo" aria-hidden="true">MetroCard</b>
-        <i class="ts-mc-mag"></i></div>
+      <div class="ts-card" role="button" tabindex="0" aria-label="Your subway card: click it to swipe, or press Space">
+        <div class="ts-mc-face"><i class="ts-mc-gloss"></i></div>
         ${handImg(save.look.skin)}
       </div>
-      <div class="ts-hint"><b>Swipe In</b><span>${o.intro ? 'Click your MetroCard to swipe it.' : 'Click your MetroCard to swipe it, or tap the reader.'}</span></div>
+      <div class="ts-hint"><b>Swipe In</b><span>${o.intro ? 'Click your card to swipe it.' : 'Click your card to swipe it, or tap the reader.'}</span></div>
       <button class="btn tiny ghost ts-back" type="button">${o.intro ? 'Skip Intro' : 'Back to the Street'}</button>`
     stage.root.append(root)
     const world = root.querySelector<HTMLElement>('.ts-world')!
@@ -245,7 +243,7 @@ export function swipeIn(o: SwipeOpts = {}): Promise<boolean | 'skip'> {
           fx.buzz()
           say('SWIPE IT', 'IT’S A METROCARD', 'bad')
           screen.classList.add('shake')
-          hint.textContent = 'That one’s a MetroCard. MetroCards swipe. Tap is for tomorrow.'
+          hint.textContent = 'That card only swipes. Tap is for tomorrow.'
           inHand()
           setTimeout(() => card.classList.remove('snap'), 280)
           setTimeout(() => stepNow === 'swipe' && say('SWIPE CARD'), 1600)

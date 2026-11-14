@@ -18,8 +18,8 @@ Go home ([[H]]) and click **Listings**.
 | Home | Neighborhood | Price | Perks |
 | --- | --- | :---: | --- |
 | **5th-Floor Walk-Up** | East Village | Free (yours) | Bodega downstairs, a fire-escape "balcony", steps as a free gym |
-| **Cast-Iron Loft** | SoHo, Greene St | 1,500 | 14-foot ceilings, cobblestone views, room for a LOT of furniture |
-| **Billionaires' Row Penthouse** | 57th Street, 90-something floors up | 4,000 | A party terrace, whole-park views, your own DJ booth |
+| **Cast-Iron Loft** | SoHo, Greene St | 2,250 | 14-foot ceilings, cobblestone views, room for a LOT of furniture |
+| **Billionaires' Row Penthouse** | 57th Street, 90-something floors up | 6,000 | A party terrace, whole-park views, your own DJ booth |
 
 ## Buying and Moving {#buying-and-moving}
 

@@ -47,7 +47,7 @@ Every job pays coins based on how well you did. The exact pay for each job is on
 
 - **Daily pay limit.** Job pay tops out at **1,500 coins** per day (New York time), across all jobs. If you hit it, the results card tells you, and your score still counts for the leaderboard. Shifts pay again the next day.
 - **Fair play.** When you're online, the city checks every shift. A run that finishes impossibly fast, or scores more than the job allows, doesn't pay ("That run didn't count"). Just play normally and you'll never see it.
-- **Your very first paycheck** comes with a postcard from the crew, and your first shift at most jobs unlocks a [work outfit](#work-outfits).
+- **Your first shift** at most jobs unlocks a [work outfit](#work-outfits).
 
 ## XP From Shifts {#xp}
 

@@ -78,7 +78,7 @@ Every game has its own board, for **wins** and for **best score**, this week (re
 | --- | --- |
 | Game On | Play a multiplayer game. |
 | Bragging Rights | Win a multiplayer game against a real New Yorker. |
-| Full House | Play a game with 4 or more real New Yorkers. |
+| The Whole Crew | Play a game with 4 or more real New Yorkers. |
 | Gansevoort to 34th | Finish a Citi Bike Dash on the High Line. |
 | Top of the Line | Win a Citi Bike Dash against real New Yorkers. |
 | Stand Clear | Run Rush Hour Run. |

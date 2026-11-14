@@ -51,8 +51,12 @@ When you're not decorating, click your furniture:
 | Sofas, chairs, benches, beds | Sit (or lie) down. Guests can too. |
 | Record Player | Drops the needle on some music. |
 | Jukebox | Music, and an invitation to dance (press [[D]]). |
-| Retro TV | Turns on and off. |
-| Lamps and the Neon Sign | Light up. |
+| Lamps | Pull the chain. With a lamp off the room goes to evening, lit by the window and whatever is still on. |
+| Chandelier (Brownstone), Pendant Lights (Loft, Sky Residence) | The room's own lights. Click them to switch them like a lamp. |
+| Fireplace (Brownstone) | Lights the fire, or puts it out. |
+| NYC Neon Sign | Switches on and off, pink on the wall when the room is dark. |
+| Retro TV | Turns on and off. The screen lights the room. |
+| Monstera, Water Tower Planter | Rustle. |
 | Bodega Cat Bed | Purrs. |
 | Arcade Cabinet | "One more game…" Starts Slice Factory, Ferry Captain or Bagel Counters at random. Same pay as the real thing. |
 

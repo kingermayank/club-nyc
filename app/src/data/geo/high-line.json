@@ -459,12 +459,7 @@
   }
  },
  "zones": {
-  "exit-north": [
-   430,
-   120,
-   560,
-   204
-  ]
+  "exit-north": [522, 150, 600, 215]
  },
  "cutouts": {
   "river-view": {

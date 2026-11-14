@@ -2,7 +2,6 @@ import './selfiePins.css'
 import { sfx } from '../audio'
 import { el } from '../engine/stage'
 import { onRoom } from '../engine/world'
-import { api } from '../game'
 import { SELFIE_SPOTS } from '../data/selfieSpots'
 
 /**
@@ -21,7 +20,8 @@ for (const [room, spot] of Object.entries(SELFIE_SPOTS)) {
     b.onclick = (e) => {
       e.stopPropagation()
       sfx.click()
-      void import('./moments/selfie').then((m) => m.landmarkSelfie(api, room))
+      // the same camera as everywhere else: your iFruit, already framed on the landmark (Selfie is one tap away)
+      void import('./ifruit/phone').then((m) => m.openApp('camera', 'spot'))
     }
     scene.append(b)
   })

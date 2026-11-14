@@ -1,0 +1,174 @@
+/* The Lobster Spot (features/moments/oysterBar.ts): first person at the marble raw bar, over the painting
+   art/places/cm-oysters.jpg, in stage units over the 1000 × 565.5 stage. Same family as the hot dog cart. */
+.moment.mo-oysters { z-index: 9700; }
+.ob { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #2a2f3d; user-select: none; -webkit-user-select: none; animation: ob-in 0.45s ease; }
+@keyframes ob-in { from { opacity: 0; } }
+.ob [hidden] { display: none !important; }
+.ob button { font: inherit; color: inherit; }
+.ob-bg { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; pointer-events: none; }
+
+/* bubbles rising in the lobster tank (clipped to the glass front) */
+.ob-tank { position: absolute; left: 30px; top: 186px; width: 300px; height: 112px; overflow: hidden; pointer-events: none; clip-path: polygon(0 0, 70% 0, 100% 9%, 100% 88%, 70% 100%, 0 100%); }
+.ob-tank > i { position: absolute; bottom: -8px; width: 5px; height: 5px; border-radius: 50%; border: 1.2px solid rgba(235, 255, 255, 0.85); background: rgba(210, 250, 255, 0.25); animation: ob-rise 4.2s linear infinite; }
+.ob-tank > i:nth-child(1) { left: 34px; }
+.ob-tank > i:nth-child(2) { left: 96px; width: 4px; height: 4px; animation-delay: 1.3s; animation-duration: 3.6s; }
+.ob-tank > i:nth-child(3) { left: 150px; animation-delay: 2.4s; }
+.ob-tank > i:nth-child(4) { left: 236px; width: 4px; height: 4px; animation-delay: 0.6s; animation-duration: 4.8s; }
+.ob-tank > i:nth-child(5) { left: 274px; animation-delay: 3.1s; animation-duration: 3.9s; }
+@keyframes ob-rise { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: 1; } 50% { transform: translate(3px, -52px); } 90% { opacity: 1; } 100% { transform: translate(-2px, -104px); opacity: 0; } }
+.ob-tank > .ob-burst { animation: ob-burst 1.2s ease-out both; }
+@keyframes ob-burst { 0% { transform: translate(0, 0) scale(0.4); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(4px, -92px) scale(1.1); opacity: 0; } }
+/* where you tapped the glass */
+.ob-tap { position: absolute; z-index: 5; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, 0.9); pointer-events: none; animation: ob-tap 0.5s ease-out forwards; }
+@keyframes ob-tap { from { transform: scale(0.2); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+/* one claw (a piece of the painting, drawn again over itself) gives a twitch */
+.ob-claw { position: absolute; left: 97px; top: 271px; width: 72px; height: 35px; background: url('/art/places/cm-oysters.jpg') -97px -271px / 1000px 565.5px no-repeat; clip-path: ellipse(48% 46% at 50% 52%); transform-origin: 96% 40%; pointer-events: none; opacity: 0; }
+.ob-claw.go { animation: ob-claw 0.5s ease-out; }
+@keyframes ob-claw { 0% { opacity: 1; transform: rotate(0); } 25% { transform: rotate(-7deg) translate(-1px, -2px); } 50% { transform: rotate(2deg); } 75% { transform: rotate(-4deg) translate(0, -1px); opacity: 1; } 100% { transform: rotate(0); opacity: 0; } }
+/* a red lobster comes up out of the steamer (same trick) */
+.ob-lift { position: absolute; left: 738px; top: 215px; width: 84px; height: 60px; background: url('/art/places/cm-oysters.jpg') -738px -215px / 1000px 565.5px no-repeat; clip-path: ellipse(47% 44% at 50% 52%); pointer-events: none; opacity: 0; }
+.ob-lift.go { animation: ob-lift 0.75s cubic-bezier(0.3, 0.6, 0.4, 1); }
+@keyframes ob-lift { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 60% { opacity: 1; transform: translate(-22px, -52px) rotate(-14deg); } 100% { opacity: 0; transform: translate(-60px, -40px) rotate(-22deg) scale(0.9); } }
+
+/* cold mist drifting off the ice */
+.ob-mist { position: absolute; left: 90px; top: 286px; width: 820px; height: 120px; z-index: 2; pointer-events: none; overflow: hidden; }
+.ob-mist i { position: absolute; width: 190px; height: 54px; border-radius: 50%; background: radial-gradient(ellipse at 50% 55%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 70%); filter: blur(5px); animation: ob-mist 11s linear infinite; }
+.ob-mist i:nth-child(1) { left: 0; top: 6px; }
+.ob-mist i:nth-child(2) { left: 230px; top: 44px; animation-delay: -4s; animation-duration: 13s; }
+.ob-mist i:nth-child(3) { left: 440px; top: 14px; animation-delay: -7s; }
+.ob-mist i:nth-child(4) { left: 610px; top: 52px; animation-delay: -2s; animation-duration: 14s; }
+@keyframes ob-mist { 0% { transform: translate(-40px, 10px) scaleX(0.8); opacity: 0; } 25% { opacity: 0.9; } 70% { opacity: 0.7; } 100% { transform: translate(90px, -22px) scaleX(1.25); opacity: 0; } }
+
+/* the fishmonger stands behind the ice, between the flags; the heap of ice hides him from the apron down */
+.ob-guy { position: absolute; left: 521px; top: 160px; width: 150px; height: 131px; z-index: 1; overflow: hidden; pointer-events: none; }
+.ob-guy-body { position: absolute; left: 15px; top: 0; width: 120px; transition: transform 0.42s cubic-bezier(0.45, 0.05, 0.3, 1); transform-origin: 50% 100%; animation: ob-breathe 2.8s ease-in-out infinite; }
+.ob-guy-body svg { display: block; width: 120px; height: 192px; overflow: visible; }
+@keyframes ob-breathe { 50% { translate: 0 2px; } }
+.ob-guy.reach-l .ob-guy-body { transform: translate(-18px, 9px) rotate(-7deg); }
+.ob-guy.reach-r .ob-guy-body { transform: translate(24px, 4px) rotate(9deg); }
+.ob-guy.hop .ob-guy-body { animation: ob-hop 0.42s ease-out, ob-breathe 2.8s 0.42s ease-in-out infinite; }
+@keyframes ob-hop { 40% { translate: 0 -8px; } }
+
+.ob-bubble { position: absolute; left: 556px; top: 188px; z-index: 6; max-width: 200px; margin: 0; padding: 7px 13px 8px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 16px 16px 4px 16px; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 var(--fs-md)/1.25 var(--display); pointer-events: none; translate: -100% 0; transform-origin: 100% 100%; animation: ob-pop 0.28s cubic-bezier(0.2, 1.6, 0.4, 1); transition: opacity 0.25s; }
+.ob-bubble.out { opacity: 0; }
+@keyframes ob-pop { from { transform: scale(0.6) translateY(8px); opacity: 0; } }
+
+/* the names on the three painted flags, hand-lettered */
+.ob-flag { position: absolute; z-index: 2; width: 46px; margin: -8px 0 0 -23px; color: #3a2a1c; font: 700 9.5px/16px 'Bradley Hand', 'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', cursive; letter-spacing: -0.2px; text-align: center; white-space: nowrap; pointer-events: none; }
+
+/* the tank, traced from the painting */
+.ob-shapes { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; z-index: 3; overflow: visible; pointer-events: none; }
+.ob-shape { fill: rgba(255, 209, 102, 0); stroke: #ffd166; stroke-width: 3; stroke-linejoin: round; stroke-opacity: 0; pointer-events: all; cursor: pointer; transition: fill 0.15s, stroke-opacity 0.15s; }
+.ob-shape:hover { fill: rgba(255, 220, 130, 0.14); stroke-opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 209, 102, 0.95)); }
+.ob.holding .ob-shape { pointer-events: none; }
+.ob-label { position: absolute; z-index: 8; margin: 0; transform: translate(-50%, -100%); padding: 4px 11px 5px; background: rgba(29, 33, 64, 0.9); border-radius: 999px; color: #fff; font: 400 var(--fs-sm)/1.2 var(--display); white-space: nowrap; pointer-events: none; }
+
+/* two pictures on the bar to pick from */
+.ob-menu { position: absolute; left: 440px; top: 418px; z-index: 5; display: flex; gap: 14px; translate: -50% 0; animation: ob-pop 0.32s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.ob-pick { display: flex; flex-direction: column; align-items: center; gap: 1px; width: 124px; padding: 5px 4px 6px; background: #fbfaf6; border: 2.5px solid #1d2140; border-radius: 14px; box-shadow: 0 3px 0 #1d2140, 0 9px 12px rgba(40, 30, 50, 0.28); cursor: pointer; transition: transform 0.12s, background 0.12s; }
+.ob-pick:hover { transform: translateY(-3px); background: #fff4c9; }
+.ob-pick:active { transform: translateY(1px); box-shadow: 0 1px 0 #1d2140; }
+.ob-pick > img { width: 84px; height: 48px; object-fit: contain; }
+.ob-pick span { color: #1d2140; font: 400 var(--fs-sm)/1.2 var(--display); }
+.ob-pick em { display: flex; align-items: center; gap: 2px; color: #1d2140; font: 400 var(--fs-sm)/1 var(--display); font-style: normal; }
+.ob-pick em img { width: 15px; height: 15px; }
+
+/* paying */
+.ob-pay { position: absolute; left: 440px; top: 426px; z-index: 5; display: flex; align-items: center; gap: 16px; translate: -50% 0; animation: ob-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.ob-pay-pic { width: 112px; height: 82px; object-fit: contain; filter: drop-shadow(0 5px 4px rgba(40, 30, 50, 0.3)); }
+.ob-pay > div { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.ob .ob-paybtn { flex-direction: row; gap: 5px; padding: 8px 26px; white-space: nowrap; }
+.ob-paybtn img { width: 20px; height: 20px; }
+.ob-after { position: absolute; left: 440px; top: 524px; z-index: 6; display: flex; gap: 8px; translate: -50% 0; animation: ob-pop 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.ob-after .btn { min-width: 108px; }
+
+/* where you are in it */
+.ob-steps { position: absolute; right: 16px; bottom: 10px; z-index: 6; display: flex; gap: 6px; margin: 0; padding: 5px; list-style: none; counter-reset: s; background: rgba(29, 33, 64, 0.78); border-radius: 999px; }
+.ob-steps li { counter-increment: s; display: flex; align-items: center; gap: 6px; padding: 4px 11px 5px 5px; border-radius: 999px; color: rgba(255, 255, 255, 0.6); font: 400 var(--fs-sm)/1.2 var(--display); }
+.ob-steps li::before { content: counter(s); display: grid; place-items: center; box-sizing: border-box; width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); font-size: var(--fs-xs); }
+.ob-steps li.now { background: #fff; color: #1d2140; }
+.ob-steps li.now::before { background: #ffd166; color: #1d2140; }
+.ob-steps li.done { color: #9fe3b5; }
+.ob-steps li.done::before { content: '✓'; background: #2fae4a; color: #fff; }
+.ob-steps li[data-s='eat'], .ob.roll .ob-steps li[data-s='shuck'], .ob.roll .ob-steps li[data-s='slurp'] { display: none; }
+.ob.roll .ob-steps li[data-s='eat'] { display: flex; }
+
+/* the tray of ice he sets on the marble */
+.ob-tray { position: absolute; inset: 0; z-index: 3; pointer-events: none; transform-origin: 440px 462px; transition: transform 0.45s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.4s; }
+.ob-tray.gone { transform: translate(150px, -150px) scale(0.42); opacity: 0; }
+.ob-tray-shadow { position: absolute; left: 236px; top: 424px; width: 408px; height: 112px; border-radius: 50%; background: radial-gradient(ellipse at 50% 50%, rgba(46, 34, 52, 0.6) 0, rgba(46, 34, 52, 0.5) 56%, rgba(46, 34, 52, 0) 71%); }
+.ob-platter { position: absolute; left: 250px; top: 392px; width: 380px; height: 150px; overflow: visible; }
+.ob-tray-lemon { position: absolute; left: 418px; top: 442px; width: 44px; }
+.ob-oy { position: absolute; width: 60px; height: 58px; transform-origin: 50% 60%; }
+.ob-oy > img:first-child { position: absolute; left: 0; bottom: 0; width: 60px; filter: brightness(1.08) drop-shadow(0 3px 2px rgba(40, 60, 90, 0.45)); }
+.ob-oy.lifted { z-index: 9; }
+.ob-oy.lifted > img:first-child { filter: drop-shadow(0 6px 5px rgba(20, 30, 50, 0.3)); }
+.ob-oy.done > img:first-child { filter: brightness(0.86) saturate(0.85) drop-shadow(0 -2px 1.5px rgba(40, 60, 90, 0.3)); }
+/* what you put on it */
+.ob-juice { position: absolute; left: 15px; top: 27px; width: 26px; height: 16px; border-radius: 50%; background: radial-gradient(ellipse at 35% 35%, rgba(255, 255, 255, 0.85) 0 12%, rgba(255, 236, 130, 0.5) 30%, rgba(255, 228, 110, 0) 72%); rotate: -24deg; }
+.ob-mig { position: absolute; width: 12px; height: 8px; border-radius: 45%; border: 1.2px solid #8a2f4a; background: radial-gradient(circle at 30% 30%, #ffd9e2 0 18%, transparent 20%), radial-gradient(circle at 70% 60%, #5fae4e 0 12%, transparent 14%), #ef8ba4; animation: ob-plop 0.22s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.ob-hot { position: absolute; width: 6px; height: 6px; border-radius: 50%; border: 1.1px solid #7c1410; background: radial-gradient(circle at 35% 30%, #ff9a7a 0 22%, #d8301f 26%); animation: ob-plop 0.22s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes ob-plop { from { transform: scale(0.2); } }
+.ob-drop { position: absolute; z-index: 9; width: 5px; height: 8px; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: #ffe36b; border: 1.1px solid #b98a12; pointer-events: none; }
+/* the pearl, glinting in the shell */
+.ob-pearl { position: absolute; left: 22px; top: 28px; width: 17px; filter: drop-shadow(0 0 3px #fff); animation: ob-glint 1.1s ease-in-out infinite alternate; }
+@keyframes ob-glint { from { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)); scale: 1; } to { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 3px #ffe9a8); scale: 1.14; } }
+.ob-pearl-up { position: absolute; z-index: 9; width: 64px; pointer-events: none; filter: drop-shadow(0 6px 6px rgba(20, 30, 50, 0.35)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.9)); }
+.ob-spark { position: absolute; z-index: 9; width: 12px; height: 12px; background: #fff7c9; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); pointer-events: none; }
+
+/* the top shells, where they land */
+.ob-pile { position: absolute; inset: 0; z-index: 3; pointer-events: none; transition: opacity 0.4s, transform 0.45s cubic-bezier(0.5, 0, 0.75, 0); }
+.ob-pile.gone { opacity: 0; transform: translateX(-120px); }
+.ob-lid { position: absolute; width: 56px; filter: drop-shadow(0 3px 2px rgba(46, 34, 52, 0.42)); }
+
+/* the first shuck: a ring on the hinge and the way to twist */
+.ob-guide { position: absolute; left: 0; top: 0; width: 1000px; height: 565.5px; z-index: 4; overflow: visible; pointer-events: none; }
+.ob-ring { fill: none; stroke: #ffd166; stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: ob-ring 1s ease-out infinite; }
+@keyframes ob-ring { from { transform: scale(0.6); opacity: 1; } to { transform: scale(2.1); opacity: 0; } }
+.ob-dash { animation: ob-dash 0.7s linear infinite; }
+@keyframes ob-dash { to { stroke-dashoffset: -13; } }
+
+/* the knife, the lemon and the two bottles: on the bar, or in your hand */
+.ob-tool { position: absolute; z-index: 4; cursor: grab; transform-origin: 50% 100%; filter: drop-shadow(0 4px 2.5px rgba(46, 34, 52, 0.42)); transition: transform 0.18s cubic-bezier(0.3, 1.4, 0.5, 1), filter 0.15s, translate 0.15s; }
+.ob-tool[data-t='mig'] { left: 650px; top: 437px; width: 40px; }
+.ob-tool[data-t='hot'] { left: 701px; top: 437px; width: 30px; }
+.ob-tool[data-t='knife'] { left: 748px; top: 441px; width: 74px; }
+.ob-tool[data-t='lemon'] { left: 418px; top: 442px; width: 44px; filter: drop-shadow(0 3px 2px rgba(40, 60, 90, 0.38)); }
+.ob-tool:not(.held):hover { filter: drop-shadow(0 4px 2.5px rgba(46, 34, 52, 0.42)) drop-shadow(0 0 8px #ffd166); translate: 0 -5px; }
+.ob-tool.nudge:not(.held) { animation: ob-nudge 0.5s ease-in-out 2; }
+@keyframes ob-nudge { 30% { transform: rotate(-8deg) translateY(-4px); } 70% { transform: rotate(7deg) translateY(-2px); } }
+.ob-tool.drop { animation: ob-drop-in 0.28s cubic-bezier(0.3, 0.6, 0.4, 1.4); }
+@keyframes ob-drop-in { from { transform: translate(-120px, -150px) rotate(-40deg) scale(0.6); opacity: 0; } }
+.ob-tool.held { z-index: 9; cursor: none; pointer-events: none; transition: transform 0.07s linear; filter: drop-shadow(0 10px 8px rgba(20, 30, 50, 0.35)); animation: none; }
+.ob-tool.held[data-t='knife'] { left: -2px; top: -84px; width: 100px; transform-origin: 2px 84px; }
+.ob-tool.held[data-t='lemon'] { left: -28px; top: -53px; width: 56px; transform-origin: 28px 53px; }
+.ob-tool.held[data-t='mig'] { left: -24px; top: -2px; width: 46px; transform-origin: 24px 2px; }
+.ob-tool.held[data-t='hot'] { left: -17px; top: -2px; width: 34px; transform-origin: 17px 2px; }
+.ob.holding, .ob.holding * { cursor: none; }
+.ob.point { cursor: pointer; }
+
+/* the lobster roll in its paper tray */
+.ob-plate { position: absolute; inset: 0; z-index: 3; pointer-events: none; transform-origin: 440px 440px; transition: transform 0.45s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.45s; }
+.ob-plate.done { transform: scale(0.2) rotate(-25deg) translate(-900px, 300px); opacity: 0; }
+.ob-roll-shadow { position: absolute; left: 338px; top: 474px; width: 204px; height: 46px; border-radius: 50%; background: radial-gradient(ellipse at 50% 50%, rgba(46, 34, 52, 0.5) 0, rgba(46, 34, 52, 0.3) 48%, rgba(46, 34, 52, 0) 72%); }
+.ob-roll { position: absolute; transform-origin: 50% 80%; }
+.ob-fly { position: absolute; z-index: 7; pointer-events: none; filter: drop-shadow(0 8px 6px rgba(20, 30, 50, 0.3)); }
+.ob-bit { position: absolute; z-index: 6; border-radius: 2px; border: 1px solid rgba(29, 33, 64, 0.4); pointer-events: none; }
+
+/* a hint bubble pointing down at the thing */
+.ob-hint { position: absolute; z-index: 7; margin: 0; transform: translate(-50%, -100%); padding: 6px 13px; background: #fbfaf6; border: 3px solid #1d2140; border-radius: 14px; box-shadow: 0 3px 0 #1d2140; color: #1d2140; font: 400 16px/1.25 var(--display); white-space: nowrap; pointer-events: none; animation: ob-bob 1.1s ease-in-out infinite alternate; transition: opacity 0.25s; }
+.ob-hint::after { content: ''; position: absolute; z-index: -1; box-sizing: border-box; left: 50%; bottom: -9px; width: 13px; height: 13px; margin-left: -6.5px; background: #fbfaf6; border: solid #1d2140; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.ob-hint span { position: relative; z-index: 1; }
+.ob-hint.out { opacity: 0; }
+@keyframes ob-bob { to { translate: 0 -5px; } }
+
+/* the corner: your coins, the way out */
+.ob-actions { position: absolute; right: 16px; top: 16px; z-index: 8; display: flex; align-items: center; gap: 8px; }
+.ob-coins { display: flex; align-items: center; gap: 4px; padding: 3px 10px 3px 5px; background: #fbfaf6; border: 2.5px solid #1d2140; border-radius: 999px; color: #1d2140; font: 400 15px/1 var(--display); }
+.ob-coins img { width: 20px; height: 20px; }
+.ob-coins b { font-weight: 400; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-mist i, .ob-tank > i, .ob-hint, .ob-guy-body, .ob-pearl, .ob-tool.nudge:not(.held), .ob-tool.drop { animation: none; }
+  .ob-lift.go, .ob-claw.go { animation: none; }
+}

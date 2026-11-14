@@ -5,7 +5,8 @@ import { el } from '../engine/stage'
 import { world, onRoom } from '../engine/world'
 import { save, persist } from '../state'
 import { companyLogo } from '../data/logos'
-import { ipoFor, nycDay, fmt, todaysIpo, loadMarket, liveMarket, type Ipo } from '../data/ipos'
+import { cityClass, nycDay, fmt, todaysIpo, loadMarket, liveMarket, IPOS, type Ipo } from '../data/ipos'
+import { loadQuotes, quotesNow, quoteNow } from './ifruit/quotes'
 import { quadMatrix, passersBy } from './downtown'
 import { openMoment, hint, shout, sparks } from './moments/kit'
 import { avatarMarkup } from '../avatar/render'
@@ -57,6 +58,19 @@ const emblem = (ipo: Ipo) =>
 const tick = (sym: string, price: number, pct: number, tag = '') => `<span class="${pct >= 0 ? 'up' : 'down'}"><b>${sym}</b> ${tag}${fmt(price)} ${pct >= 0 ? '▲' : '▼'}${Math.abs(pct).toFixed(1)}%</span>`
 /** the floor's tape: real quotes and the month's IPO class when the feed is up, the city's own listings when not */
 function tapeItems(ipo: Ipo): string {
+  // the city's own market, the same prices as the iFruit's Stocks app: today's listing first, then the biggest movers
+  const qs = quotesNow()
+  if (qs?.length) {
+    const pct = (q: { price: number; prev: number }) => ((q.price - q.prev) / q.prev) * 100
+    const today = qs.find((q) => q.sym === ipo.sym)
+    const first = today ? (rungToday() ? tick(today.sym, today.price, ((today.price - ipo.price) / ipo.price) * 100, 'IPO ') : `<span class="up"><b>${ipo.sym}</b> IPO ${fmt(ipo.price)}</span>`) : ''
+    const movers = qs
+      .filter((q) => q.sym !== ipo.sym && IPOS.some((i) => i.sym === q.sym))
+      .sort((a, b) => Math.abs(pct(b)) - Math.abs(pct(a)))
+      .slice(0, 12)
+      .map((q) => tick(q.sym, q.price, pct(q)))
+    return first + movers.join('')
+  }
   const m = liveMarket()
   const today = rungToday() || ipo.live ? tick(ipo.sym, ipo.live?.now ?? ipo.price * (1 + ipo.pop / 100), ipo.pop, 'IPO ') : `<span class="up"><b>${ipo.sym}</b> IPO ${fmt(ipo.price)}</span>`
   if (m?.listing) {
@@ -70,13 +84,9 @@ function tapeItems(ipo: Ipo): string {
   }
   return (
     today +
-    [1, 2, 3, 4, 5, 6]
-      .map((d) => ipoFor(d))
-      .map((p, i) => {
-        // last week's class has had time to settle: some held the pop, some gave it back
-        const move = Math.round(p.pop * (0.9 - ((i * 37 + p.sym.length * 13) % 10) / 6))
-        return tick(p.sym, p.price * (1 + move / 100), move)
-      })
+    cityClass(7)
+      .filter((c) => !c.today)
+      .map((c) => tick(c.ipo.sym, c.price, c.pct))
       .join('')
   )
 }
@@ -86,7 +96,8 @@ function mountScreen(scene: HTMLElement, ipo: Ipo, at: { x: number; y: number; w
   const k = at.k ?? 0.5
   s.style.cssText = `left:${at.x}px;top:${at.y}px;width:${at.w / k}px;height:${at.h / k}px;transform:scale(${k});transform-origin:0 0`
   scene.append(s)
-  const opened = ipo.live?.now ?? ipo.price * (1 + ipo.pop / 100)
+  // where it trades now: the same price the Stocks app shows
+  const opened = ipo.live?.now ?? quoteNow(ipo.sym)?.price ?? ipo.price * (1 + ipo.pop / 100)
   let timer = 0
   let raf = 0
   const clear = () => {
@@ -202,7 +213,7 @@ function mountStrips(scene: HTMLElement, ipo: Ipo) {
   const W = 600
   const H = 110
   const items = () => tapeItems(ipo)
-  const notes = `<span class="note">IPO WEEK</span><span class="note dim">${liveMarket()?.listing ? 'QUOTES DELAYED 15 MIN' : 'PRICES IN CLUB NYC COINS'}</span><span class="note">THE BELL RINGS AT 9:30</span><span class="note dim">NO PIGEONS ON THE FLOOR</span>`
+  const notes = `<span class="note">IPO WEEK</span><span class="note dim">SAME PRICES AS YOUR IFRUIT</span><span class="note">THE BELL RINGS AT 9:30</span><span class="note dim">NO PIGEONS ON THE FLOOR</span>`
   const strips = ([
     [[0, 82], [222, 146], [0, 126], [222, 171]],
     [[762, 146], [1000, 82], [762, 171], [1000, 126]],
@@ -282,8 +293,15 @@ onRoom('exchange-floor', ({ scene }) => {
     }
   }
   build()
-  // the real listing (Nasdaq's calendar, delayed quotes): swap it in when it arrives, unless the bell is mid-ring
   let here = true
+  // the city's prices (the same as the Stocks app): rebuild the screen and tape once they're in
+  if (!quotesNow())
+    void loadQuotes().then(() => {
+      if (!here || document.querySelector('.mo-ipo')) return
+      unbuild()
+      build()
+    })
+  // the real listing (Nasdaq's calendar, delayed quotes): swap it in when it arrives, unless the bell is mid-ring
   if (!liveMarket()) {
     void loadMarket().then((m) => {
       if (!here || !m?.listing || document.querySelector('.mo-ipo')) return
@@ -497,7 +515,8 @@ export function ringOpeningBell(g: Game) {
     foley.cheer()
     g.confetti(46)
     jumbo.trade(true)
-    m.later(() => shout(m, `${ipo.pop >= 0 ? '+' : ''}${ipo.pop}%`, [JUMBO.x + JUMBO.w / 2, JUMBO.y + JUMBO.h + 46], ipo.pop >= 0 ? 'gold' : 'bad'), 3600)
+    const popped = Math.round((((quoteNow(ipo.sym)?.price ?? ipo.price * (1 + ipo.pop / 100)) - ipo.price) / ipo.price) * 1000) / 10
+    m.later(() => shout(m, `${popped >= 0 ? '+' : ''}${popped}%`, [JUMBO.x + JUMBO.w / 2, JUMBO.y + JUMBO.h + 46], popped >= 0 ? 'gold' : 'bad'), 3600)
     const clean = Math.abs(offBy) <= 0.6
     shoutFloor(clean ? 'On the dot!' : 'And we’re open!')
     m.later(() => setMood('smile'), 1400)
@@ -517,6 +536,9 @@ export function ringOpeningBell(g: Game) {
       g.emote('cheer', 3)
       for (const a of world.npcs) if (!a.remote) a.emote('cheer', 2.5)
       g.say(sayLine(ipo))
+      // it's trading now: your iFruit's Stocks app has it, priced in coins
+      if (!again && !ipo.live)
+        setTimeout(() => void import('../engine/ui').then((u) => u.notify(`<b>${ipo.sym}</b> is trading`, '📈', [{ label: 'Trade', act: () => void import('./ifruit/phone').then((p) => p.openApp('stocks', ipo.sym)) }], 10000, { quiet: true })), 2600)
     }, 7700)
     m.later(() => m.close(), 7400)
   }

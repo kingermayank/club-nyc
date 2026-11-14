@@ -28,7 +28,7 @@ The **bell** button turns city updates on or off. When it's off, friends coming 
 - [Inviting Friends](community/inviting-friends.md) {icon:love-letter} Your invite link, and coins for both of you.
 - [Neighborhood Wars](community/neighborhood-wars.md) {icon:flag} Pick a team and help it win the week.
 - [Leaderboards](community/leaderboards.md) {icon:medal-gold} Weekly and all-time bests for every job.
-- [Postcards & Notices](community/postcards-and-notices.md) {icon:mailbox} The envelope at the top left, and the notes at the bottom right.
+- [Notices](community/postcards-and-notices.md) {icon:mailbox} The notes at the bottom right, and the bell on your phone.
 - [Playing Online](community/playing-online.md) {icon:online} How the shared city works, reconnecting, and playing offline.
 :::
 

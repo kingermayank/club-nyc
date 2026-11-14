@@ -69,7 +69,7 @@ function tour(h: HomeDef) {
     btn.onclick = async () => {
       if (save.coins < h.price) {
         sfx.squawk()
-        return toast(`You need ${(h.price - save.coins).toLocaleString('en-US')} more coins. Time for a few shifts at Papi’s!`, '🪙')
+        return toast(`You need ${(h.price - save.coins).toLocaleString('en-US')} more coins.`, '🪙')
       }
       const ok = await api.choose(`Buy the ${h.name}?`, `${h.price.toLocaleString('en-US')} coins, once. It’s yours for good. Closing costs: zero. Board interview: just vibes.`, [
         { label: 'Sign the Papers ✍️', value: true },

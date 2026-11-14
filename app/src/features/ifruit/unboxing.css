@@ -1,0 +1,66 @@
+/* The iFruit unboxing (unboxing.ts). Stage px. */
+.ifu { position: absolute; inset: 0; z-index: 9760; overflow: hidden; background: #1d2140; animation: fade-in 0.4s ease; user-select: none; }
+.ifu.out { opacity: 0; transition: opacity 0.38s ease; pointer-events: none; }
+.ifu-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease, filter 0.8s ease, transform 3s ease; }
+.ifu-bg.open { opacity: 0; }
+.ifu.opened .ifu-bg.open { opacity: 1; }
+.ifu.opened .ifu-bg.closed { opacity: 0; }
+.ifu.rise .ifu-bg { filter: blur(6px) brightness(0.45) saturate(0.8); transform: scale(1.04); }
+.ifu.setup .ifu-bg { filter: blur(10px) brightness(0.32) saturate(0.6); }
+.ifu.setup .ifu-rays { opacity: 0 !important; transition: opacity 0.4s; }
+.ifu-box { position: absolute; left: 282px; top: 262px; width: 420px; height: 290px; border: 0; border-radius: 30px; background: none; cursor: pointer; }
+.ifu-box:focus { outline: none; }
+.ifu:not(.opening) .ifu-box { animation: ifu-glow 1.8s ease-in-out infinite; }
+@keyframes ifu-glow { 50% { box-shadow: 0 0 60px 10px rgba(255, 209, 102, 0.35); } }
+.ifu-box.shake { animation: ifu-shake 0.5s ease; }
+.ifu.opening .ifu-box { pointer-events: none; }
+@keyframes ifu-shake { 15% { transform: rotate(-2deg) translateY(-4px); } 30% { transform: rotate(2deg); } 45% { transform: rotate(-1.5deg) translateY(-2px); } 60% { transform: rotate(1deg); } }
+.ifu.opening .ifu-bg.closed { animation: ifu-shake 0.5s ease; transform-origin: 50% 80%; }
+.ifu-rays { position: absolute; left: 490px; top: 240px; width: 700px; height: 700px; margin: -350px 0 0 -350px; border-radius: 50%; background: repeating-conic-gradient(rgba(255, 230, 150, 0.32) 0deg 8deg, transparent 8deg 22deg); -webkit-mask: radial-gradient(circle, #000 18%, transparent 60%); mask: radial-gradient(circle, #000 18%, transparent 60%); opacity: 0; transform: scale(0.4); pointer-events: none; }
+.ifu.opened .ifu-rays { opacity: 1; transform: scale(1); transition: opacity 0.4s, transform 0.8s cubic-bezier(0.2, 1, 0.3, 1); animation: ifu-spin 18s linear infinite; }
+@keyframes ifu-spin { to { rotate: 360deg; } }
+.ifu-tag { position: absolute; left: 50px; top: 40px; display: flex; flex-direction: column; gap: 2px; padding: 12px 18px 14px; border: 4px solid var(--ink); border-radius: 18px; background: var(--paper); box-shadow: 0 5px 0 rgba(29, 33, 64, 0.35); transform: rotate(-3deg); animation: ifu-tag 0.6s cubic-bezier(0.2, 1.5, 0.4, 1) 0.3s backwards; transition: opacity 0.3s, transform 0.4s; }
+.ifu-tag b { font: 400 var(--fs-4xl)/1.2 var(--display); color: var(--ink); }
+.ifu-tag span { font: var(--fs-md)/1.3 var(--body); color: #4a4f73; }
+.ifu.rise .ifu-tag { opacity: 0; transform: rotate(-3deg) translateY(-20px); }
+@keyframes ifu-tag { from { transform: rotate(-12deg) scale(0.6); opacity: 0; } }
+.ifu-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); padding: 8px 18px; border: 3px solid var(--ink); border-radius: 999px; background: var(--sun); color: var(--ink); font: 400 var(--fs-xl)/1.2 var(--display); box-shadow: 0 4px 0 rgba(29, 33, 64, 0.35); pointer-events: none; animation: ifr-nudge 1.6s ease-in-out infinite; }
+.ifu-skip { position: absolute; right: 16px; top: 14px; z-index: 3; }
+
+/* the phone itself */
+.ifu-phone { position: absolute; left: 490px; top: 236px; width: 188px; height: 384px; transform: translate(-50%, -50%) scale(0.56); opacity: 0; perspective: 900px; pointer-events: none; z-index: 2; }
+.ifu.rise.setup .ifu-phone { transform: translate(-50%, -50%) scale(1.12); }
+.ifu.rise .ifu-phone { opacity: 1; transform: translate(-50%, -50%) scale(1); left: 500px; top: 282px; transition: transform 0.9s cubic-bezier(0.2, 1.1, 0.3, 1), left 0.9s cubic-bezier(0.2, 1.1, 0.3, 1), top 0.9s cubic-bezier(0.2, 1.1, 0.3, 1), opacity 0.2s; pointer-events: auto; }
+.ifu-flip { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateY(180deg); }
+.ifu.turn .ifu-flip { transform: rotateY(0); transition: transform 0.7s cubic-bezier(0.3, 1.25, 0.4, 1); }
+.ifu-back, .ifu-front { position: absolute; inset: 0; border-radius: 30px; border: 4px solid var(--ink); background: var(--shell, #2a7bd5); backface-visibility: hidden; box-shadow: inset 3px 3px 0 rgba(255, 255, 255, 0.35), inset -3px -4px 0 rgba(0, 0, 0, 0.22), 0 20px 50px rgba(0, 0, 0, 0.5); }
+.ifu-back { transform: rotateY(180deg); display: grid; place-items: center; }
+.ifu-back img { width: 64px; height: 64px; color: #000; opacity: 0.22; }
+.ifu-cam { position: absolute; left: 16px; top: 16px; width: 30px; height: 64px; border-radius: 16px; background: rgba(0, 0, 0, 0.18); border: 3px solid var(--ink); }
+.ifu-cam::before, .ifu-cam::after { content: ''; position: absolute; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #4a5590, #0b0d18 65%); border: 2px solid #0b0d18; }
+.ifu-cam::before { top: 5px; } .ifu-cam::after { bottom: 5px; }
+.ifu-front { padding: 7px; }
+.ifu-scr { position: relative; width: 100%; height: 100%; border-radius: 23px; background: #05060c; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.ifu-scr::before { content: ''; position: absolute; inset: 0; background: var(--wall) center / cover; opacity: 0; transition: opacity 0.5s; }
+.ifu.setup .ifu-scr::before { opacity: 1; }
+.ifu-logo { position: relative; width: 70px; height: 70px; opacity: 0; transform: scale(0.3); }
+.ifu.wake .ifu-logo { opacity: 1; transform: scale(1); transition: transform 0.6s cubic-bezier(0.2, 1.6, 0.4, 1), opacity 0.3s; }
+.ifu.setup .ifu-logo { display: none; }
+.ifu-hello { position: relative; min-height: 34px; color: #fff; font: 400 var(--fs-5xl)/1.2 var(--display); }
+.ifu-hello.in { animation: ifu-hello 0.5s ease; }
+@keyframes ifu-hello { 0% { opacity: 0; transform: translateY(8px); } 25%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.ifu.setup .ifu-hello { display: none; }
+.ifu-pick[hidden] { display: none; }
+.ifu-pick { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; margin-top: auto; padding: 10px 8px 14px; background: rgba(255, 253, 246, 0.94); border-radius: 18px 18px 0 0; animation: ifr-sheet 0.4s cubic-bezier(0.2, 1.2, 0.35, 1); }
+.ifu-pick small { font: 400 var(--fs-md)/1.3 var(--display); color: var(--ink); }
+.ifu-walls { display: flex; gap: 6px; }
+.ifu-walls button { width: 48px; height: 86px; padding: 0; border: 2px solid var(--ink); border-radius: 9px; overflow: hidden; cursor: pointer; transition: transform 0.2s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.ifu-walls button img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ifu-walls button.on { box-shadow: 0 0 0 3px var(--sun); transform: translateY(-3px); }
+.ifu.leaving .ifu-bg, .ifu.leaving .ifu-rays { opacity: 0 !important; transition: opacity 0.5s; }
+.ifu.leaving { background: transparent; }
+.tb-btn.ifu-got { animation: ifu-got 1.2s ease; }
+@keyframes ifu-got { 0% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.9); transform: scale(1.25); } 100% { box-shadow: 0 0 0 18px rgba(255, 209, 102, 0); transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .ifu *, .ifu { animation: none !important; transition-duration: 0.12s !important; }
+}

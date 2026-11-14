@@ -59,7 +59,7 @@ The card that opens when you click a New Yorker: their name, level, team and but
 
 ### Rosa {#rosa}
 
-Your building's super. She gives you the tour and writes you postcards. She also knows about the elevator. Don't ask about the elevator.
+Your building's super. She gives you the tour and texts your iFruit. She also knows about the elevator. Don't ask about the elevator.
 
 ### Stamp {#stamp}
 

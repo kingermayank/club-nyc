@@ -135,6 +135,17 @@ async function profileFromCode(provider: Provider, code: string, verifier: strin
 
 const tmpCookie = { httpOnly: true, sameSite: 'Lax' as const, secure: config.secureCookies, path: '/', maxAge: 600 }
 
+/**
+ * Where to go after signing in, when it isn't the game: the community board (/community...) sends people out to sign
+ * in and wants them back where they were. Only our own community addresses are accepted, never another site.
+ * Someone without a New Yorker yet still goes to the game first, to make one.
+ */
+export const safeNext = (v: unknown): string | null => (typeof v === 'string' && /^\/community(?:\/[A-Za-z0-9_-]+){0,2}\/?$/.test(v) ? v : null)
+const afterSignIn = (userId: string, next: string | null) => {
+  const ready = next && q.get<{ ok: number }>('SELECT 1 AS ok FROM users WHERE id = ? AND profile_done = 1 AND name IS NOT NULL', userId)
+  return `${config.publicUrl}${ready ? next : '/play?login=ok'}`
+}
+
 export const auth = new Hono<Env>()
 
 auth.get('/providers', (c) => c.json({ google: !!google, x: !!twitter, discord: !!discord, email: canSendEmail(), guest: config.allowGuests }))
@@ -160,6 +171,9 @@ auth.get('/:provider{google|x|discord}', (c) => {
   else return c.text(`${provider} sign-in isn't configured on this server (see server/.env.example)`, 501)
   setCookie(c, 'oauth_state', state, tmpCookie)
   setCookie(c, 'oauth_verifier', verifier, tmpCookie)
+  const next = safeNext(c.req.query('next'))
+  if (next) setCookie(c, 'auth_next', next, tmpCookie)
+  else deleteCookie(c, 'auth_next', { path: '/' })
   return c.redirect(url.toString())
 })
 
@@ -170,6 +184,8 @@ auth.get('/:provider{google|x|discord}/callback', async (c) => {
   const verifier = getCookie(c, 'oauth_verifier')
   deleteCookie(c, 'oauth_state', { path: '/' })
   deleteCookie(c, 'oauth_verifier', { path: '/' })
+  const next = safeNext(getCookie(c, 'auth_next'))
+  deleteCookie(c, 'auth_next', { path: '/' })
   if (!code || !state || !savedState || state !== savedState || !verifier) return c.redirect(`${config.publicUrl}/play?login=failed`)
   let prof: Profile
   try {
@@ -204,7 +220,7 @@ auth.get('/:provider{google|x|discord}/callback', async (c) => {
     q.run('INSERT INTO identities (provider, subject, user_id, email, display, created_at) VALUES (?, ?, ?, ?, ?, ?)', provider, prof.subject, userId, prof.email, prof.display, Date.now())
   }
   if (!playing || playing.id !== userId) createSession(c, userId)
-  return c.redirect(`${config.publicUrl}/play?login=ok`)
+  return c.redirect(afterSignIn(userId, next))
 })
 
 // ---------- "that sign-in is someone else's": switch to them, or stay ----------
@@ -307,7 +323,8 @@ auth.post('/email', async (c) => {
   const playing = currentUser(c)
   const token = newToken()
   q.run('INSERT INTO email_logins (token_hash, email, guest_id, expires_at, created_at) VALUES (?, ?, ?, ?, ?)', sha(token), email, playing?.id ?? null, now + LINK_MINUTES * 60_000, now)
-  const url = `${config.publicUrl}/api/auth/email/verify?token=${token}`
+  const next = safeNext((body as { next?: unknown } | null)?.next)
+  const url = `${config.publicUrl}/api/auth/email/verify?token=${token}${next ? `&next=${encodeURIComponent(next)}` : ''}`
   const sent = await sendEmail(makeMail(email, signInContent(url, emailOwner(email), playing), 'sign-in'))
   if (!sent.ok) return c.json({ error: 'not-sent' }, 502)
   // the same answer whether or not the address has an account (nobody can use this to find out who plays)
@@ -373,7 +390,7 @@ auth.get('/email/verify', (c) => {
     })
   }
   if (!playing || playing.id !== userId) createSession(c, userId)
-  return c.redirect(`${config.publicUrl}/play?login=ok`)
+  return c.redirect(afterSignIn(userId, safeNext(c.req.query('next'))))
 })
 
 // links are short-lived; the rows are kept a day for the per-address limits above, then removed

@@ -5,6 +5,7 @@ import { sfx } from '../audio'
 import { theater as foley } from '../foley'
 import { api } from '../game'
 import { save } from '../state'
+import { itemIcon } from '../avatar/render'
 import { nycDay } from '../data/economy'
 import { SHOWS, SHOW, type ShowDef, type ShowId } from './broadway/shows'
 import type { ShowVideo } from './broadway/stage'
@@ -23,7 +24,6 @@ export const SHOW_IDS: ShowId[] = SHOWS.map((s) => s.id)
 const dayNo = (day: string) => Math.round(Date.parse(`${day}T12:00:00Z`) / 86400_000)
 /** tonight's show, by New York date */
 export const tonight = (day = nycDay()): ShowDef => SHOWS[dayNo(day) % SHOWS.length]
-const tomorrowNight = () => SHOWS[(dayNo(nycDay()) + 1) % SHOWS.length]
 
 // ---------- a provided video for a show ----------
 const found = new Map<ShowId, Promise<ShowVideo | null>>()
@@ -110,7 +110,7 @@ async function play(show: ShowDef, video: ShowVideo | null) {
         let reward = ''
         if (!save.owned.includes('playbill')) {
           api.give('playbill')
-          reward = `<p class="bw-reward">🎁 <span>You got a Playbill! Hold it from your player card.</span></p>`
+          reward = `<p class="bw-reward">${itemIcon('playbill')}<span>Playbill</span></p>`
         }
         const watchAgain = el('button', 'btn', 'Watch Again (5)')
         watchAgain.onclick = () => {
@@ -120,14 +120,13 @@ async function play(show: ShowDef, video: ShowVideo | null) {
           again = true
           closeOverlay()
         }
-        const back = el('button', 'btn go', 'Back to the Theater')
+        const back = el('button', 'btn go', 'Done')
         back.onclick = () => {
           sfx.click()
           closeOverlay()
         }
-        const next = tomorrowNight()
         night.showCard(
-          `<h2>Bravo!</h2><p>What a show. The cast of “${show.title}” thanks you for coming.</p>${reward}<p class="bw-next">${next.id === show.id ? 'Tomorrow night: the same show, by popular demand' : `Tomorrow night: <b>${next.title}</b>`}</p>`,
+          `<h2>Bravo!</h2>${reward}`,
           [watchAgain, back],
         )
       },

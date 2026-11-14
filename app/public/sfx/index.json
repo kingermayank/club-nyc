@@ -512,6 +512,132 @@
    ],
    "bus": "fx",
    "vol": 0.55
+  },
+  "mk.sizzle": {
+   "files": [
+    "mk.sizzle.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5
+  },
+  "mk.shave": {
+   "files": [
+    "mk.shave.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5,
+   "jitter": 0.08
+  },
+  "mk.shuck": {
+   "files": [
+    "mk.shuck.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5,
+   "jitter": 0.06
+  },
+  "mk.slurp": {
+   "files": [
+    "mk.slurp.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5,
+   "jitter": 0.06
+  },
+  "mk.fry": {
+   "files": [
+    "mk.fry.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.4
+  },
+  "mk.shake": {
+   "files": [
+    "mk.shake.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5,
+   "jitter": 0.1,
+   "gap": 70
+  },
+  "mk.bag": {
+   "files": [
+    "mk.bag.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5
+  },
+  "mk.page": {
+   "files": [
+    "mk.page.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5,
+   "jitter": 0.06
+  },
+  "mk.thump": {
+   "files": [
+    "mk.thump.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5
+  },
+  "mk.clunk": {
+   "files": [
+    "mk.clunk.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5,
+   "jitter": 0.05
+  },
+  "mk.till": {
+   "files": [
+    "mk.till.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5
+  },
+  "hm.chain": {
+   "files": [
+    "hm.chain.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.55
+  },
+  "hm.neon": {
+   "files": [
+    "hm.neon.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.35
+  },
+  "hm.tvOn": {
+   "files": [
+    "hm.tvOn.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.4
+  },
+  "hm.tvOff": {
+   "files": [
+    "hm.tvOff.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.45
+  },
+  "hm.rustle": {
+   "files": [
+    "hm.rustle.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5
+  },
+  "hm.fire": {
+   "files": [
+    "hm.fire.mp3"
+   ],
+   "bus": "fx",
+   "vol": 0.5
   }
  },
  "ambience": {
@@ -574,6 +700,10 @@
   "shop": {
    "file": "amb-shop.mp3",
    "vol": 0.2
+  },
+  "market": {
+   "file": "amb-market.mp3",
+   "vol": 0.3
   }
  }
 }
