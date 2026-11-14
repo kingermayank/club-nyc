@@ -3,6 +3,7 @@ import { sfx } from '../audio'
 import { save, persist, bump } from '../state'
 import { el } from '../engine/stage'
 import { onRoom } from '../engine/world'
+import { magnetSpot } from './fridgeSpots'
 import type { Game } from '../types'
 import { PAINTINGS, MAGNETS, magnetSrc } from '../data/souvenirs'
 import { picCard } from './infocard'
@@ -119,24 +120,35 @@ export function openMagnetStand(g: Game) {
 const MAGNET_LINE = 'Collect all nine. Your fridge has room. Your apartment doesn’t.'
 
 // ---------- the fridge at home ----------
-/** spots on the walk-up's fridge doors (logical room coords, magnet centres), clear of the Decorate button and the
- * apartment's side buttons that sit over the fridge's right edge */
-const SLOTS: [number, number][] = [[906, 104], [934, 116], [914, 172], [906, 205], [934, 222], [910, 250], [936, 268], [912, 296], [938, 314]]
-
+/** the lower door of the fridge in the walk-up's painting, corner by corner (logical room coords: top-left,
+ * top-right, bottom-right, bottom-left). Magnets sit on it where you put them in the close-up. */
+const ROOM_DOOR: [number, number][] = [[885, 187], [965, 203], [965, 357], [885, 328]]
 /** The fridge at home: the door up close with your magnets on it, and the inside (features/fridge.ts). */
-export const openFridge = (g: Game) => void import('./fridge').then((m) => m.openFridge(g))
+export const openFridge = (g: Game) => void import('./fridge').then((m) => m.openFridge(g, stickMagnets))
 
-/** Your magnets on the walk-up's fridge (your own place only: a visit shows their fridge, not yours). */
-onRoom('apartment', ({ scene }) => {
-  if (apartmentHost() !== undefined) return
+/** Your magnets on the walk-up's fridge (your own place only: a visit shows their fridge, not yours), arranged the
+ * way you left them in the close-up. */
+let fridgeScene: HTMLElement | null = null
+function stickMagnets() {
+  const scene = fridgeScene
+  if (!scene?.isConnected) return
+  scene.querySelectorAll('.fridge-magnet').forEach((n) => n.remove())
   const have = myMagnets()
-  MAGNETS.filter((m) => have.includes(m.id)).forEach((m, i) => {
-    const [x, y] = SLOTS[i % SLOTS.length]
+  const [tl, tr, br, bl] = ROOM_DOOR
+  MAGNETS.forEach((m, i) => {
+    if (!have.includes(m.id)) return
+    const [fx, fy] = magnetSpot(m.id, i)
+    const top = [tl[0] + (tr[0] - tl[0]) * fx, tl[1] + (tr[1] - tl[1]) * fx]
+    const bot = [bl[0] + (br[0] - bl[0]) * fx, bl[1] + (br[1] - bl[1]) * fx]
     const img = el('img', 'fridge-magnet') as HTMLImageElement
     img.src = magnetSrc(m.id)
     img.alt = ''
     img.draggable = false
-    img.style.cssText = `left:${x}px;top:${y}px;--r:${((i * 37) % 17) - 8}deg`
+    img.style.cssText = `left:${top[0] + (bot[0] - top[0]) * fy}px;top:${top[1] + (bot[1] - top[1]) * fy}px;--r:${((have.indexOf(m.id) * 37) % 17) - 8}deg`
     scene.append(img)
   })
+}
+onRoom('apartment', ({ scene }) => {
+  fridgeScene = apartmentHost() !== undefined ? null : scene
+  stickMagnets()
 })

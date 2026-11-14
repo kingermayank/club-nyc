@@ -1,150 +1,227 @@
 import './fridge.css'
 import { sfx } from '../audio'
 import { ITEM } from '../avatar/items'
-import { itemIcon } from '../avatar/render'
 import { el } from '../engine/stage'
-import { world } from '../engine/world'
 import { save, persist } from '../state'
 import { MAGNETS, magnetSrc } from '../data/souvenirs'
+import SCENE from '../data/fridge.json'
 import type { Game } from '../types'
+import { DOOR_PAD, magnetSpot } from './fridgeSpots'
 import { closeX, openMoment } from './moments/kit'
 
 /**
- * Your fridge, up close. The door fills the screen and every magnet you own is stuck on it: drag them wherever you
- * like and they stay there (save.magnetAt). Pull the handle and the door swings open on the inside: the shelves hold
- * the food you actually own (click something to take it out), plus what every New York fridge has anyway.
+ * Your fridge, up close. It is a real little scene (modelled and rendered for the game: art/fridge/f00..f21 are the
+ * door swinging open, shot by a camera that steps back as it goes), so the door opens like a door.
  *
- * The fridge is drawn here (SVG), not painted: it has to open, and the door has to carry the magnets with it.
+ * - Shut: every magnet you own is on the door. Drag them wherever you like; they stay there (save.magnetAt) and the
+ *   fridge in your apartment shows the same arrangement (features/souvenirs.ts).
+ * - Pull the handle: the door swings, taking the magnets with it, and the shelves hold the food you actually own, in
+ *   front of what every New York fridge has anyway. Click something to take it out.
+ *
+ * data/fridge.json comes out of the same scene: where the door's face, the shelves and the handle are in each frame,
+ * in stage pixels, so everything laid over the picture sits exactly on it.
  */
-const FOOD = ['pizza-slice', 'hotdog', 'pretzel', 'bagel', 'donut', 'cookie', 'black-white', 'croissant', 'dumplings', 'gelato', 'cocoa', 'coffee', 'latte', 'ralphs-coffee', 'cold-brew', 'boba']
-/** the door's own box on the stage, and where magnets may sit on it (kept off the handle) */
-const DOOR = { x: 270, y: -30, w: 460, h: 640 }
-const PAD = { l: 0.2, r: 0.93, t: 0.1, b: 0.9 }
-/** where a magnet goes before you've ever moved it: a loose scatter down the door */
-const SCATTER: [number, number][] = [[0.34, 0.2], [0.62, 0.17], [0.8, 0.3], [0.45, 0.4], [0.7, 0.5], [0.33, 0.6], [0.58, 0.68], [0.82, 0.74], [0.42, 0.82]]
+const FOOD = ['pizza-slice', 'hotdog', 'pretzel', 'bagel', 'donut', 'cookie', 'black-white', 'croissant', 'dumplings', 'gelato', 'gelato-pistachio', 'gelato-strawberry', 'gelato-chocolate', 'gelato-stracciatella', 'gelato-lemon', 'gelato-mango', 'cocoa', 'coffee', 'latte', 'ralphs-coffee', 'cold-brew', 'boba']
+type P = [number, number]
+interface Shelf { l: P; r: P; ppm: number }
+interface Frame { door: P[]; inner: P[]; shelves: Shelf[]; mouth: P[] }
+const FRAMES = SCENE.frames as unknown as Frame[]
+const N = FRAMES.length
+const src = (i: number) => `/art/fridge/f${String(i).padStart(2, '0')}.webp`
+/** the door's face when shut, in stage pixels: the magnets' sheet is this size and is bent onto the door each frame */
+const D0 = FRAMES[0].door
+const DW = D0[1][0] - D0[0][0]
+const DH = D0[2][1] - D0[0][1]
+/** a food sprite is this many metres across, and its shelf line is this far up from its bottom edge */
+const SPRITE_M = 0.26
+const PER_SHELF = 6
 
-const DOOR_SVG = `<svg viewBox="0 0 460 640" preserveAspectRatio="none" aria-hidden="true">
-  <defs><linearGradient id="fr-enamel" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="0.7" stop-color="#f1e8d6"/><stop offset="1" stop-color="#dccfb6"/></linearGradient></defs>
-  <rect x="4" y="4" width="452" height="632" rx="26" fill="url(#fr-enamel)" stroke="#1d2140" stroke-width="7"/>
-  <path d="M8 196 H452" stroke="#1d2140" stroke-width="7"/>
-  <path d="M8 204 H452" stroke="#c9bb9d" stroke-width="5" opacity="0.7"/>
-  <rect x="30" y="20" width="16" height="596" rx="8" fill="#fff" opacity="0.55"/>
-  <rect x="356" y="26" width="64" height="16" rx="8" fill="#c9d3dc" stroke="#1d2140" stroke-width="4"/>
-  <rect class="fr-h" x="26" y="60" width="22" height="104" rx="11" fill="#dfe6ec" stroke="#1d2140" stroke-width="5"/>
-  <rect class="fr-h" x="26" y="236" width="22" height="190" rx="11" fill="#dfe6ec" stroke="#1d2140" stroke-width="5"/>
-  <rect x="31" y="246" width="6" height="170" rx="3" fill="#fff" opacity="0.8"/>
-</svg>`
+/** the CSS matrix that lays a w x h sheet onto four corners (top-left, top-right, bottom-right, bottom-left) */
+function onto(w: number, h: number, q: P[]): string {
+  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = q
+  const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3
+  const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3
+  const den = dx1 * dy2 - dx2 * dy1
+  const g = (dx3 * dy2 - dx2 * dy3) / den
+  const k = (dx1 * dy3 - dx3 * dy1) / den
+  const a = x1 - x0 + g * x1, b = x3 - x0 + k * x3
+  const d = y1 - y0 + g * y1, e = y3 - y0 + k * y3
+  return `matrix3d(${a / w},${d / w},0,${g / w},${b / h},${e / h},0,${k / h},0,0,1,0,${x0},${y0},0,1)`
+}
 
-const INSIDE_SVG = `<svg viewBox="0 0 460 640" preserveAspectRatio="none" aria-hidden="true">
-  <defs><linearGradient id="fr-in" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffef4"/><stop offset="0.25" stop-color="#eef6fb"/><stop offset="1" stop-color="#cfe2ee"/></linearGradient></defs>
-  <rect x="4" y="4" width="452" height="632" rx="26" fill="#f1e8d6" stroke="#1d2140" stroke-width="7"/>
-  <rect x="30" y="30" width="400" height="148" rx="12" fill="#dfeef7" stroke="#1d2140" stroke-width="5"/>
-  <path d="M46 150 q22 -34 44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
-  <rect x="30" y="206" width="400" height="404" rx="12" fill="url(#fr-in)" stroke="#1d2140" stroke-width="5"/>
-  <ellipse cx="230" cy="216" rx="150" ry="16" fill="#fff8c9" opacity="0.9"/>
-  <g stroke="#1d2140" stroke-width="5" stroke-linecap="round"><path d="M34 318 H426"/><path d="M34 418 H426"/><path d="M34 512 H426"/></g>
-  <g stroke="#a9c3d3" stroke-width="3" opacity="0.8"><path d="M34 325 H426"/><path d="M34 425 H426"/></g>
-  <rect x="42" y="522" width="182" height="78" rx="10" fill="#e3f0f7" stroke="#1d2140" stroke-width="4" opacity="0.95"/>
-  <rect x="236" y="522" width="182" height="78" rx="10" fill="#e3f0f7" stroke="#1d2140" stroke-width="4" opacity="0.95"/>
-</svg>`
-
-export function openFridge(g: Game) {
+export function openFridge(g: Game, refresh?: () => void) {
   const m = openMoment('fr')
   const have = MAGNETS.filter((x) => (save.magnets ?? []).includes(x.id))
   const at = (save.magnetAt ??= {})
-  const room = el('div', 'fr-room')
-  room.style.backgroundImage = `url(/art/rooms/${world.room.bg}.jpg)`
-  const box = el('div', 'fr-box')
-  box.style.cssText = `left:${DOOR.x}px;top:${DOOR.y}px;width:${DOOR.w}px;height:${DOOR.h}px`
-  const inside = el('div', 'fr-inside', INSIDE_SVG)
-  const door = el('div', 'fr-door', DOOR_SVG)
-  box.append(inside, door)
+
+  // ---- the picture ----
+  const pic = el('canvas', 'fr-pic') as HTMLCanvasElement
+  pic.width = 1440
+  pic.height = 814
+  const ctx = pic.getContext('2d')!
+  const imgs: HTMLImageElement[] = []
+  let loaded = 0
+  let frame = 0
+  const draw = () => imgs[frame]?.complete && imgs[frame].naturalWidth && ctx.drawImage(imgs[frame], 0, 0, pic.width, pic.height)
+  for (let i = 0; i < N; i++) {
+    const im = new Image()
+    im.onload = () => {
+      loaded++
+      if (i === frame) draw()
+    }
+    im.src = src(i)
+    imgs.push(im)
+  }
+
+  const sheet = el('div', 'fr-sheet') // the door's face: magnets live on it
+  sheet.style.cssText = `width:${DW}px;height:${DH}px`
+  const food = el('div', 'fr-food-layer')
+  const mist = el('div', 'fr-mist', '<i></i><i></i><i></i>')
+  const handle = el('button', 'fr-handle') as HTMLButtonElement
+  handle.type = 'button'
+  handle.setAttribute('aria-label', 'Open the fridge')
+  const [h0, h1] = SCENE.handle as unknown as P[]
+  // hug the bar itself: it is 22px wide around the middle of the handle's box in the scene data
+  const hx = (h0[0] + h1[0]) / 2
+  handle.style.cssText = `left:${hx - 11}px;top:${h0[1] + 1}px;width:22px;height:${h1[1] - h0[1] - 2}px`
+  const shut = el('button', 'fr-shut') as HTMLButtonElement // the open door: push it to close
+  shut.type = 'button'
+  shut.setAttribute('aria-label', 'Close the fridge')
+  const last = FRAMES[N - 1]
+  shut.style.clipPath = `polygon(${last.inner.map(([x, y]) => `${x / 10}% ${(y / 565) * 100}%`).join(',')})`
+  const count = el('div', 'fr-count', `<img src="${magnetSrc('pizza')}" alt=""><b>${have.length}</b>/${MAGNETS.length}`)
+  count.title = 'Magnets'
   const x = closeX(m)
   x.classList.add('cu-x')
-  m.root.append(room, box, x)
+  m.root.append(pic, food, mist, sheet, handle, shut, count, x)
 
-  // ---- the magnets, on the door ----
-  const count = el('div', 'fr-count', `<b>${have.length}</b> of ${MAGNETS.length}`)
-  door.append(count)
+  // ---- lay everything onto frame i ----
+  const foods: { b: HTMLElement; shelf: number; t: number }[] = []
+  const show = (i: number) => {
+    frame = i
+    draw()
+    const f = FRAMES[i]
+    const q = f.door
+    // the door's face is towards us while its corners still run clockwise
+    const facing = (q[1][0] - q[0][0]) * (q[3][1] - q[0][1]) - (q[1][1] - q[0][1]) * (q[3][0] - q[0][0]) > 0
+    sheet.style.transform = onto(DW, DH, q)
+    sheet.style.visibility = facing ? '' : 'hidden'
+    // food stands on its shelf, and shows only where the door has already swung clear of it
+    for (const { b, shelf, t } of foods) {
+      const s = f.shelves[shelf]
+      const size = SPRITE_M * s.ppm
+      // the button is only the food itself (the sprite around it is mostly air and shadow)
+      const bw = size * 0.4, bh = size * 0.6
+      b.style.width = `${bw}px`
+      b.style.height = `${bh}px`
+      b.style.left = `${s.l[0] + (s.r[0] - s.l[0]) * t - bw / 2}px`
+      b.style.top = `${s.l[1] - bh}px`
+      b.style.setProperty('--s', `${size}px`)
+    }
+    const edge = facing ? Math.min(q[0][0], q[3][0]) : 1000
+    food.style.clipPath = `inset(0 ${Math.max(0, 1000 - Math.min(edge, f.mouth[1][0]))}px 0 ${f.mouth[0][0]}px)`
+    m.root.classList.toggle('ajar', i > 0)
+  }
+
+  // ---- the magnets ----
   have.forEach((mag, i) => {
-    const [fx, fy] = at[mag.id] ?? SCATTER[i % SCATTER.length]
     const img = el('img', 'fr-magnet') as HTMLImageElement
     img.src = magnetSrc(mag.id)
     img.alt = mag.name
-    img.title = mag.name
     img.draggable = false
-    const put = (px: number, py: number) => {
-      img.style.left = `${px * 100}%`
-      img.style.top = `${py * 100}%`
+    let [fx, fy] = magnetSpot(mag.id, MAGNETS.indexOf(mag))
+    const put = () => {
+      img.style.left = `${fx * 100}%`
+      img.style.top = `${fy * 100}%`
     }
-    put(fx, fy)
+    put()
     img.style.setProperty('--r', `${((i * 37) % 17) - 8}deg`)
     img.onpointerdown = (e0) => {
-      if (open) return
+      if (frame > 0) return
       e0.preventDefault()
       e0.stopPropagation()
-      const r = door.getBoundingClientRect()
+      const r = sheet.getBoundingClientRect()
       const b = img.getBoundingClientRect()
       // keep hold of it where you took it
       const off = [e0.clientX - (b.left + b.width / 2), e0.clientY - (b.top + b.height / 2)]
-      let last: [number, number] = [fx, fy]
       img.classList.add('held')
-      door.append(img)
+      sheet.append(img)
       sfx.pop()
       const move = (e: PointerEvent) => {
-        last = [Math.min(PAD.r, Math.max(PAD.l, (e.clientX - off[0] - r.left) / r.width)), Math.min(PAD.b, Math.max(PAD.t, (e.clientY - off[1] - r.top) / r.height))]
-        put(last[0], last[1])
+        fx = Math.min(DOOR_PAD.r, Math.max(DOOR_PAD.l, (e.clientX - off[0] - r.left) / r.width))
+        fy = Math.min(DOOR_PAD.b, Math.max(DOOR_PAD.t, (e.clientY - off[1] - r.top) / r.height))
+        put()
       }
       const up = () => {
         window.removeEventListener('pointermove', move)
         window.removeEventListener('pointerup', up)
+        window.removeEventListener('pointercancel', up)
         img.classList.remove('held')
-        at[mag.id] = [Math.round(last[0] * 1000) / 1000, Math.round(last[1] * 1000) / 1000]
+        img.classList.add('snap')
+        m.later(() => img.classList.remove('snap'), 220)
+        at[mag.id] = [Math.round(fx * 1000) / 1000, Math.round(fy * 1000) / 1000]
         persist()
         sfx.tick()
       }
       window.addEventListener('pointermove', move)
       window.addEventListener('pointerup', up)
+      window.addEventListener('pointercancel', up)
     }
-    door.append(img)
+    sheet.append(img)
   })
 
-  // ---- inside: what you own, and what every fridge has ----
-  const shelves = el('div', 'fr-shelves')
+  // ---- your food, in the front row ----
   const mine = FOOD.filter((id) => ITEM[id] && g.owns(id))
-  for (const id of mine) {
-    const b = el('button', 'fr-food', `<span>${itemIcon(id)}</span>`) as HTMLButtonElement
+  mine.forEach((id, i) => {
+    const shelf = Math.min(2, Math.floor(i / PER_SHELF))
+    const onShelf = Math.min(PER_SHELF, mine.length - shelf * PER_SHELF)
+    const k = i - shelf * PER_SHELF
+    const b = el('button', 'fr-food') as HTMLButtonElement
     b.type = 'button'
-    b.title = ITEM[id].name
     b.setAttribute('aria-label', ITEM[id].name)
+    b.title = ITEM[id].name
+    const pic = el('i')
+    pic.style.backgroundImage = `url(/art/fridge/food/${id}.webp)`
+    b.append(pic)
+    b.style.zIndex = String(10 + shelf)
     b.onclick = () => {
+      if (frame < N - 1) return
       sfx.pop()
       m.close()
       g.wear(id)
       g.say(`${ITEM[id].name}. Still good. Probably.`)
     }
-    shelves.append(b)
-  }
-  // the staples: one egg of unknown age, hot sauce packets, a takeout box
-  const staples = el('div', 'fr-staples', `<i class="fr-egg" title="One egg"></i><i class="fr-box-out" title="Half a halal platter"></i><i class="fr-packets" title="Forty hot sauce packets"></i>`)
-  inside.append(shelves, staples)
+    food.append(b)
+    foods.push({ b, shelf, t: onShelf === 1 ? 0.5 : 0.08 + (0.84 * k) / (onShelf - 1) })
+  })
 
-  // ---- the handle ----
-  let open = false
-  const handle = el('button', 'fr-handle') as HTMLButtonElement
-  handle.type = 'button'
-  handle.setAttribute('aria-label', 'Open the fridge')
-  handle.title = 'Open the fridge'
-  door.append(handle)
-  const swing = (on: boolean) => {
-    open = on
-    m.root.classList.toggle('open', on)
-    sfx.thunk()
-    if (on) m.later(() => sfx.ding(), 350)
+  // ---- the door ----
+  let target = 0
+  let pos = 0
+  const swing = (open: boolean) => {
+    if (loaded < N) return // still fetching the swing: a beat later it works
+    target = open ? N - 1 : 0
+    if (open) sfx.thunk()
+    m.root.classList.toggle('open', open)
+    if (open) {
+      mist.classList.remove('go')
+      void mist.offsetWidth
+      mist.classList.add('go')
+    }
   }
+  m.frame((dt) => {
+    if (pos === target) return
+    // 22 frames in about two thirds of a second; closing is a little quicker and lands with a thump
+    const step = dt * (target > pos ? 32 : 44)
+    pos = target > pos ? Math.min(target, pos + step) : Math.max(target, pos - step)
+    const i = Math.round(pos)
+    if (i !== frame) show(i)
+    if (pos === target && target === 0) sfx.thunk()
+  })
   handle.onclick = (e) => (e.stopPropagation(), swing(true))
-  // the open door (a sliver at the left) or the Backspace key closes it again
-  door.onclick = () => open && swing(false)
-  m.onKey((e) => (e.key === 'Backspace' && open ? (swing(false), true) : false))
+  shut.onclick = (e) => (e.stopPropagation(), swing(false))
+  m.onKey((e) => (e.key === 'Backspace' && target > 0 ? (swing(false), true) : false))
+  m.onClose(() => refresh?.())
+  show(0)
   sfx.whoosh()
 }

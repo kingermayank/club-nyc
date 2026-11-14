@@ -17,7 +17,7 @@
 .ic-tile.missing b { opacity: 0.6; }
 
 /* magnets stuck on the walk-up's fridge */
-.fridge-magnet { position: absolute; z-index: 6; width: 21px; height: auto; transform: translate(-50%, -50%) rotate(var(--r, 0deg)); filter: drop-shadow(0 1.5px 0 rgba(29, 33, 64, 0.35)); pointer-events: none; }
+.fridge-magnet { position: absolute; z-index: 6; width: 15px; height: auto; transform: translate(-50%, -50%) rotate(var(--r, 0deg)); filter: drop-shadow(0 1.5px 0 rgba(29, 33, 64, 0.35)); pointer-events: none; }
 
 /* ---- each of these wears its place (2026-11-13): the painter's canvas, the stand's awning, the fridge door ---- */
 .panel.ic-card .ic-text:empty { display: none; }
