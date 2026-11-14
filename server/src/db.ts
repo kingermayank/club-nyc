@@ -286,7 +286,110 @@ const MIGRATIONS = [
    );
    CREATE INDEX love_locks_live ON love_locks(removed, created_at);
    CREATE INDEX love_locks_user ON love_locks(user_id, removed);`,
-  // v17: NYCgram — private phone gallery + friends feed for you and your friends (compressed JPEG data URLs)
+  // v17: the iFruit phone (docs/ifruit/SPEC.md). Messages: threads (a 1:1 thread's id is dm:<a>:<b>, sorted ids, so
+  // both sides find the same one; groups get a random id), their members (read marks, leaving) and messages (kind:
+  // text, photo (a recipe drawn by the game), place, pay, request, call, sys). Bank: transfers between friends.
+  // Stocks: shares held in the city's companies (prices are computed, never stored).
+  `CREATE TABLE dm_threads (
+     id TEXT PRIMARY KEY,
+     kind TEXT NOT NULL,
+     name TEXT,
+     created_by TEXT,
+     created_at INTEGER NOT NULL,
+     last_at INTEGER NOT NULL
+   );
+   CREATE TABLE dm_members (
+     thread_id TEXT NOT NULL REFERENCES dm_threads(id) ON DELETE CASCADE,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     joined_at INTEGER NOT NULL,
+     read_at INTEGER NOT NULL DEFAULT 0,
+     left_at INTEGER,
+     PRIMARY KEY (thread_id, user_id)
+   );
+   CREATE INDEX dm_members_user ON dm_members(user_id);
+   CREATE TABLE dm_messages (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     thread_id TEXT NOT NULL REFERENCES dm_threads(id) ON DELETE CASCADE,
+     user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+     kind TEXT NOT NULL,
+     body TEXT NOT NULL DEFAULT '',
+     meta TEXT,
+     at INTEGER NOT NULL
+   );
+   CREATE INDEX dm_messages_thread ON dm_messages(thread_id, id);
+   CREATE TABLE transfers (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     from_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     to_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     amount INTEGER NOT NULL,
+     note TEXT NOT NULL DEFAULT '',
+     kind TEXT NOT NULL,
+     status TEXT NOT NULL,
+     created_at INTEGER NOT NULL,
+     settled_at INTEGER
+   );
+   CREATE INDEX transfers_to ON transfers(to_id, status);
+   CREATE INDEX transfers_from ON transfers(from_id, status);
+   CREATE TABLE holdings (
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     sym TEXT NOT NULL,
+     shares INTEGER NOT NULL,
+     cost INTEGER NOT NULL,
+     PRIMARY KEY (user_id, sym)
+   );`,
+  // v18: the community board at /community (server/src/community.ts): posts in a category, replies, one upvote per
+  // account, views counted once per visitor a day, and reports (each also goes to Launch HQ's report queue).
+  // Counters on the post (votes, replies, views) keep the list cheap to sort.
+  `CREATE TABLE community_posts (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     category TEXT NOT NULL,
+     title TEXT NOT NULL,
+     body TEXT NOT NULL,
+     votes INTEGER NOT NULL DEFAULT 0,
+     replies INTEGER NOT NULL DEFAULT 0,
+     views INTEGER NOT NULL DEFAULT 0,
+     hidden INTEGER NOT NULL DEFAULT 0,
+     created_at INTEGER NOT NULL,
+     last_at INTEGER NOT NULL
+   );
+   CREATE INDEX community_posts_new ON community_posts(hidden, created_at);
+   CREATE INDEX community_posts_top ON community_posts(hidden, votes, created_at);
+   CREATE INDEX community_posts_user ON community_posts(user_id, created_at);
+   CREATE TABLE community_replies (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     body TEXT NOT NULL,
+     hidden INTEGER NOT NULL DEFAULT 0,
+     created_at INTEGER NOT NULL
+   );
+   CREATE INDEX community_replies_post ON community_replies(post_id, id);
+   CREATE INDEX community_replies_user ON community_replies(user_id, created_at);
+   CREATE TABLE community_votes (
+     post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     created_at INTEGER NOT NULL,
+     PRIMARY KEY (post_id, user_id)
+   );
+   CREATE INDEX community_votes_user ON community_votes(user_id);
+   CREATE TABLE community_views (
+     post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+     viewer TEXT NOT NULL,
+     day INTEGER NOT NULL,
+     PRIMARY KEY (post_id, viewer, day)
+   );
+   CREATE TABLE community_reports (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+     reply_id INTEGER REFERENCES community_replies(id) ON DELETE CASCADE,
+     reporter TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+     reason TEXT NOT NULL,
+     created_at INTEGER NOT NULL
+   );
+   CREATE UNIQUE INDEX community_reports_once ON community_reports(post_id, IFNULL(reply_id, 0), reporter);`,
+  // v19: NYCgram: a private phone gallery and a feed for you and your friends (compressed JPEG data URLs). It comes
+  // after the iFruit phone (v17) and the community board (v18), whose tables are listed here ahead of their code.
   `CREATE TABLE nycgram_gallery (
      id INTEGER PRIMARY KEY AUTOINCREMENT,
      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
