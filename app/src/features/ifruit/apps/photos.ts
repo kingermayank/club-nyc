@@ -101,6 +101,18 @@ function viewer(ctx: Ctx, photos: Photo[], start: number, from?: HTMLElement): S
     return b
   }
   btn('/art/ifruit/app/messages.png', 'Send', () => void sendTo(ctx, photos[i]))
+  btn('/art/ifruit/app/nycgram.png', 'NYCgram', async (b) => {
+    const p = photos[i]
+    if (!p?.jpeg) return
+    b.disabled = true
+    const { postJpeg } = await import('./nycgram')
+    const r = await postJpeg(p.jpeg, p.room, p.kind === 'selfie' ? 'selfie' : 'camera')
+    b.disabled = false
+    if (r) {
+      ctx.banner(`Posted: ${r.caption}`)
+      ctx.open('nycgram')
+    }
+  })
   btn('/art/icons/e/sunset-city.png', 'Wallpaper', async () => {
     await kvSet('wallpaper', photos[i].jpeg)
     ifr().wallpaper = 'photo'
