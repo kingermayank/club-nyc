@@ -51,8 +51,9 @@ export const APPS: Record<AppId, { name: string; icon: string; load: () => Promi
   stocks: { name: 'Stocks', icon: 'stocks', load: () => import('./apps/stocks') },
   map: { name: 'Map', icon: 'map', load: () => import('./apps/map') },
   settings: { name: 'Settings', icon: 'settings', load: () => import('./apps/settings') },
+  nycgram: { name: 'NYCgram', icon: 'nycgram', load: () => import('./apps/nycgram') },
 }
-const GRID: AppId[] = ['contacts', 'photos', 'bank', 'stocks', 'settings']
+const GRID: AppId[] = ['contacts', 'photos', 'nycgram', 'bank', 'stocks', 'settings']
 const DOCK: AppId[] = ['phone', 'messages', 'camera', 'map']
 export const appIcon = (id: AppId) => (id === 'settings' ? '/art/ifruit/icons/settings.svg' : `/art/ifruit/app/${APPS[id].icon}.png`)
 export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches

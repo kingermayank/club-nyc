@@ -529,18 +529,18 @@ export function landmarkSelfie(g: Game, room: string) {
   q('.sf-gallery').onclick = async () => {
     if (!lastShot) return
     sfx.click()
-    const c = await polaroid(lastShot)
-    void import('../nycgram').then((m) => m.saveToGallery(c, room, 'selfie'))
+    // real selfie pixels (not the polaroid frame) so Gallery matches the shot
+    void import('../nycgram').then((m) => m.saveToGallery(lastShot!, room, 'selfie'))
   }
   q('.sf-nycgram').onclick = async () => {
     if (!lastShot) return
     sfx.click()
     const btn = q<HTMLButtonElement>('.sf-nycgram')
     btn.disabled = true
-    const c = await polaroid(lastShot)
-    const m = await import('../nycgram')
-    const g = await m.saveToGallery(c, room, 'selfie')
-    if (g) await m.postToNycgram({ galleryId: g.id })
+    // post the actual selfie JPEG — never a text placeholder or polaroid card
+    const jpeg = lastShot.toDataURL('image/jpeg', 0.92)
+    const m = await import('../ifruit/apps/nycgram')
+    await m.postJpeg(jpeg, room, 'selfie')
     btn.disabled = false
   }
 
