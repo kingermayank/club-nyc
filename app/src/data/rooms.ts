@@ -27,7 +27,9 @@ function tasted(g: Game, item: string) {
   if (!FOOD.has(item)) return
   const k = `ate:${g.room.id}:${item}`
   if (!save.stats[k]) bump(k)
-  if (Object.keys(save.stats).filter((s) => s.startsWith('ate:')).length >= 10) g.stamp('belly-10')
+  const ate = Object.keys(save.stats).filter((s) => s.startsWith('ate:')).length
+  if (ate >= 5) g.stamp('belly-five')
+  if (ate >= 10) g.stamp('belly-10')
 }
 /** what the Starducks Coffee barista writes on your cup: your name, nearly. ("Mayonnaise" is a classic.) */
 function baristaName(name: string): string {

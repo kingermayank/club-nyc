@@ -57,6 +57,7 @@ export function unboxPhone(replay = false, o: { arrival?: boolean } = {}): Promi
     s.wallpaper = wall
     store()
     emit('wallpaper')
+    void import('../../game').then((g) => g.api.stamp('ifruit-unboxed'))
     // into your pocket: the phone flies to its toolbar button
     const btn = phoneButton()
     if (!skipped && btn && !reduced()) {

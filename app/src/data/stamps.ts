@@ -145,13 +145,21 @@ export const STAMPS: Record<string, { name: string; icon: string; desc: string; 
   'mp-first': { name: 'Game On', icon: '🕹️', desc: 'Play a multiplayer game.', tier: 1 },
   'mp-win': { name: 'Bragging Rights', icon: '🏆', desc: 'Win a multiplayer game against a real New Yorker.', tier: 2 },
   'mp-crew': { name: 'The Whole Crew', icon: '👯', desc: 'Play a game with 4 or more real New Yorkers.', tier: 2 },
-  // the High Line Citi Bike Dash (the ids are from its sled-race days, so stamps already earned stay put)
-  'sled-race': { name: 'Gansevoort to 34th', icon: '🚲', desc: 'Finish a Citi Bike Dash on the High Line.', tier: 1 },
-  'sled-win': { name: 'Top of the Line', icon: '👑', desc: 'Win a Citi Bike Dash against real New Yorkers.', tier: 3 },
+  // the High Line City Bike Dash (the ids are from its sled-race days, so stamps already earned stay put)
+  'sled-race': { name: 'Gansevoort to 34th', icon: '🚲', desc: 'Finish a City Bike Dash on the High Line.', tier: 1 },
+  'sled-win': { name: 'Top of the Line', icon: '👑', desc: 'Win a City Bike Dash against real New Yorkers.', tier: 3 },
   'runner-first': { name: 'Stand Clear', icon: '🚇', desc: 'Run Rush Hour Run.', tier: 1 },
   'runner-ferry': { name: 'Last Stop', icon: '⛴️', desc: 'Make it all the way to South Ferry in Rush Hour Run.', tier: 3 },
   'carbs-first': { name: 'Carb Loading', icon: '🍕', desc: 'Play a game of Carb-Jitsu.', tier: 1 },
   'carbs-streak': { name: 'Table Boss', icon: '🥨', desc: 'Win 3 games of Carb-Jitsu in a row at one table.', tier: 3 },
+  // phone apps & new city habits
+  'ifruit-unboxed': { name: 'Pocket Computer', icon: '📱', desc: 'Unbox your iFruit phone.', tier: 1 },
+  'nycgram-first': { name: 'Posted', icon: '📸', desc: 'Post a photo to NYCgram.', tier: 1 },
+  'nycgram-five': { name: 'Feed Regular', icon: '🍕', desc: 'Post five times to NYCgram.', tier: 2 },
+  'belly-open': { name: 'Hungry Eyes', icon: '🍽️', desc: 'Open Belly and walk to a food spot.', tier: 1 },
+  'belly-five': { name: 'Food Tour', icon: '🗺️', desc: 'Eat at five different Belly spots.', tier: 2 },
+  'phone-gamer': { name: 'App Store Athlete', icon: '🕹️', desc: 'Launch a game from the phone home screen.', tier: 1 },
+  'rush-tracker': { name: 'Tracked', icon: '⏱️', desc: 'Check your stats in Rush Hour Run.', tier: 1 },
 }
 
 // Every stamp listed here can be earned (the book's total counts them all). Gone with the things they belonged to: the

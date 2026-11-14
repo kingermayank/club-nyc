@@ -1,4 +1,4 @@
-import { sfx, setMuted } from './audio'
+import { sfx, setMuted, setVolume } from './audio'
 import { save, persist } from './state'
 import { ITEM } from './avatar/items'
 import { mountStage, stage, el } from './engine/stage'
@@ -192,6 +192,7 @@ export async function startGame(host: HTMLElement) {
   setTimeout(() => void import('./social/friendAsks').then((m) => m.startFriendAsks()), 4000)
   mountStage(host)
   setMuted(save.muted)
+  setVolume(typeof save.volume === 'number' ? save.volume : 0.7)
   onWalletChange(() => renderCoins())
   // sign in (or play offline) before the city is built: your cloud save decides where you wake up
   const splash = el('div', 'boot-splash', `<img src="/art/ui/logo.png" alt="Club NYC"><span>Opening the city…</span>`)

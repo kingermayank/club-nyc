@@ -1,4 +1,4 @@
-import { sfx, setMuted } from './audio'
+import { sfx, setMuted, setVolume, getVolume, isMuted } from './audio'
 import { save, persist } from './state'
 import { stage, el, W, toStage } from './engine/stage'
 import { ui, openOverlay, closeOverlay } from './engine/ui'
@@ -66,6 +66,50 @@ function popMenu(cls: string, items: { html: string; act: () => void }[], from: 
   m.style.transformOrigin = `${Math.round(x - left)}px 100%`
 }
 
+function volumePop(from: HTMLElement) {
+  const m = el('div', 'pop-menu volume-pop')
+  m.innerHTML = `<b>Volume</b>`
+  const row = el('div', 'vol-row')
+  const slider = document.createElement('input')
+  slider.type = 'range'
+  slider.min = '0'
+  slider.max = '100'
+  slider.value = String(Math.round((save.volume ?? getVolume()) * 100))
+  slider.setAttribute('aria-label', 'Volume')
+  const pct = el('span', 'vol-pct', `${slider.value}%`)
+  slider.oninput = () => {
+    const v = Number(slider.value) / 100
+    save.volume = v
+    setVolume(v)
+    if (v > 0 && save.muted) {
+      save.muted = false
+      setMuted(false)
+      from.classList.remove('off')
+    }
+    pct.textContent = `${slider.value}%`
+    persist()
+  }
+  row.append(slider, pct)
+  m.append(row)
+  const mute = el('button', '', save.muted || isMuted() ? 'Unmute' : 'Mute')
+  mute.onclick = () => {
+    sfx.pop()
+    save.muted = !save.muted
+    setMuted(save.muted)
+    from.classList.toggle('off', save.muted)
+    mute.textContent = save.muted ? 'Unmute' : 'Mute'
+    persist()
+  }
+  m.append(mute)
+  openOverlay(m, { cls: 'clear' })
+  const EDGE = 10
+  const r = from.getBoundingClientRect()
+  const [x] = toStage({ clientX: r.left + r.width / 2, clientY: r.top })
+  const left = Math.round(Math.min(Math.max(x - m.offsetWidth / 2, EDGE), W - EDGE - m.offsetWidth))
+  m.style.left = `${left}px`
+  m.style.transformOrigin = `${Math.round(x - left)}px 100%`
+}
+
 export function buildHud() {
   // your level (a ring that fills with XP) sits next to your coins; clicking it opens its own little level view
   hudRight.append(levelPlate(), coinPlate)
@@ -96,7 +140,8 @@ export function buildHud() {
     stage.toolbar.append(b)
     return b
   }
-  tb('dance', 'Moves', (b) =>
+  // Moves uses the waving-hand icon (was on Friends & Leaderboards)
+  tb('wave', 'Moves', (b) =>
     popMenu('moves', [
       // each move shows a little you doing it (Club Penguin's action menu is all pictures)
       ...MOVES.map((m) => ({ html: `${posePictogram(save.look, m.pose)}<span>${m.label}<kbd>${m.key}</kbd></span>`, act: () => world.player.emote(m.pose, m.pose === 'dance' ? 0 : 3) })),
@@ -107,21 +152,14 @@ export function buildHud() {
   stage.toolbar.append(chatBar())
   tb('map', 'Map', () => api.openMap(), 'M')
   tb('news', 'Club NYC Times', () => api.newspaper(), 'N')
-  // iFruit: the phone (features/ifruit). Friends, messages, calls, camera, photos, bank, stocks and the map; it holds
-  // what the old phone menu did (invite, text a friend, how to play, help, Discord) in its apps
+  // iFruit: the phone (features/ifruit). Friends → Contacts, Leaderboards → Boards app; games live on the home grid
   const phoneBtn = tb('phone', 'Phone', () => void import('./features/ifruit/phone').then((m) => m.togglePhone()), 'Q')
   void import('./features/ifruit/phone').then((m) => m.attachPhoneButton(phoneBtn))
   stage.toolbar.append(el('div', 'tb-gap'))
-  tb('wave', 'Friends & Leaderboards', () => import('./social/community').then((m) => m.openCommunity()), 'F')
   tb('card', 'Player Card & Wardrobe', () => import('./features/playerCard').then((m) => m.openPlayerCard()), 'P')
   tb('stamps', 'Stamp Book', () => import('./features/stampbook').then((m) => m.openStampBook()))
   const homeBtn = tb('home', 'My Apartment', () => (isHomeRoom(world.room.id) ? api.furniture() : goHome()), 'H')
-  const sound = tb(save.muted ? 'sound' : 'sound', 'Sound On/Off', () => {
-    save.muted = !save.muted
-    setMuted(save.muted)
-    sound.classList.toggle('off', save.muted)
-    persist()
-  })
+  const sound = tb('sound', 'Volume', (b) => volumePop(b))
   sound.classList.toggle('off', save.muted)
 
   // clicking yourself opens your player card (like Club Penguin)
@@ -133,7 +171,7 @@ export function buildHud() {
   })
 
   window.addEventListener('keydown', (e) => {
-    if (e.target instanceof HTMLInputElement) return
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
     if (e.key === 'Escape' && ui.modal) {
       const x = stage.overlay.querySelector<HTMLButtonElement>('.x-btn')
       return x ? x.click() : closeOverlay()
@@ -149,7 +187,9 @@ export function buildHud() {
     if (k === 't') void import('./features/ifruit/phone').then((m) => m.openApp('messages'))
     if (k === 'n') api.newspaper()
     if (k === 'p') import('./features/playerCard').then((m) => m.openPlayerCard())
-    if (k === 'f') import('./social/community').then((m) => m.openCommunity())
+    // Friends & Leaderboards moved into the phone
+    if (k === 'f') void import('./features/ifruit/phone').then((m) => m.openApp('contacts'))
+    if (k === 'l') void import('./features/ifruit/phone').then((m) => m.openApp('boards'))
     if (k === 'h') goHome()
     if (k === 'i') void import('./features/invite').then((m) => m.openInvite())
     if (k === 'k') void import('./features/ifruit/phone').then((m) => m.openApp('camera'))

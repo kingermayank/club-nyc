@@ -5,7 +5,9 @@
  * Tracks loop and can be started "as of" a wall-clock time, so everyone in the same party hears the same bar.
  * A track can also point at an audio file (`src`) — drop a licensed MP3 in public/music/ and it plays instead.
  */
-import { isMuted, onMute } from './audio'
+import { isMuted, onMute, getVolume, onVolume } from './audio'
+
+const musicVol = () => (isMuted() ? 0 : 0.45 * getVolume())
 
 type Drum = 'kick' | 'snare' | 'clap' | 'hat' | 'open' | 'rim' | 'shaker'
 interface Note {
@@ -339,7 +341,7 @@ export function play(id: string, since = Date.now()) {
     // asked for again while fading out (back in the room before the fade ended): keep it playing
     if (now.fading) {
       now.fading = false
-      if (now.el) now.el.volume = isMuted() ? 0 : 0.6
+      if (now.el) now.el.volume = musicVol()
     }
     return
   }
@@ -348,7 +350,7 @@ export function play(id: string, since = Date.now()) {
   if (tr.src) {
     const el = new Audio(tr.src)
     el.loop = true
-    el.volume = isMuted() ? 0 : 0.6
+    el.volume = musicVol()
     // join the song where everyone else is: seconds since the party started, wrapped to the song's length
     const seek = () => {
       if (Number.isFinite(el.duration) && el.duration > 0) el.currentTime = ((Date.now() - since) / 1000) % el.duration
@@ -393,11 +395,12 @@ export function stop(notify = true) {
 export const playing = () => now?.track ?? null
 export const onMusic = (f: (id: string | null) => void) => void listeners.push(f)
 
-/** follow the global mute toggle */
+/** follow the global mute toggle and volume slider */
 export function refreshMute() {
-  if (now?.el && !now.fading) now.el.volume = isMuted() ? 0 : 0.6
+  if (now?.el && !now.fading) now.el.volume = musicVol()
 }
 onMute(() => refreshMute())
+onVolume(() => refreshMute())
 
 /** Stop with a short fade (a recording cut mid-bar sounds broken). The synth tracks just stop. */
 export function fadeStop(ms = 1800) {

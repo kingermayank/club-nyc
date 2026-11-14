@@ -39,7 +39,22 @@ const loading = new Map<string, Promise<AudioBuffer | null>>()
 const lastAt = new Map<string, number>()
 let buses: Record<Bus, GainNode> | null = null
 
-const BUS_LEVEL: Record<Bus, number> = { ui: 0.7, fx: 0.9, amb: 0.55 }
+/** Quieter defaults: ambient and SFX were too loud out of the box. */
+const BUS_LEVEL: Record<Bus, number> = { ui: 0.55, fx: 0.5, amb: 0.28 }
+/** 0..1 master from the player volume slider (audio.ts). */
+let master = 0.7
+
+export function setMasterVolume(v: number) {
+  master = Math.max(0, Math.min(1, v))
+  if (!buses) return
+  const a = buses.ui.context
+  const t = a.currentTime
+  for (const b of ['ui', 'fx', 'amb'] as Bus[]) {
+    buses[b].gain.cancelScheduledValues(t)
+    buses[b].gain.setValueAtTime(BUS_LEVEL[b] * master, t)
+  }
+}
+export const masterVolume = () => master
 
 function ctx(): AudioContext | null {
   try {
@@ -60,7 +75,7 @@ function getBuses(a: AudioContext) {
   limit.connect(a.destination)
   const mk = (b: Bus) => {
     const g = a.createGain()
-    g.gain.value = BUS_LEVEL[b]
+    g.gain.value = BUS_LEVEL[b] * master
     g.connect(limit)
     return g
   }
@@ -248,7 +263,7 @@ export function duckAmbience(on: boolean) {
   const t = a.currentTime
   buses.amb.gain.cancelScheduledValues(t)
   buses.amb.gain.setValueAtTime(buses.amb.gain.value, t)
-  buses.amb.gain.linearRampToValueAtTime(on ? BUS_LEVEL.amb * 0.25 : BUS_LEVEL.amb, t + 0.6)
+  buses.amb.gain.linearRampToValueAtTime(on ? BUS_LEVEL.amb * master * 0.25 : BUS_LEVEL.amb * master, t + 0.6)
 }
 
 /** follow the mute toggle (registered lazily: audio.ts imports this module, so nothing here runs at load) */

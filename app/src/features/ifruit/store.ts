@@ -32,7 +32,22 @@ export interface Note {
   /** what opening it does: an app and an argument (a thread id, a friend id…) */
   arg?: string
 }
-export type AppId = 'contacts' | 'messages' | 'phone' | 'camera' | 'photos' | 'bank' | 'stocks' | 'map' | 'settings' | 'nycgram'
+export type AppId =
+  | 'contacts'
+  | 'messages'
+  | 'phone'
+  | 'camera'
+  | 'photos'
+  | 'bank'
+  | 'stocks'
+  | 'map'
+  | 'settings'
+  | 'nycgram'
+  | 'bike'
+  | 'carbs'
+  | 'rush'
+  | 'belly'
+  | 'boards'
 
 const fresh = (): IFruitSave => ({
   unboxed: 0,

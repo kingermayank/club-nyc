@@ -1,7 +1,7 @@
 // Tiny WebAudio synth: every sound has a synthesized version, and sound/library.ts swaps in a real recording
 // for any name that has one (public/sfx/index.json), so this is also the fallback while recordings load.
 import { cafe } from './foley'
-import { withSamples, warmSamples } from './sound/library'
+import { withSamples, warmSamples, setMasterVolume, masterVolume } from './sound/library'
 let ctx: AudioContext | null = null
 let muted = false
 
@@ -13,6 +13,15 @@ export const isMuted = () => muted
 const muteListeners: ((m: boolean) => void)[] = []
 /** e.g. music follows the mute toggle */
 export const onMute = (f: (m: boolean) => void) => void muteListeners.push(f)
+
+/** Player volume 0..1 (persisted as save.volume). Mute is separate. */
+export function setVolume(v: number) {
+  setMasterVolume(v)
+  volListeners.forEach((f) => f(masterVolume()))
+}
+export const getVolume = () => masterVolume()
+const volListeners: ((v: number) => void)[] = []
+export const onVolume = (f: (v: number) => void) => void volListeners.push(f)
 
 function ac() {
   ctx ??= new AudioContext()
@@ -28,11 +37,12 @@ function tone(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.
   const t = a.currentTime + delay
   const o = a.createOscillator()
   const g = a.createGain()
+  const v = vol * masterVolume()
   o.type = type
   o.frequency.setValueAtTime(freq, t)
   if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur)
   g.gain.setValueAtTime(0.0001, t)
-  g.gain.exponentialRampToValueAtTime(vol, t + 0.015)
+  g.gain.exponentialRampToValueAtTime(v, t + 0.015)
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
   o.connect(g).connect(a.destination)
   o.start(t)
@@ -52,7 +62,7 @@ function noise(dur: number, vol = 0.1, freq = 800, delay = 0) {
   f.type = 'bandpass'
   f.frequency.value = freq
   const g = a.createGain()
-  g.gain.setValueAtTime(vol, t)
+  g.gain.setValueAtTime(vol * masterVolume(), t)
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
   src.connect(f).connect(g).connect(a.destination)
   src.start(t)
