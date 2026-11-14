@@ -196,7 +196,7 @@ export function landmarkSelfie(g: Game, room: string) {
     <div class="sf-flash"></div>
     <div class="sf-print" hidden>
       <div class="sf-card"><div class="sf-photo"><img alt="Your selfie at ${spot.title}"><i class="sf-dev"></i></div><div class="sf-note"><b>${spot.title}</b><span></span></div></div>
-      <div class="sf-print-actions"><button class="btn small go sf-save" type="button">Save Photo</button><button class="btn small ghost sf-again" type="button">Another One</button></div>
+      <div class="sf-print-actions"><button class="btn small go sf-gallery" type="button">📷 Gallery</button><button class="btn small go sf-nycgram" type="button">🍕 NYCgram</button><button class="btn small ghost sf-save" type="button">⬇️ Download</button><button class="btn small ghost sf-again" type="button">Another One</button></div>
     </div>`
   stage.root.append(root)
   const q = <T extends HTMLElement = HTMLElement>(s: string) => root.querySelector(s) as T
@@ -521,6 +521,23 @@ export function landmarkSelfie(g: Game, room: string) {
     a.href = c.toDataURL('image/png')
     a.download = `club-nyc-${room}-selfie-${Date.now()}.png`
     a.click()
+  }
+  q('.sf-gallery').onclick = async () => {
+    if (!lastShot) return
+    sfx.click()
+    const c = await polaroid(lastShot)
+    void import('../nycgram').then((m) => m.saveToGallery(c, room, 'selfie'))
+  }
+  q('.sf-nycgram').onclick = async () => {
+    if (!lastShot) return
+    sfx.click()
+    const btn = q<HTMLButtonElement>('.sf-nycgram')
+    btn.disabled = true
+    const c = await polaroid(lastShot)
+    const m = await import('../nycgram')
+    const g = await m.saveToGallery(c, room, 'selfie')
+    if (g) await m.postToNycgram({ galleryId: g.id })
+    btn.disabled = false
   }
 
   // ---------- leaving ----------

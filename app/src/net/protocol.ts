@@ -83,7 +83,7 @@ export type S2C =
   | { t: 'f'; i: string; n: string; on: boolean; r: string | null } // a friend came online / moved / left
   | { t: 'fr'; i: string; n: string } // friend request received
   | { t: 'fa'; i: string; n: string } // friend request accepted
-  | { t: 'n'; k: 'gb' | 'like' | 'ref' | 'refpaid'; i: string; n: string; m?: string; c?: number } // guestbook note / like / a friend joined through your invite / you were paid for it
+  | { t: 'n'; k: 'gb' | 'like' | 'ref' | 'refpaid' | 'nyc'; i: string; n: string; m?: string; c?: number } // guestbook / apartment like / invite / invite paid / NYCgram pizza-like
   | { t: '$'; c: number; why?: string; owned?: string[]; homes?: string[] } // your wallet changed on the server
   | { t: 'xp'; x: number; g: number; why?: string; lv: number; up?: boolean; b?: number } // you earned XP (x: new total, g: gained, lv: level, up: a new level, b: its coin bonus)
   | { t: 'ann'; m: string } // an announcement from the Club NYC team

@@ -1,5 +1,6 @@
 import { market } from './market.ts'
 import { locks } from './locks.ts'
+import { nycgram } from './nycgram.ts'
 import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -65,6 +66,7 @@ app.route('/api/launch', launch)
 app.route('/api/admin', admin)
 app.route('/api/market', market)
 app.route('/api/locks', locks)
+app.route('/api/nycgram', nycgram)
 app.route('/api', api)
 // Railway's health check (and any uptime monitor): 503 while the database is unreachable or we're shutting down
 app.get('/api/health', (c) => {
