@@ -2,7 +2,7 @@
  * Multiplayer mini-games: the catalog and the prize rules, shared by the game and the server.
  *
  * Three games, each a few minutes at most, all playable with whoever is around (or with the city locals when
- * nobody is): the High Line Citi Bike Dash (2-4, internally 'sled'), Rush Hour Run (2-9) and Carb-Jitsu (1v1, Winner Stays On for a
+ * nobody is): the High Line City Bike Dash (2-4, internally 'sled'), Rush Hour Run (2-9) and Carb-Jitsu (1v1, Winner Stays On for a
  * table of up to 6). The server runs every match (server/src/game/mp), decides places and pays XP and coins from
  * the tables below; the game only ever shows what the server decided. See docs/multiplayer-games.md.
  */
@@ -48,11 +48,11 @@ export interface MpGameDef {
 export const MP_GAMES: Record<MpGameId, MpGameDef> = {
   sled: {
     // internally still "sled": the game started as a sled race on Pilgrim Hill, and saved results, leaderboards and
-    // stamps keep the id. It moved to the High Line (no snow in the city), on Citi Bikes.
+    // stamps keep the id. It moved to the High Line (no snow in the city), on city bikes.
     id: 'sled',
-    title: 'High Line Citi Bike Dash',
-    short: 'Citi Bike Dash',
-    blurb: 'Race your friends up the High Line on Citi Bikes, from Gansevoort St to 34th St. Dodge tour groups, planters and one runaway gelato cart.',
+    title: 'High Line City Bike Dash',
+    short: 'City Bike Dash',
+    blurb: 'Race your friends up the High Line on city bikes, from Gansevoort St to 34th St. Dodge tour groups, planters and one runaway gelato cart.',
     how: ['<kbd>←</kbd> <kbd>→</kbd> steer', '<kbd>Space</kbd> hop over small stuff', 'Iced coffee gives you a boost'],
     min: 1,
     max: 4,

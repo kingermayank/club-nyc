@@ -52,8 +52,13 @@ export const APPS: Record<AppId, { name: string; icon: string; load: () => Promi
   map: { name: 'Map', icon: 'map', load: () => import('./apps/map') },
   settings: { name: 'Settings', icon: 'settings', load: () => import('./apps/settings') },
   nycgram: { name: 'NYCgram', icon: 'nycgram', load: () => import('./apps/nycgram') },
+  bike: { name: 'City Bike Dash', icon: 'bike', load: () => import('./apps/bike') },
+  carbs: { name: 'Carb-Jitsu', icon: 'carbs', load: () => import('./apps/carbs') },
+  rush: { name: 'Rush Hour Run', icon: 'rush', load: () => import('./apps/rush') },
+  belly: { name: 'Belly', icon: 'belly', load: () => import('./apps/belly') },
+  boards: { name: 'Leaderboards', icon: 'boards', load: () => import('./apps/boards') },
 }
-const GRID: AppId[] = ['contacts', 'photos', 'nycgram', 'bank', 'stocks', 'settings']
+const GRID: AppId[] = ['contacts', 'photos', 'nycgram', 'belly', 'rush', 'bike', 'carbs', 'boards', 'bank', 'stocks', 'settings']
 const DOCK: AppId[] = ['phone', 'messages', 'camera', 'map']
 export const appIcon = (id: AppId) => (id === 'settings' ? '/art/ifruit/icons/settings.svg' : `/art/ifruit/app/${APPS[id].icon}.png`)
 export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches

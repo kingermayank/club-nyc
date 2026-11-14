@@ -21,11 +21,11 @@ export function openStampBook() {
     book.innerHTML = `
       <div class="sb-cover">
         <div class="sb-emblem">★</div>
-        <div class="sb-title">Stamp Book</div>
-        <div class="sb-owner">${save.name}</div>
-        <div class="sb-count"><b>${got}</b> / ${entries.length} stamps</div>
+        <div class="sb-title">Stampbook</div>
+        <div class="sb-owner">${save.name || 'New Yorker'}</div>
+        <div class="sb-count"><b>${got}</b> out of ${entries.length} stamps</div>
         <div class="sb-bar"><i style="width:${(got / entries.length) * 100}%"></i></div>
-        <small>Every 5 stamps earns 25 coins.</small>
+        <small>Every 5 stamps earns 25 coins</small>
       </div>
       <div class="sb-page">
         <h3>${p.title}</h3>

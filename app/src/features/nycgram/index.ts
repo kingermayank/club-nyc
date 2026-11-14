@@ -72,6 +72,14 @@ export async function postToNycgram(opts: {
       timeout: 15000,
     })
     toast(`Posted to NYCgram! “${res.caption}”`, '🍕')
+    void import('../../state').then(({ save, persist }) => {
+      save.stats['nycgram-posts'] = (save.stats['nycgram-posts'] ?? 0) + 1
+      persist()
+      void import('../../game').then((g) => {
+        g.api.stamp('nycgram-first')
+        if (save.stats['nycgram-posts'] >= 5) g.api.stamp('nycgram-five')
+      })
+    })
     return { id: res.id, caption: res.caption }
   } catch (e) {
     const err = e instanceof HttpError ? e.reason : 'error'

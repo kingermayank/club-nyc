@@ -1,7 +1,7 @@
-/** Settings: wallpaper, sounds, and what the old phone menu held (How to Play, Help Center, the Discord). */
+/** Settings: wallpaper, volume, and what the old phone menu held (How to Play, Help Center, the Discord). */
 import { el } from '../../../engine/stage'
 import { save, persist } from '../../../state'
-import { setMuted } from '../../../audio'
+import { setMuted, setVolume, getVolume } from '../../../audio'
 import { screenEl, act, esc } from '../kit'
 import { ifr, store, emit } from '../store'
 import { thenCity, lockPhone, type Ctx, type Screen } from '../phone'
@@ -31,6 +31,31 @@ function toggle(label: string, on: boolean, f: (v: boolean) => void) {
   return row
 }
 
+function volumeRow(): HTMLElement {
+  const row = el('div', 'ifr-row ifset-row ifset-vol', `<span class="ifr-txt"><b>Volume</b><small class="ifset-vol-pct">${Math.round((save.volume ?? getVolume()) * 100)}%</small></span>`)
+  const slider = document.createElement('input')
+  slider.type = 'range'
+  slider.min = '0'
+  slider.max = '100'
+  slider.value = String(Math.round((save.volume ?? getVolume()) * 100))
+  slider.setAttribute('aria-label', 'Volume')
+  const pct = row.querySelector('.ifset-vol-pct')!
+  slider.oninput = () => {
+    const v = Number(slider.value) / 100
+    save.volume = v
+    setVolume(v)
+    pct.textContent = `${slider.value}%`
+    if (v > 0 && save.muted) {
+      save.muted = false
+      setMuted(false)
+      document.querySelector('.tb-btn[aria-label="Volume"]')?.classList.remove('off')
+    }
+    persist()
+  }
+  row.append(slider)
+  return row
+}
+
 export function open(ctx: Ctx): Screen {
   const s = screenEl(ctx, 'Settings', { back: false, big: true })
   s.body.append(el('div', 'ifr-sec', 'Wallpaper'))
@@ -53,10 +78,11 @@ export function open(ctx: Ctx): Screen {
   draw()
   s.body.append(walls, el('div', 'ifr-sec', 'Sound'))
   s.body.append(
-    toggle('Game sound', !save.muted, (v) => {
-      save.muted = !v
+    volumeRow(),
+    toggle('Mute all sound', !!save.muted, (v) => {
+      save.muted = v
       setMuted(save.muted)
-      document.querySelector('.tb-btn[aria-label="Sound On/Off"]')?.classList.toggle('off', save.muted)
+      document.querySelector('.tb-btn[aria-label="Volume"]')?.classList.toggle('off', save.muted)
       persist()
     }),
     toggle('Notification sounds', !save.notifyOff, (v) => {

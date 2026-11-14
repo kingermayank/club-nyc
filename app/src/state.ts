@@ -26,6 +26,8 @@ export interface SaveState {
   visited: string[]
   room: string
   muted: boolean
+  /** master volume 0..1 (mute is separate); default sits below the old full-blast mix */
+  volume: number
   /** furniture placed in your apartment */
   furniture: PlacedFurniture[]
   /** furniture bought but not placed */
@@ -100,6 +102,7 @@ export const freshSave = (): SaveState => ({
   visited: [],
   room: 'times-square',
   muted: false,
+  volume: 0.7,
   furniture: [],
   storage: [],
   stats: {},
@@ -141,6 +144,8 @@ function load(): SaveState {
     if (raw) {
       const s = { ...freshSave(), ...JSON.parse(raw) } as SaveState
       for (const id of STARTER_ITEMS) if (!s.owned.includes(id)) s.owned.push(id)
+      if (typeof s.volume !== 'number' || Number.isNaN(s.volume)) s.volume = 0.7
+      s.volume = Math.max(0, Math.min(1, s.volume))
       shelve(s)
       return s
     }
