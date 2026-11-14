@@ -1,0 +1,44 @@
+/* NYCgram: phone photo feed + private gallery (features/nycgram) */
+.panel.nycgram { width: min(420px, 94%); padding: 14px 14px 16px; text-align: left; }
+.nyc-head { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding-right: 36px; }
+.nyc-head img { width: 72px; height: 72px; border-radius: 18px; border: 3px solid var(--ink); flex: none; background: #ff8a3d; }
+.nyc-head h2 { margin: 0; padding: 0; font-size: var(--fs-3xl); color: var(--ink); }
+.nyc-head p { margin: 2px 0 0; font-size: var(--fs-sm); opacity: 0.75; line-height: 1.3; }
+.nyc-tabs { display: flex; gap: 6px; margin: 0 0 10px; }
+.nyc-tabs button { flex: 1; padding: 7px 8px; border: 3px solid var(--ink); border-radius: 12px; background: #fff; font-family: var(--display); font-size: var(--fs-md); cursor: pointer; }
+.nyc-tabs button.on { background: linear-gradient(#ffe08a, #ffb347); box-shadow: 0 3px 0 var(--ink); }
+.nyc-feed, .nyc-gallery { display: flex; flex-direction: column; gap: 10px; max-height: min(420px, 58vh); overflow-y: auto; padding: 2px; }
+/* flex-shrink must stay 0: overflow:hidden would otherwise zero the min-size and squash every post */
+.nyc-post { flex: none; border: 3px solid var(--ink); border-radius: 16px; background: #fff; overflow: hidden; }
+.nyc-post-who { display: flex; align-items: center; gap: 8px; padding: 8px 10px 6px; }
+.nyc-post-who .tf-face, .nyc-post-who .nyc-face { width: 28px; height: 28px; border: 2px solid var(--ink); border-radius: 50%; overflow: hidden; background: #dde9ff; display: grid; place-items: center; flex: none; }
+.nyc-post-who .nyc-face svg { width: 140%; height: 140%; margin-top: 20%; }
+.nyc-post-who b { font: var(--fs-md) var(--display); font-weight: 400; }
+.nyc-post-who small { margin-left: auto; font-size: var(--fs-xs); opacity: 0.6; }
+.nyc-post img.nyc-shot { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #f3f1ea; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.nyc-post-cap { padding: 8px 10px 4px; font-size: var(--fs-md); line-height: 1.35; }
+.nyc-post-cap b { font-family: var(--display); font-weight: 400; }
+.nyc-post-acts { display: flex; align-items: center; gap: 8px; padding: 4px 8px 10px; }
+.nyc-like { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff7e8; font-family: var(--display); font-size: var(--fs-md); cursor: pointer; }
+.nyc-like img { width: 18px; height: 18px; }
+.nyc-like.on { background: linear-gradient(#ffe08a, #ff9f43); }
+.nyc-like:disabled { opacity: 0.55; cursor: default; }
+.nyc-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 12px; text-align: center; }
+.nyc-empty b { font: var(--fs-xl) var(--display); font-weight: 400; }
+.nyc-empty span { font-size: var(--fs-sm); opacity: 0.75; max-width: 280px; line-height: 1.4; }
+.nyc-end { border: 3px dashed var(--ink); border-radius: 16px; background: linear-gradient(#fff6d6, #ffe8a8); padding: 18px 14px; text-align: center; }
+.nyc-end b { display: block; font: var(--fs-xl) var(--display); font-weight: 400; margin-bottom: 6px; }
+.nyc-end span { display: block; font-size: var(--fs-sm); opacity: 0.8; margin-bottom: 12px; line-height: 1.4; }
+.nyc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.nyc-thumb { position: relative; aspect-ratio: 1; border: 2.5px solid var(--ink); border-radius: 12px; overflow: hidden; background: #f3f1ea; padding: 0; cursor: pointer; }
+.nyc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nyc-thumb .nyc-post-btn { position: absolute; left: 4px; right: 4px; bottom: 4px; padding: 3px 4px; border: 2px solid var(--ink); border-radius: 8px; background: #8be28b; font-family: var(--display); font-size: 11px; line-height: 1.1; }
+.nyc-detail { display: flex; flex-direction: column; gap: 8px; }
+.nyc-detail img { width: 100%; border-radius: 14px; border: 3px solid var(--ink); }
+.nyc-detail .nyc-acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.pop-menu .pm-nycgram { width: 20px; height: 20px; border-radius: 6px; vertical-align: -4px; margin-right: 2px; }
+.sf-print-actions { flex-wrap: wrap; }
+@media (max-width: 520px) {
+  .nyc-head img { width: 56px; height: 56px; border-radius: 14px; }
+  .nyc-feed, .nyc-gallery { max-height: min(360px, 52vh); }
+}

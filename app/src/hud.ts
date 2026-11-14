@@ -113,9 +113,13 @@ export function buildHud() {
   tb('map', 'Map', () => api.openMap(), 'M')
   tb('metrocard', 'Subway', () => api.openSubway(), 'U')
   tb('news', 'Club NYC Times', () => api.newspaper(), 'N')
-  // the phone: bring friends in, text the ones already here, and help (photo booths live in places now)
-  tb('phone', 'Phone: Invite & Text Friends', (b) =>
+  // the phone: NYCgram, selfies, friends, and help (photo booths live in places now)
+  tb('phone', 'Phone: NYCgram & Friends', (b) =>
     popMenu('phone', [
+      {
+        html: `<img class="pm-nycgram" src="/art/icons/nycgram.png.webp" alt="" width="20" height="20" onerror="this.src='/art/icons/nycgram.png'"> NYCgram`,
+        act: () => void import('./features/nycgram').then((m) => m.openNycgram()),
+      },
       // a selfie with the landmark here (the Bull, the bridge, Lady Liberty…)
       ...(SELFIE_SPOTS[world.room.id] ? [{ html: `📸 Selfie: ${SELFIE_SPOTS[world.room.id].title}<kbd>K</kbd>`, act: takeSelfie }] : []),
       { html: '💌 Invite Friends<kbd>I</kbd>', act: () => void import('./features/invite').then((m) => m.openInvite()) },

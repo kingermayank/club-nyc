@@ -161,14 +161,30 @@ export function openPhotoBooth(where = 'default') {
     const svg = stripSvg(people, where)
     box.querySelector('.pb-body')!.innerHTML = `<h2>Your Strip!</h2><div class="pb-strip">${svg.replace('<svg ', '<svg class="pb-strip-svg" ')}</div><div class="pb-actions"></div>`
     const bar = box.querySelector<HTMLElement>('.pb-actions')!
-    const dl = el('button', 'btn go', '⬇️ Save Photo')
+    const gallery = el('button', 'btn go', '📷 Gallery')
+    gallery.onclick = async () => {
+      const c = await toPng(svg)
+      void import('./nycgram').then((m) => m.saveToGallery(c, world.room.id, 'booth'))
+    }
+    bar.append(gallery)
+    const nyc = el('button', 'btn go', '🍕 NYCgram')
+    nyc.onclick = async () => {
+      nyc.disabled = true
+      const c = await toPng(svg)
+      const m = await import('./nycgram')
+      const g = await m.saveToGallery(c, world.room.id, 'booth')
+      if (g) await m.postToNycgram({ galleryId: g.id })
+      nyc.disabled = false
+    }
+    bar.append(nyc)
+    const dl = el('button', 'btn ghost', '⬇️ Download')
     dl.onclick = async () => {
       const c = await toPng(svg)
       const a = document.createElement('a')
       a.href = c.toDataURL('image/png')
       a.download = `club-nyc-photobooth-${Date.now()}.png`
       a.click()
-      toast('Saved! Post it and tag your friends 📸', '📸')
+      toast('Downloaded! Post it on NYCgram too 📸', '📸')
     }
     bar.append(dl)
     const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean }
